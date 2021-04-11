@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.util.StringUtils;
@@ -33,7 +34,7 @@ public final class IngredientInformation {
 		ITooltipFlag.TooltipFlags tooltipFlag = Config.getSearchAdvancedTooltips() ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL;
 		Minecraft minecraft = Minecraft.getMinecraft();
 		List<String> tooltip = ingredientRenderer.getTooltip(minecraft, ingredient, tooltipFlag);
-		List<String> cleanTooltip = new ArrayList<>(tooltip.size());
+		List<String> cleanTooltip = new ObjectArrayList<>(tooltip.size());
 		for (String line : tooltip) {
 			line = removeChatFormatting(line);
 			line = Translator.toLowercaseWithLocale(line);

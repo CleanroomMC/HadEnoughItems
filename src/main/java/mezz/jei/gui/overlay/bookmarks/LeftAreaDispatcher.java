@@ -2,10 +2,10 @@ package mezz.jei.gui.overlay.bookmarks;
 
 import javax.annotation.Nullable;
 import java.awt.Rectangle;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -23,7 +23,7 @@ public class LeftAreaDispatcher implements IShowsRecipeFocuses, IPaged {
 	private static final int BORDER_PADDING = 2;
 	private static final int NAVIGATION_HEIGHT = 20;
 
-	private final List<ILeftAreaContent> contents = new ArrayList<>();
+	private final List<ILeftAreaContent> contents = new ObjectArrayList<>();
 	private final GuiScreenHelper guiScreenHelper;
 	private int current = 0;
 	@Nullable

@@ -1,13 +1,13 @@
 package mezz.jei.suffixtree;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CombinedSearchTrees implements ISearchTree {
-	private final List<ISearchTree> searchTrees = new ArrayList<>();
+	private final List<ISearchTree> searchTrees = new ObjectArrayList<>();
 
 	@Override
 	public IntSet search(String word) {

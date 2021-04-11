@@ -2,6 +2,8 @@ package mezz.jei.api.recipe.transfer;
 
 import javax.annotation.Nullable;
 
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 
@@ -18,6 +20,10 @@ import mezz.jei.api.gui.IRecipeLayout;
  * To register your recipe transfer handler, use {@link IRecipeTransferRegistry#addRecipeTransferHandler(IRecipeTransferHandler, String)}.
  */
 public interface IRecipeTransferHandler<C extends Container> {
+
+	// indexes that do not fit into the player crafting grid
+	IntSet badSlotIndexes = new IntArraySet(new int[]{2, 5, 6, 7, 8});
+
 	/**
 	 * The container that this recipe transfer handler can use.
 	 */

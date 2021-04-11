@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentData;
 import net.minecraft.item.Item;
@@ -389,7 +391,7 @@ public class IngredientRegistry implements IIngredientRegistry {
 
 	private <V> Collection<EnchantmentData> hack_getBookEnchantmentData(IIngredientType<V> ingredientType, Collection<V> ingredients) {
 		if (ingredientType == VanillaTypes.ITEM) {
-			List<EnchantmentData> enchantmentData = new ArrayList<>();
+			List<EnchantmentData> enchantmentData = new ObjectArrayList<>();
 			for (Iterator<V> iterator = ingredients.iterator(); iterator.hasNext(); ) {
 				V ingredient = iterator.next();
 				ItemStack itemStack = VanillaTypes.ITEM.getIngredientClass().cast(ingredient);
@@ -401,7 +403,7 @@ public class IngredientRegistry implements IIngredientRegistry {
 			}
 			return enchantmentData;
 		}
-		return Collections.emptyList();
+		return ObjectLists.emptyList();
 	}
 
 	@Nullable

@@ -3,11 +3,11 @@ package mezz.jei.color;
 import javax.annotation.Nullable;
 import java.awt.Color;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import mezz.jei.util.Translator;
 
 public class ColorNamer {
@@ -18,7 +18,7 @@ public class ColorNamer {
 	}
 
 	public Collection<String> getColorNames(Iterable<Color> colors, boolean lowercase) {
-		final Set<String> allColorNames = new LinkedHashSet<>();
+		final Set<String> allColorNames = new ObjectLinkedOpenHashSet<>();
 		for (Color color : colors) {
 			final String colorName = getClosestColorName(color);
 			if (colorName != null) {
@@ -39,11 +39,11 @@ public class ColorNamer {
 		}
 
 		String closestColorName = null;
-		Double closestColorDistance = Double.MAX_VALUE;
+		double closestColorDistance = Double.MAX_VALUE;
 
 		for (Map.Entry<Color, String> entry : colorNames.entrySet()) {
 			final Color namedColor = entry.getKey();
-			final Double distance = ColorUtil.slowPerceptualColorDistanceSquared(namedColor, color);
+			final double distance = ColorUtil.slowPerceptualColorDistanceSquared(namedColor, color);
 			if (distance < closestColorDistance) {
 				closestColorDistance = distance;
 				closestColorName = entry.getValue();

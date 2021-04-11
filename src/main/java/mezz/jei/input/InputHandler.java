@@ -1,9 +1,9 @@
 package mezz.jei.input;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraft.client.Minecraft;
@@ -42,7 +42,7 @@ public class InputHandler {
 	private final IngredientListOverlay ingredientListOverlay;
 	private final LeftAreaDispatcher leftAreaDispatcher;
 	private final BookmarkList bookmarkList;
-	private final List<IShowsRecipeFocuses> showsRecipeFocuses = new ArrayList<>();
+	private final List<IShowsRecipeFocuses> showsRecipeFocuses = new ObjectArrayList<>();
 	private final IntSet clickHandled = new IntArraySet();
 
 	public InputHandler(JeiRuntime runtime, IngredientRegistry ingredientRegistry, IngredientListOverlay ingredientListOverlay, GuiScreenHelper guiScreenHelper, LeftAreaDispatcher leftAreaDispatcher, BookmarkList bookmarkList) {

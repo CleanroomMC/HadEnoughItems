@@ -1,16 +1,16 @@
 package mezz.jei.collect;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableTable;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class Table<R, C, V> {
 	public static <R, C, V> Table<R, C, V> hashBasedTable() {
-		return new Table<>(new HashMap<>(), HashMap::new);
+		return new Table<>(new Object2ObjectOpenHashMap<>(), Object2ObjectOpenHashMap::new);
 	}
 
 	private final Map<R, Map<C, V>> table;

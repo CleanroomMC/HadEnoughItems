@@ -1,13 +1,14 @@
 package mezz.jei.collect;
 
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class ListMultiMap<K, V> extends MultiMap<K, V, List<V>> {
 	public ListMultiMap() {
-		this(ArrayList::new);
+		this(ObjectArrayList::new);
 	}
 
 	public ListMultiMap(Supplier<List<V>> collectionSupplier) {

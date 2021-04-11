@@ -1,19 +1,17 @@
 package mezz.jei.startup;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
+import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -83,8 +81,8 @@ public class StackHelper implements IStackHelper {
 		MatchingItemsResult matchingItemResult = new MatchingItemsResult();
 
 		int recipeSlotNumber = -1;
-		SortedSet<Integer> keys = new TreeSet<>(ingredientsMap.keySet());
-		for (Integer key : keys) {
+		IntSet keys = new IntRBTreeSet(ingredientsMap.keySet());
+		for (int key : keys) {
 			IGuiIngredient<ItemStack> ingredient = ingredientsMap.get(key);
 			if (!ingredient.isInput()) {
 				continue;
@@ -105,7 +103,7 @@ public class StackHelper implements IStackHelper {
 				if (matchingStack.getCount() == 0) {
 					availableItemStacks.remove(matching);
 				}
-				matchingItemResult.matchingItems.put(recipeSlotNumber, matching);
+				matchingItemResult.matchingItems.put(recipeSlotNumber, (int) matching);
 			}
 		}
 
@@ -215,9 +213,9 @@ public class StackHelper implements IStackHelper {
 			return Collections.emptyList();
 		}
 		if (matchingStacks.length > 0) {
-			return Arrays.asList(matchingStacks);
+			return new ObjectArrayList<>(matchingStacks);
 		}
-		return getAllSubtypes(Arrays.asList(ingredient.matchingStacks));
+		return getAllSubtypes(new ObjectArrayList<>(ingredient.matchingStacks));
 	}
 
 	@Override
@@ -291,7 +289,7 @@ public class StackHelper implements IStackHelper {
 			return Collections.emptyList();
 		}
 
-		List<ItemStack> allSubtypes = new ArrayList<>();
+		List<ItemStack> allSubtypes = new ObjectArrayList<>();
 		addSubtypesToList(allSubtypes, stacks);
 
 		if (isAllNulls(allSubtypes)) {
@@ -341,7 +339,7 @@ public class StackHelper implements IStackHelper {
 	}
 
 	public List<List<ItemStack>> expandRecipeItemStackInputs(List inputs, boolean expandSubtypes) {
-		List<List<ItemStack>> expandedInputs = new ArrayList<>();
+		List<List<ItemStack>> expandedInputs = new ObjectArrayList<>();
 		for (Object input : inputs) {
 			List<ItemStack> expandedInput = toItemStackList(input, expandSubtypes);
 			expandedInputs.add(expandedInput);
@@ -457,12 +455,12 @@ public class StackHelper implements IStackHelper {
 	}
 
 	public enum UidMode {
-		NORMAL, WILDCARD, FULL
+		NORMAL, WILDCARD, FULL;
 	}
 
 	public static class MatchingItemsResult {
-		public final Map<Integer, Integer> matchingItems = new HashMap<>();
-		public final List<Integer> missingItems = new ArrayList<>();
+		public final Int2IntMap matchingItems = new Int2IntOpenHashMap();
+		public final IntList missingItems = new IntArrayList();
 	}
 
 	private interface ItemStackMatchable<R> {

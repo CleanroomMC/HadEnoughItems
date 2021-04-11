@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
@@ -52,23 +55,23 @@ import mezz.jei.util.Log;
 public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 	private final IJeiHelpers jeiHelpers;
 	private final IIngredientRegistry ingredientRegistry;
-	private final List<IRecipeCategory> recipeCategories = new ArrayList<>();
-	private final Set<String> recipeCategoryUids = new HashSet<>();
+	private final List<IRecipeCategory> recipeCategories = new ObjectArrayList<>();
+	private final Set<String> recipeCategoryUids = new ObjectOpenHashSet<>();
 	@Deprecated
-	private final List<IRecipeHandler> unsortedRecipeHandlers = new ArrayList<>();
+	private final List<IRecipeHandler> unsortedRecipeHandlers = new ObjectArrayList<>();
 	private final ListMultiMap<String, IRecipeHandler> recipeHandlers = new ListMultiMap<>();
 	private final SetMultiMap<String, Class> recipeHandlerClasses = new SetMultiMap<>();
-	private final List<IAdvancedGuiHandler<?>> advancedGuiHandlers = new ArrayList<>();
-	private final List<IGlobalGuiHandler> globalGuiHandlers = new ArrayList<>();
-	private final Map<Class, IGuiScreenHandler> guiScreenHandlers = new HashMap<>();
-	private final Map<Class, IGhostIngredientHandler> ghostIngredientHandlers = new HashMap<>();
+	private final List<IAdvancedGuiHandler<?>> advancedGuiHandlers = new ObjectArrayList<>();
+	private final List<IGlobalGuiHandler> globalGuiHandlers = new ObjectArrayList<>();
+	private final Map<Class, IGuiScreenHandler> guiScreenHandlers = new Object2ObjectOpenHashMap<>();
+	private final Map<Class, IGhostIngredientHandler> ghostIngredientHandlers = new Object2ObjectOpenHashMap<>();
 	@Deprecated
-	private final List<Object> unsortedRecipes = new ArrayList<>();
+	private final List<Object> unsortedRecipes = new ObjectArrayList<>();
 	private final ListMultiMap<String, Object> recipes = new ListMultiMap<>();
 	private final RecipeTransferRegistry recipeTransferRegistry;
 	private final ListMultiMap<Class<? extends GuiContainer>, RecipeClickableArea> recipeClickableAreas = new ListMultiMap<>();
 	private final ListMultiMap<String, Object> recipeCatalysts = new ListMultiMap<>();
-	private final List<IRecipeRegistryPlugin> recipeRegistryPlugins = new ArrayList<>();
+	private final List<IRecipeRegistryPlugin> recipeRegistryPlugins = new ObjectArrayList<>();
 
 	public ModRegistry(JeiHelpers jeiHelpers, IIngredientRegistry ingredientRegistry) {
 		this.jeiHelpers = jeiHelpers;

@@ -3,6 +3,8 @@ package mezz.jei.startup;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import mezz.jei.util.ErrorUtil;
 import net.minecraftforge.fml.common.ProgressManager;
@@ -87,9 +89,17 @@ public class JeiStarter {
 
 		timer.start("Building ingredient filter");
 		IngredientFilter ingredientFilter = new IngredientFilter(blacklist);
-		ingredientFilter.addIngredients(ingredientList);
 		Internal.setIngredientFilter(ingredientFilter);
 		timer.stop();
+
+		ExecutorService offthreadService = Executors.newSingleThreadExecutor();
+
+		offthreadService.execute(() -> {
+			LoggedTimer offthreadTimer = new LoggedTimer();
+			offthreadTimer.start("Offthread: Populating ingredient filter");
+			ingredientFilter.addIngredients(ingredientList);
+			offthreadTimer.stop();
+		});
 
 		timer.start("Building bookmarks");
 		BookmarkList bookmarkList = new BookmarkList(ingredientRegistry);
@@ -114,12 +124,16 @@ public class JeiStarter {
 
 		sendRuntime(plugins, jeiRuntime);
 
-		// Some mods insist on adding ingredients at runtime, so we cannot optimize memory usage earlier than that.
 		if (Config.isOptimizeMemoryUsage()) {
-			timer.start("Optimizing memory usage");
-			ingredientFilter.trimToSize();
-			timer.stop();
+			offthreadService.execute(() -> {
+				LoggedTimer offthreadTimer = new LoggedTimer();
+				offthreadTimer.start("Offthread: Optimizing memory usage");
+				ingredientFilter.trimToSize();
+				offthreadTimer.stop();
+			});
 		}
+
+		offthreadService.shutdown();
 
 		LeftAreaDispatcher leftAreaDispatcher = new LeftAreaDispatcher(guiScreenHelper);
 		leftAreaDispatcher.addContent(bookmarkOverlay);

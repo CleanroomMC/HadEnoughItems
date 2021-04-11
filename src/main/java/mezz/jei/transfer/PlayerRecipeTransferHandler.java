@@ -1,19 +1,16 @@
 package mezz.jei.transfer;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import com.google.common.collect.ImmutableSet;
 import mezz.jei.Internal;
 import mezz.jei.JustEnoughItems;
 import mezz.jei.api.gui.IGuiIngredient;
@@ -59,12 +56,12 @@ public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<Conta
 			return handlerHelper.createInternalError();
 		}
 
-		Map<Integer, Slot> inventorySlots = new HashMap<>();
+		Map<Integer, Slot> inventorySlots = new Int2ObjectRBTreeMap<>();
 		for (Slot slot : transferHelper.getInventorySlots(container)) {
 			inventorySlots.put(slot.slotNumber, slot);
 		}
 
-		Map<Integer, Slot> craftingSlots = new HashMap<>();
+		Map<Integer, Slot> craftingSlots = new Int2ObjectRBTreeMap<>();
 		for (Slot slot : transferHelper.getRecipeSlots(container)) {
 			craftingSlots.put(slot.slotNumber, slot);
 		}
@@ -72,15 +69,13 @@ public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<Conta
 		IGuiItemStackGroup itemStackGroup = recipeLayout.getItemStacks();
 		int inputCount = 0;
 		{
-			// indexes that do not fit into the player crafting grid
-			Set<Integer> badIndexes = ImmutableSet.of(2, 5, 6, 7, 8);
 
 			int inputIndex = 0;
 			for (IGuiIngredient<ItemStack> ingredient : itemStackGroup.getGuiIngredients().values()) {
 				if (ingredient.isInput()) {
 					if (!ingredient.getAllIngredients().isEmpty()) {
 						inputCount++;
-						if (badIndexes.contains(inputIndex)) {
+						if (badSlotIndexes.contains(inputIndex)) {
 							String tooltipMessage = Translator.translateToLocal("jei.tooltip.error.recipe.transfer.too.large.player.inventory");
 							return handlerHelper.createUserErrorWithTooltip(tooltipMessage);
 						}
@@ -91,7 +86,7 @@ public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<Conta
 		}
 
 		// compact the crafting grid into a 2x2 area
-		List<IGuiIngredient<ItemStack>> guiIngredients = new ArrayList<>();
+		List<IGuiIngredient<ItemStack>> guiIngredients = new ObjectArrayList<>();
 		for (IGuiIngredient<ItemStack> guiIngredient : itemStackGroup.getGuiIngredients().values()) {
 			if (guiIngredient.isInput()) {
 				guiIngredients.add(guiIngredient);
@@ -108,7 +103,7 @@ public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<Conta
 			}
 		}
 
-		Map<Integer, ItemStack> availableItemStacks = new HashMap<>();
+		Map<Integer, ItemStack> availableItemStacks = new Int2ObjectOpenHashMap<>();
 		int filledCraftSlotCount = 0;
 		int emptySlotCount = 0;
 
@@ -147,15 +142,15 @@ public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<Conta
 			return handlerHelper.createUserErrorForSlots(message, matchingItemsResult.missingItems);
 		}
 
-		List<Integer> craftingSlotIndexes = new ArrayList<>(craftingSlots.keySet());
-		Collections.sort(craftingSlotIndexes);
+		List<Integer> craftingSlotIndexes = new IntArrayList(craftingSlots.keySet());
+		// Collections.sort(craftingSlotIndexes);
 
-		List<Integer> inventorySlotIndexes = new ArrayList<>(inventorySlots.keySet());
-		Collections.sort(inventorySlotIndexes);
+		List<Integer> inventorySlotIndexes = new IntArrayList(inventorySlots.keySet());
+		// Collections.sort(inventorySlotIndexes);
 
 		// check that the slots exist and can be altered
-		for (Map.Entry<Integer, Integer> entry : matchingItemsResult.matchingItems.entrySet()) {
-			int craftNumber = entry.getKey();
+		for (Int2IntMap.Entry entry : matchingItemsResult.matchingItems.int2IntEntrySet()) {
+			int craftNumber = entry.getIntKey();
 			int slotNumber = craftingSlotIndexes.get(craftNumber);
 			if (slotNumber < 0 || slotNumber >= container.inventorySlots.size()) {
 				Log.get().error("Recipes Transfer Helper {} references slot {} outside of the inventory's size {}", transferHelper.getClass(), slotNumber, container.inventorySlots.size());

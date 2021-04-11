@@ -7,6 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectRBTreeMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
@@ -54,12 +58,12 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeT
 			return handlerHelper.createInternalError();
 		}
 
-		Map<Integer, Slot> inventorySlots = new HashMap<>();
+		Map<Integer, Slot> inventorySlots = new Int2ObjectRBTreeMap<>();
 		for (Slot slot : transferHelper.getInventorySlots(container)) {
 			inventorySlots.put(slot.slotNumber, slot);
 		}
 
-		Map<Integer, Slot> craftingSlots = new HashMap<>();
+		Map<Integer, Slot> craftingSlots = new Int2ObjectRBTreeMap<>();
 		for (Slot slot : transferHelper.getRecipeSlots(container)) {
 			craftingSlots.put(slot.slotNumber, slot);
 		}
@@ -77,7 +81,7 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeT
 			return handlerHelper.createInternalError();
 		}
 
-		Map<Integer, ItemStack> availableItemStacks = new HashMap<>();
+		Map<Integer, ItemStack> availableItemStacks = new Int2ObjectOpenHashMap<>();
 		int filledCraftSlotCount = 0;
 		int emptySlotCount = 0;
 
@@ -115,15 +119,15 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeT
 			return handlerHelper.createUserErrorForSlots(message, matchingItemsResult.missingItems);
 		}
 
-		List<Integer> craftingSlotIndexes = new ArrayList<>(craftingSlots.keySet());
-		Collections.sort(craftingSlotIndexes);
+		List<Integer> craftingSlotIndexes = new IntArrayList(craftingSlots.keySet());
+		// Collections.sort(craftingSlotIndexes);
 
-		List<Integer> inventorySlotIndexes = new ArrayList<>(inventorySlots.keySet());
-		Collections.sort(inventorySlotIndexes);
+		List<Integer> inventorySlotIndexes = new IntArrayList(inventorySlots.keySet());
+		// Collections.sort(inventorySlotIndexes);
 
 		// check that the slots exist and can be altered
-		for (Map.Entry<Integer, Integer> entry : matchingItemsResult.matchingItems.entrySet()) {
-			int craftNumber = entry.getKey();
+		for (Int2IntMap.Entry entry : matchingItemsResult.matchingItems.int2IntEntrySet()) {
+			int craftNumber = entry.getIntKey();
 			int slotNumber = craftingSlotIndexes.get(craftNumber);
 			if (slotNumber < 0 || slotNumber >= container.inventorySlots.size()) {
 				Log.get().error("Recipes Transfer Helper {} references slot {} outside of the inventory's size {}", transferHelper.getClass(), slotNumber, container.inventorySlots.size());

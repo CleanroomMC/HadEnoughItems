@@ -1,9 +1,9 @@
 package mezz.jei.startup;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 
 import mezz.jei.api.IModPlugin;
@@ -22,7 +22,7 @@ public final class AnnotatedInstanceUtil {
 	private static <T> List<T> getInstances(ASMDataTable asmDataTable, Class annotationClass, Class<T> instanceClass) {
 		String annotationClassName = annotationClass.getCanonicalName();
 		Set<ASMDataTable.ASMData> asmDatas = asmDataTable.getAll(annotationClassName);
-		List<T> instances = new ArrayList<>();
+		List<T> instances = new ObjectArrayList<>();
 		for (ASMDataTable.ASMData asmData : asmDatas) {
 			try {
 				Class<?> asmClass = Class.forName(asmData.getClassName());
