@@ -15,6 +15,8 @@
  */
 package mezz.jei.suffixtree;
 
+import java.io.Serializable;
+
 /**
  * Represents an Edge in the Suffix Tree.
  * It has a label and a destination Node
@@ -23,8 +25,15 @@ package mezz.jei.suffixtree;
  * - formatting
  */
 class Edge {
-	private String label;
+
 	private final Node dest;
+
+	private String label;
+
+	public Edge(String label, Node dest) {
+		this.label = label;
+		this.dest = dest;
+	}
 
 	public String getLabel() {
 		return label;
@@ -38,13 +47,20 @@ class Edge {
 		return dest;
 	}
 
-	public Edge(String label, Node dest) {
-		this.label = label;
-		this.dest = dest;
-	}
-
 	@Override
 	public String toString() {
 		return "Edge: " + label;
 	}
+
+	public static class SerializableEdge implements Serializable {
+
+		final String label;
+		final int destNode;
+
+		public SerializableEdge(Edge edge, int destNode) {
+			this.label = edge.label;
+			this.destNode = destNode;
+		}
+	}
+
 }

@@ -16,13 +16,17 @@
 package mezz.jei.suffixtree;
 
 import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Objects;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap;
+import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
+import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.objects.*;
 
 /**
  * A Generalized Suffix Tree, based on the Ukkonen's paper "On-line construction of suffix trees"
@@ -65,15 +69,17 @@ import it.unimi.dsi.fastutil.ints.IntSet;
  */
 public class GeneralizedSuffixTree implements ISearchTree {
 
-	private int highestIndex = -1;
+	public transient boolean deserialized = false;
+
+	transient int highestIndex = -1;
 	/**
 	 * The root of the suffix tree
 	 */
-	private final Node root = new Node();
+	transient Node root = new Node(); // final
 	/**
 	 * The last leaf that was added during the update operation
 	 */
-	private Node activeLeaf = root;
+	transient Node activeLeaf = root;
 
 	/**
 	 * Searches for the given word within the GST.
@@ -90,7 +96,6 @@ public class GeneralizedSuffixTree implements ISearchTree {
 		if (tmpNode == null) {
 			return new IntOpenHashSet();
 		}
-
 		IntSet ret = new IntOpenHashSet(1000);
 		tmpNode.getData(ret);
 		return ret;
@@ -123,7 +128,6 @@ public class GeneralizedSuffixTree implements ISearchTree {
 					// the label on the edge does not correspond to the one in the string to search
 					return null;
 				}
-
 				if (label.length() >= word.length() - i) {
 					return currentEdge.getDest();
 				} else {
@@ -133,7 +137,6 @@ public class GeneralizedSuffixTree implements ISearchTree {
 				}
 			}
 		}
-
 		return null;
 	}
 
@@ -152,7 +155,6 @@ public class GeneralizedSuffixTree implements ISearchTree {
 		} else {
 			highestIndex = index;
 		}
-
 		// reset activeLeaf
 		activeLeaf = root;
 
@@ -271,7 +273,7 @@ public class GeneralizedSuffixTree implements ISearchTree {
 	private Pair<Node, String> canonize(final Node s, final String inputstr) {
 
 		if ("".equals(inputstr)) {
-			return new Pair<>(s, inputstr);
+			return new Pair<>(s, "");
 		} else {
 			Node currentNode = s;
 			String str = inputstr;
@@ -393,14 +395,57 @@ public class GeneralizedSuffixTree implements ISearchTree {
 		while (!nodes.isEmpty()) {
 			Node node = nodes.remove();
 			node.trimToSize();
-			Node suffix = node.getSuffix();
-			if (suffix != null) {
-				suffix.trimToSize();
-			}
 			for (Edge edge : node.edges()) {
 				nodes.add(edge.getDest());
 			}
 		}
+	}
+
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeInt(highestIndex);
+		Reference2IntSortedMap<Node> nodeMapping = new Reference2IntLinkedOpenHashMap<>(512);
+		int nodeMappingId = 0;
+		ArrayDeque<Node> nodes = new ArrayDeque<>(128);
+		nodes.add(root);
+		while (!nodes.isEmpty()) {
+			Node node = nodes.remove();
+			nodeMapping.put(node, nodeMappingId++);
+			for (Edge edge : node.edges()) {
+				nodes.add(edge.getDest());
+			}
+		}
+		List<Node.SerializableNode> serializableNodes = new ObjectArrayList<>(nodeMapping.size());
+		for (Reference2IntMap.Entry<Node> entry : nodeMapping.reference2IntEntrySet()) {
+			Node node = entry.getKey();
+			Node.SerializableNode sn = new Node.SerializableNode(node, nodeMapping::getInt);
+			sn.selfId = nodeMapping.getInt(entry.getIntValue());
+			Node suffix = node.getSuffix();
+			sn.suffixId = (suffix == null ? -1 : nodeMapping.getInt(suffix));
+			serializableNodes.add(sn);
+		}
+		out.writeObject(serializableNodes);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		highestIndex = in.readInt();
+		List<Node.SerializableNode> deserializableNodes = (List<Node.SerializableNode>) in.readObject();
+		List<Node> nodeMapping = Stream.generate(Node::new).limit(deserializableNodes.size()).collect(Collectors.toList());
+		for (int i = 0; i < nodeMapping.size(); i++) {
+			Node.SerializableNode sn = deserializableNodes.get(i);
+			Node n = nodeMapping.get(i);
+			n.data = sn.data;
+			n.suffix = sn.suffixId == -1 ? null : nodeMapping.get(sn.suffixId);
+			n.edges = new Char2ObjectArrayMap<>(sn.edges.size());
+			for (Char2ObjectMap.Entry<Edge.SerializableEdge> entry : sn.edges.char2ObjectEntrySet()) {
+				Edge.SerializableEdge se = entry.getValue();
+				n.edges.put(entry.getCharKey(), new Edge(se.label, nodeMapping.get(se.destNode)));
+			}
+		}
+		root = nodeMapping.get(0);
+		deserialized = true;
 	}
 
 	/**

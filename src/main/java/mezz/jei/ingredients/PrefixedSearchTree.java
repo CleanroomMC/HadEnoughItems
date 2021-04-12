@@ -7,14 +7,20 @@ import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.suffixtree.GeneralizedSuffixTree;
 
 class PrefixedSearchTree {
+	private final String id;
 	private final GeneralizedSuffixTree tree;
 	private final IStringsGetter stringsGetter;
 	private final IModeGetter modeGetter;
 
-	public PrefixedSearchTree(GeneralizedSuffixTree tree, IStringsGetter stringsGetter, IModeGetter modeGetter) {
+	public PrefixedSearchTree(String id, GeneralizedSuffixTree tree, IStringsGetter stringsGetter, IModeGetter modeGetter) {
+		this.id = id;
 		this.tree = tree;
 		this.stringsGetter = stringsGetter;
 		this.modeGetter = modeGetter;
+	}
+
+	public String getId() {
+		return id;
 	}
 
 	public GeneralizedSuffixTree getTree() {

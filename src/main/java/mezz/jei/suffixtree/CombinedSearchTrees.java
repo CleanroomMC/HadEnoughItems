@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CombinedSearchTrees implements ISearchTree {
-	private final List<ISearchTree> searchTrees = new ObjectArrayList<>();
+	private transient final List<ISearchTree> searchTrees = new ObjectArrayList<>();
 
 	@Override
 	public IntSet search(String word) {

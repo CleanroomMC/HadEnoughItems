@@ -98,6 +98,7 @@ public class JeiStarter {
 			LoggedTimer offthreadTimer = new LoggedTimer();
 			offthreadTimer.start("Offthread: Populating ingredient filter");
 			ingredientFilter.addIngredients(ingredientList);
+			ingredientFilter.saveSearchTrees();
 			offthreadTimer.stop();
 		});
 

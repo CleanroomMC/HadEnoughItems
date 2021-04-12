@@ -2,6 +2,8 @@ package mezz.jei.suffixtree;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 
-public interface ISearchTree {
+import java.io.Serializable;
+
+public interface ISearchTree extends Serializable {
 	IntSet search(String word);
 }

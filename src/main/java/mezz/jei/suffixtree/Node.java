@@ -20,15 +20,12 @@ import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMaps;
-import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import mezz.jei.util.Log;
 
-import java.util.Collection;
-import java.util.Map;
+import java.io.Serializable;
+import java.util.function.Function;
 
 /**
  * Represents a node of the generalized suffix tree graph
@@ -42,34 +39,33 @@ import java.util.Map;
  * - add nullable/nonnull annotations
  * - formatting
  */
-class Node {
+public class Node {
 
 	/**
 	 * The payload array used to store the data (indexes) associated with this node.
 	 * In this case, it is used to store all property indexes.
 	 */
-	private final IntList data;
+	int[] data;
 
 	/**
 	 * The set of edges starting from this node
 	 */
-	private Char2ObjectMap<Edge> edges;
+	Char2ObjectMap<Edge> edges;
 
 	/**
 	 * The suffix link as described in Ukkonen's paper.
 	 * if str is the string denoted by the path from the root to this, this.suffix
 	 * is the node denoted by the path that corresponds to str without the first char.
 	 */
-	@Nullable
-	private Node suffix;
+	@Nullable Node suffix;
 
 	/**
 	 * Creates a new Node
 	 */
-	Node() {
-		edges = new Char2ObjectOpenHashMap<>();
+	public Node() {
+		edges = new Char2ObjectArrayMap<>();
 		suffix = null;
-		data = new IntArrayList(0);
+		data = new int[0];
 	}
 
 	/**
@@ -77,8 +73,9 @@ class Node {
 	 * of the path to this node is a substring of the one of the children nodes.
 	 */
 	void getData(final IntSet ret) {
-		ret.addAll(data);
-
+		for (int d : data) {
+			ret.add(d);
+		}
 		for (Edge e : edges.values()) {
 			e.getDest().getData(ret);
 		}
@@ -116,7 +113,12 @@ class Node {
 	 * @return true <tt>this</tt> contains a reference to index
 	 */
 	private boolean contains(int index) {
-		return data.contains(index);
+		for (int d : data) {
+			if (d == index) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void addEdge(char ch, Edge e) {
@@ -124,8 +126,8 @@ class Node {
 			edges.put(ch, e);
 		} catch (UnsupportedOperationException ex) {
 			// after trimToSize() call - fall back
-			Log.get().warn("Mod added a tree entry after memory optimization!", ex);
-			edges = new Char2ObjectOpenHashMap<>(edges);
+			edges = new Char2ObjectArrayMap<>(edges);
+			Log.get().debug("Mod added a tree entry after memory optimization!", ex);
 			edges.put(ch, e);
 		}
 	}
@@ -145,35 +147,53 @@ class Node {
 	}
 
 	private void addIndex(int index) {
-		data.add(index);
+		int oldLength = data.length;
+		int[] newData = new int[oldLength + 1];
+		for (int i = 0; i < oldLength; i++) {
+			newData[i] = data[i];
+		}
+		newData[oldLength] = index;
+		data = newData;
 	}
 
+	/*
 	@Override
 	public String toString() {
-		return "Node: size:" + data.size() + " Edges: " + edges.toString();
+		return "Node: size:" + data.length + " Edges: " + edges.toString();
 	}
+	 */
 
 	ObjectCollection<Edge> edges() {
 		return edges.values();
 	}
 
 	void trimToSize() {
-		if (data instanceof IntArrayList) {
-			((IntArrayList) data).trim();
-		}
 		switch (edges.size()) {
 			case 0:
 				edges = Char2ObjectMaps.emptyMap();
 				break;
 			case 1:
-				Map.Entry<Character, Edge> entry = edges.entrySet().iterator().next();
-				edges = Char2ObjectMaps.singleton(entry.getKey(), entry.getValue());
-				break;
-			case 2:
-			case 3:
-			case 4:
-				edges = new Char2ObjectArrayMap<>(edges);
+				Char2ObjectMap.Entry<Edge> entry = edges.char2ObjectEntrySet().iterator().next();
+				edges = Char2ObjectMaps.singleton(entry.getCharKey(), entry.getValue());
 				break;
 		}
 	}
+
+	public static class SerializableNode implements Serializable {
+
+		int[] data;
+		Char2ObjectMap<Edge.SerializableEdge> edges;
+		int selfId;
+		int suffixId;
+
+		public SerializableNode(Node node, Function<Node, Integer> edgeDestNodeFunction) {
+			this.data = node.data;
+			this.edges = new Char2ObjectArrayMap<>(node.edges.size());
+			node.edges.char2ObjectEntrySet().forEach(e -> {
+				Edge edge = e.getValue();
+				this.edges.put(e.getCharKey(), new Edge.SerializableEdge(edge, edgeDestNodeFunction.apply(edge.getDest())));
+			});
+		}
+	}
+
 }

@@ -1,6 +1,7 @@
 package mezz.jei.ingredients;
 
 import javax.annotation.Nullable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,9 +9,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.common.base.Stopwatch;
+import mezz.jei.util.Log;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.util.NonNullList;
@@ -33,10 +40,50 @@ import mezz.jei.suffixtree.GeneralizedSuffixTree;
 import mezz.jei.suffixtree.ISearchTree;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Translator;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class IngredientFilter implements IIngredientFilter, IIngredientGridSource {
+	// public static boolean deserializing = false;
+
 	private static final Pattern QUOTE_PATTERN = Pattern.compile("\"");
 	private static final Pattern FILTER_SPLIT_PATTERN = Pattern.compile("(-?\".*?(?:\"|$)|\\S+)");
+
+	public static void serializeSearchTree(String searchTreeIdentifier, ISearchTree searchTree) {
+		File cacheFolder = new File(Launch.minecraftHome, "cache");
+		cacheFolder.mkdir();
+		File saveFile = new File(cacheFolder, "jei-" + searchTreeIdentifier + "_search_tree.bin");
+		try {
+			Stopwatch stopwatch = Stopwatch.createStarted();
+			FileOutputStream fileOutputStream = new FileOutputStream(saveFile);
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+			objectOutputStream.writeObject(searchTree);
+			objectOutputStream.close();
+			fileOutputStream.close();
+			Log.get().info("{} Search Tree took {} to be serialized.", searchTreeIdentifier, stopwatch.stop());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static <T extends ISearchTree> T deserializeSearchTree(String searchTreeIdentifier, Supplier<T> createTree) {
+		File cacheFolder = new File(Launch.minecraftHome, "cache");
+		cacheFolder.mkdir();
+		File saveFile = new File(cacheFolder, "jei-" + searchTreeIdentifier + "_search_tree.bin");
+		if (saveFile.exists()) {
+			try {
+				Log.get().info("Deserializing {} Search Tree!", searchTreeIdentifier);
+				FileInputStream fileInputStream = new FileInputStream(saveFile);
+				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+				ISearchTree tree = (ISearchTree) objectInputStream.readObject();
+				objectInputStream.close();
+				fileInputStream.close();
+				return (T) tree;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return createTree.get();
+	}
 
 	private final IngredientBlacklistInternal blacklist;
 	/**
@@ -45,8 +92,9 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	 */
 	private final NonNullList<IIngredientListElement> elementList;
 	private final GeneralizedSuffixTree searchTree;
-	private final Char2ObjectMap<PrefixedSearchTree> prefixedSearchTrees = new Char2ObjectOpenHashMap<>();
+	private final Char2ObjectMap<PrefixedSearchTree> prefixedSearchTrees = new Char2ObjectOpenHashMap<>(6);
 	private final IngredientFilterBackgroundBuilder backgroundBuilder;
+
 	private CombinedSearchTrees combinedSearchTrees;
 
 	@Nullable
@@ -57,16 +105,54 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public IngredientFilter(IngredientBlacklistInternal blacklist) {
 		this.blacklist = blacklist;
 		this.elementList = NonNullList.create();
-		this.searchTree = new GeneralizedSuffixTree();
-		createPrefixedSearchTree('@', Config::getModNameSearchMode, IIngredientListElement::getModNameStrings);
-		createPrefixedSearchTree('#', Config::getTooltipSearchMode, IIngredientListElement::getTooltipStrings);
-		createPrefixedSearchTree('$', Config::getOreDictSearchMode, IIngredientListElement::getOreDictStrings);
-		createPrefixedSearchTree('%', Config::getCreativeTabSearchMode, IIngredientListElement::getCreativeTabsStrings);
-		createPrefixedSearchTree('^', Config::getColorSearchMode, IIngredientListElement::getColorStrings);
-		createPrefixedSearchTree('&', Config::getResourceIdSearchMode, element -> Collections.singleton(element.getResourceId()));
-
+		this.searchTree = buildSearchTrees();
 		this.combinedSearchTrees = buildCombinedSearchTrees(this.searchTree, this.prefixedSearchTrees.values());
 		this.backgroundBuilder = new IngredientFilterBackgroundBuilder(prefixedSearchTrees, elementList);
+	}
+
+	private GeneralizedSuffixTree buildSearchTrees() {
+		List<Pair<String, GeneralizedSuffixTree>> trees = Stream.of("main", "mod_name", "tooltip", "oredict", "creative_tabs", "colour", "id")
+				.parallel().map(key -> Pair.of(key, deserializeSearchTree(key, GeneralizedSuffixTree::new))).collect(Collectors.toList());
+		GeneralizedSuffixTree mainTree = null;
+		for (Pair<String, GeneralizedSuffixTree> pair : trees) {
+			String key = pair.getLeft();
+			switch (key) {
+				case "mod_name":
+					createPrefixedSearchTree(key, pair.getRight(), '@', Config::getModNameSearchMode, IIngredientListElement::getModNameStrings);
+					break;
+				case "tooltip":
+					createPrefixedSearchTree(key, pair.getRight(), '#', Config::getTooltipSearchMode, IIngredientListElement::getTooltipStrings);
+					break;
+				case "oredict":
+					createPrefixedSearchTree(key, pair.getRight(), '$', Config::getOreDictSearchMode, IIngredientListElement::getOreDictStrings);
+					break;
+				case "creative_tabs":
+					createPrefixedSearchTree(key, pair.getRight(), '%', Config::getCreativeTabSearchMode, IIngredientListElement::getCreativeTabsStrings);
+					break;
+				case "colour":
+					createPrefixedSearchTree(key, pair.getRight(), '^', Config::getColorSearchMode, IIngredientListElement::getColorStrings);
+					break;
+				case "id":
+					createPrefixedSearchTree(key, pair.getRight(), '&', Config::getResourceIdSearchMode, element -> Collections.singleton(element.getResourceId()));
+					break;
+				case "main":
+					mainTree = pair.getRight();
+			}
+		}
+		return mainTree;
+	}
+
+	public void saveSearchTrees() {
+		Stream.Builder<Runnable> builder = Stream.builder();
+		if (!this.searchTree.deserialized) {
+			builder.add(() -> serializeSearchTree("main", this.searchTree));
+		}
+		for (PrefixedSearchTree tree : this.prefixedSearchTrees.values()) {
+			if (!tree.getTree().deserialized) {
+				builder.add(() -> serializeSearchTree(tree.getId(), tree.getTree()));
+			}
+		}
+		builder.build().parallel().forEach(Runnable::run);
 	}
 
 	private static CombinedSearchTrees buildCombinedSearchTrees(ISearchTree searchTree, Collection<PrefixedSearchTree> prefixedSearchTrees) {
@@ -80,16 +166,19 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		return combinedSearchTrees;
 	}
 
-	private void createPrefixedSearchTree(char prefix, PrefixedSearchTree.IModeGetter modeGetter, PrefixedSearchTree.IStringsGetter stringsGetter) {
-		GeneralizedSuffixTree tree = new GeneralizedSuffixTree();
-		PrefixedSearchTree prefixedTree = new PrefixedSearchTree(tree, stringsGetter, modeGetter);
+	private void createPrefixedSearchTree(String id, GeneralizedSuffixTree tree, char prefix, PrefixedSearchTree.IModeGetter modeGetter, PrefixedSearchTree.IStringsGetter stringsGetter) {
+		PrefixedSearchTree prefixedTree = new PrefixedSearchTree(id, tree, stringsGetter, modeGetter);
 		this.prefixedSearchTrees.put(prefix, prefixedTree);
 	}
 
 	public void trimToSize() {
-		searchTree.trimToSize();
+		if (!searchTree.deserialized) {
+			searchTree.trimToSize();
+		}
 		for (PrefixedSearchTree tree : prefixedSearchTrees.values()) {
-			tree.getTree().trimToSize();
+			if (!tree.getTree().deserialized) {
+				tree.getTree().trimToSize();
+			}
 		}
 	}
 
@@ -116,18 +205,18 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		updateHiddenState(element);
 		final int index = elementList.size();
 		elementList.add(element);
-		searchTree.put(Translator.toLowercaseWithLocale(element.getDisplayName()), index);
-
+		if (!searchTree.deserialized) {
+			searchTree.put(Translator.toLowercaseWithLocale(element.getDisplayName()), index);
+		}
 		for (PrefixedSearchTree prefixedSearchTree : this.prefixedSearchTrees.values()) {
-			Config.SearchMode searchMode = prefixedSearchTree.getMode();
-			if (searchMode != Config.SearchMode.DISABLED) {
-				Collection<String> strings = prefixedSearchTree.getStringsGetter().getStrings(element);
-				for (String string : strings) {
-					prefixedSearchTree.getTree().put(string, index);
+			GeneralizedSuffixTree tree = prefixedSearchTree.getTree();
+			if (!tree.deserialized && prefixedSearchTree.getMode() != Config.SearchMode.DISABLED) {
+				for (String string : prefixedSearchTree.getStringsGetter().getStrings(element)) {
+					tree.put(string, index);
 				}
 			}
 		}
-		filterCached = null;
+		invalidateCache();
 	}
 
 	public void invalidateCache() {
