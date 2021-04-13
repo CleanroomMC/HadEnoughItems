@@ -98,7 +98,6 @@ public class JeiStarter {
 			LoggedTimer offthreadTimer = new LoggedTimer();
 			offthreadTimer.start("Offthread: Populating ingredient filter");
 			ingredientFilter.addIngredients(ingredientList);
-			ingredientFilter.saveSearchTrees();
 			offthreadTimer.stop();
 		});
 
@@ -134,7 +133,12 @@ public class JeiStarter {
 			});
 		}
 
-		offthreadService.shutdown();
+		offthreadService.execute(() -> {
+			LoggedTimer offthreadTimer = new LoggedTimer();
+			offthreadTimer.start("Offthread: Saving search trees to disk");
+			ingredientFilter.saveSearchTrees();
+			offthreadTimer.stop();
+		});
 
 		LeftAreaDispatcher leftAreaDispatcher = new LeftAreaDispatcher(guiScreenHelper);
 		leftAreaDispatcher.addContent(bookmarkOverlay);

@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import mezz.jei.util.Translator;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
@@ -130,8 +131,8 @@ public class ProxyCommonClient extends ProxyCommon {
 				Preconditions.checkNotNull(textures);
 				this.starter.start(this.plugins, textures);
 			}
+			Translator.updateLocale();
 		});
-
 		Preconditions.checkNotNull(textures);
 		this.starter.start(plugins, textures);
 	}

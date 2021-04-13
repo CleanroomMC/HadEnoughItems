@@ -9,7 +9,13 @@ import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.util.text.translation.I18n;
 
 public final class Translator {
+	private static Locale locale = getLocale();
+
 	private Translator() {
+	}
+
+	public static void updateLocale() {
+		locale = getLocale();
 	}
 
 	public static String translateToLocal(String key) {
@@ -31,7 +37,7 @@ public final class Translator {
 	}
 
 	public static String toLowercaseWithLocale(String string) {
-		return string.toLowerCase(getLocale());
+		return string.toLowerCase(locale);
 	}
 
 	@SuppressWarnings("ConstantConditions")
