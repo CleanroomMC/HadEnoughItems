@@ -87,10 +87,17 @@ public class JeiStarter {
 		NonNullList<IIngredientListElement> ingredientList = IngredientListElementFactory.createBaseList(ingredientRegistry, modIdHelper);
 		timer.stop();
 
-		timer.start("Building ingredient filter");
-		IngredientFilter ingredientFilter = new IngredientFilter(blacklist);
-		Internal.setIngredientFilter(ingredientFilter);
-		timer.stop();
+		IngredientFilter ingredientFilter;
+
+		if (!Config.isPrematurelyBuildingSearchTree()) {
+			timer.start("Building ingredient filter");
+			ingredientFilter = new IngredientFilter(blacklist);
+			Internal.setIngredientFilter(ingredientFilter);
+			timer.stop();
+		} else {
+			ingredientFilter = Internal.getIngredientFilter();
+			Internal.getIngredientFilter().setIngredientBlacklist(blacklist);
+		}
 
 		/*
 		ExecutorService offthreadService = Executors.newSingleThreadExecutor();

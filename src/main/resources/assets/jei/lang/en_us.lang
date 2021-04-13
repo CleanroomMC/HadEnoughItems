@@ -103,6 +103,8 @@ config.jei.advanced.giveMode=Give Mode
 config.jei.advanced.giveMode.comment=Choose if JEI should give ingredients direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
 config.jei.advanced.optimizeMemoryUsage=Optimize Memory Usage
 config.jei.advanced.optimizeMemoryUsage.comment=Enable JEI memory usage optimizations.
+config.jei.advanced.prematurelyBuildSearchTree=Prematurely build search trees in the background
+config.jei.advanced.prematurelyBuildSearchTree.comment=Enable prematurely (early in Minecraft's loading) building of search trees. This option will only work after first-load. Highly recommended for those that have at least 1GB of RAM free at the start of Minecraft's load.
 
 # Hide Ingredients Mode
 gui.jei.editMode.description=JEI Hide Ingredients Mode:

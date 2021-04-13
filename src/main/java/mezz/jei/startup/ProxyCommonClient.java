@@ -3,7 +3,9 @@ package mezz.jei.startup;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
+import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.util.Translator;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -82,6 +84,10 @@ public class ProxyCommonClient extends ProxyCommon {
 		if (jeiInternalPlugin != null) {
 			this.plugins.remove(jeiInternalPlugin);
 			this.plugins.add(jeiInternalPlugin);
+		}
+
+		if (Config.isPrematurelyBuildingSearchTree()) {
+			Executors.newSingleThreadExecutor().execute(() -> Internal.setIngredientFilter(new IngredientFilter()));
 		}
 
 		MinecraftForge.EVENT_BUS.register(this);

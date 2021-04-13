@@ -85,7 +85,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		return createTree.get();
 	}
 
-	private final IngredientBlacklistInternal blacklist;
+	private IngredientBlacklistInternal blacklist;
 	/**
 	 * indexed list of ingredients for use with the suffix trees
 	 * includes all elements (even hidden ones) for use when rebuilding
@@ -102,6 +102,13 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	private List<IIngredientListElement> ingredientListCached = Collections.emptyList();
 	private final List<IIngredientGridSource.Listener> listeners = new ArrayList<>();
 
+	public IngredientFilter() {
+		this.elementList = NonNullList.create();
+		this.searchTree = buildSearchTrees();
+		this.combinedSearchTrees = buildCombinedSearchTrees(this.searchTree, this.prefixedSearchTrees.values());
+		this.backgroundBuilder = new IngredientFilterBackgroundBuilder(prefixedSearchTrees, elementList);
+	}
+
 	public IngredientFilter(IngredientBlacklistInternal blacklist) {
 		this.blacklist = blacklist;
 		this.elementList = NonNullList.create();
@@ -110,7 +117,11 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		this.backgroundBuilder = new IngredientFilterBackgroundBuilder(prefixedSearchTrees, elementList);
 	}
 
-	private GeneralizedSuffixTree buildSearchTrees() {
+	public void setIngredientBlacklist(IngredientBlacklistInternal blacklist) {
+		this.blacklist = blacklist;
+	}
+
+	public GeneralizedSuffixTree buildSearchTrees() {
 		List<Pair<String, GeneralizedSuffixTree>> trees = Stream.of("main", "mod_name", "tooltip", "oredict", "creative_tabs", "colour", "id")
 				.parallel().map(key -> Pair.of(key, deserializeSearchTree(key, GeneralizedSuffixTree::new))).collect(Collectors.toList());
 		GeneralizedSuffixTree mainTree = null;
