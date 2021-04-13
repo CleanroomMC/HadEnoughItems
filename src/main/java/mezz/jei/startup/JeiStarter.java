@@ -92,6 +92,7 @@ public class JeiStarter {
 		Internal.setIngredientFilter(ingredientFilter);
 		timer.stop();
 
+		/*
 		ExecutorService offthreadService = Executors.newSingleThreadExecutor();
 
 		offthreadService.execute(() -> {
@@ -100,6 +101,11 @@ public class JeiStarter {
 			ingredientFilter.addIngredients(ingredientList);
 			offthreadTimer.stop();
 		});
+		 */
+
+		timer.start("Populating ingredient filter");
+		ingredientFilter.addIngredients(ingredientList);
+		timer.stop();
 
 		timer.start("Building bookmarks");
 		BookmarkList bookmarkList = new BookmarkList(ingredientRegistry);
@@ -125,15 +131,13 @@ public class JeiStarter {
 		sendRuntime(plugins, jeiRuntime);
 
 		if (Config.isOptimizeMemoryUsage()) {
-			offthreadService.execute(() -> {
-				LoggedTimer offthreadTimer = new LoggedTimer();
-				offthreadTimer.start("Offthread: Optimizing memory usage");
-				ingredientFilter.trimToSize();
-				offthreadTimer.stop();
-			});
+			// LoggedTimer offthreadTimer = new LoggedTimer();
+			timer.start("Optimizing memory usage");
+			ingredientFilter.trimToSize();
+			timer.stop();
 		}
 
-		offthreadService.execute(() -> {
+		Executors.newSingleThreadExecutor().execute(() -> {
 			LoggedTimer offthreadTimer = new LoggedTimer();
 			offthreadTimer.start("Offthread: Saving search trees to disk");
 			ingredientFilter.saveSearchTrees();
