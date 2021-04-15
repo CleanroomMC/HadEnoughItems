@@ -1,10 +1,9 @@
 package mezz.jei.network.packets;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.PacketBuffer;
 
@@ -13,13 +12,13 @@ import mezz.jei.network.PacketIdServer;
 import mezz.jei.transfer.BasicRecipeTransferHandlerServer;
 
 public class PacketRecipeTransfer extends PacketJei {
-	public final Map<Integer, Integer> recipeMap;
-	public final List<Integer> craftingSlots;
-	public final List<Integer> inventorySlots;
+	public final Int2IntMap recipeMap;
+	public final IntList craftingSlots;
+	public final IntList inventorySlots;
 	private final boolean maxTransfer;
 	private final boolean requireCompleteSets;
 
-	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer, boolean requireCompleteSets) {
+	public PacketRecipeTransfer(Int2IntMap recipeMap, IntList craftingSlots, IntList inventorySlots, boolean maxTransfer, boolean requireCompleteSets) {
 		this.recipeMap = recipeMap;
 		this.craftingSlots = craftingSlots;
 		this.inventorySlots = inventorySlots;
@@ -35,18 +34,18 @@ public class PacketRecipeTransfer extends PacketJei {
 	@Override
 	public void writePacketData(PacketBuffer buf) {
 		buf.writeVarInt(recipeMap.size());
-		for (Map.Entry<Integer, Integer> recipeMapEntry : recipeMap.entrySet()) {
-			buf.writeVarInt(recipeMapEntry.getKey());
-			buf.writeVarInt(recipeMapEntry.getValue());
+		for (Int2IntMap.Entry recipeMapEntry : recipeMap.int2IntEntrySet()) {
+			buf.writeVarInt(recipeMapEntry.getIntKey());
+			buf.writeVarInt(recipeMapEntry.getIntValue());
 		}
 
 		buf.writeVarInt(craftingSlots.size());
-		for (Integer craftingSlot : craftingSlots) {
+		for (int craftingSlot : craftingSlots) {
 			buf.writeVarInt(craftingSlot);
 		}
 
 		buf.writeVarInt(inventorySlots.size());
-		for (Integer inventorySlot : inventorySlots) {
+		for (int inventorySlot : inventorySlots) {
 			buf.writeVarInt(inventorySlot);
 		}
 
@@ -56,7 +55,7 @@ public class PacketRecipeTransfer extends PacketJei {
 
 	public static void readPacketData(PacketBuffer buf, EntityPlayer player) {
 		int recipeMapSize = buf.readVarInt();
-		Map<Integer, Integer> recipeMap = new HashMap<>(recipeMapSize);
+		Int2IntMap recipeMap = new Int2IntOpenHashMap(recipeMapSize);
 		for (int i = 0; i < recipeMapSize; i++) {
 			int slotIndex = buf.readVarInt();
 			int recipeItem = buf.readVarInt();
@@ -64,14 +63,14 @@ public class PacketRecipeTransfer extends PacketJei {
 		}
 
 		int craftingSlotsSize = buf.readVarInt();
-		List<Integer> craftingSlots = new ArrayList<>(craftingSlotsSize);
+		IntList craftingSlots = new IntArrayList(craftingSlotsSize);
 		for (int i = 0; i < craftingSlotsSize; i++) {
 			int slotIndex = buf.readVarInt();
 			craftingSlots.add(slotIndex);
 		}
 
 		int inventorySlotsSize = buf.readVarInt();
-		List<Integer> inventorySlots = new ArrayList<>(inventorySlotsSize);
+		IntList inventorySlots = new IntArrayList(inventorySlotsSize);
 		for (int i = 0; i < inventorySlotsSize; i++) {
 			int slotIndex = buf.readVarInt();
 			inventorySlots.add(slotIndex);

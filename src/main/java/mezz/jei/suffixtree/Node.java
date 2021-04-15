@@ -25,7 +25,7 @@ import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import mezz.jei.util.Log;
 
 import java.io.Serializable;
-import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 /**
  * Represents a node of the generalized suffix tree graph
@@ -186,12 +186,12 @@ public class Node {
 		int selfId;
 		int suffixId;
 
-		public SerializableNode(Node node, Function<Node, Integer> edgeDestNodeFunction) {
+		public SerializableNode(Node node, ToIntFunction<Node> edgeDestNodeFunction) {
 			this.data = node.data;
 			this.edges = new Char2ObjectArrayMap<>(node.edges.size());
 			node.edges.char2ObjectEntrySet().forEach(e -> {
 				Edge edge = e.getValue();
-				this.edges.put(e.getCharKey(), new Edge.SerializableEdge(edge, edgeDestNodeFunction.apply(edge.getDest())));
+				this.edges.put(e.getCharKey(), new Edge.SerializableEdge(edge, edgeDestNodeFunction.applyAsInt(edge.getDest())));
 			});
 		}
 	}

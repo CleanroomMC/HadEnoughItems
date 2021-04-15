@@ -142,10 +142,10 @@ public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<Conta
 			return handlerHelper.createUserErrorForSlots(message, matchingItemsResult.missingItems);
 		}
 
-		List<Integer> craftingSlotIndexes = new IntArrayList(craftingSlots.keySet());
+		IntList craftingSlotIndexes = new IntArrayList(craftingSlots.keySet());
 		// Collections.sort(craftingSlotIndexes);
 
-		List<Integer> inventorySlotIndexes = new IntArrayList(inventorySlots.keySet());
+		IntList inventorySlotIndexes = new IntArrayList(inventorySlots.keySet());
 		// Collections.sort(inventorySlotIndexes);
 
 		// check that the slots exist and can be altered
