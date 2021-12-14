@@ -1,7 +1,12 @@
 package mezz.jei.ingredients;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
+import mezz.jei.search.PrefixInfo;
+import mezz.jei.search.PrefixedSearchable;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -9,16 +14,16 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.NonNullList;
 
-import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
-import mezz.jei.config.Config;
+import mezz.jei.config.Config.SearchMode;
 import mezz.jei.gui.ingredients.IIngredientListElement;
-import mezz.jei.suffixtree.GeneralizedSuffixTree;
+import mezz.jei.search.GeneralizedSuffixTree;
 
 public class IngredientFilterBackgroundBuilder {
-	private final Char2ObjectMap<PrefixedSearchTree> prefixedSearchTrees;
-	private final NonNullList<IIngredientListElement> elementList;
 
-	public IngredientFilterBackgroundBuilder(Char2ObjectMap<PrefixedSearchTree> prefixedSearchTrees, NonNullList<IIngredientListElement> elementList) {
+	private final Map<PrefixInfo, PrefixedSearchable<GeneralizedSuffixTree>> prefixedSearchTrees;
+	private final NonNullList<IIngredientListElement<?>> elementList;
+
+	public IngredientFilterBackgroundBuilder(Map<PrefixInfo, PrefixedSearchable<GeneralizedSuffixTree>> prefixedSearchTrees, NonNullList<IIngredientListElement<?>> elementList) {
 		this.prefixedSearchTrees = prefixedSearchTrees;
 		this.elementList = elementList;
 	}
@@ -43,25 +48,42 @@ public class IngredientFilterBackgroundBuilder {
 
 	private boolean run(final int timeoutMs) {
 		final long startTime = System.currentTimeMillis();
-		for (PrefixedSearchTree prefixedTree : this.prefixedSearchTrees.values()) {
-			Config.SearchMode mode = prefixedTree.getMode();
-			if (mode != Config.SearchMode.DISABLED) {
-				PrefixedSearchTree.IStringsGetter stringsGetter = prefixedTree.getStringsGetter();
-				GeneralizedSuffixTree tree = prefixedTree.getTree();
-				for (int i = tree.getHighestIndex() + 1; i < this.elementList.size(); i++) {
-					IIngredientListElement element = elementList.get(i);
-					Collection<String> strings = stringsGetter.getStrings(element);
+		List<PrefixedSearchable<GeneralizedSuffixTree>> activeTrees = new ArrayList<>();
+		int startIndex = Integer.MAX_VALUE;
+		for (PrefixedSearchable<GeneralizedSuffixTree> prefixedTree : this.prefixedSearchTrees.values()) {
+			SearchMode mode = prefixedTree.getMode();
+			if (mode != SearchMode.DISABLED) {
+				GeneralizedSuffixTree searchable = prefixedTree.getSearchable();
+				int nextFreeIndex = searchable.getHighestIndex() + 1;
+				startIndex = Math.min(nextFreeIndex, startIndex);
+				if (nextFreeIndex < elementList.size()) {
+					activeTrees.add(prefixedTree);
+				}
+			}
+		}
+
+		if (activeTrees.isEmpty()) {
+			return true;
+		}
+
+		for (int i = startIndex; i < elementList.size(); i++) {
+			IIngredientListElement<?> element = elementList.get(i);
+			for (PrefixedSearchable<GeneralizedSuffixTree> prefixedTree : activeTrees) {
+				GeneralizedSuffixTree searchable = prefixedTree.getSearchable();
+				int nextFreeIndex = searchable.getHighestIndex() + 1;
+				if (nextFreeIndex >= i) {
+					Collection<String> strings = prefixedTree.getStrings(element);
 					if (strings.isEmpty()) {
-						tree.put("", i);
+						searchable.put("", i);
 					} else {
 						for (String string : strings) {
-							tree.put(string, i);
+							searchable.put(string, i);
 						}
 					}
-					if (System.currentTimeMillis() - startTime >= timeoutMs) {
-						return false;
-					}
 				}
+			}
+			if (System.currentTimeMillis() - startTime >= timeoutMs) {
+				return false;
 			}
 		}
 		return true;

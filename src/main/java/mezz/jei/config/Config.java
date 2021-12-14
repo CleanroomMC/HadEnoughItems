@@ -180,7 +180,11 @@ public final class Config {
 	}
 
 	public static boolean isOptimizeMemoryUsage() {
-		return values.optimizeMemoryUsage;
+		return true; // For compatibility sake
+	}
+
+	public static boolean isUltraLowMemoryMode() {
+		return values.ultraLowMemoryUsage;
 	}
 
 	public static GiveMode getGiveMode() {
@@ -403,7 +407,7 @@ public final class Config {
 
 		values.centerSearchBarEnabled = config.getBoolean(CATEGORY_ADVANCED, "centerSearchBarEnabled", defaultValues.centerSearchBarEnabled);
 
-		values.optimizeMemoryUsage = config.getBoolean(CATEGORY_ADVANCED, "optimizeMemoryUsage", defaultValues.optimizeMemoryUsage);
+		values.ultraLowMemoryUsage = config.getBoolean(CATEGORY_ADVANCED, "ultraLowMemoryUsage", defaultValues.ultraLowMemoryUsage);
 
 		values.giveMode = config.getEnum("giveMode", CATEGORY_ADVANCED, defaultValues.giveMode, GiveMode.values());
 

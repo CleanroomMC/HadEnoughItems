@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package mezz.jei.suffixtree;
+package mezz.jei.search;
 
 import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Objects;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -63,7 +60,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
  * - add nullable/nonnull annotations
  * - formatting
  */
-public class GeneralizedSuffixTree implements ISearchTree {
+public class GeneralizedSuffixTree implements ISearchable {
 
 	private int highestIndex = -1;
 	/**
@@ -385,22 +382,6 @@ public class GeneralizedSuffixTree implements ISearchTree {
 
 	public int getHighestIndex() {
 		return highestIndex;
-	}
-
-	public void trimToSize() {
-		ArrayDeque<Node> nodes = new ArrayDeque<>(128);
-		nodes.add(root);
-		while (!nodes.isEmpty()) {
-			Node node = nodes.remove();
-			node.trimToSize();
-			Node suffix = node.getSuffix();
-			if (suffix != null) {
-				suffix.trimToSize();
-			}
-			for (Edge edge : node.edges()) {
-				nodes.add(edge.getDest());
-			}
-		}
 	}
 
 	/**

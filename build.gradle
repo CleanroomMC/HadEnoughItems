@@ -38,14 +38,6 @@ minecraft {
 	mappings = mcp_mappings
 }
 
-repositories {
-
-}
-
-dependencies {
-	testCompile 'junit:junit:4.12'
-}
-
 processResources {
 	// this will ensure that this task is redone when the versions change.
 	inputs.property "version", project.version
