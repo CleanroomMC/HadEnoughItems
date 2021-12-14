@@ -1,10 +1,8 @@
-package mezz.jei.suffixtree.search;
+package mezz.jei.search;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 import mezz.jei.config.Config.SearchMode;
 import mezz.jei.gui.ingredients.IIngredientListElement;
-import mezz.jei.suffixtree.ISearchable;
-import mezz.jei.suffixtree.PrefixInfo;
 
 import java.util.Collection;
 

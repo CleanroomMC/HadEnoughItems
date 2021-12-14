@@ -1,7 +1,7 @@
 @ParametersAreNonnullByDefault
 @FieldsAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package mezz.jei.suffixtree;
+package mezz.jei.search;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
