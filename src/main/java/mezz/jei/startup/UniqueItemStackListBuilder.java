@@ -1,8 +1,8 @@
 package mezz.jei.startup;
 
-import java.util.HashSet;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
@@ -11,7 +11,7 @@ import mezz.jei.util.Log;
 public class UniqueItemStackListBuilder {
 	private final StackHelper stackHelper;
 	private final NonNullList<ItemStack> ingredients = NonNullList.create();
-	private final Set<String> ingredientUids = new HashSet<>();
+	private final Set<String> ingredientUids = new ObjectOpenHashSet<>();
 
 	public UniqueItemStackListBuilder(StackHelper stackHelper) {
 		this.stackHelper = stackHelper;

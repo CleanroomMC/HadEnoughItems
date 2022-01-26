@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
@@ -53,15 +55,15 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 	private final IJeiHelpers jeiHelpers;
 	private final IIngredientRegistry ingredientRegistry;
 	private final List<IRecipeCategory> recipeCategories = new ArrayList<>();
-	private final Set<String> recipeCategoryUids = new HashSet<>();
+	private final Set<String> recipeCategoryUids = new ObjectOpenHashSet<>();
 	@Deprecated
 	private final List<IRecipeHandler> unsortedRecipeHandlers = new ArrayList<>();
 	private final ListMultiMap<String, IRecipeHandler> recipeHandlers = new ListMultiMap<>();
 	private final SetMultiMap<String, Class> recipeHandlerClasses = new SetMultiMap<>();
 	private final List<IAdvancedGuiHandler<?>> advancedGuiHandlers = new ArrayList<>();
 	private final List<IGlobalGuiHandler> globalGuiHandlers = new ArrayList<>();
-	private final Map<Class, IGuiScreenHandler> guiScreenHandlers = new HashMap<>();
-	private final Map<Class, IGhostIngredientHandler> ghostIngredientHandlers = new HashMap<>();
+	private final Map<Class, IGuiScreenHandler> guiScreenHandlers = new Reference2ObjectOpenHashMap<>();
+	private final Map<Class, IGhostIngredientHandler> ghostIngredientHandlers = new Reference2ObjectOpenHashMap<>();
 	@Deprecated
 	private final List<Object> unsortedRecipes = new ArrayList<>();
 	private final ListMultiMap<String, Object> recipes = new ListMultiMap<>();

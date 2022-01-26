@@ -1,9 +1,9 @@
 package mezz.jei.runtime;
 
 import javax.annotation.Nullable;
-import java.util.IdentityHashMap;
 import java.util.Map;
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,7 +13,7 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 
 public class SubtypeRegistry implements ISubtypeRegistry {
-	private final Map<Item, ISubtypeInterpreter> interpreters = new IdentityHashMap<>();
+	private final Map<Item, ISubtypeInterpreter> interpreters = new Reference2ObjectOpenHashMap<>();
 
 	@Override
 	public void useNbtForSubtypes(Item... items) {

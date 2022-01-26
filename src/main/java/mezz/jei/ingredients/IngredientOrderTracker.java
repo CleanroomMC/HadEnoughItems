@@ -1,12 +1,13 @@
 package mezz.jei.ingredients;
 
-import java.util.HashMap;
 import java.util.Map;
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import mezz.jei.api.ingredients.IIngredientHelper;
 
+// TODO - give a serializable order
 public class IngredientOrderTracker {
-	private final Map<String, Integer> wildcardAddedOrder = new HashMap<>();
+	private final Map<String, Integer> wildcardAddedOrder = new Object2IntOpenHashMap<>();
 	private int addedIndex = 0;
 
 	public <V> int getOrderIndex(V ingredient, IIngredientHelper<V> ingredientHelper) {

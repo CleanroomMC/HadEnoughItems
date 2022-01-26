@@ -1,10 +1,10 @@
 package mezz.jei.startup;
 
 import java.util.Collection;
-import java.util.IdentityHashMap;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
@@ -15,9 +15,9 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.IngredientSet;
 
 public class ModIngredientRegistration implements IModIngredientRegistration {
-	private final Map<IIngredientType, Collection> allIngredientsMap = new IdentityHashMap<>();
-	private final Map<IIngredientType, IIngredientHelper> ingredientHelperMap = new IdentityHashMap<>();
-	private final Map<IIngredientType, IIngredientRenderer> ingredientRendererMap = new IdentityHashMap<>();
+	private final Map<IIngredientType, Collection> allIngredientsMap = new Reference2ObjectOpenHashMap<>();
+	private final Map<IIngredientType, IIngredientHelper> ingredientHelperMap = new Reference2ObjectOpenHashMap<>();
+	private final Map<IIngredientType, IIngredientRenderer> ingredientRendererMap = new Reference2ObjectOpenHashMap<>();
 
 	@Override
 	public <V> void register(IIngredientType<V> ingredientType, Collection<V> allIngredients, IIngredientHelper<V> ingredientHelper, IIngredientRenderer<V> ingredientRenderer) {
@@ -39,7 +39,7 @@ public class ModIngredientRegistration implements IModIngredientRegistration {
 	}
 
 	public IngredientRegistry createIngredientRegistry(IModIdHelper modIdHelper, IngredientBlacklistInternal blacklist) {
-		Map<IIngredientType, IngredientSet> ingredientsMap = new IdentityHashMap<>();
+		Map<IIngredientType, IngredientSet> ingredientsMap = new Reference2ObjectOpenHashMap<>();
 		for (Map.Entry<IIngredientType, Collection> entry : allIngredientsMap.entrySet()) {
 			IIngredientType ingredientType = entry.getKey();
 			@SuppressWarnings("unchecked")

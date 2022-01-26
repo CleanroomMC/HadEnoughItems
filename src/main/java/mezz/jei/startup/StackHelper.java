@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -50,7 +51,7 @@ public class StackHelper implements IStackHelper {
 
 	public void disableUidCache() {
 		for (UidMode mode : UidMode.values()) {
-			uidCache.put(mode, new IdentityHashMap<>());
+			uidCache.put(mode, new Reference2ObjectOpenHashMap<>());
 		}
 		uidCacheEnabled = false;
 	}

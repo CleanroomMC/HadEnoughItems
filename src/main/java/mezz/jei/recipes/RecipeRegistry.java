@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
@@ -57,19 +60,19 @@ public class RecipeRegistry implements IRecipeRegistry {
 	private final ImmutableList<IRecipeHandler> unsortedRecipeHandlers;
 	private final ImmutableMultimap<String, IRecipeHandler> recipeHandlers;
 	private final ImmutableList<IRecipeCategory> recipeCategories;
-	private final Set<String> hiddenRecipeCategoryUids = new HashSet<>();
+	private final Set<String> hiddenRecipeCategoryUids = new ObjectOpenHashSet<>();
 	private final List<IRecipeCategory> recipeCategoriesVisibleCache = new ArrayList<>();
 	private final ImmutableTable<Class, String, IRecipeTransferHandler> recipeTransferHandlers;
 	private final ImmutableMultimap<Class<? extends GuiContainer>, RecipeClickableArea> recipeClickableAreasMap;
 	private final ImmutableListMultimap<IRecipeCategory, Object> recipeCatalysts;
 	private final ImmutableMap<String, IRecipeCategory> recipeCategoriesMap;
 	private final RecipeCategoryComparator recipeCategoryComparator;
-	private final Table<String, Object, IRecipeWrapper> wrapperMaps = new Table<>(new HashMap<>(), IdentityHashMap::new); // used when removing recipes
+	private final Table<String, Object, IRecipeWrapper> wrapperMaps = new Table<>(new Object2ObjectOpenHashMap<>(), Reference2ObjectOpenHashMap::new); // used when removing recipes
 	private final ListMultiMap<IRecipeCategory, IRecipeWrapper> recipeWrappersForCategories = new ListMultiMap<>();
 	private final RecipeMap recipeInputMap;
 	private final RecipeMap recipeOutputMap;
 	private final List<RecipeRegistryPluginSafeWrapper> plugins = new ArrayList<>();
-	private final SetMultiMap<String, IRecipeWrapper> hiddenRecipes = new SetMultiMap<>(() -> Collections.newSetFromMap(new IdentityHashMap<>())); // recipe category uid key
+	private final SetMultiMap<String, IRecipeWrapper> hiddenRecipes = new SetMultiMap<>(() -> Collections.newSetFromMap(new Reference2ObjectOpenHashMap<>())); // recipe category uid key
 
 	public RecipeRegistry(
 		List<IRecipeCategory> recipeCategories,

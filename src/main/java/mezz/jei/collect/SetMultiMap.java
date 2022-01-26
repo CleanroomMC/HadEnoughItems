@@ -1,13 +1,14 @@
 package mezz.jei.collect;
 
-import java.util.HashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
 public class SetMultiMap<K, V> extends MultiMap<K, V, Set<V>> {
 	public SetMultiMap() {
-		this(HashSet::new);
+		this(ObjectOpenHashSet::new);
 	}
 
 	public SetMultiMap(Supplier<Set<V>> collectionSupplier) {

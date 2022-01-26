@@ -1,14 +1,14 @@
 package mezz.jei.ingredients;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.config.Config;
 
 public class IngredientBlacklistInternal {
-	private final Set<String> ingredientBlacklist = new HashSet<>();
+	private final Set<String> ingredientBlacklist = new ObjectOpenHashSet<>();
 
 	public <V> void addIngredientToBlacklist(V ingredient, IIngredientHelper<V> ingredientHelper) {
 		String uniqueName = ingredientHelper.getUniqueId(ingredient);

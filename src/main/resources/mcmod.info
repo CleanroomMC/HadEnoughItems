@@ -1,11 +1,11 @@
 [
 {
   "modid": "jei",
-  "name": "Just Enough Items",
+  "name": "Had Enough Items",
   "description": "Simple recipe and item helper.",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "https://github.com/mezz/JustEnoughItems",
+  "url": "https://github.com/CleanroomMC/HadEnoughItems",
   "updateUrl": "",
   "authorList": ["mezz"],
   "logoFile": "",
