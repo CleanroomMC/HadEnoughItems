@@ -74,6 +74,16 @@ public class ClickedIngredient<V> implements IClickedIngredient<V> {
 	}
 
 	@Override
+	public ItemStack replaceWithCheatItemStack(ItemStack clickedWithStack) {
+		if (allowsCheating) {
+			IIngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+			IIngredientHelper<V> ingredientHelper = ingredientRegistry.getIngredientHelper(value);
+			return ingredientHelper.replaceWithCheatItemStack(value, clickedWithStack);
+		}
+		return ItemStack.EMPTY;
+	}
+
+	@Override
 	public void onClickHandled() {
 		if (this.onClickHandler != null) {
 			this.onClickHandler.onClick();

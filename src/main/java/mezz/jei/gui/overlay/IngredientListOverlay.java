@@ -260,7 +260,8 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 				IClickedIngredient<?> clicked = getIngredientUnderMouse(mouseX, mouseY);
 				if (clicked != null) {
 					if (Config.isCheatItemsEnabled()) {
-						ItemStack itemStack = clicked.getCheatItemStack();
+						ItemStack clickWithStack = minecraft.player.inventory.getItemStack();
+						ItemStack itemStack = clickWithStack.isEmpty() ? clicked.getCheatItemStack() : clicked.replaceWithCheatItemStack(clickWithStack);
 						if (!itemStack.isEmpty()) {
 							CommandUtil.giveStack(itemStack, mouseButton);
 						}

@@ -151,7 +151,8 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 					IClickedIngredient<?> clicked = getIngredientUnderMouse(mouseX, mouseY);
 					if (clicked != null) {
 						if (Config.isCheatItemsEnabled()) {
-							ItemStack itemStack = clicked.getCheatItemStack();
+							ItemStack clickWithStack = minecraft.player.inventory.getItemStack();
+							ItemStack itemStack = clickWithStack.isEmpty() ? clicked.getCheatItemStack() : clicked.replaceWithCheatItemStack(clickWithStack.copy());
 							if (!itemStack.isEmpty()) {
 								CommandUtil.giveStack(itemStack, mouseButton);
 							}

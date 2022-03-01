@@ -4,6 +4,11 @@ import javax.annotation.Nullable;
 import java.awt.Color;
 import java.util.Collections;
 
+import mezz.jei.config.Config;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -18,6 +23,8 @@ import net.minecraft.util.ResourceLocation;
 import com.google.common.base.MoreObjects;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.color.ColorGetter;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 public class FluidStackHelper implements IIngredientHelper<FluidStack> {
 	@Override
@@ -86,18 +93,24 @@ public class FluidStackHelper implements IIngredientHelper<FluidStack> {
 
 	@Override
 	public ItemStack getCheatItemStack(FluidStack ingredient) {
-		Fluid fluid = ingredient.getFluid();
-		if (fluid == FluidRegistry.WATER) {
-			return new ItemStack(Items.WATER_BUCKET);
-		} else if (fluid == FluidRegistry.LAVA) {
-			return new ItemStack(Items.LAVA_BUCKET);
-		} else if (fluid.getName().equals("milk")) {
-			return new ItemStack(Items.MILK_BUCKET);
-		} else if (FluidRegistry.isUniversalBucketEnabled()) {
-			ItemStack filledBucket = FluidUtil.getFilledBucket(ingredient);
-			FluidStack fluidContained = FluidUtil.getFluidContained(filledBucket);
-			if (fluidContained != null && fluidContained.isFluidEqual(ingredient)) {
-				return filledBucket;
+		IFluidHandlerItem handler = Config.getDefaultFluidContainerItem().getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+		ingredient = ingredient.copy();
+		ingredient.amount = Integer.MAX_VALUE;
+		handler.fill(ingredient, true);
+		return handler.getContainer();
+	}
+
+	@Override
+	public ItemStack replaceWithCheatItemStack(FluidStack ingredient, ItemStack clickedWith) {
+		IFluidHandlerItem handler = clickedWith.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+		if (handler != null) {
+			clickedWith = clickedWith.copy();
+			clickedWith.setCount(1);
+			handler = clickedWith.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+			ingredient = ingredient.copy();
+			ingredient.amount = Integer.MAX_VALUE;
+			if (handler.fill(ingredient, true) > 0) {
+				return handler.getContainer();
 			}
 		}
 		return ItemStack.EMPTY;

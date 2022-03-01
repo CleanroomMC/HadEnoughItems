@@ -1,6 +1,8 @@
 package mezz.jei.config;
 
 import mezz.jei.util.GiveMode;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 
 public class ConfigValues {
 	// advanced
@@ -27,4 +29,5 @@ public class ConfigValues {
 	public boolean editModeEnabled = false;
 	public boolean bookmarkOverlayEnabled = true;
 	public String filterText = "";
+	public ItemStack defaultFluidContainerItem = new ItemStack(Items.BUCKET);
 }

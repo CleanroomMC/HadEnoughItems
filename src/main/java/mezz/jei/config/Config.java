@@ -10,6 +10,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -277,6 +282,10 @@ public final class Config {
 		}
 	}
 
+	public static ItemStack getDefaultFluidContainerItem() {
+		return values.defaultFluidContainerItem.copy();
+	}
+
 	@Nullable
 	public static LocalizedConfiguration getConfig() {
 		return config;
@@ -515,6 +524,41 @@ public final class Config {
 		property = worldConfig.get(worldCategory, "filterText", defaultValues.filterText);
 		property.setShowInGui(false);
 		values.filterText = property.getString();
+
+		property = worldConfig.get(worldCategory, "defaultFluidContainerItem", "");
+		property.setLanguageKey("config.jei.interface.defaultFluidContainerItem");
+		property.setComment(Translator.translateToLocal("config.jei.interface.defaultFluidContainerItem.comment"));
+		String defaultFluidContainerItem = property.getString();
+		if (!defaultFluidContainerItem.isEmpty()) {
+			String[] defaultFluidContainerItemFormatted = defaultFluidContainerItem.split("@");
+			defaultFluidContainerItem = defaultFluidContainerItemFormatted[0];
+			Item item = Item.getByNameOrId(defaultFluidContainerItem);
+			if (item != null) {
+				ItemStack stack = new ItemStack(Items.BUCKET);
+				if (defaultFluidContainerItemFormatted.length > 1) {
+					try {
+						int meta = Integer.decode(defaultFluidContainerItemFormatted[1]);
+						stack = new ItemStack(item, 1, meta);
+					} catch (NumberFormatException e) {
+						new IllegalArgumentException(String.format("%s is not a valid meta", defaultFluidContainerItemFormatted[1])).printStackTrace();
+					}
+				} else {
+					stack = new ItemStack(item);
+				}
+				IFluidHandlerItem container = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+				if (container == null) {
+					new IllegalArgumentException(String.format("%s is not a fluid container", defaultFluidContainerItem)).printStackTrace();
+					values.defaultFluidContainerItem = new ItemStack(Items.BUCKET);
+				} else {
+					values.defaultFluidContainerItem = stack;
+				}
+			} else {
+				new IllegalArgumentException(String.format("%s isn't a valid item ID", defaultFluidContainerItem)).printStackTrace();
+				values.defaultFluidContainerItem = new ItemStack(Items.BUCKET);
+			}
+		} else {
+			values.defaultFluidContainerItem = new ItemStack(Items.BUCKET);
+		}
 
 		final boolean configChanged = worldConfig.hasChanged();
 		if (configChanged) {

@@ -131,3 +131,7 @@ gui.jei.category.itemInformation=Information
 description.jei.wooden.door.1=Wooden Doors allow you to block monsters from entering your building.\nTesting sentences.
 description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and visa versa.
 description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits.
+
+# New HEI lang keys
+config.jei.interface.defaultFluidContainerItem=Default Fluid Container Item
+config.jei.interface.defaultFluidContainerItem.comment=Default item to use to fill up fluids when clicking on a fluid ingredient in the menu, (format: item_name@meta)
