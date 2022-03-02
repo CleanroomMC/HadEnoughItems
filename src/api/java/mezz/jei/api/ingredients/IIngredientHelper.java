@@ -131,7 +131,7 @@ public interface IIngredientHelper<V> {
 	 * @since HEI 4.17
 	 */
 	default ItemStack replaceWithCheatItemStack(V ingredient, ItemStack clickedWith) {
-		return getCheatItemStack(ingredient);
+		return ItemStack.EMPTY;
 	}
 
 	/**

@@ -15,7 +15,7 @@ public interface IClickedIngredient<V> {
 	ItemStack getCheatItemStack();
 
 	default ItemStack replaceWithCheatItemStack(ItemStack clickedWithStack) {
-		return getCheatItemStack();
+		return ItemStack.EMPTY;
 	}
 
 	void onClickHandled();

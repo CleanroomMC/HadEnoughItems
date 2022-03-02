@@ -5,18 +5,12 @@ import java.awt.Color;
 import java.util.Collections;
 
 import mezz.jei.config.Config;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -102,6 +96,9 @@ public class FluidStackHelper implements IIngredientHelper<FluidStack> {
 
 	@Override
 	public ItemStack replaceWithCheatItemStack(FluidStack ingredient, ItemStack clickedWith) {
+		if (clickedWith.isEmpty()) {
+			return ItemStack.EMPTY;
+		}
 		IFluidHandlerItem handler = clickedWith.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
 		if (handler != null) {
 			clickedWith = clickedWith.copy();
