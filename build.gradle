@@ -21,7 +21,7 @@ apply from: 'buildtools/ColoredOutput.gradle'
 
 version = version_major + '.' + version_minor + '.' + version_patch
 group = "mezz.jei" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "hei_" + mcversion
+archivesBaseName = "HadEnoughItems_" + mcversion
 
 if (System.getenv().BUILD_NUMBER != null) {//adds the build number to the end of the version string if on a build server
 	version += ".${System.getenv().BUILD_NUMBER}"
