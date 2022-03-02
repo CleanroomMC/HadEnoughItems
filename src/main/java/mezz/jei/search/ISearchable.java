@@ -1,12 +1,17 @@
 package mezz.jei.search;
 
-import it.unimi.dsi.fastutil.ints.IntSet;
-import mezz.jei.config.Config.SearchMode;
+import mezz.jei.config.Config;
 
-public interface ISearchable {
-	IntSet search(String word);
+import java.util.Set;
 
-	default SearchMode getMode() {
-		return SearchMode.ENABLED;
-	}
+public interface ISearchable<T> {
+
+    void getSearchResults(String token, Set<T> results);
+
+    void getAllElements(Set<T> results);
+
+    default Config.SearchMode getMode() {
+        return Config.SearchMode.ENABLED;
+    }
+
 }

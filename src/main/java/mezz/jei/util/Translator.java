@@ -31,7 +31,6 @@ public final class Translator {
 	}
 
 	public static String toLowercaseWithLocale(String string) {
-
 		return string.toLowerCase(getLocale());
 	}
 

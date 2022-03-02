@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Alessandro Bahgat Shehata
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,36 +15,25 @@
  */
 package mezz.jei.search;
 
+import mezz.jei.util.Substring;
+
 /**
  * Represents an Edge in the Suffix Tree.
  * It has a label and a destination Node
  * <p>
  * Edited by mezz:
- * - formatting
+ * - optimized with SubString
  */
-class Edge {
-	private String label;
-	private final Node dest;
+public class Edge<T> extends Substring {
 
-	public String getLabel() {
-		return label;
-	}
+    private final Node<T> dest;
 
-	public void setLabel(String label) {
-		this.label = label;
-	}
+    public Edge(Substring subString, Node<T> dest) {
+        super(subString);
+        this.dest = dest;
+    }
 
-	public Node getDest() {
-		return dest;
-	}
-
-	public Edge(String label, Node dest) {
-		this.label = label;
-		this.dest = dest;
-	}
-
-	@Override
-	public String toString() {
-		return "Edge: " + label;
-	}
+    public Node<T> getDest() {
+        return dest;
+    }
 }

@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +13,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
@@ -72,7 +71,7 @@ public class RecipeRegistry implements IRecipeRegistry {
 	private final RecipeMap recipeInputMap;
 	private final RecipeMap recipeOutputMap;
 	private final List<RecipeRegistryPluginSafeWrapper> plugins = new ArrayList<>();
-	private final SetMultiMap<String, IRecipeWrapper> hiddenRecipes = new SetMultiMap<>(() -> Collections.newSetFromMap(new Reference2ObjectOpenHashMap<>())); // recipe category uid key
+	private final SetMultiMap<String, IRecipeWrapper> hiddenRecipes = new SetMultiMap<>(ReferenceOpenHashSet::new); // recipe category uid key
 
 	public RecipeRegistry(
 		List<IRecipeCategory> recipeCategories,
