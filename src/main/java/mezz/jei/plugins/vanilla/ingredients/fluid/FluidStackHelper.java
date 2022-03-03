@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.awt.Color;
 import java.util.Collections;
 
+import mezz.jei.Internal;
 import mezz.jei.config.Config;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -21,6 +22,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 public class FluidStackHelper implements IIngredientHelper<FluidStack> {
+
 	@Override
 	@Nullable
 	public FluidStack getMatch(Iterable<FluidStack> ingredients, FluidStack toMatch) {
@@ -39,10 +41,14 @@ public class FluidStackHelper implements IIngredientHelper<FluidStack> {
 
 	@Override
 	public String getUniqueId(FluidStack ingredient) {
-		if (ingredient.tag != null) {
-			return "fluid:" + ingredient.getFluid().getName() + ":" + ingredient.tag;
+		StringBuilder uniqueId = new StringBuilder("fluid:");
+		uniqueId.append(ingredient.getFluid().getName());
+		String subtype = Internal.getSubtypeRegistry().getSubtypeInfo(ingredient);
+		if (subtype != null && !subtype.isEmpty()) {
+			uniqueId.append(":");
+			uniqueId.append(subtype);
 		}
-		return "fluid:" + ingredient.getFluid().getName();
+		return uniqueId.toString();
 	}
 
 	@Override

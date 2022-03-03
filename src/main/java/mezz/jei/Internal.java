@@ -2,6 +2,8 @@ package mezz.jei;
 
 import javax.annotation.Nullable;
 
+import mezz.jei.api.ISubtypeRegistry;
+import mezz.jei.runtime.SubtypeRegistry;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.google.common.base.Preconditions;
@@ -18,6 +20,8 @@ import mezz.jei.startup.StackHelper;
  * For JEI internal use only, these are normally accessed from the API.
  */
 public final class Internal {
+	@Nullable
+	private static SubtypeRegistry subtypeRegistry;
 	@Nullable
 	private static StackHelper stackHelper;
 	@Nullable
@@ -37,6 +41,15 @@ public final class Internal {
 
 	private Internal() {
 
+	}
+
+	public static ISubtypeRegistry getSubtypeRegistry() {
+		Preconditions.checkState(subtypeRegistry != null, "SubtypeRegistry has not been created yet.");
+		return subtypeRegistry;
+	}
+
+	public static void setSubtypeRegistry(SubtypeRegistry subtypeRegistry) {
+		Internal.subtypeRegistry = subtypeRegistry;
 	}
 
 	public static StackHelper getStackHelper() {

@@ -139,7 +139,7 @@ public class JeiStarter {
 			IModPlugin plugin = iterator.next();
 			try {
 				progressBar.step(plugin.getClass().getName());
-				plugin.registerItemSubtypes(subtypeRegistry);
+				plugin.registerSubtypes(subtypeRegistry);
 			} catch (RuntimeException | LinkageError e) {
 				Log.get().error("Failed to register item subtypes for mod plugin: {}", plugin.getClass(), e);
 				iterator.remove();

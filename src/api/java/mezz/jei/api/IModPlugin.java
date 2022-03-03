@@ -13,9 +13,20 @@ public interface IModPlugin {
 	 * If your item has subtypes that depend on NBT or capabilities, use this to help JEI identify those subtypes correctly.
 	 *
 	 * @since JEI 3.12.1
+	 * @deprecated Use {@link IModPlugin#registerSubtypes(ISubtypeRegistry)} instead as it is now canonical
 	 */
+	@Deprecated
 	default void registerItemSubtypes(ISubtypeRegistry subtypeRegistry) {
 
+	}
+
+	/**
+	 * If your item or fluid has subtypes that depend on NBT or capabilities, use this to help JEI identify those subtypes correctly.
+	 *
+	 * @since HEI 4.18.1
+	 */
+	default void registerSubtypes(ISubtypeRegistry subtypeRegistry) {
+		registerItemSubtypes(subtypeRegistry);
 	}
 
 	/**
