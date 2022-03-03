@@ -30,4 +30,7 @@ public class ConfigValues {
 	public boolean bookmarkOverlayEnabled = true;
 	public String filterText = "";
 	public ItemStack defaultFluidContainerItem = new ItemStack(Items.BUCKET);
+
+	// misc
+	public boolean mouseClickToSeeRecipes = true;
 }

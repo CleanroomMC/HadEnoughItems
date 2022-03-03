@@ -105,6 +105,10 @@ config.jei.advanced.optimizeMemoryUsage=Optimize Memory Usage
 config.jei.advanced.optimizeMemoryUsage.comment=Enable JEI memory usage optimizations.
 config.jei.advanced.ultraLowMemoryUsage=Ultra Low Memory Usage Mode
 config.jei.advanced.ultraLowMemoryUsage.comment=Enable ultra low memory usage mode, can slow down searching by a lot however.
+config.jei.misc=Miscellaneous
+config.jei.misc.comment=Miscellaneous config options
+config.jei.misc.mouseClickToSeeRecipes=Mouse Click to See Recipes/Usages
+config.jei.misc.mouseClickToSeeRecipes.comment=Disable to disallow mouse clicks to see recipes and usages when hovering over an ingredient
 
 # Hide Ingredients Mode
 gui.jei.editMode.description=JEI Hide Ingredients Mode:
