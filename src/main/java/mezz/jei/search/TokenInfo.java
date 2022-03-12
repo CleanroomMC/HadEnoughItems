@@ -2,8 +2,6 @@ package mezz.jei.search;
 
 import mezz.jei.config.Config;
 
-import java.util.Optional;
-
 public class TokenInfo {
 
     public static TokenInfo parseRawToken(String token) {
@@ -18,10 +16,6 @@ public class TokenInfo {
             return null;
         }
         return new TokenInfo(token.substring(1), prefixInfo);
-    }
-
-    public static Optional<TokenInfo> parseToken(String token) {
-        return Optional.ofNullable(parseRawToken(token));
     }
 
     public final String token;
