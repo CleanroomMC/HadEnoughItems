@@ -94,6 +94,15 @@ public interface ISubtypeRegistry {
 	interface ISubtypeInterpreter extends IIngredientSubtypeInterpreter<ItemStack> {
 		@Deprecated
 		String NONE = IIngredientSubtypeInterpreter.NONE;
+
+		@Override
+		String apply(ItemStack itemStack);
+
+		@Deprecated
+		@Nullable
+		default String getSubtypeInfo(ItemStack itemStack) {
+			return apply(itemStack);
+		}
 	}
 
 	@FunctionalInterface

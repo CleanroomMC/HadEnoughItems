@@ -9,7 +9,7 @@ public final class Constants {
 
 	// Mod info
 	public static final String MOD_ID = "jei";
-	public static final String NAME = "Just Enough Items";
+	public static final String NAME = "Had Enough Items";
 	public static final String VERSION = "@VERSION@";
 
 	// Textures

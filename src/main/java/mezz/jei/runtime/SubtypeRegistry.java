@@ -67,7 +67,8 @@ public class SubtypeRegistry implements ISubtypeRegistry {
 	@Override
 	public String getSubtypeInfo(ItemStack itemStack) {
 		ErrorUtil.checkNotEmpty(itemStack);
-		IIngredientSubtypeInterpreter interpreter = interpreters.get(itemStack);
+		Item item = itemStack.getItem();
+		IIngredientSubtypeInterpreter interpreter = interpreters.get(item);
 		if (interpreter != null) {
 			return interpreter.apply(itemStack);
 		}
@@ -78,7 +79,8 @@ public class SubtypeRegistry implements ISubtypeRegistry {
 	@Override
 	public String getSubtypeInfo(FluidStack fluidStack) {
 		ErrorUtil.checkNotNull(fluidStack, "fluid");
-		IIngredientSubtypeInterpreter interpreter = interpreters.get(fluidStack);
+		Fluid fluid = fluidStack.getFluid();
+		IIngredientSubtypeInterpreter interpreter = interpreters.get(fluid);
 		if (interpreter != null) {
 			return interpreter.apply(fluidStack);
 		}

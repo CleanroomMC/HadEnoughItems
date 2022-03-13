@@ -7,9 +7,9 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
 
-import mezz.jei.api.ISubtypeRegistry;
+import mezz.jei.api.ISubtypeRegistry.ISubtypeInterpreter;
 
-public class PotionSubtypeInterpreter implements ISubtypeRegistry.ISubtypeInterpreter {
+public class PotionSubtypeInterpreter implements ISubtypeInterpreter {
 	public static final PotionSubtypeInterpreter INSTANCE = new PotionSubtypeInterpreter();
 
 	private PotionSubtypeInterpreter() {
@@ -19,7 +19,7 @@ public class PotionSubtypeInterpreter implements ISubtypeRegistry.ISubtypeInterp
 	@Override
 	public String apply(ItemStack itemStack) {
 		if (!itemStack.hasTagCompound()) {
-			return ISubtypeRegistry.ISubtypeInterpreter.NONE;
+			return NONE;
 		}
 		PotionType potionType = PotionUtils.getPotionFromItem(itemStack);
 		String potionTypeString = potionType.getNamePrefixed("");

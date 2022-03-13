@@ -7,7 +7,7 @@
   "mcversion": "${mcversion}",
   "url": "https://github.com/CleanroomMC/HadEnoughItems",
   "updateUrl": "",
-  "authorList": ["mezz"],
+  "authorList": ["mezz", "Rongmario"],
   "logoFile": "",
   "screenshots": [],
   "dependencies": []
