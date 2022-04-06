@@ -42,6 +42,7 @@ key.jei.showRecipe=显示物品配方
 key.jei.showUses=显示物品用途
 key.jei.recipeBack=显示上个查看的配方
 key.jei.toggleCheatMode=作弊模式开关
+key.jei.toggleEditMode=切换隐藏/编辑模式
 key.jei.previousPage=上一页
 key.jei.nextPage=下一页
 key.jei.bookmark=添加/删除一个物品的书签
@@ -100,6 +101,14 @@ config.jei.advanced.maxRecipeGuiHeight=合成界面最大高度
 config.jei.advanced.maxRecipeGuiHeight.comment=合成表查询界面允许的最大高度。
 config.jei.advanced.giveMode=拿取模式
 config.jei.advanced.giveMode.comment=选择 JEI 会直接将物品移入物品栏或是用鼠标将其捡起。
+config.jei.advanced.optimizeMemoryUsage=内存占用优化
+config.jei.advanced.optimizeMemoryUsage.comment=启用JEI内存占用优化
+config.jei.advanced.ultraLowMemoryUsage=超低内存占用模式
+config.jei.advanced.ultraLowMemoryUsage.comment=启用超低内存占用模式，但会使搜索速度降低很多。
+config.jei.misc=杂项
+config.jei.misc.comment=杂项配置
+config.jei.misc.mouseClickToSeeRecipes=鼠标点击查看合成/使用方法
+config.jei.misc.mouseClickToSeeRecipes.comment=当鼠标悬停在某一材料上时，禁用鼠标点击查看合成和使用方法。
 
 # Hide Ingredients Mode
 gui.jei.editMode.description=JEI 物品列表编辑模式：
@@ -126,3 +135,7 @@ gui.jei.category.itemInformation=信息
 description.jei.wooden.door.1=Wooden Doors allow you to block monsters from entering your building.\nTesting sentences.
 description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and visa versa.
 description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits.
+
+# New HEI lang keys
+config.jei.interface.defaultFluidContainerItem=默认流体容器
+config.jei.interface.defaultFluidContainerItem.comment=当点击 JEI 界面中的液体时，用来填充液体的默认物品（格式： item_name@meta）。
