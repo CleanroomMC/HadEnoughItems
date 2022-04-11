@@ -66,6 +66,12 @@ public class JEIModConfigGui extends GuiConfig {
 			ConfigCategory categoryAdvanced = config.getCategory(Config.CATEGORY_ADVANCED);
 			configElements.addAll(new ConfigElement(categoryAdvanced).getChildElements());
 
+			ConfigCategory categoryRendering = config.getCategory(Config.CATEGORY_RENDERING);
+			configElements.addAll(new ConfigElement(categoryRendering).getChildElements());
+
+			ConfigCategory categoryMisc = config.getCategory(Config.CATEGORY_MISC);
+			configElements.addAll(new ConfigElement(categoryMisc).getChildElements());
+
 			ConfigCategory categorySearch = config.getCategory(Config.CATEGORY_SEARCH);
 			configElements.add(new ConfigElement(categorySearch));
 		}
