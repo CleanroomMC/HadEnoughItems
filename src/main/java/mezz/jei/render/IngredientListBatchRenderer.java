@@ -4,14 +4,15 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import mezz.jei.config.Config;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.ItemModelMesher;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.item.ItemStack;
 
 import com.google.common.base.Preconditions;
@@ -29,6 +30,8 @@ public class IngredientListBatchRenderer {
 	private final List<ItemStackFastRenderer> renderItems3d = new ArrayList<>();
 	private final List<IngredientRenderer> renderOther = new ArrayList<>();
 
+	@Nullable private Framebuffer framebuffer = null;
+	private boolean refreshBuffer = true;
 	private int blocked = 0;
 
 	public void clear() {
@@ -73,6 +76,9 @@ public class IngredientListBatchRenderer {
 				i++;
 			}
 		}
+
+		refreshBuffer = true;
+
 	}
 
 	private <V> void set(IngredientListSlot ingredientListSlot, IIngredientListElement<V> element) {
@@ -132,10 +138,53 @@ public class IngredientListBatchRenderer {
 		return null;
 	}
 
+	public void render(Minecraft minecraft) {
+		if (Config.bufferIngredientRenders() && OpenGlHelper.framebufferSupported) {
+			if (framebuffer == null) {
+				framebuffer = new Framebuffer(minecraft.displayWidth, minecraft.displayHeight, true);
+				framebuffer.framebufferColor[0] = 0.0F;
+				framebuffer.framebufferColor[1] = 0.0F;
+				framebuffer.framebufferColor[2] = 0.0F;
+			}
+			if (refreshBuffer) {
+				framebuffer.createBindFramebuffer(minecraft.displayWidth, minecraft.displayHeight);
+				framebuffer.framebufferClear();
+				framebuffer.bindFramebuffer(false);
+				GlStateManager.disableBlend();
+				GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			} else {
+				GlStateManager.enableBlend();
+				GlStateManager.tryBlendFuncSeparate(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				framebuffer.bindFramebufferTexture();
+				GlStateManager.enableTexture2D();
+				ScaledResolution res = new ScaledResolution(minecraft);
+				Tessellator tessellator = Tessellator.getInstance();
+				BufferBuilder buffer = tessellator.getBuffer();
+				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+				buffer.pos(0, res.getScaledHeight_double(), 0.0).tex(0, 0).endVertex();
+				buffer.pos(res.getScaledWidth_double(), res.getScaledHeight_double(), 0.0).tex(1, 0).endVertex();
+				buffer.pos(res.getScaledWidth_double(), 0, 0.0).tex(1, 1).endVertex();
+				buffer.pos(0, 0, 0.0).tex(0, 1).endVertex();
+				tessellator.draw();
+				GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+				return;
+			}
+		}
+
+		renderImpl(minecraft);
+
+		if (Config.bufferIngredientRenders() && refreshBuffer && OpenGlHelper.framebufferSupported) {
+			refreshBuffer = false;
+			minecraft.getFramebuffer().bindFramebuffer(false);
+		}
+	}
+
 	/**
 	 * renders all ItemStacks
 	 */
-	public void render(Minecraft minecraft) {
+	private void renderImpl(Minecraft minecraft) {
 		RenderHelper.enableGUIStandardItemLighting();
 
 		RenderItem renderItem = minecraft.getRenderItem();
@@ -191,4 +240,5 @@ public class IngredientListBatchRenderer {
 
 		RenderHelper.disableStandardItemLighting();
 	}
+
 }
