@@ -1,5 +1,5 @@
 # Tooltips
-jei.tooltip.config=JEI Config
+jei.tooltip.config=HEI Config
 jei.tooltip.show.recipes=Show Recipes
 jei.tooltip.show.all.recipes=Show All Recipes
 jei.tooltip.delete.item=Click to Delete
@@ -14,11 +14,11 @@ jei.tooltip.cheat.mode.how.to.disable.hotkey=Press %s to toggle it.
 jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s-click here to toggle it.
 jei.tooltip.recipe.by=Recipe By: %s
 jei.tooltip.recipe.id=Recipe ID: %s
-jei.tooltip.not.enough.space=There is not enough space to display JEI here.
-jei.tooltip.ingredient.list.disabled=The JEI overlay is disabled.
+jei.tooltip.not.enough.space=There is not enough space to display HEI here.
+jei.tooltip.ingredient.list.disabled=The HEI overlay is disabled.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Press %s to enable it.
-jei.tooltip.bookmarks=JEI Bookmarks
-jei.tooltip.bookmarks.usage.nokey=Add a key binding for JEI bookmarks in your Controls settings.
+jei.tooltip.bookmarks=HEI Bookmarks
+jei.tooltip.bookmarks.usage.nokey=Add a key binding for HEI bookmarks in your Controls settings.
 jei.tooltip.bookmarks.usage.key=Hover over an ingredient and press "%s" to bookmark it.
 jei.tooltip.bookmarks.not.enough.space=There is not enough space to display bookmarks here.
 
@@ -26,17 +26,17 @@ jei.tooltip.bookmarks.not.enough.space=There is not enough space to display book
 jei.tooltip.error.recipe.transfer.missing=Missing Items
 jei.tooltip.error.recipe.transfer.inventory.full=Inventory is too full
 jei.tooltip.error.recipe.transfer.unknown=Unknown Error, see logs
-jei.tooltip.error.recipe.transfer.no.server=The server must have JEI installed
+jei.tooltip.error.recipe.transfer.no.server=The server must have HEI installed
 jei.tooltip.error.recipe.transfer.too.large.player.inventory=Recipe is too large to craft in the 2x2 player crafting grid.
 jei.tooltip.error.crash=Tooltip error, see log
 
 # Error Messages
-jei.chat.error.command.too.long=JEI must be on the server to handle this Chat Command, it is too long for Minecraft to send.
-jei.chat.error.no.cheat.permission.1=You do not have permission to use JEI's Cheat Mode.
+jei.chat.error.command.too.long=HEI must be on the server to handle this Chat Command, it is too long for Minecraft to send.
+jei.chat.error.no.cheat.permission.1=You do not have permission to use HEI's Cheat Mode.
 jei.chat.error.no.cheat.permission.2=Permission is given to players who can /give items or are in Creative Mode.
 
 # Key Bindings
-key.jei.toggleOverlay=Show/Hide JEI
+key.jei.toggleOverlay=Show/Hide HEI
 key.jei.focusSearch=Select Search Bar
 key.jei.showRecipe=Show Recipe
 key.jei.showUses=Show Uses
@@ -55,7 +55,7 @@ config.jei.valid=Valid
 config.jei.title=%MODNAME Config
 
 config.jei.mode=Mode
-config.jei.mode.comment=Change the mode that JEI is operating in.
+config.jei.mode.comment=Change the mode that HEI is operating in.
 config.jei.mode.cheatItemsEnabled=Cheat Mode
 config.jei.mode.cheatItemsEnabled.comment=Give items instead of showing the recipe.
 config.jei.mode.editEnabled=Hide Ingredients Mode
@@ -84,25 +84,25 @@ config.jei.search.resourceIdSearchMode=&ResourceId
 config.jei.search.resourceIdSearchMode.comment=Search mode for resources ids (prefix: &)
 
 config.jei.advanced=Advanced
-config.jei.advanced.comment=Advanced config options to change the way JEI functions.
+config.jei.advanced.comment=Advanced config options to change the way HEI functions.
 config.jei.advanced.itemBlacklist=Ingredient Blacklist
 config.jei.advanced.itemBlacklist.comment=List of ingredients that should not be displayed in the list. Format: modId[:name[:meta]]. Hide Ingredients Mode will automatically add or remove entries here.
 config.jei.advanced.colorSearchEnabled=Enable Color Search
 config.jei.advanced.colorSearchEnabled.comment=Search ingredients by color and show the colors on tooltips in the list.
 config.jei.advanced.debugModeEnabled=Debug Mode
-config.jei.advanced.debugModeEnabled.comment=Only useful for JEI developers, adds test ingredients and some debug recipes.
+config.jei.advanced.debugModeEnabled.comment=Only useful for HEI developers, adds test ingredients and some debug recipes.
 config.jei.advanced.centerSearchBarEnabled=Center Search Bar
-config.jei.advanced.centerSearchBarEnabled.comment=Move the JEI search bar to the bottom center of the screen.
+config.jei.advanced.centerSearchBarEnabled.comment=Move the HEI search bar to the bottom center of the screen.
 config.jei.advanced.modNameFormat=Mod Name Format
-config.jei.advanced.modNameFormat.comment=How the mod name should be formatted in the tooltip for JEI GUIs. Leave blank to disable.
+config.jei.advanced.modNameFormat.comment=How the mod name should be formatted in the tooltip for HEI GUIs. Leave blank to disable.
 config.jei.advanced.maxColumns=Max Overlay Width
 config.jei.advanced.maxColumns.comment=The maximum width of the ingredient list.
 config.jei.advanced.maxRecipeGuiHeight=Max Recipe GUI Height
 config.jei.advanced.maxRecipeGuiHeight.comment=The maximum height of the recipe GUI.
 config.jei.advanced.giveMode=Give Mode
-config.jei.advanced.giveMode.comment=Choose if JEI should give ingredients direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
+config.jei.advanced.giveMode.comment=Choose if HEI should give ingredients direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
 config.jei.advanced.optimizeMemoryUsage=Optimize Memory Usage
-config.jei.advanced.optimizeMemoryUsage.comment=Enable JEI memory usage optimizations.
+config.jei.advanced.optimizeMemoryUsage.comment=Enable HEI memory usage optimizations.
 config.jei.advanced.ultraLowMemoryUsage=Ultra Low Memory Usage Mode
 config.jei.advanced.ultraLowMemoryUsage.comment=Enable ultra low memory usage mode, can slow down searching by a lot however.
 config.jei.misc=Miscellaneous
@@ -111,7 +111,7 @@ config.jei.misc.mouseClickToSeeRecipes=Mouse Click to See Recipes/Usages
 config.jei.misc.mouseClickToSeeRecipes.comment=Disable to disallow mouse clicks to see recipes and usages when hovering over an ingredient
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=JEI Hide Ingredients Mode:
+gui.jei.editMode.description=HEI Hide Ingredients Mode:
 gui.jei.editMode.description.hide=%CTRL-Click to Hide
 gui.jei.editMode.description.hide.wild=%CTRL-right-click to Hide by Wildcard
 

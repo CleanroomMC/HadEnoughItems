@@ -89,7 +89,7 @@ public final class CraftingRecipeChecker {
 			int inputCount = getInputCount(ingredients, stackHelper);
 			if (inputCount == CANT_DISPLAY) {
 				String recipeInfo = getInfo(recipe);
-				Log.get().warn("Recipe contains ingredients that can't be understood or displayed by JEI: {}", recipeInfo);
+				Log.get().warn("Recipe contains ingredients that can't be understood or displayed by HEI: {}", recipeInfo);
 				return false;
 			} else if (inputCount == INVALID_COUNT) {
 				return false;

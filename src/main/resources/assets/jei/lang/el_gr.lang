@@ -1,5 +1,5 @@
 ﻿# Tooltips
-jei.tooltip.config=Ρυθμίσεις JEI
+jei.tooltip.config=Ρυθμίσεις HEI
 jei.tooltip.show.recipes=Δείξε συνταγές
 jei.tooltip.show.all.recipes=Δείξε όλες τις συνταγές
 jei.tooltip.delete.item=Πάτα για Διαγραφή
@@ -15,20 +15,20 @@ jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s-click here to toggle it.
 jei.tooltip.recipe.by=Recipe By: %s
 jei.tooltip.recipe.id=Recipe ID: %s
 jei.tooltip.not.enough.space=There is not enough space to display the ingredient list here.
-jei.tooltip.ingredient.list.disabled=The JEI overlay is disabled.
+jei.tooltip.ingredient.list.disabled=The HEI overlay is disabled.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Press %s to enable it.
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Ελλιπές Αντικείμενα
 jei.tooltip.error.recipe.transfer.inventory.full=Το inventory σου είναι υπερβολικά γεμάτο
 jei.tooltip.error.recipe.transfer.unknown=Άγνωστο πρόβλημα, δες την καταγραφή παιχνιδιού
-jei.tooltip.error.recipe.transfer.no.server=Ο σερβερ πρέπει να έχει εγκατεστημένο το JEI
+jei.tooltip.error.recipe.transfer.no.server=Ο σερβερ πρέπει να έχει εγκατεστημένο το HEI
 jei.tooltip.error.recipe.transfer.too.large.player.inventory=Recipe is too large to craft in the 2x2 player crafting grid.
 jei.tooltip.error.crash=Πρόβλημα Επεξήγησης, δες την καταγραφή παιχνιδιού
 
 # Error Messages
-jei.chat.error.command.too.long=Το JEI πρέπει να υπάρχει στον σερβερ για να χειριστεί αυτή την εντολή τσατ, είναι πολύ μεγάλη για να μπορεί να την στείλει το Minecraft.
-jei.chat.error.no.cheat.permission.1=You do not have permission to use JEI's Cheat Mode.
+jei.chat.error.command.too.long=Το HEI πρέπει να υπάρχει στον σερβερ για να χειριστεί αυτή την εντολή τσατ, είναι πολύ μεγάλη για να μπορεί να την στείλει το Minecraft.
+jei.chat.error.no.cheat.permission.1=You do not have permission to use HEI's Cheat Mode.
 jei.chat.error.no.cheat.permission.2=Permission is given to players who can /give items or are in Creative Mode.
 
 # Key Bindings
@@ -48,7 +48,7 @@ config.jei.valid=Έγκυρο
 config.jei.title=Ρυθμίσεις %MODNAME
 
 config.jei.mode=Λειτουργία
-config.jei.mode.comment=Άλλαξε την λειτουργία στην οποία το JEI λειτουργεί.
+config.jei.mode.comment=Άλλαξε την λειτουργία στην οποία το HEI λειτουργεί.
 config.jei.mode.cheatItemsEnabled=Λειτουργία Cheat Αντικειμένων
 config.jei.mode.cheatItemsEnabled.comment=Δώσε αντικείμενα αντί να δείχνει την συνταγή.
 config.jei.mode.editEnabled=Λειτουργία Εξαφάνισης Αντικειμένων
@@ -75,24 +75,24 @@ config.jei.search.resourceIdSearchMode=&ResourceId
 config.jei.search.resourceIdSearchMode.comment=Search mode for resources ids (prefix: &)
 
 config.jei.advanced=Προχωρημένα
-config.jei.advanced.comment=Προχωρημένες ρυθμίσεις για να αλλάξεις τον τρόπο που λειτουργεί το JEI.
+config.jei.advanced.comment=Προχωρημένες ρυθμίσεις για να αλλάξεις τον τρόπο που λειτουργεί το HEI.
 config.jei.advanced.itemBlacklist=Μαύρη Λίστα Αντικειμένων
 config.jei.advanced.itemBlacklist.comment=Λίστα αντικειμένων τα οποία δεν πρέπει να εμφανίζονται στην λίστα αντικειμένων. Μορφή: modId[:name[:meta]]. Η Λειτουργία Επεξεργασίας βάζει και διαγράφει αυτόματα αντικείμενα εδώ.
 config.jei.advanced.colorSearchEnabled=Ενεργοποίησε Αναζήτηση Χρωμάτων
 config.jei.advanced.colorSearchEnabled.comment=Αναζήτησε αντικείμενα από το χρώμα τους και δείξε πιθανά χρώματα για αναζήτηση στις πληροφορίες αντικειμένων στην λίστα αντικειμένων.
 config.jei.advanced.debugModeEnabled=Λειτουργία Debug
-config.jei.advanced.debugModeEnabled.comment=Μόνο χρήσιμο για προγραμματιστές του JEI, βάζει χιλιάδες δοκιμαστικά αντικείμενα και συνταγές.
+config.jei.advanced.debugModeEnabled.comment=Μόνο χρήσιμο για προγραμματιστές του HEI, βάζει χιλιάδες δοκιμαστικά αντικείμενα και συνταγές.
 config.jei.advanced.centerSearchBarEnabled=Κέντραρε Μπάρα Αναζήτησης
-config.jei.advanced.centerSearchBarEnabled.comment=Μετακίνησε την JEI μπάρα αναζήτης στο κεντρικό κάτω μέρος της οθόνης.
+config.jei.advanced.centerSearchBarEnabled.comment=Μετακίνησε την HEI μπάρα αναζήτης στο κεντρικό κάτω μέρος της οθόνης.
 config.jei.advanced.modNameFormat=Mod Name Format
-config.jei.advanced.modNameFormat.comment=How the mod name should be formatted in the tooltip for JEI guis. Leave blank to disable.
+config.jei.advanced.modNameFormat.comment=How the mod name should be formatted in the tooltip for HEI guis. Leave blank to disable.
 config.jei.advanced.maxColumns=Max Width
 config.jei.advanced.maxColumns.comment=The maximum width of the ingredient list.
 config.jei.advanced.giveMode=Give Mode
-config.jei.advanced.giveMode.comment=Choose if JEI should give items direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
+config.jei.advanced.giveMode.comment=Choose if HEI should give items direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=JEI Λίστα Αντικειμένων Λειτουργία Επεξεργασίας:
+gui.jei.editMode.description=HEI Λίστα Αντικειμένων Λειτουργία Επεξεργασίας:
 gui.jei.editMode.description.hide=Ctrl-κλικ για να εξαφανίσεις.
 gui.jei.editMode.description.hide.wild=Ctrl-δεξί-κλικ για εξαφάνιση από wildcard.
 

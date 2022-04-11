@@ -15,7 +15,7 @@ jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s-click here to toggle it.
 jei.tooltip.recipe.by=Recipe By: %s
 jei.tooltip.recipe.id=Recipe ID: %s
 jei.tooltip.not.enough.space=There is not enough space to display the ingredient list here.
-jei.tooltip.ingredient.list.disabled=The JEI overlay is disabled.
+jei.tooltip.ingredient.list.disabled=The HEI overlay is disabled.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Press %s to enable it.
 
 # Error Tooltips
@@ -28,7 +28,7 @@ jei.tooltip.error.crash=Tooltip error, see log
 
 # Error Messages
 jei.chat.error.command.too.long=.على جاي إي آي أن يكون موجودا في السيرفر حتى يمكنه أن يتعامل مع أمر الدردشة هذا، إنه طويل للغاية حتى تتمكن ماينكرافت من إرساله
-jei.chat.error.no.cheat.permission.1=You do not have permission to use JEI's Cheat Mode.
+jei.chat.error.no.cheat.permission.1=You do not have permission to use HEI's Cheat Mode.
 jei.chat.error.no.cheat.permission.2=Permission is given to players who can /give items or are in Creative Mode.
 
 # Key Bindings
@@ -85,11 +85,11 @@ config.jei.advanced.debugModeEnabled.comment=.ذو فائدة لمصممي جا�
 config.jei.advanced.centerSearchBarEnabled=.شريط الشاشة في الوسط
 config.jei.advanced.centerSearchBarEnabled.comment=.انقل جاي إي آي إلى أسفل وسط الشاشة
 config.jei.advanced.modNameFormat=Mod Name Format
-config.jei.advanced.modNameFormat.comment=How the mod name should be formatted in the tooltip for JEI guis. Leave blank to disable.
+config.jei.advanced.modNameFormat.comment=How the mod name should be formatted in the tooltip for HEI guis. Leave blank to disable.
 config.jei.advanced.maxColumns=Max Width
 config.jei.advanced.maxColumns.comment=The maximum width of the ingredient list.
 config.jei.advanced.giveMode=Give Mode
-config.jei.advanced.giveMode.comment=Choose if JEI should give items direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
+config.jei.advanced.giveMode.comment=Choose if HEI should give items direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
 
 # Hide Ingredients Mode
 gui.jei.editMode.description=:وضع جاي إي آي لتعديل قائمة العناصر

@@ -15,20 +15,20 @@ jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s-click here to toggle it.
 jei.tooltip.recipe.by=Recipe By: %s
 jei.tooltip.recipe.id=Recipe ID: %s
 jei.tooltip.not.enough.space=There is not enough space to display the ingredient list here.
-jei.tooltip.ingredient.list.disabled=The JEI overlay is disabled.
+jei.tooltip.ingredient.list.disabled=The HEI overlay is disabled.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Press %s to enable it.
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Mangler Artikler å Overføre
 jei.tooltip.error.recipe.transfer.inventory.full=Inventar er fullt
 jei.tooltip.error.recipe.transfer.unknown=Unknown Error, see logs
-jei.tooltip.error.recipe.transfer.no.server=The server must have JEI installed
+jei.tooltip.error.recipe.transfer.no.server=The server must have HEI installed
 jei.tooltip.error.recipe.transfer.too.large.player.inventory=Recipe is too large to craft in the 2x2 player crafting grid.
 jei.tooltip.error.crash=Tooltip error, see log
 
 # Error Messages
-jei.chat.error.command.too.long=For å bruke denne kommandoen må JEI være installert på serveren. Den er for lang for Minecraft å sende.
-jei.chat.error.no.cheat.permission.1=You do not have permission to use JEI's Cheat Mode.
+jei.chat.error.command.too.long=For å bruke denne kommandoen må HEI være installert på serveren. Den er for lang for Minecraft å sende.
+jei.chat.error.no.cheat.permission.1=You do not have permission to use HEI's Cheat Mode.
 jei.chat.error.no.cheat.permission.2=Permission is given to players who can /give items or are in Creative Mode.
 
 # Key Bindings
@@ -48,7 +48,7 @@ config.jei.valid=Gyldig
 config.jei.title=%MODNAME Innstillinger
 
 config.jei.mode=Modus
-config.jei.mode.comment=Endre modusen JEI opererer i
+config.jei.mode.comment=Endre modusen HEI opererer i
 config.jei.mode.cheatItemsEnabled=Jukse Modus
 config.jei.mode.cheatItemsEnabled.comment=Gi ting i stedet for å vise oppskrift
 config.jei.mode.editEnabled=Skjul Artikkel Modus
@@ -75,24 +75,24 @@ config.jei.search.resourceIdSearchMode=&ResourceId
 config.jei.search.resourceIdSearchMode.comment=Search mode for resources ids (prefix: &)
 
 config.jei.advanced=Avansert
-config.jei.advanced.comment=Avanserte innstillinger for å endre måten JEI fungerer på.
+config.jei.advanced.comment=Avanserte innstillinger for å endre måten HEI fungerer på.
 config.jei.advanced.itemBlacklist=Svartliste for Artikler
 config.jei.advanced.itemBlacklist.comment=Liste over artikler som ikke skal vises i artikkel listen. Format: modId[:navn[:meta]]. Redigerings Modus vil automatisk legge til eller fjerne oppføringer her.
 config.jei.advanced.colorSearchEnabled=Aktiver Fargesøk
 config.jei.advanced.colorSearchEnabled.comment=Søk etter artikler med fargenavn og vis navnet på artiklers farge i verktøytipset.
 config.jei.advanced.debugModeEnabled=Feilsøkings Modus
-config.jei.advanced.debugModeEnabled.comment=Nyttig for utviklerne av JEI. Legger til tusenvis av test artikler og noen feilsøkings oppskrifter.
+config.jei.advanced.debugModeEnabled.comment=Nyttig for utviklerne av HEI. Legger til tusenvis av test artikler og noen feilsøkings oppskrifter.
 config.jei.advanced.centerSearchBarEnabled=Center Search Bar
-config.jei.advanced.centerSearchBarEnabled.comment=Move the JEI search bar to the bottom center of the screen.
+config.jei.advanced.centerSearchBarEnabled.comment=Move the HEI search bar to the bottom center of the screen.
 config.jei.advanced.modNameFormat=Mod Name Format
-config.jei.advanced.modNameFormat.comment=How the mod name should be formatted in the tooltip for JEI guis. Leave blank to disable.
+config.jei.advanced.modNameFormat.comment=How the mod name should be formatted in the tooltip for HEI guis. Leave blank to disable.
 config.jei.advanced.maxColumns=Max Width
 config.jei.advanced.maxColumns.comment=The maximum width of the ingredient list.
 config.jei.advanced.giveMode=Give Mode
-config.jei.advanced.giveMode.comment=Choose if JEI should give items direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
+config.jei.advanced.giveMode.comment=Choose if HEI should give items direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=JEI Artikkel Liste Redigerings Modus:
+gui.jei.editMode.description=HEI Artikkel Liste Redigerings Modus:
 gui.jei.editMode.description.hide=%CTRL-Klikk for å skjule.
 gui.jei.editMode.description.hide.wild=%CTRL-Høyreklikk for å skjule med jokertegn(*).
 

@@ -17,7 +17,7 @@ import mezz.jei.runtime.JeiRuntime;
 import mezz.jei.startup.StackHelper;
 
 /**
- * For JEI internal use only, these are normally accessed from the API.
+ * For HEI internal use only, these are normally accessed from the API.
  */
 public final class Internal {
 	@Nullable

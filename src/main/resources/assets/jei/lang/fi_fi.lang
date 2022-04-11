@@ -15,20 +15,20 @@ jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s-click here to toggle it.
 jei.tooltip.recipe.by=Recipe By: %s
 jei.tooltip.recipe.id=Recipe ID: %s
 jei.tooltip.not.enough.space=There is not enough space to display the ingredient list here.
-jei.tooltip.ingredient.list.disabled=The JEI overlay is disabled.
+jei.tooltip.ingredient.list.disabled=The HEI overlay is disabled.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Press %s to enable it.
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Puuttuvat tavarat
 jei.tooltip.error.recipe.transfer.inventory.full=Tavaraluettelo on liian täynnä
 jei.tooltip.error.recipe.transfer.unknown=Tuntematon virhe, katso lokia
-jei.tooltip.error.recipe.transfer.no.server=JEI:n täytyy olla asennettuna palvelimella
+jei.tooltip.error.recipe.transfer.no.server=HEI:n täytyy olla asennettuna palvelimella
 jei.tooltip.error.recipe.transfer.too.large.player.inventory=Resepti ei ole 2x2
 jei.tooltip.error.crash=Työkaluvihjeen virhe, katso lokia
 
 # Error Messages
-jei.chat.error.command.too.long=JEI:n täytyy olla asennettuna palvelimella, komento on liian pitkä Minecraftille.
-jei.chat.error.no.cheat.permission.1=Sinulla ei ole lupaa käyttää JEI:n huijaustilaa.
+jei.chat.error.command.too.long=HEI:n täytyy olla asennettuna palvelimella, komento on liian pitkä Minecraftille.
+jei.chat.error.no.cheat.permission.1=Sinulla ei ole lupaa käyttää HEI:n huijaustilaa.
 jei.chat.error.no.cheat.permission.2=Lupa myönnetään pelaajille, jotka voivat ottaa /give:llä tavaroita tai ovat luovassa tilassa.
 
 # Key Bindings
@@ -48,7 +48,7 @@ config.jei.valid=Virheetön
 config.jei.title=%MODNAME-asetukset
 
 config.jei.mode=Tila
-config.jei.mode.comment=Vaihda tilaa, jossa JEI toimii.
+config.jei.mode.comment=Vaihda tilaa, jossa HEI toimii.
 config.jei.mode.cheatItemsEnabled=Tavaroiden huijaus
 config.jei.mode.cheatItemsEnabled.comment=Anna tavaroita reseptin näyttämisen sijaan.
 config.jei.mode.editEnabled=Tavaralistan muokkaustila
@@ -75,24 +75,24 @@ config.jei.search.resourceIdSearchMode=&ResourceId
 config.jei.search.resourceIdSearchMode.comment=Search mode for resources ids (prefix: &)
 
 config.jei.advanced=Edistynyt
-config.jei.advanced.comment=Edistyneitä asetuksia jotka muokkaavat JEI:n toimintaa.
+config.jei.advanced.comment=Edistyneitä asetuksia jotka muokkaavat HEI:n toimintaa.
 config.jei.advanced.itemBlacklist=Tavaroiden musta lista
-config.jei.advanced.itemBlacklist.comment=Lista tavaroista joita ei pitäisi näyttää JEI:n tavaralistassa. Muoto: modinId:nimi[:metadata]. Muokkaustila lisää tai poistaa merkintöjä tästä.
+config.jei.advanced.itemBlacklist.comment=Lista tavaroista joita ei pitäisi näyttää HEI:n tavaralistassa. Muoto: modinId:nimi[:metadata]. Muokkaustila lisää tai poistaa merkintöjä tästä.
 config.jei.advanced.colorSearchEnabled=Ota värihaku käyttöön
 config.jei.advanced.colorSearchEnabled.comment=Hae tavaroita värin perusteella ja näytä etsittävät värit tavaralistan työkaluvihjeissä.
 config.jei.advanced.debugModeEnabled=Debug-tila
-config.jei.advanced.debugModeEnabled.comment=Tarkoitettu JEI:n kehittäjille. Lisää tuhansia testitavaroita ja muutamia testireseptejä.
+config.jei.advanced.debugModeEnabled.comment=Tarkoitettu HEI:n kehittäjille. Lisää tuhansia testitavaroita ja muutamia testireseptejä.
 config.jei.advanced.centerSearchBarEnabled=Keskitä hakukenttä
-config.jei.advanced.centerSearchBarEnabled.comment=Siirrä JEI:n hakukenttä näytön alareunan keskelle.
+config.jei.advanced.centerSearchBarEnabled.comment=Siirrä HEI:n hakukenttä näytön alareunan keskelle.
 config.jei.advanced.modNameFormat=Modin nimen muoto
-config.jei.advanced.modNameFormat.comment=Tapa, jolla muotoillaan modin nimi JEI:n työkaluvihjeissä. Ota pois käytöstä jättämällä tyhjäksi.
+config.jei.advanced.modNameFormat.comment=Tapa, jolla muotoillaan modin nimi HEI:n työkaluvihjeissä. Ota pois käytöstä jättämällä tyhjäksi.
 config.jei.advanced.maxColumns=Max Width
 config.jei.advanced.maxColumns.comment=The maximum width of the ingredient list.
 config.jei.advanced.giveMode=Give Mode
-config.jei.advanced.giveMode.comment=Choose if JEI should give items direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
+config.jei.advanced.giveMode.comment=Choose if HEI should give items direct to the inventory (inventory) or pick them up with the mouse (mouse_pickup).
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=JEI:n tavaralistan muokkaustila:
+gui.jei.editMode.description=HEI:n tavaralistan muokkaustila:
 gui.jei.editMode.description.hide=Piilota %CTRL-klikkaamalla.
 gui.jei.editMode.description.hide.wild=Piilota jokerimerkin perusteella %CTRL-klikkaamalla hiiren oikealla painikkeella.
 

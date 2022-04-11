@@ -1,5 +1,5 @@
 # Tooltips
-jei.tooltip.config=JEIの設定
+jei.tooltip.config=HEIの設定
 jei.tooltip.show.recipes=レシピを表示
 jei.tooltip.show.all.recipes=全てのレシピを表示
 jei.tooltip.delete.item=クリックで削除
@@ -14,11 +14,11 @@ jei.tooltip.cheat.mode.how.to.disable.hotkey=%sキーで無効にします。
 jei.tooltip.cheat.mode.how.to.disable.no.hotkey=ここを%s+左クリックで無効にします。
 jei.tooltip.recipe.by=%s によるレシピ
 jei.tooltip.recipe.id=レシピID: %s
-jei.tooltip.not.enough.space=JEIを表示する十分なスペースがありません。
-jei.tooltip.ingredient.list.disabled=JEIオーバーレイは無効です。
+jei.tooltip.not.enough.space=HEIを表示する十分なスペースがありません。
+jei.tooltip.ingredient.list.disabled=HEIオーバーレイは無効です。
 jei.tooltip.ingredient.list.disabled.how.to.fix=%s キーで有効にします。
-jei.tooltip.bookmarks=JEIブックマーク
-jei.tooltip.bookmarks.usage.nokey=操作設定でJEIブックマークのキーバインドを設定してください。
+jei.tooltip.bookmarks=HEIブックマーク
+jei.tooltip.bookmarks.usage.nokey=操作設定でHEIブックマークのキーバインドを設定してください。
 jei.tooltip.bookmarks.usage.key=アイテムにホバーして「%s」キーを押すことでブックマークできます。
 jei.tooltip.bookmarks.not.enough.space=ブックマークを表示する十分なスペースがありません。
 
@@ -26,17 +26,17 @@ jei.tooltip.bookmarks.not.enough.space=ブックマークを表示する十分�
 jei.tooltip.error.recipe.transfer.missing=アイテムがインベントリ内に存在しません
 jei.tooltip.error.recipe.transfer.inventory.full=インベントリが満杯です
 jei.tooltip.error.recipe.transfer.unknown=不明なエラー、ログを参照してください
-jei.tooltip.error.recipe.transfer.no.server=サーバーにJEIが導入されている必要があります
+jei.tooltip.error.recipe.transfer.no.server=サーバーにHEIが導入されている必要があります
 jei.tooltip.error.recipe.transfer.too.large.player.inventory=2x2のクラフトグリッドではクラフトできないサイズのレシピです
 jei.tooltip.error.crash=ツールチップのエラー、ログを参照してください
 
 # Error Messages
-jei.chat.error.command.too.long=このコマンドを実行するにはJEIがサーバーに導入されている必要があります、バニラでは長すぎるため送ることができません。
-jei.chat.error.no.cheat.permission.1=JEIチートモードを使う権限を有していません。
+jei.chat.error.command.too.long=このコマンドを実行するにはHEIがサーバーに導入されている必要があります、バニラでは長すぎるため送ることができません。
+jei.chat.error.no.cheat.permission.1=HEIチートモードを使う権限を有していません。
 jei.chat.error.no.cheat.permission.2=権限はgiveコマンドが使用できるか、クリエイティブモードのプレイヤーに与えられます。
 
 # Key Bindings
-key.jei.toggleOverlay=JEIの表示/非表示
+key.jei.toggleOverlay=HEIの表示/非表示
 key.jei.focusSearch=検索バーの選択
 key.jei.showRecipe=レシピの表示
 key.jei.showUses=用途の表示
@@ -54,7 +54,7 @@ config.jei.valid=有効
 config.jei.title=%MODNAMEの設定
 
 config.jei.mode=モード
-config.jei.mode.comment=JEIのモードを変更します。
+config.jei.mode.comment=HEIのモードを変更します。
 config.jei.mode.cheatItemsEnabled=チートモード
 config.jei.mode.cheatItemsEnabled.comment=レシピを見せるのではなくアイテムを与えます。
 config.jei.mode.editEnabled=アイテム隠蔽モード
@@ -83,18 +83,18 @@ config.jei.search.resourceIdSearchMode=&リソースID
 config.jei.search.resourceIdSearchMode.comment=リソースID検索 (プレフィックス：&)
 
 config.jei.advanced=高度な設定
-config.jei.advanced.comment=JEIの機能を変更する高度な設定。
+config.jei.advanced.comment=HEIの機能を変更する高度な設定。
 config.jei.advanced.itemBlacklist=アイテムのブラックリスト
 config.jei.advanced.itemBlacklist.comment=アイテムリストに表示されるべきではない要素のリスト。 書式: modId[:name[:meta]]. アイテム隠蔽モード時はここに自動的に追加削除されます。
 config.jei.advanced.colorSearchEnabled=色による検索の有効化
 config.jei.advanced.colorSearchEnabled.comment=色による検索とアイテムリスト内ツールチップでのアイテムの色情報表示を有効化します。
 config.jei.advanced.debugModeEnabled=デバッグモード
-config.jei.advanced.debugModeEnabled.comment=JEIの開発者にとってのみ有用です。大量のテスト用アイテムといくつかのデバッグ用レシピを追加します。
+config.jei.advanced.debugModeEnabled.comment=HEIの開発者にとってのみ有用です。大量のテスト用アイテムといくつかのデバッグ用レシピを追加します。
 config.jei.advanced.centerSearchBarEnabled=検索バーの中央配置
-config.jei.advanced.centerSearchBarEnabled.comment=JEI検索バーを中央下に移動します。
+config.jei.advanced.centerSearchBarEnabled.comment=HEI検索バーを中央下に移動します。
 config.jei.advanced.modNameFormat=Mod名の書式
-config.jei.advanced.modNameFormat.comment=JEIのGUIやツールチップにおいてどのようにMod名を表示するか指定します。空欄で無効。
-config.jei.advanced.maxColumns=最大JEIオーバーレイ幅
+config.jei.advanced.modNameFormat.comment=HEIのGUIやツールチップにおいてどのようにMod名を表示するか指定します。空欄で無効。
+config.jei.advanced.maxColumns=最大HEIオーバーレイ幅
 config.jei.advanced.maxColumns.comment=アイテムリストの最大幅
 config.jei.advanced.maxRecipeGuiHeight=最大レシピGUI高さ
 config.jei.advanced.maxRecipeGuiHeight.comment=レシピGUIの最大の高さ
@@ -102,7 +102,7 @@ config.jei.advanced.giveMode=付与モード
 config.jei.advanced.giveMode.comment=インベントリに直接アイテムに送るか (inventory)、マウスでアイテムを取得するか (mouse_pickup) を指定します。
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=JEIアイテム隠蔽モード:
+gui.jei.editMode.description=HEIアイテム隠蔽モード:
 gui.jei.editMode.description.hide=%CTRL+左クリックで隠蔽
 gui.jei.editMode.description.hide.wild=%CTRL+右クリックでワイルドカードによる隠蔽
 

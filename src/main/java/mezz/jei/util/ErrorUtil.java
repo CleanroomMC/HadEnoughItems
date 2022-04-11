@@ -255,7 +255,7 @@ public final class ErrorUtil {
 		if (minecraft != null && !minecraft.isCallingFromMinecraftThread()) {
 			Thread currentThread = Thread.currentThread();
 			throw new IllegalStateException(
-				"A JEI API method is being called by another mod from the wrong thread:\n" +
+				"A HEI API method is being called by another mod from the wrong thread:\n" +
 					currentThread + "\n" +
 					"It must be called on the main thread by using Minecraft.addScheduledTask."
 			);
@@ -284,7 +284,7 @@ public final class ErrorUtil {
 		ingredientCategory.addDetail("Display Name", () -> ingredientHelper.getDisplayName(ingredient));
 		ingredientCategory.addDetail("String Name", ingredient::toString);
 
-		CrashReportCategory jeiCategory = crashreport.makeCategory("JEI render details");
+		CrashReportCategory jeiCategory = crashreport.makeCategory("HEI render details");
 		jeiCategory.addDetail("Unique Id (for Blacklist)", () -> ingredientHelper.getUniqueId(ingredient));
 		jeiCategory.addDetail("Ingredient Type", () -> ingredientType.getIngredientClass().toString());
 		jeiCategory.addDetail("Error Info", () -> ingredientHelper.getErrorInfo(ingredient));

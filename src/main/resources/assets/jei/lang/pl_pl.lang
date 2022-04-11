@@ -1,5 +1,5 @@
 # Tooltips
-jei.tooltip.config=Konfiguracja JEI
+jei.tooltip.config=Konfiguracja HEI
 jei.tooltip.show.recipes=Pokaż receptury
 jei.tooltip.show.all.recipes=Pokaż wszystkie receptury
 jei.tooltip.delete.item=Kliknij, aby usunąć
@@ -14,29 +14,29 @@ jei.tooltip.cheat.mode.how.to.disable.hotkey=Naciśnij %s, aby go wyłączyć/w�
 jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s + klik tutaj, aby go wyłączyć/włączyć.
 jei.tooltip.recipe.by=Receptura z: %s
 jei.tooltip.recipe.id=ID receptury: %s
-jei.tooltip.not.enough.space=Nie ma wystarczająco dużo miejsca, żeby wyświetlić tutaj nakładkę z listą składników JEI.
-jei.tooltip.ingredient.list.disabled=Nakładka JEI jest wyłączona.
+jei.tooltip.not.enough.space=Nie ma wystarczająco dużo miejsca, żeby wyświetlić tutaj nakładkę z listą składników HEI.
+jei.tooltip.ingredient.list.disabled=Nakładka HEI jest wyłączona.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Naciśnij %s, aby ją włączyć.
-jei.tooltip.bookmarks=Zakładki JEI
-jei.tooltip.bookmarks.usage.nokey=Przypisz klawisz dla zakładek JEI w ustawieniach sterowania.
+jei.tooltip.bookmarks=Zakładki HEI
+jei.tooltip.bookmarks.usage.nokey=Przypisz klawisz dla zakładek HEI w ustawieniach sterowania.
 jei.tooltip.bookmarks.usage.key=Najedź kursorem na składnik i naciśnij "%s", aby dodać go do zakładek.
-jei.tooltip.bookmarks.not.enough.space=Nie ma wystarczająco dużo miejsca, żeby wyświetlić tutaj nakładkę z listą zakładek JEI.
+jei.tooltip.bookmarks.not.enough.space=Nie ma wystarczająco dużo miejsca, żeby wyświetlić tutaj nakładkę z listą zakładek HEI.
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Brakuje przedmiotów
 jei.tooltip.error.recipe.transfer.inventory.full=Ekwipunek jest przepełniony
 jei.tooltip.error.recipe.transfer.unknown=Nieznany błąd, sprawdź logi
-jei.tooltip.error.recipe.transfer.no.server=Serwer musi mieć zainstalowane JEI
+jei.tooltip.error.recipe.transfer.no.server=Serwer musi mieć zainstalowane HEI
 jei.tooltip.error.recipe.transfer.too.large.player.inventory=Receptura jest za duża, żeby móc coś skonstruować w siatce 2x2 gracza.
 jei.tooltip.error.crash=Błąd z tooltipem, sprawdź log
 
 # Error Messages
-jei.chat.error.command.too.long=JEI musi być na serwerze, żeby obsłużyć tę komendę czatu. Jest ona zbyt długa dla Minecrafta, aby ją wysłać.
-jei.chat.error.no.cheat.permission.1=Nie masz uprawnień do używania trybu cheatów JEI.
+jei.chat.error.command.too.long=HEI musi być na serwerze, żeby obsłużyć tę komendę czatu. Jest ona zbyt długa dla Minecrafta, aby ją wysłać.
+jei.chat.error.no.cheat.permission.1=Nie masz uprawnień do używania trybu cheatów HEI.
 jei.chat.error.no.cheat.permission.2=Uprawnienia są nadawane graczom, którzy mogą używać komendy /give lub są w trybie kreatywnym.
 
 # Key Bindings
-key.jei.toggleOverlay=Pokaż/ukryj JEI
+key.jei.toggleOverlay=Pokaż/ukryj HEI
 key.jei.focusSearch=Zaznacz pasek wyszukiwania
 key.jei.showRecipe=Wyświetl recepturę
 key.jei.showUses=Wyświetl zastosowania
@@ -55,7 +55,7 @@ config.jei.valid=Poprawne
 config.jei.title=Konfiguracja %MODNAME
 
 config.jei.mode=Tryb
-config.jei.mode.comment=Zmień tryb, w jakim działa JEI.
+config.jei.mode.comment=Zmień tryb, w jakim działa HEI.
 config.jei.mode.cheatItemsEnabled=Tryb cheatów
 config.jei.mode.cheatItemsEnabled.comment=Dawaj przedmioty, zamiast pokazywać ich receptury.
 config.jei.mode.editEnabled=Tryb ukrywania składników
@@ -84,28 +84,28 @@ config.jei.search.resourceIdSearchMode=&IdZasobu
 config.jei.search.resourceIdSearchMode.comment=Tryb wyszukiwania po ID zasobów (prefiks: &)
 
 config.jei.advanced=Zaawansowane
-config.jei.advanced.comment=Zaawansowane opcje konfiguracyjne do zmiany sposobu, w jaki funkcjonuje JEI.
+config.jei.advanced.comment=Zaawansowane opcje konfiguracyjne do zmiany sposobu, w jaki funkcjonuje HEI.
 config.jei.advanced.itemBlacklist=Czarna lista składników
 config.jei.advanced.itemBlacklist.comment=Lista składników, które nie powinny być wyświetlane na nakładce z listą składników. Format: idModa[:nazwa[:meta]]. Tryb ukrywania składników automatycznie doda tutaj wpisy lub je usunie.
 config.jei.advanced.colorSearchEnabled=Włącz wyszukiwanie po kolorach
 config.jei.advanced.colorSearchEnabled.comment=Wyszukuj składniki po kolorach oraz pokazuj te kolory w tooltipach na nakładce z listą składników.
 config.jei.advanced.debugModeEnabled=Tryb debugowania
-config.jei.advanced.debugModeEnabled.comment=Przydatny tylko dla deweloperów JEI, dodaje testowe składniki i kilka debugerskich receptur.
+config.jei.advanced.debugModeEnabled.comment=Przydatny tylko dla deweloperów HEI, dodaje testowe składniki i kilka debugerskich receptur.
 config.jei.advanced.centerSearchBarEnabled=Wyśrodkuj pasek wyszukiwania
-config.jei.advanced.centerSearchBarEnabled.comment=Przenieś pasek wyszukiwania JEI na środek dolnej krawędzi ekranu.
+config.jei.advanced.centerSearchBarEnabled.comment=Przenieś pasek wyszukiwania HEI na środek dolnej krawędzi ekranu.
 config.jei.advanced.modNameFormat=Format nazwy moda
-config.jei.advanced.modNameFormat.comment=Określa, jak powinna być sformatowana nazwa moda w tooltipach interfejsu JEI. Pozostaw puste, aby wyłączyć.
+config.jei.advanced.modNameFormat.comment=Określa, jak powinna być sformatowana nazwa moda w tooltipach interfejsu HEI. Pozostaw puste, aby wyłączyć.
 config.jei.advanced.maxColumns=Maksymalna szerokość nakładki
 config.jei.advanced.maxColumns.comment=Maksymalna szerokość nakładki z listą składników.
 config.jei.advanced.maxRecipeGuiHeight=Maksymalna wysokość interfejsu
 config.jei.advanced.maxRecipeGuiHeight.comment=Maksymalna wysokość interfejsu z recepturami.
 config.jei.advanced.giveMode=Tryb dawania
-config.jei.advanced.giveMode.comment=Zdecyduj, czy JEI ma dawać składniki bezpośrednio do ekwipunku (inventory), czy chcesz zabierać i przenosić je samemu (mouse_pickup).
+config.jei.advanced.giveMode.comment=Zdecyduj, czy HEI ma dawać składniki bezpośrednio do ekwipunku (inventory), czy chcesz zabierać i przenosić je samemu (mouse_pickup).
 config.jei.advanced.optimizeMemoryUsage=Optymalizacja użycia pamięci
-config.jei.advanced.optimizeMemoryUsage.comment=Włącz optymalizacje użycia pamięci przez JEI.
+config.jei.advanced.optimizeMemoryUsage.comment=Włącz optymalizacje użycia pamięci przez HEI.
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=Tryb ukrywania składników JEI:
+gui.jei.editMode.description=Tryb ukrywania składników HEI:
 gui.jei.editMode.description.hide=%CTRL + klik, aby ukryć
 gui.jei.editMode.description.hide.wild=%CTRL + prawoklik, aby ukryć przez wieloznacznik
 

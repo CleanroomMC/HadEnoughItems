@@ -1,5 +1,5 @@
 # Tooltips
-jei.tooltip.config=Configurações do JEI
+jei.tooltip.config=Configurações do HEI
 jei.tooltip.show.recipes=Mostrar receitas
 jei.tooltip.show.all.recipes=Mostrar todas as receitas
 jei.tooltip.delete.item=Clique para excluir
@@ -14,11 +14,11 @@ jei.tooltip.cheat.mode.how.to.disable.hotkey=Pressione %s para ativá-lo.
 jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s + clique aqui para ativá-lo.
 jei.tooltip.recipe.by=Receita por: %s
 jei.tooltip.recipe.id=ID da receita: %s
-jei.tooltip.not.enough.space=Não há espaço suficiente para exibir o JEI aqui.
-jei.tooltip.ingredient.list.disabled=A sobreposição do JEI está desativada.
+jei.tooltip.not.enough.space=Não há espaço suficiente para exibir o HEI aqui.
+jei.tooltip.ingredient.list.disabled=A sobreposição do HEI está desativada.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Pressione %s para ativá-la.
 jei.tooltip.bookmarks=Favoritos
-jei.tooltip.bookmarks.usage.nokey=Definir tecla de atalho para itens favoritos do JEI em Controles.
+jei.tooltip.bookmarks.usage.nokey=Definir tecla de atalho para itens favoritos do HEI em Controles.
 jei.tooltip.bookmarks.usage.key=Passe o cursor sobre um ingrediente e pressione "%s" para adicioná-lo aos favoritos.
 jei.tooltip.bookmarks.not.enough.space=Não há espaço suficiente para exibir os favoritos aqui.
 
@@ -26,17 +26,17 @@ jei.tooltip.bookmarks.not.enough.space=Não há espaço suficiente para exibir o
 jei.tooltip.error.recipe.transfer.missing=Itens ausentes
 jei.tooltip.error.recipe.transfer.inventory.full=O inventário está muito cheio
 jei.tooltip.error.recipe.transfer.unknown=Erro desconhecido, ver registro
-jei.tooltip.error.recipe.transfer.no.server=O servidor deve ter o JEI instalado
+jei.tooltip.error.recipe.transfer.no.server=O servidor deve ter o HEI instalado
 jei.tooltip.error.recipe.transfer.too.large.player.inventory=Não é possível fabricar isso em uma grade 2x2.
 jei.tooltip.error.crash=Descrição do erro, ver registro
 
 # Error Messages
-jei.chat.error.command.too.long=O JEI deve ser instalado no servidor para o uso desse comando de bate-papo, que é longo demais para o Minecraft enviar.
-jei.chat.error.no.cheat.permission.1=Você não tem permissão para usar o modo trapaça do JEI.
+jei.chat.error.command.too.long=O HEI deve ser instalado no servidor para o uso desse comando de bate-papo, que é longo demais para o Minecraft enviar.
+jei.chat.error.no.cheat.permission.1=Você não tem permissão para usar o modo trapaça do HEI.
 jei.chat.error.no.cheat.permission.2=A permissão é concedida apenas para jogadores que podem usar o comando /give ou que estão no modo Criativo.
 
 # Key Bindings
-key.jei.toggleOverlay=Exibir/ocultar JEI
+key.jei.toggleOverlay=Exibir/ocultar HEI
 key.jei.focusSearch=Selecionar barra de busca
 key.jei.showRecipe=Mostrar receita
 key.jei.showUses=Mostrar usos
@@ -54,7 +54,7 @@ config.jei.valid=Válida
 config.jei.title=Config. do %MODNAME
 
 config.jei.mode=Modo
-config.jei.mode.comment=Alterar o modo de operação do JEI.
+config.jei.mode.comment=Alterar o modo de operação do HEI.
 config.jei.mode.cheatItemsEnabled=Modo trapaça ativado
 config.jei.mode.cheatItemsEnabled.comment=Dar itens em vez de apenas mostrar a receita.
 config.jei.mode.editEnabled=Ocultar ingredientes
@@ -83,26 +83,26 @@ config.jei.search.resourceIdSearchMode=&ResourceId
 config.jei.search.resourceIdSearchMode.comment=Modo de busca para IDs de recursos (prefixo: &)
 
 config.jei.advanced=Avançado
-config.jei.advanced.comment=Configurações avançadas do JEI.
+config.jei.advanced.comment=Configurações avançadas do HEI.
 config.jei.advanced.itemBlacklist=Lista negra de ingredientes
 config.jei.advanced.itemBlacklist.comment=Lista de ingredientes que não deve ser exibida na lista principal. Formato: modId[:name[:meta]]. O modo ingredientes ocultos adicionará ou removerá entradas aqui automaticamente.
 config.jei.advanced.colorSearchEnabled=Ativar busca por cor
 config.jei.advanced.colorSearchEnabled.comment=Buscar ingredientes por cor e exibir as cores em descrições na lista.
 config.jei.advanced.debugModeEnabled=Modo depuração
-config.jei.advanced.debugModeEnabled.comment=Recomendado apenas para desenvolvedores do JEI. Adiciona ingredientes de testes e algumas receitas de depuração.
+config.jei.advanced.debugModeEnabled.comment=Recomendado apenas para desenvolvedores do HEI. Adiciona ingredientes de testes e algumas receitas de depuração.
 config.jei.advanced.centerSearchBarEnabled=Centralizar barra de busca
-config.jei.advanced.centerSearchBarEnabled.comment=Mover a barra de busca do JEI para o centro-inferior da tela.
-config.jei.advanced.modNameFormat=Formato de nome do JEI
-config.jei.advanced.modNameFormat.comment=Alterar o formato do nome em descrições nas interfaces do JEI. Deixe em branco para desativar.
+config.jei.advanced.centerSearchBarEnabled.comment=Mover a barra de busca do HEI para o centro-inferior da tela.
+config.jei.advanced.modNameFormat=Formato de nome do HEI
+config.jei.advanced.modNameFormat.comment=Alterar o formato do nome em descrições nas interfaces do HEI. Deixe em branco para desativar.
 config.jei.advanced.maxColumns=Largura máxima de sobreposição
 config.jei.advanced.maxColumns.comment=A largura máxima da lista de ingredientes.
 config.jei.advanced.maxRecipeGuiHeight=Altura máxima da interface de receitas
 config.jei.advanced.maxRecipeGuiHeight.comment=A altura máxima para a interface de receitas.
 config.jei.advanced.giveMode=Modo Give
-config.jei.advanced.giveMode.comment=Permitir que o JEI envie itens diretamente ao inventário ou possa obtê-los apenas com o mouse (mouse_pickup).
+config.jei.advanced.giveMode.comment=Permitir que o HEI envie itens diretamente ao inventário ou possa obtê-los apenas com o mouse (mouse_pickup).
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=Modo ingredientes ocultos do JEI:
+gui.jei.editMode.description=Modo ingredientes ocultos do HEI:
 gui.jei.editMode.description.hide=%CTRL + clique para ocultar
 gui.jei.editMode.description.hide.wild=%CTRL + clique com o botão direito para ocultar com o curinga
 

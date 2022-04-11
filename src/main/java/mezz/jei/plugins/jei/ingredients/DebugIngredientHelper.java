@@ -27,12 +27,12 @@ public class DebugIngredientHelper implements IIngredientHelper<DebugIngredient>
 
 	@Override
 	public String getDisplayName(DebugIngredient ingredient) {
-		return "JEI Debug Item #" + ingredient.getNumber();
+		return "HEI Debug Item #" + ingredient.getNumber();
 	}
 
 	@Override
 	public String getUniqueId(DebugIngredient ingredient) {
-		return "JEI_debug_" + ingredient.getNumber();
+		return "HEI_debug_" + ingredient.getNumber();
 	}
 
 	@Override

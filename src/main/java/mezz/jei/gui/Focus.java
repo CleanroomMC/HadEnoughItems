@@ -28,7 +28,7 @@ public class Focus<V> implements IFocus<V> {
 	}
 
 	/**
-	 * Make sure any IFocus coming in through API calls is validated and turned into JEI's Focus.
+	 * Make sure any IFocus coming in through API calls is validated and turned into HEI's Focus.
 	 */
 	public static <V> Focus<V> check(IFocus<V> focus) {
 		ErrorUtil.checkNotNull(focus, "focus");

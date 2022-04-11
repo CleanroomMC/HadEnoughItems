@@ -1,5 +1,5 @@
 # Tooltips
-jei.tooltip.config=Configuración de JEI
+jei.tooltip.config=Configuración de HEI
 jei.tooltip.show.recipes=Mostrar recetas
 jei.tooltip.show.all.recipes=Mostrar todas las recetas
 jei.tooltip.delete.item=Click para borrar
@@ -15,20 +15,20 @@ jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s-click here to toggle it.
 jei.tooltip.recipe.by=Receta por: %s
 jei.tooltip.recipe.id=ID de receta: %s
 jei.tooltip.not.enough.space=There is not enough space to display the ingredient list here.
-jei.tooltip.ingredient.list.disabled=The JEI overlay is disabled.
+jei.tooltip.ingredient.list.disabled=The HEI overlay is disabled.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Press %s to enable it.
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Faltan objetos
 jei.tooltip.error.recipe.transfer.inventory.full=El inventario está lleno
 jei.tooltip.error.recipe.transfer.unknown=Error desconocido, comprueba el log
-jei.tooltip.error.recipe.transfer.no.server=El servidor debe tener instalado JEI
+jei.tooltip.error.recipe.transfer.no.server=El servidor debe tener instalado HEI
 jei.tooltip.error.recipe.transfer.too.large.player.inventory=LA recete es muy grande para fabricarla desde el inventario
 jei.tooltip.error.crash=Error de tooltip, comprueba el log
 
 # Error Messages
-jei.chat.error.command.too.long=JEI debe estar en el servidor para manejar este comando de chat, es demasiado largo para que Minecraft lo envíe.
-jei.chat.error.no.cheat.permission.1=No tienes permiso para usar el modo trampa de JEI.
+jei.chat.error.command.too.long=HEI debe estar en el servidor para manejar este comando de chat, es demasiado largo para que Minecraft lo envíe.
+jei.chat.error.no.cheat.permission.1=No tienes permiso para usar el modo trampa de HEI.
 jei.chat.error.no.cheat.permission.2=Se otorga permiso a los jugadores que pueden usar "/give" o están en modo creativo.
 
 # Key Bindings
@@ -48,7 +48,7 @@ config.jei.valid=Validar
 config.jei.title=Configuración de %MODNAME
 
 config.jei.mode=Modo
-config.jei.mode.comment=Cambia el modo en el que opera JEI
+config.jei.mode.comment=Cambia el modo en el que opera HEI
 config.jei.mode.cheatItemsEnabled=Modo trampa activado
 config.jei.mode.cheatItemsEnabled.comment=Obtener elementos en lugar de mostrar la receta.
 config.jei.mode.editEnabled=Modo de ocultación de los objetos
@@ -75,24 +75,24 @@ config.jei.search.resourceIdSearchMode=&ResourceId
 config.jei.search.resourceIdSearchMode.comment=Modo de búsqueda por IDs de recursos (prefijo: &)
 
 config.jei.advanced=Avanzado
-config.jei.advanced.comment=Opciones avanzadas de configuración para cambiar la forma en que JEI funciona.
+config.jei.advanced.comment=Opciones avanzadas de configuración para cambiar la forma en que HEI funciona.
 config.jei.advanced.itemBlacklist=Lista negra de objetos
 config.jei.advanced.itemBlacklist.comment=Lista de elementos que no se deben mostrar en la lista de elementos. Formato: modId[:nombre[:meta]]. El modo de edición agregará o eliminará entradas automáticamente aquí.
 config.jei.advanced.colorSearchEnabled=Habilitar búsqueda por color
 config.jei.advanced.colorSearchEnabled.comment=Busca los artículos por color y muestra los colores de los elementos que se pueden buscar en el tooltip en la lista de elementos.
 config.jei.advanced.debugModeEnabled=Modo de depuración
-config.jei.advanced.debugModeEnabled.comment=Solo es útil para desarrolladores de JEI, agrega miles de elementos de prueba y algunas recetas de depuración.
+config.jei.advanced.debugModeEnabled.comment=Solo es útil para desarrolladores de HEI, agrega miles de elementos de prueba y algunas recetas de depuración.
 config.jei.advanced.centerSearchBarEnabled=Centrar barra de búsqueda
-config.jei.advanced.centerSearchBarEnabled.comment=Mueva la barra de búsqueda JEI a la parte inferior central de la pantalla.
+config.jei.advanced.centerSearchBarEnabled.comment=Mueva la barra de búsqueda HEI a la parte inferior central de la pantalla.
 config.jei.advanced.modNameFormat=Formato del nombre del mod
-config.jei.advanced.modNameFormat.comment=Cómo debe formatearse el nombre del mod en la información sobre herramientas para la interfaz JEI. Dejar en blanco para deshabilitar.
+config.jei.advanced.modNameFormat.comment=Cómo debe formatearse el nombre del mod en la información sobre herramientas para la interfaz HEI. Dejar en blanco para deshabilitar.
 config.jei.advanced.maxColumns=Anchura máxima
 config.jei.advanced.maxColumns.comment=El ancho máximo de la lista de ingredientes.
 config.jei.advanced.giveMode=Modo de obtener
-config.jei.advanced.giveMode.comment=Elija si JEI debe dar elementos directamente al inventario (inventory) o recogerlos con el mouse (mouse_pickup).
+config.jei.advanced.giveMode.comment=Elija si HEI debe dar elementos directamente al inventario (inventory) o recogerlos con el mouse (mouse_pickup).
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=JEI Hide Ingredients Mode:
+gui.jei.editMode.description=HEI Hide Ingredients Mode:
 gui.jei.editMode.description.hide=%CTRL-Click to Hide
 gui.jei.editMode.description.hide.wild=%CTRL-right-click to Hide by Wildcard
 

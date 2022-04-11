@@ -76,7 +76,7 @@ public class ForgeModIdHelper extends AbstractModIdHelper {
 			ItemStack itemStack = new ItemStack(Items.APPLE);
 			EntityPlayerSP player = Minecraft.getMinecraft().player;
 			List<String> tooltip = new ArrayList<>();
-			tooltip.add("JEI Tooltip Testing for mod name formatting");
+			tooltip.add("HEI Tooltip Testing for mod name formatting");
 			ItemTooltipEvent tooltipEvent = ForgeEventFactory.onItemTooltip(itemStack, player, tooltip, ITooltipFlag.TooltipFlags.NORMAL);
 			tooltip = tooltipEvent.getToolTip();
 
@@ -105,7 +105,7 @@ public class ForgeModIdHelper extends AbstractModIdHelper {
 	public <T> List<String> addModNameToIngredientTooltip(List<String> tooltip, T ingredient, IIngredientHelper<T> ingredientHelper) {
 		if (Config.isDebugModeEnabled() && Minecraft.getMinecraft().gameSettings.advancedItemTooltips) {
 			tooltip = new ArrayList<>(tooltip);
-			tooltip.add(TextFormatting.GRAY + "JEI Debug:");
+			tooltip.add(TextFormatting.GRAY + "HEI Debug:");
 			tooltip.add(TextFormatting.GRAY + "info: " + ingredientHelper.getErrorInfo(ingredient));
 			tooltip.add(TextFormatting.GRAY + "uid: " + ingredientHelper.getUniqueId(ingredient));
 		}

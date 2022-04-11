@@ -120,12 +120,12 @@ public class ProxyCommonClient extends ProxyCommon {
 		Minecraft minecraft = Minecraft.getMinecraft();
 		IReloadableResourceManager reloadableResourceManager = (IReloadableResourceManager) minecraft.getResourceManager();
 		reloadableResourceManager.registerReloadListener(resourceManager -> {
-			// check that JEI has been started before. if not, do nothing
+			// check that HEI has been started before. if not, do nothing
 			if (this.starter.hasStarted()) {
 				if (Config.isDebugModeEnabled()) {
-					Log.get().info("Restarting JEI.", new RuntimeException("Stack trace for debugging"));
+					Log.get().info("Restarting HEI.", new RuntimeException("Stack trace for debugging"));
 				} else {
-					Log.get().info("Restarting JEI.");
+					Log.get().info("Restarting HEI.");
 				}
 				Preconditions.checkNotNull(textures);
 				this.starter.start(this.plugins, textures);

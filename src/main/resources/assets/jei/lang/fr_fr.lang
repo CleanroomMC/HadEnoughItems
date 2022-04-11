@@ -1,5 +1,5 @@
 # Tooltips
-jei.tooltip.config=Configurer JEI
+jei.tooltip.config=Configurer HEI
 jei.tooltip.show.recipes=Afficher les recettes
 jei.tooltip.show.all.recipes=Afficher toutes les recettes
 jei.tooltip.delete.item=Cliquer pour supprimer
@@ -15,10 +15,10 @@ jei.tooltip.cheat.mode.how.to.disable.no.hotkey=Cliquez sur %s ici pour le désa
 jei.tooltip.recipe.by=Recette par : %s
 jei.tooltip.recipe.id=ID de la recette : %s
 jei.tooltip.not.enough.space=Il n'y a pas assez de place pour afficher la liste d'ingrédients.
-jei.tooltip.ingredient.list.disabled=L'overlay JEI a été désactivé.
+jei.tooltip.ingredient.list.disabled=L'overlay HEI a été désactivé.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Pressez %s pour l'activer.
-jei.tooltip.bookmarks=Marque-pages JEI
-jei.tooltip.bookmarks.usage.nokey=Ajoutez un raccourci pour les marque-pages JEI dans vos paramètres de raccourcis.
+jei.tooltip.bookmarks=Marque-pages HEI
+jei.tooltip.bookmarks.usage.nokey=Ajoutez un raccourci pour les marque-pages HEI dans vos paramètres de raccourcis.
 jei.tooltip.bookmarks.usage.key=Survolez un objet avec votre souris et pressez "%s" pour l'épingler.
 jei.tooltip.bookmarks.not.enough.space=Il n'y a pas assez de place pour afficher les marque-pages ici.
 
@@ -26,17 +26,17 @@ jei.tooltip.bookmarks.not.enough.space=Il n'y a pas assez de place pour afficher
 jei.tooltip.error.recipe.transfer.missing=Objets manquants
 jei.tooltip.error.recipe.transfer.inventory.full=Inventaire plein
 jei.tooltip.error.recipe.transfer.unknown=Erreur inconnue, consulter les logs
-jei.tooltip.error.recipe.transfer.no.server=JEI doit aussi être installé sur le serveur
+jei.tooltip.error.recipe.transfer.no.server=HEI doit aussi être installé sur le serveur
 jei.tooltip.error.recipe.transfer.too.large.player.inventory=Cette recette est trop grande pour être fabriquée dans la grille 2x2 du joueur.
 jei.tooltip.error.crash=Erreur d'infobulle, consulter le log
 
 # Error Messages
-jei.chat.error.command.too.long=JEI doit être sur le serveur pour gérer cette commande de discussion, elle est trop longue pour que Minecraft l'envoie.
-jei.chat.error.no.cheat.permission.1=Vous n'avez pas l'autorisation d'utiliser le mode triche de JEI.
+jei.chat.error.command.too.long=HEI doit être sur le serveur pour gérer cette commande de discussion, elle est trop longue pour que Minecraft l'envoie.
+jei.chat.error.no.cheat.permission.1=Vous n'avez pas l'autorisation d'utiliser le mode triche de HEI.
 jei.chat.error.no.cheat.permission.2=L'autorisation est donnée aux joueurs qui peuvent /give des objets ou qui sont en mode créatif.
 
 # Key Bindings
-key.jei.toggleOverlay=Afficher/cacher JEI
+key.jei.toggleOverlay=Afficher/cacher HEI
 key.jei.focusSearch=Sélectionner la barre de recherche
 key.jei.showRecipe=Montrer la recette
 key.jei.showUses=Montrer les utilisations
@@ -54,7 +54,7 @@ config.jei.valid=Valide
 config.jei.title=Configuration de %MODNAME
 
 config.jei.mode=Mode
-config.jei.mode.comment=Change le mode dans lequel JEI fonctionne.
+config.jei.mode.comment=Change le mode dans lequel HEI fonctionne.
 config.jei.mode.cheatItemsEnabled=Mode triche activé
 config.jei.mode.cheatItemsEnabled.comment=Donne les objets au lieu de montrer la recette.
 config.jei.mode.editEnabled=Mode masquage d'objets
@@ -83,26 +83,26 @@ config.jei.search.resourceIdSearchMode=&IDdeRessource
 config.jei.search.resourceIdSearchMode.comment=Recherche par ID de ressource (préfixe : &)
 
 config.jei.advanced=Avancé
-config.jei.advanced.comment=Options de configuration avancées pour modifier le fonctionnement de JEI.
+config.jei.advanced.comment=Options de configuration avancées pour modifier le fonctionnement de HEI.
 config.jei.advanced.itemBlacklist=Objets blacklistés
 config.jei.advanced.itemBlacklist.comment=Liste des objets qui ne doivent pas être affichés dans la liste. Format : modId[:name[:meta]]. Le mode Edition ajoute/retire automatiquement les objets de la liste.
 config.jei.advanced.colorSearchEnabled=Activer la recherche par couleur
 config.jei.advanced.colorSearchEnabled.comment=Recherche les objets par couleur et affiche les couleurs possibles pour cet objet dans l'infobulle de la liste d'objets.
 config.jei.advanced.debugModeEnabled=Mode de débogage
-config.jei.advanced.debugModeEnabled.comment=Utile seulement pour les développeurs de JEI, ajoute des milliers d'objets et de recettes factices.
+config.jei.advanced.debugModeEnabled.comment=Utile seulement pour les développeurs de HEI, ajoute des milliers d'objets et de recettes factices.
 config.jei.advanced.centerSearchBarEnabled=Centrer la barre de recherche
-config.jei.advanced.centerSearchBarEnabled.comment=Déplace la barre de recherche de JEI en bas et au centre de l'écran.
+config.jei.advanced.centerSearchBarEnabled.comment=Déplace la barre de recherche de HEI en bas et au centre de l'écran.
 config.jei.advanced.modNameFormat=Format du nom des mods
-config.jei.advanced.modNameFormat.comment=Comment le nom des mods doit être formaté dans l'infobulle de l'interface JEI. Laisser vide pour désactiver.
+config.jei.advanced.modNameFormat.comment=Comment le nom des mods doit être formaté dans l'infobulle de l'interface HEI. Laisser vide pour désactiver.
 config.jei.advanced.maxColumns=Largeur maximum
 config.jei.advanced.maxColumns.comment=Largeur maximum de la liste d'objets.
 config.jei.advanced.maxRecipeGuiHeight=Hauteur maximum
 config.jei.advanced.maxRecipeGuiHeight.comment=Hauteur maximum de l'interface de recette.
 config.jei.advanced.giveMode=Mode Donner
-config.jei.advanced.giveMode.comment=Choisit si JEI doit placer les objets directement dans l'inventaire ou les accrocher au curseur de la souris.
+config.jei.advanced.giveMode.comment=Choisit si HEI doit placer les objets directement dans l'inventaire ou les accrocher au curseur de la souris.
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=JEI Mode édition de la liste d'objets :
+gui.jei.editMode.description=HEI Mode édition de la liste d'objets :
 gui.jei.editMode.description.hide=Cacher (%CTRL-clic).
 gui.jei.editMode.description.hide.wild=Cacher par caractères génériques (%CTRL-clic-droit).
 

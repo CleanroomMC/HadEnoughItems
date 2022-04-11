@@ -61,6 +61,6 @@ public class JeiHelpers implements IJeiHelpers {
 
 	@Override
 	public void reload() {
-		Log.get().error("A mod tried to reload JEI, this is no longer supported. See the javadocs for more information", new RuntimeException());
+		Log.get().error("A mod tried to reload HEI, this is no longer supported. See the javadocs for more information", new RuntimeException());
 	}
 }

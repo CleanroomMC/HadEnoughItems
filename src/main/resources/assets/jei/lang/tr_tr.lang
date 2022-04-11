@@ -1,5 +1,5 @@
 # Tooltips
-jei.tooltip.config=JEI Seçenekleri
+jei.tooltip.config=HEI Seçenekleri
 jei.tooltip.show.recipes=Tarifleri Göster
 jei.tooltip.show.all.recipes=Tüm Tarifleri Göster
 jei.tooltip.delete.item=Silmek İçin Tıkla
@@ -15,20 +15,20 @@ jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s-click here to toggle it.
 jei.tooltip.recipe.by=%s Tarifi
 jei.tooltip.recipe.id=Recipe ID: %s
 jei.tooltip.not.enough.space=There is not enough space to display the ingredient list here.
-jei.tooltip.ingredient.list.disabled=The JEI overlay is disabled.
+jei.tooltip.ingredient.list.disabled=The HEI overlay is disabled.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Press %s to enable it.
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Eşyalar Eksik
 jei.tooltip.error.recipe.transfer.inventory.full=Envanter Dolu
 jei.tooltip.error.recipe.transfer.unknown=Bilinmeyen hata, kayıt dosyasına bak.
-jei.tooltip.error.recipe.transfer.no.server=Sunucu, JEI modunu kurmalı.
+jei.tooltip.error.recipe.transfer.no.server=Sunucu, HEI modunu kurmalı.
 jei.tooltip.error.recipe.transfer.too.large.player.inventory=Tarif, 2x2 üretim kısmında üretmek için çok büyük.
 jei.tooltip.error.crash=İpucu hatası, kayıt dosyasına bak.
 
 # Error Messages
-jei.chat.error.command.too.long=Bu komudu yazabilmek için JEI sunucuda olmalıdır, bu komut Minecraft için çok uzun.
-jei.chat.error.no.cheat.permission.1=JEI'nin hile modunu kullanabilmek için yetkin yok.
+jei.chat.error.command.too.long=Bu komudu yazabilmek için HEI sunucuda olmalıdır, bu komut Minecraft için çok uzun.
+jei.chat.error.no.cheat.permission.1=HEI'nin hile modunu kullanabilmek için yetkin yok.
 jei.chat.error.no.cheat.permission.2=Yetki, /give komudunu yazabilen ve Yaratıcılık modunda olanlar için geçerlidir.
 
 # Key Bindings
@@ -48,7 +48,7 @@ config.jei.valid=Geçerli
 config.jei.title=%MODNAME Seçenekleri
 
 config.jei.mode=Mod
-config.jei.mode.comment=JEI'nin çalışabileceği moda geçin.
+config.jei.mode.comment=HEI'nin çalışabileceği moda geçin.
 config.jei.mode.cheatItemsEnabled=Hile Modu
 config.jei.mode.cheatItemsEnabled.comment=Tarifi göstermek yerine eşyaları ver.
 config.jei.mode.editEnabled=Eşya Gizleme Modu
@@ -75,24 +75,24 @@ config.jei.search.resourceIdSearchMode=&ResourceId
 config.jei.search.resourceIdSearchMode.comment=Kaynak ID'leri için arama modu. (öneği: &)
 
 config.jei.advanced=Gelişmiş
-config.jei.advanced.comment=JEI fonksiyonlarını değiştirmek için gelişmiş seçenekler.
+config.jei.advanced.comment=HEI fonksiyonlarını değiştirmek için gelişmiş seçenekler.
 config.jei.advanced.itemBlacklist=Eşya Karalistesi
 config.jei.advanced.itemBlacklist.comment=Eşya listesinde gösterilmeyecek eşyaların listesi. Biçim: modId[:name[:meta]]. Düzenleme modu bu girdileri otomatik olarak düzenleyecek.
 config.jei.advanced.colorSearchEnabled=Renkli Aramayı Etkinleştir
 config.jei.advanced.colorSearchEnabled.comment=Eşyaları renklerine göre ara ve aranabilen eşya renklerini eşya listesindeki ipuçlarına göre ara.
 config.jei.advanced.debugModeEnabled=Hata Ayıklama Modu
-config.jei.advanced.debugModeEnabled.comment=Sadece JEI geliştiricileri için kullanışlı, binlerce test eşyası ve birkaç hata ayıklama tarifi ekler.
+config.jei.advanced.debugModeEnabled.comment=Sadece HEI geliştiricileri için kullanışlı, binlerce test eşyası ve birkaç hata ayıklama tarifi ekler.
 config.jei.advanced.centerSearchBarEnabled=Arama Çubuğu Merkezde
-config.jei.advanced.centerSearchBarEnabled.comment=JEI arama çubuğunu ekranın alt ortasına yerleştir.
+config.jei.advanced.centerSearchBarEnabled.comment=HEI arama çubuğunu ekranın alt ortasına yerleştir.
 config.jei.advanced.modNameFormat=Mod Adı Biçimi
-config.jei.advanced.modNameFormat.comment=JEI arayüz ipuçlarında mod ismi biçimlendirme tipi. Devre dışı bırakmak için boş bırakın.
+config.jei.advanced.modNameFormat.comment=HEI arayüz ipuçlarında mod ismi biçimlendirme tipi. Devre dışı bırakmak için boş bırakın.
 config.jei.advanced.maxColumns=Maksimum Genişlik
 config.jei.advanced.maxColumns.comment=Malzeme listesinin maksimum genişliği.
 config.jei.advanced.giveMode=Alma Modu
-config.jei.advanced.giveMode.comment=JEI'nin envantere (inventory) doğrudan eşyaları vermesini mi yoksa fareyle (mouse_pickup) almasını mı istediğinizi seçin.
+config.jei.advanced.giveMode.comment=HEI'nin envantere (inventory) doğrudan eşyaları vermesini mi yoksa fareyle (mouse_pickup) almasını mı istediğinizi seçin.
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=JEI Eşya Listesi Düzenleme Modu:
+gui.jei.editMode.description=HEI Eşya Listesi Düzenleme Modu:
 gui.jei.editMode.description.hide=Gizle (%CTRL-click).
 gui.jei.editMode.description.hide.wild=Joker ile Gizle (%CTRL-right-click).
 

@@ -44,7 +44,7 @@ public class JeiStarter {
 
 	public void start(List<IModPlugin> plugins, Textures textures) {
 		LoggedTimer totalTime = new LoggedTimer();
-		totalTime.start("Starting JEI");
+		totalTime.start("Starting HEI");
 
 		IModIdHelper modIdHelper = ForgeModIdHelper.getInstance();
 		ErrorUtil.setModIdHelper(modIdHelper);
