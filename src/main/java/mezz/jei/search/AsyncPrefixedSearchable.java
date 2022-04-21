@@ -3,6 +3,7 @@ package mezz.jei.search;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.util.LoggedTimer;
+import net.minecraft.util.NonNullList;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
@@ -24,18 +25,20 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
     }
 
     @Override
-    public void submit(IIngredientListElement<?> info) {
+    public void submit(IIngredientListElement<?> ingredient) {
         if (this.service == null) {
-            super.submit(info);
+            super.submit(ingredient);
         } else {
-            this.service.submit(() -> {
-                if (prefixInfo.getMode() != Config.SearchMode.DISABLED) {
-                    Collection<String> strings = prefixInfo.getStrings(info);
-                    for (String string : strings) {
-                        searchStorage.put(string, info);
-                    }
-                }
-            });
+            this.service.submit(() -> super.submit(ingredient));
+        }
+    }
+
+    @Override
+    public void submitAll(NonNullList<IIngredientListElement> ingredients) {
+        if (this.service == null) {
+            super.submitAll(ingredients);
+        } else {
+            this.service.submit(() -> super.submitAll(ingredients));
         }
     }
 

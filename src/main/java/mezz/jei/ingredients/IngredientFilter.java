@@ -48,7 +48,9 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		this.elementSearch.logStatistics();
 	}
 
-	public void trimToSize() { }
+	public void trimToSize() {
+		// NO-OP
+	}
 
 	public void addIngredients(NonNullList<IIngredientListElement> ingredients) {
 		ingredients.sort(IngredientListElementComparator.INSTANCE);
@@ -57,11 +59,10 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			.distinct()
 			.count();
 		this.elementSearch.start();
-		ProgressManager.ProgressBar progressBar = ProgressManager.push("Indexing ingredients from " + modNameCount + " mods", 0, true);
-		for (IIngredientListElement<?> element : ingredients) {
-			addIngredient(element);
-		}
+		ProgressManager.ProgressBar progressBar = ProgressManager.push("Indexing ingredients from " + modNameCount + " mods", 0, false);
+		this.elementSearch.addAll(ingredients);
 		this.elementSearch.stop();
+		this.filterCached = null;
 		ProgressManager.pop(progressBar);
 	}
 

@@ -54,8 +54,15 @@ public class ElementSearchLowMem implements IElementSearch {
     }
 
     @Override
-    public void add(IIngredientListElement<?> info) {
-        this.elementInfoList.add(info);
+    public void add(IIngredientListElement<?> ingredient) {
+        this.elementInfoList.add(ingredient);
+    }
+
+    @Override
+    public void addAll(NonNullList<IIngredientListElement> ingredients) {
+        for (IIngredientListElement ingredient : ingredients) {
+            add(ingredient);
+        }
     }
 
     @Override

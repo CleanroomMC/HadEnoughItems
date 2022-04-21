@@ -4,12 +4,12 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
+import net.minecraft.util.NonNullList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -70,9 +70,16 @@ public class ElementSearch implements IElementSearch {
     }
 
     @Override
-    public void add(IIngredientListElement<?> info) {
+    public void add(IIngredientListElement<?> ingredient) {
         for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
-            prefixedSearchable.submit(info);
+            prefixedSearchable.submit(ingredient);
+        }
+    }
+
+    @Override
+    public void addAll(NonNullList<IIngredientListElement> ingredients) {
+        for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
+            prefixedSearchable.submitAll(ingredients);
         }
     }
 

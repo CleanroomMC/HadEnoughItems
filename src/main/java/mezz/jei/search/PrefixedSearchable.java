@@ -2,6 +2,7 @@ package mezz.jei.search;
 
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
+import net.minecraft.util.NonNullList;
 
 import java.util.Collection;
 import java.util.Set;
@@ -29,12 +30,18 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
         return prefixInfo.getMode();
     }
 
-    public void submit(IIngredientListElement<?> info) {
+    public void submit(IIngredientListElement<?> ingredient) {
         if (prefixInfo.getMode() != Config.SearchMode.DISABLED) {
-            Collection<String> strings = prefixInfo.getStrings(info);
+            Collection<String> strings = prefixInfo.getStrings(ingredient);
             for (String string : strings) {
-                searchStorage.put(string, info);
+                searchStorage.put(string, ingredient);
             }
+        }
+    }
+
+    public void submitAll(NonNullList<IIngredientListElement> ingredients) {
+        for (IIngredientListElement ingredient : ingredients) {
+            submit(ingredient);
         }
     }
 
