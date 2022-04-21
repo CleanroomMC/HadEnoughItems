@@ -29,6 +29,8 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public static final Pattern QUOTE_PATTERN = Pattern.compile("\"");
 	public static final Pattern FILTER_SPLIT_PATTERN = Pattern.compile("(-?\".*?(?:\"|$)|\\S+)");
 
+	private static boolean loadedOnce = true;
+
 	private final IngredientBlacklistInternal blacklist;
 
 	private final IElementSearch elementSearch;
@@ -58,11 +60,9 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			.map(IIngredientListElement::getModNameForSorting)
 			.distinct()
 			.count();
-		this.elementSearch.start();
 		ProgressManager.ProgressBar progressBar = ProgressManager.push("Indexing ingredients from " + modNameCount + " mods", 1, false);
 		progressBar.step("");
 		this.elementSearch.addAll(ingredients);
-		this.elementSearch.stop();
 		this.filterCached = null;
 		ProgressManager.pop(progressBar);
 	}
@@ -108,6 +108,15 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	@SubscribeEvent
 	public void onPlayerJoinedWorldEvent(PlayerJoinedWorldEvent event) {
+		if (loadedOnce) { // Just in case for whatever reason async search trees doesn't finish building
+			loadedOnce = false;
+			if (this.elementSearch instanceof ElementSearch) {
+				((ElementSearch) this.elementSearch).getSearchables().values().stream()
+						.filter(AsyncPrefixedSearchable.class::isInstance)
+						.map(AsyncPrefixedSearchable.class::cast)
+						.forEach(AsyncPrefixedSearchable::stop);
+			}
+		}
 		this.filterCached = null;
 		updateHidden();
 	}

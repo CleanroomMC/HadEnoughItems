@@ -1,7 +1,6 @@
 package mezz.jei.search;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -31,6 +30,10 @@ public class ElementSearch implements IElementSearch {
         }
     }
 
+    public Map<PrefixInfo, PrefixedSearchable> getSearchables() {
+        return prefixedSearchables;
+    }
+
     @Override
     public Set<IIngredientListElement<?>> getSearchResults(TokenInfo tokenInfo) {
         String token = tokenInfo.token;
@@ -53,22 +56,6 @@ public class ElementSearch implements IElementSearch {
     }
 
     @Override
-    public void start() {
-        for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
-            prefixedSearchable.start();
-        }
-    }
-
-    @Override
-    public void stop() {
-        for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
-            if (prefixedSearchable instanceof AsyncPrefixedSearchable) {
-                prefixedSearchable.stop();
-            }
-        }
-    }
-
-    @Override
     public void add(IIngredientListElement<?> ingredient) {
         for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
             prefixedSearchable.submit(ingredient);
@@ -79,9 +66,6 @@ public class ElementSearch implements IElementSearch {
     public void addAll(NonNullList<IIngredientListElement> ingredients) {
         for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
             prefixedSearchable.submitAll(ingredients);
-            if (!(prefixedSearchable instanceof AsyncPrefixedSearchable)) {
-                prefixedSearchable.stop();
-            }
         }
     }
 

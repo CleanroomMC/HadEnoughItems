@@ -43,9 +43,11 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
 
     @Override
     public void submitAll(NonNullList<IIngredientListElement> ingredients) {
+        start();
         for (IIngredientListElement ingredient : ingredients) {
             submit(ingredient);
         }
+        stop();
     }
 
     @Override

@@ -16,21 +16,14 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
     }
 
     @Override
-    public void submit(IIngredientListElement<?> ingredient) {
-        if (this.service == null) {
-            super.submit(ingredient);
-        } else {
-            this.service.submit(() -> super.submit(ingredient));
-        }
-    }
-
-    @Override
     public void submitAll(NonNullList<IIngredientListElement> ingredients) {
-        if (this.service == null) {
-            super.submitAll(ingredients);
-        } else {
-            this.service.submit(() -> super.submitAll(ingredients));
-        }
+        start();
+        this.service.submit(() -> {
+            for (IIngredientListElement ingredient : ingredients) {
+                submit(ingredient);
+            }
+            stop();
+        });
     }
 
     @Override
@@ -42,9 +35,13 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
 
     @Override
     public void stop() {
-        this.service.shutdownNow().forEach(Runnable::run);
-        this.service = null;
-        super.stop();
+        if (this.service != null) {
+            this.service.shutdownNow().forEach(Runnable::run);
+            this.service = null;
+            if (this.timer != null) {
+                super.stop();
+            }
+        }
     }
 
 }

@@ -87,7 +87,7 @@ public class JeiStarter {
 		NonNullList<IIngredientListElement> ingredientList = IngredientListElementFactory.createBaseList(ingredientRegistry, modIdHelper);
 		timer.stop();
 
-		timer.start("Building ingredient filter");
+		timer.start("Building ingredient filter and dispatching async search tree building");
 		IngredientFilter ingredientFilter = new IngredientFilter(blacklist);
 		ingredientFilter.addIngredients(ingredientList);
 		Internal.setIngredientFilter(ingredientFilter);
