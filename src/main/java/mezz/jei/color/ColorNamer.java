@@ -39,11 +39,11 @@ public class ColorNamer {
 		}
 
 		String closestColorName = null;
-		Double closestColorDistance = Double.MAX_VALUE;
+		double closestColorDistance = Double.MAX_VALUE;
 
 		for (Map.Entry<Color, String> entry : colorNames.entrySet()) {
 			final Color namedColor = entry.getKey();
-			final Double distance = ColorUtil.slowPerceptualColorDistanceSquared(namedColor, color);
+			final double distance = ColorUtil.slowPerceptualColorDistanceSquared(namedColor, color);
 			if (distance < closestColorDistance) {
 				closestColorDistance = distance;
 				closestColorName = entry.getValue();

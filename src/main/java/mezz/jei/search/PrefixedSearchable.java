@@ -31,11 +31,9 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
     }
 
     public void submit(IIngredientListElement<?> ingredient) {
-        if (prefixInfo.getMode() != Config.SearchMode.DISABLED) {
-            Collection<String> strings = prefixInfo.getStrings(ingredient);
-            for (String string : strings) {
-                searchStorage.put(string, ingredient);
-            }
+        Collection<String> strings = prefixInfo.getStrings(ingredient);
+        for (String string : strings) {
+            searchStorage.put(string, ingredient);
         }
     }
 

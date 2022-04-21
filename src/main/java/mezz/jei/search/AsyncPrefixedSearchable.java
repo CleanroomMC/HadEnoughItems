@@ -1,11 +1,9 @@
 package mezz.jei.search;
 
-import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.util.LoggedTimer;
 import net.minecraft.util.NonNullList;
 
-import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,7 +18,7 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
 
     public void start() {
         this.timer = new LoggedTimer();
-        this.timer.start("HEI " + prefixInfo.getDesc() + " thread");
+        this.timer.start("Building [" + prefixInfo.getDesc() + "] search tree");
         this.service = Executors.newFixedThreadPool(1);
     }
 
