@@ -33,6 +33,7 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
         return prefixInfo.getMode();
     }
 
+    @Override
     public void submit(IIngredientListElement<?> ingredient) {
         Collection<String> strings = prefixInfo.getStrings(ingredient);
         for (String string : strings) {
@@ -40,6 +41,7 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
         }
     }
 
+    @Override
     public void submitAll(NonNullList<IIngredientListElement> ingredients) {
         for (IIngredientListElement ingredient : ingredients) {
             submit(ingredient);
