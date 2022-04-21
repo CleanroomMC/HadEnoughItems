@@ -1,5 +1,6 @@
 package mezz.jei.search;
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import mezz.jei.config.Config;
@@ -18,7 +19,7 @@ public class ElementSearch implements IElementSearch {
     
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final Map<PrefixInfo, PrefixedSearchable> prefixedSearchables = new Reference2ObjectOpenHashMap<>();
+    private final Map<PrefixInfo, PrefixedSearchable> prefixedSearchables = new Reference2ObjectArrayMap<>();
     private final CombinedSearchables<IIngredientListElement<?>> combinedSearchables = new CombinedSearchables<>();
 
     public ElementSearch() {
@@ -61,7 +62,9 @@ public class ElementSearch implements IElementSearch {
     @Override
     public void stop() {
         for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
-            prefixedSearchable.stop();
+            if (prefixedSearchable instanceof AsyncPrefixedSearchable) {
+                prefixedSearchable.stop();
+            }
         }
     }
 
@@ -76,6 +79,9 @@ public class ElementSearch implements IElementSearch {
     public void addAll(NonNullList<IIngredientListElement> ingredients) {
         for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
             prefixedSearchable.submitAll(ingredients);
+            if (!(prefixedSearchable instanceof AsyncPrefixedSearchable)) {
+                prefixedSearchable.stop();
+            }
         }
     }
 

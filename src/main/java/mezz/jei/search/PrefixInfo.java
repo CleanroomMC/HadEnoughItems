@@ -9,6 +9,7 @@ import mezz.jei.util.Translator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class PrefixInfo {
@@ -23,12 +24,12 @@ public class PrefixInfo {
     private static final Char2ObjectMap<PrefixInfo> instances = new Char2ObjectArrayMap<>(6);
 
     static {
-        addPrefix(new PrefixInfo('@', "mod_name", Config::getModNameSearchMode, IIngredientListElement::getModNameStrings, LimitedStringStorage::new, false));
+        addPrefix(new PrefixInfo('&', "resource_id", Config::getResourceIdSearchMode, e -> Collections.singleton(e.getResourceId()), GeneralizedSuffixTree::new, true));
         addPrefix(new PrefixInfo('#', "tooltip", Config::getTooltipSearchMode, IIngredientListElement::getTooltipStrings, GeneralizedSuffixTree::new, true));
+        addPrefix(new PrefixInfo('@', "mod_name", Config::getModNameSearchMode, IIngredientListElement::getModNameStrings, LimitedStringStorage::new, false));
         addPrefix(new PrefixInfo('$', "oredict", Config::getOreDictSearchMode, IIngredientListElement::getOreDictStrings, LimitedStringStorage::new, false));
         addPrefix(new PrefixInfo('%', "creative_tab", Config::getCreativeTabSearchMode, IIngredientListElement::getCreativeTabsStrings, LimitedStringStorage::new, false));
         addPrefix(new PrefixInfo('^', "color", Config::getColorSearchMode, IIngredientListElement::getColorStrings, LimitedStringStorage::new, false));
-        addPrefix(new PrefixInfo('&', "resource_id", Config::getResourceIdSearchMode, e -> Collections.singleton(e.getResourceId()), GeneralizedSuffixTree::new, true));
     }
 
     private static void addPrefix(PrefixInfo info) {
@@ -36,7 +37,7 @@ public class PrefixInfo {
     }
 
     public static Collection<PrefixInfo> all() {
-        Collection<PrefixInfo> values = new ArrayList<>(instances.values());
+        List<PrefixInfo> values = new ArrayList<>(instances.values());
         values.add(PrefixInfo.NO_PREFIX);
         return values;
     }
