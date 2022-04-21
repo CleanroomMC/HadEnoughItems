@@ -59,7 +59,8 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			.distinct()
 			.count();
 		this.elementSearch.start();
-		ProgressManager.ProgressBar progressBar = ProgressManager.push("Indexing ingredients from " + modNameCount + " mods", 0, false);
+		ProgressManager.ProgressBar progressBar = ProgressManager.push("Indexing ingredients from " + modNameCount + " mods", 1, false);
+		progressBar.step("");
 		this.elementSearch.addAll(ingredients);
 		this.elementSearch.stop();
 		this.filterCached = null;
