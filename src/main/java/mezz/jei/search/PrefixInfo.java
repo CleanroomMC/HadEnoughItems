@@ -58,7 +58,7 @@ public class PrefixInfo {
         this.modeGetter = modeGetter;
         this.stringsGetter = stringsGetter;
         this.storage = storage;
-        this.async = async;
+        this.async = Config.isSearchTreeBuildingAsync() && async;
     }
 
     public char getPrefix() {

@@ -96,7 +96,6 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	}
 
 	public void modesChanged() {
-		// this.elementSearch.start();
 		this.filterCached = null;
 	}
 
