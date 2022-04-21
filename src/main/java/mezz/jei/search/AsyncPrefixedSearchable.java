@@ -19,7 +19,7 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
 
     public void start() {
         this.timer = new LoggedTimer();
-        this.timer.start("Starting HEI " + prefixInfo.getDesc() + " thread");
+        this.timer.start("HEI " + prefixInfo.getDesc() + " thread");
         this.service = Executors.newFixedThreadPool(1);
     }
 
@@ -28,12 +28,14 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
         if (this.service == null) {
             super.submit(info);
         } else {
-            if (prefixInfo.getMode() != Config.SearchMode.DISABLED) {
-                Collection<String> strings = prefixInfo.getStrings(info);
-                for (String string : strings) {
-                    searchStorage.put(string, info);
+            this.service.submit(() -> {
+                if (prefixInfo.getMode() != Config.SearchMode.DISABLED) {
+                    Collection<String> strings = prefixInfo.getStrings(info);
+                    for (String string : strings) {
+                        searchStorage.put(string, info);
+                    }
                 }
-            }
+            });
         }
     }
 
