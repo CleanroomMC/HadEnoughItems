@@ -24,7 +24,7 @@ public class ElementSearch implements IElementSearch {
     public ElementSearch() {
         for (PrefixInfo prefixInfo : PrefixInfo.all()) {
             ISearchStorage<IIngredientListElement<?>> storage = prefixInfo.createStorage();
-            PrefixedSearchable prefixedSearchable = new PrefixedSearchable(storage, prefixInfo);
+            PrefixedSearchable prefixedSearchable = prefixInfo.canBeAsync() ? new AsyncPrefixedSearchable(storage, prefixInfo) : new PrefixedSearchable(storage, prefixInfo);
             this.prefixedSearchables.put(prefixInfo, prefixedSearchable);
             this.combinedSearchables.addSearchable(prefixedSearchable);
         }
@@ -52,16 +52,27 @@ public class ElementSearch implements IElementSearch {
     }
 
     @Override
+    public void start() {
+        for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
+            if (prefixedSearchable instanceof AsyncPrefixedSearchable) {
+                ((AsyncPrefixedSearchable) prefixedSearchable).start();
+            }
+        }
+    }
+
+    @Override
+    public void stop() {
+        for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
+            if (prefixedSearchable instanceof AsyncPrefixedSearchable) {
+                ((AsyncPrefixedSearchable) prefixedSearchable).stop();
+            }
+        }
+    }
+
+    @Override
     public void add(IIngredientListElement<?> info) {
         for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
-            Config.SearchMode searchMode = prefixedSearchable.getMode();
-            if (searchMode != Config.SearchMode.DISABLED) {
-                Collection<String> strings = prefixedSearchable.getStrings(info);
-                ISearchStorage<IIngredientListElement<?>> searchable = prefixedSearchable.getSearchStorage();
-                for (String string : strings) {
-                    searchable.put(string, info);
-                }
-            }
+            prefixedSearchable.submit(info);
         }
     }
 

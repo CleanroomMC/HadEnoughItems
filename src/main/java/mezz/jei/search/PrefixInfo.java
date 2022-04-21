@@ -17,17 +17,18 @@ public class PrefixInfo {
             '\0',
             "none",
             () -> Config.SearchMode.ENABLED, i -> Collections.singleton(Translator.toLowercaseWithLocale(i.getDisplayName())),
-            GeneralizedSuffixTree::new);
+            GeneralizedSuffixTree::new,
+            true);
 
     private static final Char2ObjectMap<PrefixInfo> instances = new Char2ObjectArrayMap<>(6);
 
     static {
-        addPrefix(new PrefixInfo('@', "mod_name", Config::getModNameSearchMode, IIngredientListElement::getModNameStrings, LimitedStringStorage::new));
-        addPrefix(new PrefixInfo('#', "tooltip", Config::getTooltipSearchMode, IIngredientListElement::getTooltipStrings, GeneralizedSuffixTree::new));
-        addPrefix(new PrefixInfo('$', "oredict", Config::getOreDictSearchMode, IIngredientListElement::getOreDictStrings, LimitedStringStorage::new));
-        addPrefix(new PrefixInfo('%', "creative_tab", Config::getCreativeTabSearchMode, IIngredientListElement::getCreativeTabsStrings, LimitedStringStorage::new));
-        addPrefix(new PrefixInfo('^', "color", Config::getColorSearchMode, IIngredientListElement::getColorStrings, LimitedStringStorage::new));
-        addPrefix(new PrefixInfo('&', "resource_id", Config::getResourceIdSearchMode, e -> Collections.singleton(e.getResourceId()), GeneralizedSuffixTree::new));
+        addPrefix(new PrefixInfo('@', "mod_name", Config::getModNameSearchMode, IIngredientListElement::getModNameStrings, LimitedStringStorage::new, false));
+        addPrefix(new PrefixInfo('#', "tooltip", Config::getTooltipSearchMode, IIngredientListElement::getTooltipStrings, GeneralizedSuffixTree::new, true));
+        addPrefix(new PrefixInfo('$', "oredict", Config::getOreDictSearchMode, IIngredientListElement::getOreDictStrings, LimitedStringStorage::new, true));
+        addPrefix(new PrefixInfo('%', "creative_tab", Config::getCreativeTabSearchMode, IIngredientListElement::getCreativeTabsStrings, LimitedStringStorage::new, false));
+        addPrefix(new PrefixInfo('^', "color", Config::getColorSearchMode, IIngredientListElement::getColorStrings, LimitedStringStorage::new, false));
+        addPrefix(new PrefixInfo('&', "resource_id", Config::getResourceIdSearchMode, e -> Collections.singleton(e.getResourceId()), GeneralizedSuffixTree::new, true));
     }
 
     private static void addPrefix(PrefixInfo info) {
@@ -48,14 +49,16 @@ public class PrefixInfo {
     private final String desc;
     private final IModeGetter modeGetter;
     private final IStringsGetter stringsGetter;
-    private final Supplier<ISearchStorage<IIngredientListElement<?>>> storageSupplier;
+    private final Supplier<ISearchStorage<IIngredientListElement<?>>> storage;
+    private final boolean async;
 
-    public PrefixInfo(char prefix, String desc, IModeGetter modeGetter, IStringsGetter stringsGetter, Supplier<ISearchStorage<IIngredientListElement<?>>> storageSupplier) {
+    public PrefixInfo(char prefix, String desc, IModeGetter modeGetter, IStringsGetter stringsGetter, Supplier<ISearchStorage<IIngredientListElement<?>>> storage, boolean async) {
         this.prefix = prefix;
         this.desc = desc;
         this.modeGetter = modeGetter;
         this.stringsGetter = stringsGetter;
-        this.storageSupplier = storageSupplier;
+        this.storage = storage;
+        this.async = async;
     }
 
     public char getPrefix() {
@@ -70,8 +73,12 @@ public class PrefixInfo {
         return modeGetter.getMode();
     }
 
+    public boolean canBeAsync() {
+        return async;
+    }
+
     public ISearchStorage<IIngredientListElement<?>> createStorage() {
-        return this.storageSupplier.get();
+        return this.storage.get();
     }
 
     public Collection<String> getStrings(IIngredientListElement<?> element) {

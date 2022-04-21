@@ -8,8 +8,8 @@ import java.util.Set;
 
 public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>> {
 
-    private final ISearchStorage<IIngredientListElement<?>> searchStorage;
-    private final PrefixInfo prefixInfo;
+    protected final ISearchStorage<IIngredientListElement<?>> searchStorage;
+    protected final PrefixInfo prefixInfo;
 
     public PrefixedSearchable(ISearchStorage<IIngredientListElement<?>> searchStorage, PrefixInfo prefixInfo) {
         this.searchStorage = searchStorage;
@@ -27,6 +27,15 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
     @Override
     public Config.SearchMode getMode() {
         return prefixInfo.getMode();
+    }
+
+    public void submit(IIngredientListElement<?> info) {
+        if (prefixInfo.getMode() != Config.SearchMode.DISABLED) {
+            Collection<String> strings = prefixInfo.getStrings(info);
+            for (String string : strings) {
+                searchStorage.put(string, info);
+            }
+        }
     }
 
     @Override

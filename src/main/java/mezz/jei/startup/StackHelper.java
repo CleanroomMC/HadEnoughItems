@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
@@ -463,6 +464,7 @@ public class StackHelper implements IStackHelper {
 
 	public static class MatchingItemsResult {
 		public final Map<Integer, Integer> matchingItems = new Int2IntOpenHashMap();
+		public final Int2IntMap matchingItemsCasted = (Int2IntMap) matchingItems;
 		public final List<Integer> missingItems = new IntArrayList();
 	}
 

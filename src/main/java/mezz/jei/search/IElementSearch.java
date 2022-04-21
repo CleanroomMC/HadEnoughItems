@@ -7,6 +7,10 @@ import java.util.Set;
 
 public interface IElementSearch {
 
+    void start();
+
+    void stop();
+
     void add(IIngredientListElement<?> info);
 
     Collection<IIngredientListElement<?>> getAllIngredients();

@@ -56,10 +56,12 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			.map(IIngredientListElement::getModNameForSorting)
 			.distinct()
 			.count();
+		this.elementSearch.start();
 		ProgressManager.ProgressBar progressBar = ProgressManager.push("Indexing ingredients from " + modNameCount + " mods", 0, true);
 		for (IIngredientListElement<?> element : ingredients) {
 			addIngredient(element);
 		}
+		this.elementSearch.stop();
 		ProgressManager.pop(progressBar);
 	}
 

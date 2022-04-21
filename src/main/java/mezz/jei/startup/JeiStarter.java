@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import mezz.jei.util.ErrorUtil;
+import mezz.jei.util.LoggedTimer;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraft.util.NonNullList;
 
@@ -237,20 +238,4 @@ public class JeiStarter {
 		ProgressManager.pop(progressBar);
 	}
 
-	private static class LoggedTimer {
-		private final Stopwatch stopWatch = Stopwatch.createUnstarted();
-		private String message = "";
-
-		public void start(String message) {
-			this.message = message;
-			Log.get().info("{}...", message);
-			stopWatch.reset();
-			stopWatch.start();
-		}
-
-		public void stop() {
-			stopWatch.stop();
-			Log.get().info("{} took {}", message, stopWatch);
-		}
-	}
 }
