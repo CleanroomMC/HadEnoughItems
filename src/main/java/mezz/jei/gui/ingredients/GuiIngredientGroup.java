@@ -5,12 +5,10 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import it.unimi.dsi.fastutil.ints.*;
 import net.minecraft.client.Minecraft;
 
 import mezz.jei.Internal;
@@ -28,8 +26,8 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 
 public class GuiIngredientGroup<T> implements IGuiIngredientGroup<T> {
-	private final Map<Integer, GuiIngredient<T>> guiIngredients = new HashMap<>();
-	private final Set<Integer> inputSlots = new HashSet<>();
+	private final Int2ObjectMap<GuiIngredient<T>> guiIngredients = new Int2ObjectArrayMap<>();
+	private final IntSet inputSlots = new IntArraySet();
 	private final IIngredientHelper<T> ingredientHelper;
 	private final IIngredientRenderer<T> ingredientRenderer;
 	private final IIngredientType<T> ingredientType;
@@ -80,7 +78,7 @@ public class GuiIngredientGroup<T> implements IGuiIngredientGroup<T> {
 		int inputIndex = 0;
 		int outputIndex = 0;
 
-		List<Integer> slots = new ArrayList<>(guiIngredients.keySet());
+		IntList slots = new IntArrayList(guiIngredients.keySet());
 		Collections.sort(slots);
 		for (Integer slot : slots) {
 			if (inputSlots.contains(slot)) {

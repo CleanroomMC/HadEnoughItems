@@ -4,10 +4,10 @@ import javax.annotation.Nullable;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -98,7 +98,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		this.guiItemStackGroup = new GuiItemStackGroup(itemStackFocus, ingredientCycleOffset);
 		this.guiFluidStackGroup = new GuiFluidStackGroup(fluidStackFocus, ingredientCycleOffset);
 
-		this.guiIngredientGroups = new IdentityHashMap<>();
+		this.guiIngredientGroups = new Reference2ObjectArrayMap<>();
 		this.guiIngredientGroups.put(VanillaTypes.ITEM, this.guiItemStackGroup);
 		this.guiIngredientGroups.put(VanillaTypes.FLUID, this.guiFluidStackGroup);
 

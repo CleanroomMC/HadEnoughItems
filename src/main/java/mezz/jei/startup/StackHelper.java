@@ -6,14 +6,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraft.creativetab.CreativeTabs;
@@ -41,7 +41,7 @@ public class StackHelper implements IStackHelper {
 	public StackHelper(ISubtypeRegistry subtypeRegistry) {
 		this.subtypeRegistry = subtypeRegistry;
 		for (UidMode mode : UidMode.values()) {
-			uidCache.put(mode, new IdentityHashMap<>());
+			uidCache.put(mode, new Reference2ObjectOpenHashMap<>());
 		}
 	}
 
@@ -462,8 +462,8 @@ public class StackHelper implements IStackHelper {
 	}
 
 	public static class MatchingItemsResult {
-		public final Map<Integer, Integer> matchingItems = new HashMap<>();
-		public final List<Integer> missingItems = new ArrayList<>();
+		public final Map<Integer, Integer> matchingItems = new Int2IntOpenHashMap();
+		public final List<Integer> missingItems = new IntArrayList();
 	}
 
 	private interface ItemStackMatchable<R> {

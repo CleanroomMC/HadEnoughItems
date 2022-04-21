@@ -2,7 +2,6 @@ package mezz.jei.ingredients;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -163,7 +162,7 @@ public class Ingredients implements IIngredients {
 	}
 
 	public Map<IIngredientType, List> getInputIngredients() {
-		Map<IIngredientType, List> inputIngredients = new IdentityHashMap<>();
+		Map<IIngredientType, List> inputIngredients = new Reference2ObjectOpenHashMap<>();
 		for (Map.Entry<IIngredientType, List<List>> entry : inputs.entrySet()) {
 			List<Object> flatIngredients = new ArrayList<>();
 			for (List ingredients : entry.getValue()) {
@@ -175,7 +174,7 @@ public class Ingredients implements IIngredients {
 	}
 
 	public Map<IIngredientType, List> getOutputIngredients() {
-		Map<IIngredientType, List> outputIngredients = new IdentityHashMap<>();
+		Map<IIngredientType, List> outputIngredients = new Reference2ObjectOpenHashMap<>();
 		for (Map.Entry<IIngredientType, List<List>> entry : outputs.entrySet()) {
 			List<Object> flatIngredients = new ArrayList<>();
 			for (List ingredients : entry.getValue()) {
