@@ -9,17 +9,10 @@ import java.util.concurrent.Executors;
 
 public class AsyncPrefixedSearchable extends PrefixedSearchable {
 
-    private LoggedTimer timer;
     private ExecutorService service;
 
     public AsyncPrefixedSearchable(ISearchStorage<IIngredientListElement<?>> searchStorage, PrefixInfo prefixInfo) {
         super(searchStorage, prefixInfo);
-    }
-
-    public void start() {
-        this.timer = new LoggedTimer();
-        this.timer.start("Building [" + prefixInfo.getDesc() + "] search tree");
-        this.service = Executors.newFixedThreadPool(1);
     }
 
     @Override
@@ -40,11 +33,18 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
         }
     }
 
+    @Override
+    public void start() {
+        this.service = Executors.newFixedThreadPool(1);
+        this.timer = new LoggedTimer();
+        this.timer.start("Building [" + prefixInfo.getDesc() + "] search tree in a separate thread");
+    }
+
+    @Override
     public void stop() {
         this.service.shutdownNow().forEach(Runnable::run);
         this.service = null;
-        timer.stop();
-        this.timer = null;
+        super.stop();
     }
 
 }

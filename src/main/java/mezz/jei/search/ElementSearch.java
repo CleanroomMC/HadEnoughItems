@@ -54,18 +54,14 @@ public class ElementSearch implements IElementSearch {
     @Override
     public void start() {
         for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
-            if (prefixedSearchable instanceof AsyncPrefixedSearchable) {
-                ((AsyncPrefixedSearchable) prefixedSearchable).start();
-            }
+            prefixedSearchable.start();
         }
     }
 
     @Override
     public void stop() {
         for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
-            if (prefixedSearchable instanceof AsyncPrefixedSearchable) {
-                ((AsyncPrefixedSearchable) prefixedSearchable).stop();
-            }
+            prefixedSearchable.stop();
         }
     }
 
