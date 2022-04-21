@@ -138,6 +138,9 @@ config.jei.rendering.comment=Rendering config options
 config.jei.misc=Miscellaneous
 config.jei.misc.comment=Miscellaneous config options
 
+config.jei.advanced.asyncSearchTreeBuilding=Async Search Tree Building
+config.jei.advanced.asyncSearchTreeBuilding.comment=Builds search trees on multiple threads concurrently, turn this off if you're experiencing extremely high load on your CPU when loading JEI
+
 config.jei.misc.mouseClickToSeeRecipes=Mouse Click to See Recipes/Usages
 config.jei.misc.mouseClickToSeeRecipes.comment=Disable to disallow mouse clicks to see recipes and usages when hovering over an ingredient
 

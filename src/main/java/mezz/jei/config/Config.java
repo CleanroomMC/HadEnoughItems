@@ -190,6 +190,10 @@ public final class Config {
 		return true; // For compatibility sake
 	}
 
+	public static boolean isSearchTreeBuildingAsync() {
+		return values.asyncSearchTreeBuilding;
+	}
+
 	public static boolean isUltraLowMemoryMode() {
 		return values.ultraLowMemoryUsage;
 	}
@@ -428,6 +432,8 @@ public final class Config {
 		values.centerSearchBarEnabled = config.getBoolean(CATEGORY_ADVANCED, "centerSearchBarEnabled", defaultValues.centerSearchBarEnabled);
 
 		values.ultraLowMemoryUsage = config.getBoolean(CATEGORY_ADVANCED, "ultraLowMemoryUsage", defaultValues.ultraLowMemoryUsage);
+
+		values.asyncSearchTreeBuilding = config.getBoolean(CATEGORY_ADVANCED, "asyncSearchTreeBuilding", defaultValues.asyncSearchTreeBuilding);
 
 		values.giveMode = config.getEnum("giveMode", CATEGORY_ADVANCED, defaultValues.giveMode, GiveMode.values());
 
