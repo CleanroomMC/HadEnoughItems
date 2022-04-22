@@ -126,6 +126,8 @@ public class JeiStarter {
 
 		Config.checkForModNameFormatOverride();
 
+		ingredientFilter.trimToSize(); // Old method naming for compat-sake
+
 		started = true;
 		totalTime.stop();
 	}

@@ -51,7 +51,15 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	}
 
 	public void trimToSize() {
-		// NO-OP
+		if (loadedOnce) { // Just in case for whatever reason async search trees doesn't finish building
+			loadedOnce = false;
+			if (this.elementSearch instanceof ElementSearch) {
+				((ElementSearch) this.elementSearch).getSearchables().values().stream()
+						.filter(AsyncPrefixedSearchable.class::isInstance)
+						.map(AsyncPrefixedSearchable.class::cast)
+						.forEach(AsyncPrefixedSearchable::stop);
+			}
+		}
 	}
 
 	public void addIngredients(NonNullList<IIngredientListElement> ingredients) {
@@ -108,15 +116,6 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	@SubscribeEvent
 	public void onPlayerJoinedWorldEvent(PlayerJoinedWorldEvent event) {
-		if (loadedOnce) { // Just in case for whatever reason async search trees doesn't finish building
-			loadedOnce = false;
-			if (this.elementSearch instanceof ElementSearch) {
-				((ElementSearch) this.elementSearch).getSearchables().values().stream()
-						.filter(AsyncPrefixedSearchable.class::isInstance)
-						.map(AsyncPrefixedSearchable.class::cast)
-						.forEach(AsyncPrefixedSearchable::stop);
-			}
-		}
 		this.filterCached = null;
 		updateHidden();
 	}

@@ -23,7 +23,6 @@ import mezz.jei.startup.ProxyCommon;
 	dependencies = "required-after:forge@[14.23.5.2816,);")
 public class JustEnoughItems {
 
-	@SuppressWarnings("NullableProblems")
 	@SidedProxy(clientSide = "mezz.jei.startup.ProxyCommonClient", serverSide = "mezz.jei.startup.ProxyCommon")
 	private static ProxyCommon proxy;
 

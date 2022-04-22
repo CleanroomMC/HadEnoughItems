@@ -4,9 +4,8 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.util.Log;
 import net.minecraft.util.NonNullList;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -15,8 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class ElementSearch implements IElementSearch {
-    
-    private static final Logger LOGGER = LogManager.getLogger();
 
     private final Map<PrefixInfo, PrefixedSearchable> prefixedSearchables = new Reference2ObjectArrayMap<>();
     private final CombinedSearchables<IIngredientListElement<?>> combinedSearchables = new CombinedSearchables<>();
@@ -82,7 +79,7 @@ public class ElementSearch implements IElementSearch {
             PrefixInfo prefixInfo = entry.getKey();
             if (prefixInfo.getMode() != Config.SearchMode.DISABLED) {
                 ISearchStorage<IIngredientListElement<?>> storage = entry.getValue().getSearchStorage();
-                LOGGER.info("ElementSearch {} Storage Stats: {}", prefixInfo, storage.statistics());
+                Log.get().info("ElementSearch {} Storage Stats: {}", prefixInfo, storage.statistics());
                 try {
                     FileWriter fileWriter = new FileWriter("GeneralizedSuffixTree-" + prefixInfo + ".dot");
                     try (PrintWriter out = new PrintWriter(fileWriter)) {
