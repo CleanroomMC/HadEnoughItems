@@ -24,8 +24,8 @@ public class PrefixInfo {
     private static final Char2ObjectMap<PrefixInfo> instances = new Char2ObjectArrayMap<>(6);
 
     static {
-        addPrefix(new PrefixInfo('&', "resource_id", Config::getResourceIdSearchMode, e -> Collections.singleton(e.getResourceId()), GeneralizedSuffixTree::new, true));
         addPrefix(new PrefixInfo('#', "tooltip", Config::getTooltipSearchMode, IIngredientListElement::getTooltipStrings, GeneralizedSuffixTree::new, true));
+        addPrefix(new PrefixInfo('&', "resource_id", Config::getResourceIdSearchMode, e -> Collections.singleton(e.getResourceId()), GeneralizedSuffixTree::new, true));
         addPrefix(new PrefixInfo('^', "color", Config::getColorSearchMode, IIngredientListElement::getColorStrings, LimitedStringStorage::new, true));
         addPrefix(new PrefixInfo('@', "mod_name", Config::getModNameSearchMode, IIngredientListElement::getModNameStrings, LimitedStringStorage::new, false));
         addPrefix(new PrefixInfo('$', "oredict", Config::getOreDictSearchMode, IIngredientListElement::getOreDictStrings, LimitedStringStorage::new, false));
