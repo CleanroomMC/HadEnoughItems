@@ -4,11 +4,11 @@ import javax.annotation.Nullable;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.item.ItemStack;
 
 import mezz.jei.Internal;
@@ -34,7 +34,7 @@ public class IngredientSet<V> extends AbstractSet<V> {
 
 	private IngredientSet(Function<V, String> uidGenerator) {
 		this.uidGenerator = uidGenerator;
-		this.ingredients = new LinkedHashMap<>();
+		this.ingredients = new Object2ObjectLinkedOpenHashMap<>();
 	}
 
 	@Override

@@ -67,8 +67,7 @@ public class SearchToken {
     private <T> Set<T> intersection(Stream<Set<T>> stream) {
         List<Set<T>> sets = stream.collect(Collectors.toList());
         Set<T> smallestSet = sets.stream().min(Comparator.comparing(Set::size)).orElseGet(Collections::emptySet);
-        Set<T> results = new ReferenceOpenHashSet<>();
-        results.addAll(smallestSet);
+        Set<T> results = new ReferenceOpenHashSet<>(smallestSet);
         for (Set<T> set : sets) {
             if (set == smallestSet) {
                 continue;
