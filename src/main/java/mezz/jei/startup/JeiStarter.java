@@ -4,12 +4,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import mezz.jei.support.ModSupport;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.LoggedTimer;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraft.util.NonNullList;
 
-import com.google.common.base.Stopwatch;
 import mezz.jei.Internal;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
@@ -54,6 +54,8 @@ public class JeiStarter {
 		Internal.setSubtypeRegistry(subtypeRegistry);
 
 		registerItemSubtypes(plugins, subtypeRegistry);
+
+		ModSupport.registerSubtypeInterpreters(subtypeRegistry);
 
 		StackHelper stackHelper = new StackHelper(subtypeRegistry);
 		stackHelper.enableUidCache();
