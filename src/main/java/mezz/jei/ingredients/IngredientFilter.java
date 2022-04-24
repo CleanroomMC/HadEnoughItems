@@ -189,9 +189,9 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		if (tokens.isEmpty()) {
 			stream = this.elementSearch.getAllIngredients().parallelStream();
 		} else {
-			stream = tokens.stream().map(token -> token.getSearchResults(this.elementSearch)).flatMap(Set::stream).distinct();
+			stream = tokens.stream().map(token -> token.getSearchResults(this.elementSearch)).flatMap(Set::stream);
 		}
-		return stream.filter(IIngredientListElement::isVisible).collect(Collectors.toList()); // TODO: sort
+		return stream.filter(IIngredientListElement::isVisible).distinct().sorted(IngredientListElementComparator.INSTANCE).collect(Collectors.toList());
 	}
 
 	/**
