@@ -193,6 +193,10 @@ public final class Config {
 	public static boolean isSearchTreeBuildingAsync() {
 		return values.asyncSearchTreeBuilding;
 	}
+	
+	public static boolean isAddingBookmarksToFront() {
+		return values.addBookmarksToFront;
+	}
 
 	public static boolean isUltraLowMemoryMode() {
 		return values.ultraLowMemoryUsage;
@@ -434,6 +438,8 @@ public final class Config {
 		values.ultraLowMemoryUsage = config.getBoolean(CATEGORY_ADVANCED, "ultraLowMemoryUsage", defaultValues.ultraLowMemoryUsage);
 
 		values.asyncSearchTreeBuilding = config.getBoolean(CATEGORY_ADVANCED, "asyncSearchTreeBuilding", defaultValues.asyncSearchTreeBuilding);
+
+		values.addBookmarksToFront = config.getBoolean(CATEGORY_ADVANCED, "addBookmarksToFront", defaultValues.addBookmarksToFront);
 
 		values.giveMode = config.getEnum("giveMode", CATEGORY_ADVANCED, defaultValues.giveMode, GiveMode.values());
 
