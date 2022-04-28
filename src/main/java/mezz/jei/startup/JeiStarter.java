@@ -116,6 +116,8 @@ public class JeiStarter {
 
 		stackHelper.disableUidCache();
 
+		ingredientFilter.notifyStopBuilding();
+
 		sendRuntime(plugins, jeiRuntime);
 
 		LeftAreaDispatcher leftAreaDispatcher = new LeftAreaDispatcher(guiScreenHelper);
@@ -127,8 +129,6 @@ public class JeiStarter {
 		Internal.setInputHandler(inputHandler);
 
 		Config.checkForModNameFormatOverride();
-
-		ingredientFilter.trimToSize(); // Old method naming for compat-sake
 
 		started = true;
 		totalTime.stop();

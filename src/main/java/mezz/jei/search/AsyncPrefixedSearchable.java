@@ -52,9 +52,9 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
         if (this.service != null) {
             this.service.shutdownNow().forEach(Runnable::run);
             this.service = null;
-            if (this.timer != null) {
-                super.stop();
-            }
+        }
+        if (this.timer != null) {
+            super.stop();
         }
         if (Minecraft.getMinecraft().isCallingFromMinecraftThread() && this.leftovers != null && !this.leftovers.isEmpty()) {
             Log.get().info("{} search tree had {} errors, moving onto the main thread to process these errors.", prefixInfo, this.leftovers.size());

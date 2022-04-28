@@ -10,6 +10,7 @@ import net.minecraft.util.NonNullList;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,14 +22,18 @@ public class ElementSearch implements IElementSearch {
     public ElementSearch() {
         for (PrefixInfo prefixInfo : PrefixInfo.all()) {
             ISearchStorage<IIngredientListElement<?>> storage = prefixInfo.createStorage();
-            PrefixedSearchable prefixedSearchable = prefixInfo.canBeAsync() ? new AsyncPrefixedSearchable(storage, prefixInfo) : new PrefixedSearchable(storage, prefixInfo);
-            this.prefixedSearchables.put(prefixInfo, prefixedSearchable);
-            this.combinedSearchables.addSearchable(prefixedSearchable);
+            PrefixedSearchable searchable = Config.isSearchTreeBuildingAsync() ? new AsyncPrefixedSearchable(storage, prefixInfo) : new PrefixedSearchable(storage, prefixInfo);
+            this.prefixedSearchables.put(prefixInfo, searchable);
+            this.combinedSearchables.addSearchable(searchable);
         }
     }
 
-    public Map<PrefixInfo, PrefixedSearchable> getSearchables() {
-        return prefixedSearchables;
+    public void stopBuilding() {
+        PrefixInfo.all().stream().sorted(Comparator.reverseOrder())
+                .map(this.prefixedSearchables::get)
+                .filter(AsyncPrefixedSearchable.class::isInstance)
+                .map(AsyncPrefixedSearchable.class::cast)
+                .forEach(AsyncPrefixedSearchable::stop);
     }
 
     @Override

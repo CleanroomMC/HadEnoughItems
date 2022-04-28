@@ -29,12 +29,9 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public static final Pattern QUOTE_PATTERN = Pattern.compile("\"");
 	public static final Pattern FILTER_SPLIT_PATTERN = Pattern.compile("(-?\".*?(?:\"|$)|\\S+)");
 
-	private static boolean loadedOnce = true;
-
 	private final IngredientBlacklistInternal blacklist;
 
 	private final IElementSearch elementSearch;
-	// private final Set<String> modNamesForSorting = new ObjectOpenHashSet<>(); // TODO
 
 	@Nullable
 	private String filterCached;
@@ -48,18 +45,6 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	public void logStatistics() {
 		this.elementSearch.logStatistics();
-	}
-
-	public void trimToSize() {
-		if (loadedOnce) { // Just in case for whatever reason async search trees doesn't finish building
-			loadedOnce = false;
-			if (this.elementSearch instanceof ElementSearch) {
-				((ElementSearch) this.elementSearch).getSearchables().values().stream()
-						.filter(AsyncPrefixedSearchable.class::isInstance)
-						.map(AsyncPrefixedSearchable.class::cast)
-						.forEach(AsyncPrefixedSearchable::stop);
-			}
-		}
 	}
 
 	public void addIngredients(NonNullList<IIngredientListElement> ingredients) {
@@ -79,6 +64,12 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		updateHiddenState(element);
 		this.elementSearch.add(element);
 		this.filterCached = null;
+	}
+
+	public void notifyStopBuilding() {
+		if (this.elementSearch instanceof ElementSearch) {
+			((ElementSearch) this.elementSearch).stopBuilding();
+		}
 	}
 
 	public void invalidateCache() {
