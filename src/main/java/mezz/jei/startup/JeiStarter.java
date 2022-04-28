@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import mezz.jei.ingredients.*;
 import mezz.jei.support.ModSupport;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.LoggedTimer;
@@ -28,10 +30,6 @@ import mezz.jei.gui.overlay.bookmarks.BookmarkOverlay;
 import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.gui.textures.Textures;
-import mezz.jei.ingredients.IngredientBlacklistInternal;
-import mezz.jei.ingredients.IngredientFilter;
-import mezz.jei.ingredients.IngredientListElementFactory;
-import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.input.InputHandler;
 import mezz.jei.plugins.vanilla.VanillaPlugin;
 import mezz.jei.recipes.RecipeRegistry;
@@ -46,6 +44,8 @@ public class JeiStarter {
 	public void start(List<IModPlugin> plugins, Textures textures) {
 		LoggedTimer totalTime = new LoggedTimer();
 		totalTime.start("Starting HEI");
+
+		IngredientListElement.canonicalizedStringArrays = new ObjectOpenHashSet<>();
 
 		IModIdHelper modIdHelper = ForgeModIdHelper.getInstance();
 		ErrorUtil.setModIdHelper(modIdHelper);
@@ -129,6 +129,8 @@ public class JeiStarter {
 		Internal.setInputHandler(inputHandler);
 
 		Config.checkForModNameFormatOverride();
+
+		IngredientListElement.canonicalizedStringArrays = new ObjectOpenHashSet<>();
 
 		started = true;
 		totalTime.stop();
