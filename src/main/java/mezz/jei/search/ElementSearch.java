@@ -20,20 +20,30 @@ public class ElementSearch implements IElementSearch {
     private final CombinedSearchables<IIngredientListElement<?>> combinedSearchables = new CombinedSearchables<>();
 
     public ElementSearch() {
+        if (Config.isSearchTreeBuildingAsync()) {
+            AsyncPrefixedSearchable.startService();
+        }
+
+        ISearchStorage<IIngredientListElement<?>> storage = PrefixInfo.NO_PREFIX.createStorage();
+        PrefixedSearchable searchable = new PrefixedSearchable(storage, PrefixInfo.NO_PREFIX);
+        this.prefixedSearchables.put(PrefixInfo.NO_PREFIX, searchable);
+        this.combinedSearchables.addSearchable(searchable);
+
         for (PrefixInfo prefixInfo : PrefixInfo.all()) {
-            ISearchStorage<IIngredientListElement<?>> storage = prefixInfo.createStorage();
-            PrefixedSearchable searchable = Config.isSearchTreeBuildingAsync() ? new AsyncPrefixedSearchable(storage, prefixInfo) : new PrefixedSearchable(storage, prefixInfo);
+            storage = prefixInfo.createStorage();
+            searchable = Config.isSearchTreeBuildingAsync() ? new AsyncPrefixedSearchable(storage, prefixInfo) : new PrefixedSearchable(storage, prefixInfo);
             this.prefixedSearchables.put(prefixInfo, searchable);
             this.combinedSearchables.addSearchable(searchable);
         }
     }
 
-    public void stopBuilding() {
-        PrefixInfo.all().stream().sorted(Comparator.reverseOrder())
-                .map(this.prefixedSearchables::get)
-                .filter(AsyncPrefixedSearchable.class::isInstance)
-                .map(AsyncPrefixedSearchable.class::cast)
-                .forEach(AsyncPrefixedSearchable::stop);
+    public void block() {
+        if (Config.isSearchTreeBuildingAsync()) {
+            AsyncPrefixedSearchable.endService();
+            for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
+                prefixedSearchable.stop();
+            }
+        }
     }
 
     @Override

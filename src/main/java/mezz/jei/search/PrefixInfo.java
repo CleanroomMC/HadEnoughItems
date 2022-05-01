@@ -17,14 +17,14 @@ public class PrefixInfo implements Comparable<PrefixInfo> {
     private static final Char2ObjectMap<PrefixInfo> instances = new Char2ObjectArrayMap<>(6);
 
     static {
+        NO_PREFIX = new PrefixInfo('\0', -1, "default", () -> Config.SearchMode.ENABLED, i -> Collections.singleton(Translator.toLowercaseWithLocale(i.getDisplayName())),
+                GeneralizedSuffixTree::new);
         addPrefix(new PrefixInfo('#', 0, "tooltip", Config::getTooltipSearchMode, IIngredientListElement::getTooltipStrings, GeneralizedSuffixTree::new));
-        addPrefix(NO_PREFIX = new PrefixInfo('\0', 1, "default", () -> Config.SearchMode.ENABLED, i -> Collections.singleton(Translator.toLowercaseWithLocale(i.getDisplayName())),
-                GeneralizedSuffixTree::new));
-        addPrefix(new PrefixInfo('&', 2, "resource_id", Config::getResourceIdSearchMode, e -> Collections.singleton(e.getResourceId()), GeneralizedSuffixTree::new));
-        addPrefix(new PrefixInfo('^', 3, "color", Config::getColorSearchMode, IIngredientListElement::getColorStrings, LimitedStringStorage::new));
-        addPrefix(new PrefixInfo('$', 4, "oredict", Config::getOreDictSearchMode, IIngredientListElement::getOreDictStrings, LimitedStringStorage::new));
-        addPrefix(new PrefixInfo('@', 5, "mod_name", Config::getModNameSearchMode, IIngredientListElement::getModNameStrings, LimitedStringStorage::new));
-        addPrefix(new PrefixInfo('%', 6, "creative_tab", Config::getCreativeTabSearchMode, IIngredientListElement::getCreativeTabsStrings, LimitedStringStorage::new));
+        addPrefix(new PrefixInfo('&', 1, "resource_id", Config::getResourceIdSearchMode, e -> Collections.singleton(e.getResourceId()), GeneralizedSuffixTree::new));
+        addPrefix(new PrefixInfo('^', 2, "color", Config::getColorSearchMode, IIngredientListElement::getColorStrings, LimitedStringStorage::new));
+        addPrefix(new PrefixInfo('$', 3, "oredict", Config::getOreDictSearchMode, IIngredientListElement::getOreDictStrings, LimitedStringStorage::new));
+        addPrefix(new PrefixInfo('@', 4, "mod_name", Config::getModNameSearchMode, IIngredientListElement::getModNameStrings, LimitedStringStorage::new));
+        addPrefix(new PrefixInfo('%', 5, "creative_tab", Config::getCreativeTabSearchMode, IIngredientListElement::getCreativeTabsStrings, LimitedStringStorage::new));
     }
 
     private static void addPrefix(PrefixInfo info) {

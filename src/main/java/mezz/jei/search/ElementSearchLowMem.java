@@ -3,8 +3,6 @@ package mezz.jei.search;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.util.Log;
 import net.minecraft.util.NonNullList;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Collections;

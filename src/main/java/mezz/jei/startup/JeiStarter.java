@@ -85,13 +85,9 @@ public class JeiStarter {
 		RecipeRegistry recipeRegistry = modRegistry.createRecipeRegistry(ingredientRegistry);
 		timer.stop();
 
-		timer.start("Building ingredient list");
-		NonNullList<IIngredientListElement> ingredientList = IngredientListElementFactory.createBaseList(ingredientRegistry, modIdHelper);
-		timer.stop();
-
-		timer.start("Building ingredient filter and dispatching async search tree building");
+		timer.start("Building ingredient list and filter while dispatching async search tree building");
 		IngredientFilter ingredientFilter = new IngredientFilter(blacklist);
-		ingredientFilter.addIngredients(ingredientList);
+		ingredientFilter.addIngredients(IngredientListElementFactory.createBaseList(ingredientRegistry, modIdHelper));
 		Internal.setIngredientFilter(ingredientFilter);
 		timer.stop();
 
@@ -115,8 +111,6 @@ public class JeiStarter {
 		timer.stop();
 
 		stackHelper.disableUidCache();
-
-		ingredientFilter.notifyStopBuilding();
 
 		sendRuntime(plugins, jeiRuntime);
 

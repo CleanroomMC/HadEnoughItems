@@ -4,8 +4,10 @@ import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.util.LoggedTimer;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.common.ProgressManager;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>>, IBuildable {
@@ -44,9 +46,21 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
     @Override
     public void submitAll(NonNullList<IIngredientListElement> ingredients) {
         start();
+        long modNameCount = ingredients.stream()
+                .map(IIngredientListElement::getModNameForSorting)
+                .distinct()
+                .count();
+        ProgressManager.ProgressBar progressBar = ProgressManager.push("Indexing ingredients for " + prefixInfo.getDesc() + " search tree", (int) modNameCount);
+        String currentModName = null;
         for (IIngredientListElement ingredient : ingredients) {
+            String modname = ingredient.getModNameForSorting();
+            if (!Objects.equals(currentModName, modname)) {
+                currentModName = modname;
+                progressBar.step(modname);
+            }
             submit(ingredient);
         }
+        ProgressManager.pop(progressBar);
         stop();
     }
 
@@ -68,8 +82,10 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
 
     @Override
     public void stop() {
-        this.timer.stop();
-        this.timer = null;
+        if (this.timer != null) {
+            this.timer.stop();
+            this.timer = null;
+        }
     }
 
 }

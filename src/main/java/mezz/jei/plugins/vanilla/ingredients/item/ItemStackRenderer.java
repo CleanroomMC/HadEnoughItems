@@ -19,6 +19,7 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
 import net.minecraftforge.common.IRarity;
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 
 public class ItemStackRenderer implements IIngredientRenderer<ItemStack> {
 	@Override
@@ -43,9 +44,12 @@ public class ItemStackRenderer implements IIngredientRenderer<ItemStack> {
 		} catch (RuntimeException | LinkageError e) {
 			String itemStackInfo = ErrorUtil.getItemStackInfo(ingredient);
 			Log.get().error("Failed to get tooltip: {}", itemStackInfo, e);
-			list = new ArrayList<>();
-			list.add(TextFormatting.RED + Translator.translateToLocal("jei.tooltip.error.crash"));
-			return list;
+			if (Minecraft.getMinecraft().isCallingFromMinecraftThread()) {
+				list = new ArrayList<>();
+				list.add(TextFormatting.RED + Translator.translateToLocal("jei.tooltip.error.crash"));
+				return list;
+			}
+			throw new ConcurrentRuntimeException(e);
 		}
 
 		IRarity rarity;
