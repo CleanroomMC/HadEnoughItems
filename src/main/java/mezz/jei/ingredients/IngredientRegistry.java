@@ -281,7 +281,9 @@ public class IngredientRegistry implements IIngredientRegistry {
 				}
 			}
 		}
-		ingredientFilter.addIngredients(ingredientsToAdd);
+		if (!ingredientsToAdd.isEmpty()) {
+			ingredientFilter.addIngredients(ingredientsToAdd);
+		}
 		ingredientFilter.invalidateCache();
 	}
 
