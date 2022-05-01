@@ -28,6 +28,8 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public static final Pattern QUOTE_PATTERN = Pattern.compile("\"");
 	public static final Pattern FILTER_SPLIT_PATTERN = Pattern.compile("(-?\".*?(?:\"|$)|\\S+)");
 
+	public static boolean firstBuild = true;
+
 	private final IngredientBlacklistInternal blacklist;
 	private final IElementSearch elementSearch;
 	private final List<IIngredientGridSource.Listener> listeners = new ArrayList<>();
@@ -35,9 +37,12 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	private List<IIngredientListElement> ingredientListCached = Collections.emptyList();
 	@Nullable private String filterCached;
 
-	public IngredientFilter(IngredientBlacklistInternal blacklist) {
+	public IngredientFilter(IngredientBlacklistInternal blacklist, NonNullList<IIngredientListElement> ingredients) {
 		this.blacklist = blacklist;
 		this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
+		ingredients.sort(IngredientListElementComparator.INSTANCE);
+		this.elementSearch.addAll(ingredients);
+		firstBuild = false;
 	}
 
 	public void logStatistics() {

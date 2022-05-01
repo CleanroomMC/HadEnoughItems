@@ -2,6 +2,7 @@ package mezz.jei.search;
 
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.util.LoggedTimer;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.ProgressManager;
@@ -45,23 +46,31 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
 
     @Override
     public void submitAll(NonNullList<IIngredientListElement> ingredients) {
-        start();
-        long modNameCount = ingredients.stream()
-                .map(IIngredientListElement::getModNameForSorting)
-                .distinct()
-                .count();
-        ProgressManager.ProgressBar progressBar = ProgressManager.push("Indexing ingredients for " + prefixInfo.getDesc() + " search tree", (int) modNameCount);
-        String currentModName = null;
-        for (IIngredientListElement ingredient : ingredients) {
-            String modname = ingredient.getModNameForSorting();
-            if (!Objects.equals(currentModName, modname)) {
-                currentModName = modname;
-                progressBar.step(modname);
+        if (IngredientFilter.firstBuild) {
+            start();
+            long modNameCount = ingredients.stream()
+                    .map(IIngredientListElement::getModNameForSorting)
+                    .distinct()
+                    .count();
+            ProgressManager.ProgressBar progressBar = ProgressManager.push("Indexing ingredients", (int) modNameCount);
+            String currentModName = null;
+            for (IIngredientListElement ingredient : ingredients) {
+                String modname = ingredient.getModNameForSorting();
+                if (!Objects.equals(currentModName, modname)) {
+                    currentModName = modname;
+                    progressBar.step(modname);
+                }
+                submit(ingredient);
             }
-            submit(ingredient);
+            ProgressManager.pop(progressBar);
+            stop();
+        } else {
+            ProgressManager.ProgressBar progressBar = ProgressManager.push("Adding ingredients at runtime", ingredients.size());
+            for (IIngredientListElement ingredient : ingredients) {
+                progressBar.step(ingredient.getDisplayName());
+                submit(ingredient);
+            }
         }
-        ProgressManager.pop(progressBar);
-        stop();
     }
 
     @Override

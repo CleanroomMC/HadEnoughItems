@@ -33,6 +33,7 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
         service = null;
     }
 
+    private boolean firstBuild = true;
     private List<IIngredientListElement> leftovers; // strictly written by service thread and read by main thread
 
     public AsyncPrefixedSearchable(ISearchStorage<IIngredientListElement<?>> searchStorage, PrefixInfo prefixInfo) {
@@ -41,27 +42,34 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
 
     @Override
     public void submitAll(NonNullList<IIngredientListElement> ingredients) {
-        service.submit(() -> {
-            start();
-            for (IIngredientListElement ingredient : ingredients) {
-                try {
-                    submit(ingredient);
-                } catch (ConcurrentRuntimeException e) {
-                    Log.get().error(prefixInfo + " building failed on ingredient: " + ingredient.getDisplayName(), e);
-                    if (leftovers == null) {
-                        this.leftovers = new ArrayList<>();
-                    }
-                    this.leftovers.add(ingredient);
+        if (service != null) {
+            service.submit(() -> {
+                if (firstBuild) {
+                    start();
+                    firstBuild = false;
                 }
-            }
-            stop();
-        });
+                for (IIngredientListElement ingredient : ingredients) {
+                    try {
+                        submit(ingredient);
+                    } catch (ConcurrentRuntimeException e) {
+                        Log.get().error(prefixInfo + " building failed on ingredient: " + ingredient.getDisplayName(), e);
+                        if (leftovers == null) {
+                            this.leftovers = new ArrayList<>();
+                        }
+                        this.leftovers.add(ingredient);
+                    }
+                }
+                stop();
+            });
+        } else {
+            super.submitAll(ingredients);
+        }
     }
 
     @Override
     public void start() {
         this.timer = new LoggedTimer();
-        this.timer.start("Building [" + prefixInfo.getDesc() + "] search tree in a separate thread");
+        this.timer.start("Asynchronously building [" + prefixInfo.getDesc() + "] search tree");
     }
 
     @Override
