@@ -334,7 +334,7 @@ public final class Config {
 			}
 		}
 
-		bookmarkFile = new File("./", "bookmarks.ini");
+		bookmarkFile = new File("./", "hei_bookmarks.ini");
 		File oldBookmarkFile = new File(jeiConfigurationDir, "bookmarks.ini");
 		if (oldBookmarkFile.exists() && !bookmarkFile.exists()) {
 			try {
