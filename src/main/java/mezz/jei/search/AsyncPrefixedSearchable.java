@@ -22,6 +22,9 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
     }
 
     public static void endService() {
+        if (service == null) {
+            return;
+        }
         service.shutdown();
         try {
             service.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
