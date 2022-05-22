@@ -145,7 +145,7 @@ config.jei.search.searchStrippedDiacritics=Search Stripped Diacritics
 config.jei.search.searchStrippedDiacritics.comment=Includes stripped diacritics version of strings in search trees [WILL RELOAD SEARCH TREES]
 
 config.jei.advanced.asyncSearchTreeBuilding=Async Search Tree Building
-config.jei.advanced.asyncSearchTreeBuilding.comment=Builds search trees on multiple threads concurrently, turn this off if you're experiencing extremely high load on your CPU when loading JEI
+config.jei.advanced.asyncSearchTreeBuilding.comment=Builds search trees on multiple threads concurrently, turn this off if you're experiencing extremely high load on your CPU when loading HEI
 
 config.jei.advanced.addBookmarksToFront=Prepend New Bookmarks
 config.jei.advanced.addBookmarksToFront.comment=When enabled, adds new bookmarks to the front of the bookmark list
