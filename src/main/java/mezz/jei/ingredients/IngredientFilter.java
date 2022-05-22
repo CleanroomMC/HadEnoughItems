@@ -134,7 +134,6 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		filterText = Translator.toLowercaseWithLocale(filterText);
 		if (!filterText.equals(filterCached)) {
 			List<IIngredientListElement<?>> ingredientList = getIngredientListUncached(filterText);
-			ingredientList.sort(IngredientListElementComparator.INSTANCE);
 			ingredientListCached = Collections.unmodifiableList(ingredientList);
 			filterCached = filterText;
 		}
