@@ -48,21 +48,28 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
     public void submitAll(NonNullList<IIngredientListElement> ingredients) {
         if (IngredientFilter.firstBuild) {
             start();
-            long modNameCount = ingredients.stream()
-                    .map(IIngredientListElement::getModNameForSorting)
-                    .distinct()
-                    .count();
-            ProgressManager.ProgressBar progressBar = ProgressManager.push("Indexing ingredients", (int) modNameCount);
+            ProgressManager.ProgressBar progressBar = null;
+            if (!IngredientFilter.rebuild) {
+                long modNameCount = ingredients.stream()
+                        .map(IIngredientListElement::getModNameForSorting)
+                        .distinct()
+                        .count();
+                progressBar = ProgressManager.push("Indexing ingredients", (int) modNameCount);
+            }
             String currentModName = null;
             for (IIngredientListElement ingredient : ingredients) {
                 String modname = ingredient.getModNameForSorting();
                 if (!Objects.equals(currentModName, modname)) {
                     currentModName = modname;
-                    progressBar.step(modname);
+                    if (progressBar != null) {
+                        progressBar.step(modname);
+                    }
                 }
                 submit(ingredient);
             }
-            ProgressManager.pop(progressBar);
+            if (progressBar != null) {
+                ProgressManager.pop(progressBar);
+            }
             stop();
         } else {
             ProgressManager.ProgressBar progressBar = ProgressManager.push("Adding ingredients at runtime", ingredients.size());

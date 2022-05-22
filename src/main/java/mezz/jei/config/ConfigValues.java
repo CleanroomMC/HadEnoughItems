@@ -24,6 +24,7 @@ public class ConfigValues {
 	public Config.SearchMode colorSearchMode = Config.SearchMode.DISABLED;
 	public Config.SearchMode resourceIdSearchMode = Config.SearchMode.DISABLED;
 	public boolean searchAdvancedTooltips = false;
+	public boolean searchStrippedDiacritics = false;
 
 	// per-world
 	public boolean overlayEnabled = true;

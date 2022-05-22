@@ -138,6 +138,12 @@ config.jei.rendering.comment=Rendering config options
 config.jei.misc=Miscellaneous
 config.jei.misc.comment=Miscellaneous config options
 
+config.jei.search.searchAdvancedTooltips=Search Advanced Tooltips
+config.jei.search.searchAdvancedTooltips.comment=Includes advanced tooltips in search trees
+
+config.jei.search.searchStrippedDiacritics=Search Stripped Diacritics
+config.jei.search.searchStrippedDiacritics.comment=Includes stripped diacritics version of strings in search trees
+
 config.jei.advanced.asyncSearchTreeBuilding=Async Search Tree Building
 config.jei.advanced.asyncSearchTreeBuilding.comment=Builds search trees on multiple threads concurrently, turn this off if you're experiencing extremely high load on your CPU when loading JEI
 

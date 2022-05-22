@@ -29,11 +29,12 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public static final Pattern FILTER_SPLIT_PATTERN = Pattern.compile("(-?\".*?(?:\"|$)|\\S+)");
 
 	public static boolean firstBuild = true;
+	public static boolean rebuild = false;
 
 	private final IngredientBlacklistInternal blacklist;
-	private final IElementSearch elementSearch;
 	private final List<IIngredientGridSource.Listener> listeners = new ArrayList<>();
 
+	private IElementSearch elementSearch;
 	private List<IIngredientListElement> ingredientListCached = Collections.emptyList();
 	@Nullable private String filterCached;
 
@@ -91,7 +92,17 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	}
 
 	public void modesChanged() {
-		this.filterCached = null;
+		this.invalidateCache();
+		if (Config.doesSearchTreeNeedReload()) {
+			firstBuild = true;
+			rebuild = true;
+			NonNullList<IIngredientListElement> ingredients = NonNullList.from(null, this.elementSearch.getAllIngredients().toArray(new IIngredientListElement[0]));
+			this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
+			ingredients.sort(IngredientListElementComparator.INSTANCE);
+			this.elementSearch.addAll(ingredients);
+			firstBuild = false;
+			rebuild = false;
+		}
 	}
 
 	@SubscribeEvent

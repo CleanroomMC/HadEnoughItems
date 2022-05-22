@@ -78,6 +78,8 @@ public final class Config {
 	private static final Set<String> itemBlacklist = new HashSet<>();
 	private static final String[] defaultItemBlacklist = new String[]{};
 
+	private static boolean needToRebuildSearchTree;
+
 	private Config() {
 
 	}
@@ -262,6 +264,19 @@ public final class Config {
 		return values.searchAdvancedTooltips;
 	}
 
+	public static boolean getSearchStrippedDiacritics() {
+		return values.searchStrippedDiacritics;
+	}
+
+	public static boolean doesSearchTreeNeedReload() {
+		if (config == null) {
+			return false;
+		}
+		boolean needToRebuildSearchTree = Config.needToRebuildSearchTree;
+		Config.needToRebuildSearchTree = false;
+		return needToRebuildSearchTree;
+	}
+
 	public enum SearchMode {
 		ENABLED, REQUIRE_PREFIX, DISABLED
 	}
@@ -431,11 +446,14 @@ public final class Config {
 		values.creativeTabSearchMode = config.getEnum("creativeTabSearchMode", CATEGORY_SEARCH, defaultValues.creativeTabSearchMode, searchModes);
 		values.colorSearchMode = config.getEnum("colorSearchMode", CATEGORY_SEARCH, defaultValues.colorSearchMode, searchModes);
 		values.resourceIdSearchMode = config.getEnum("resourceIdSearchMode", CATEGORY_SEARCH, defaultValues.resourceIdSearchMode, searchModes);
-		if (config.getCategory(CATEGORY_SEARCH).hasChanged()) {
+		values.searchAdvancedTooltips = config.getBoolean(CATEGORY_SEARCH, "searchAdvancedTooltips", defaultValues.searchAdvancedTooltips);
+		values.searchStrippedDiacritics = config.getBoolean(CATEGORY_SEARCH, "searchStrippedDiacritics", defaultValues.searchStrippedDiacritics);
+
+		if (searchCategory.hasChanged()) {
 			needsReload = true;
 		}
 
-		values.searchAdvancedTooltips = config.getBoolean("searchAdvancedTooltips", CATEGORY_SEARCH, defaultValues.searchAdvancedTooltips);
+		needToRebuildSearchTree = searchCategory.get("searchAdvancedTooltips").hasChanged() || searchCategory.get("searchStrippedDiacritics").hasChanged();
 
 		ConfigCategory categoryAdvanced = config.getCategory(CATEGORY_ADVANCED);
 		categoryAdvanced.remove("nbtKeyIgnoreList");
@@ -470,6 +488,10 @@ public final class Config {
 			Property property = config.get(CATEGORY_ADVANCED, "debugModeEnabled", defaultValues.debugModeEnabled);
 			property.setShowInGui(false);
 			values.debugModeEnabled = property.getBoolean();
+		}
+
+		if (!needToRebuildSearchTree) {
+			needToRebuildSearchTree = categoryAdvanced.get("ultraLowMemoryUsage").hasChanged();
 		}
 
 		final boolean configChanged = config.hasChanged();
