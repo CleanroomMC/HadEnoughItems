@@ -3,6 +3,7 @@ package mezz.jei.plugins.jei.ingredients;
 import javax.annotation.Nullable;
 import java.awt.Color;
 import java.util.Collections;
+import java.util.Random;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -55,7 +56,12 @@ public class DebugIngredientHelper implements IIngredientHelper<DebugIngredient>
 		return "debug_" + ingredient.getNumber();
 	}
 
-	@Override
+    @Override
+    public int getMetadata(DebugIngredient ingredient) {
+        return ingredient.getNumber();
+    }
+
+    @Override
 	public ItemStack getCheatItemStack(DebugIngredient ingredient) {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		if (player != null) {

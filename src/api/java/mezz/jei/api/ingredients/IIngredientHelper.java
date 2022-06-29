@@ -112,6 +112,15 @@ public interface IIngredientHelper<V> {
 	String getResourceId(V ingredient);
 
 	/**
+	 * Return the metadata value for the item
+	 *
+	 * @param ingredient The ingredient to cheat in. Do not edit this ingredient.
+	 * @return the metadata value for an ingredient
+	 * @since JEI 4.8.3
+	 */
+	int getMetadata(V ingredient);
+
+	/**
 	 * Called when a player is in cheat mode and clicks an ingredient in the list.
 	 *
 	 * @param ingredient The ingredient to cheat in. Do not edit this ingredient.

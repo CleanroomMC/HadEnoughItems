@@ -32,6 +32,8 @@ public interface IIngredientListElement<V> {
 
 	String getResourceId();
 
+	int getMetadata();
+
 	boolean isVisible();
 
 	void setVisible(boolean visible);
