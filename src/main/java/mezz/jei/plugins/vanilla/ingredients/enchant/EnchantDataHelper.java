@@ -87,11 +87,6 @@ public class EnchantDataHelper implements IIngredientHelper<EnchantmentData> {
 	}
 
     @Override
-    public int getMetadata(EnchantmentData ingredient) {
-        return 0;
-    }
-
-    @Override
 	public ItemStack getCheatItemStack(EnchantmentData ingredient) {
 		return cache.getEnchantedBook(ingredient);
 	}

@@ -117,7 +117,7 @@ public interface IIngredientHelper<V> {
 	 * @return the metadata value for an ingredient
 	 * @since JEI 4.8.3
 	 */
-	int getMetadata(V ingredient);
+	default int getMetadata(V ingredient) { return 0; };
 
 	/**
 	 * Called when a player is in cheat mode and clicks an ingredient in the list.

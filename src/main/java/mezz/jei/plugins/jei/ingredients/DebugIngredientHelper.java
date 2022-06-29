@@ -55,10 +55,6 @@ public class DebugIngredientHelper implements IIngredientHelper<DebugIngredient>
 		return "debug_" + ingredient.getNumber();
 	}
 
-    @Override
-    public int getMetadata(DebugIngredient ingredient) {
-        return ingredient.getNumber();
-    }
 
     @Override
 	public ItemStack getCheatItemStack(DebugIngredient ingredient) {
