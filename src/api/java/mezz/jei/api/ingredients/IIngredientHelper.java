@@ -114,7 +114,6 @@ public interface IIngredientHelper<V> {
 	/**
 	 * Return the metadata value for the item
 	 *
-	 * @param ingredient The ingredient to cheat in. Do not edit this ingredient.
 	 * @return the metadata value for an ingredient
 	 * @since JEI 4.8.3
 	 */
