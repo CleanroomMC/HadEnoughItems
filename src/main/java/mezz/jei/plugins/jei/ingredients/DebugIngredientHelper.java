@@ -55,7 +55,8 @@ public class DebugIngredientHelper implements IIngredientHelper<DebugIngredient>
 		return "debug_" + ingredient.getNumber();
 	}
 
-	@Override
+
+    @Override
 	public ItemStack getCheatItemStack(DebugIngredient ingredient) {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		if (player != null) {

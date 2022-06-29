@@ -86,7 +86,7 @@ public class EnchantDataHelper implements IIngredientHelper<EnchantmentData> {
 		return registryName.getPath();
 	}
 
-	@Override
+    @Override
 	public ItemStack getCheatItemStack(EnchantmentData ingredient) {
 		return cache.getEnchantedBook(ingredient);
 	}
