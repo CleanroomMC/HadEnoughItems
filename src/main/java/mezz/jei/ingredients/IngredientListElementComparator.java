@@ -32,8 +32,8 @@ public final class IngredientListElementComparator implements Comparator<IIngred
 			final int orderIndex2 = o2.getOrderIndex();
 
 			if (orderIndex1 == orderIndex2) {
-				final int metadata1 = o1.getOrderIndex();
-				final int metadata2 = o2.getOrderIndex();
+				final int metadata1 = o1.getOrdinal();
+				final int metadata2 = o2.getOrdinal();
 				return Integer.compare(metadata1, metadata2);
 			}
 
