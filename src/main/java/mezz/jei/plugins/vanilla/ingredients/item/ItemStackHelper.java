@@ -125,7 +125,7 @@ public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 	}
 
 	@Override
-	public int getMetadata(ItemStack ingredient) {
+	public int getOrdinal(ItemStack ingredient) {
 		return ingredient.getMetadata();
 	}
 
