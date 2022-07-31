@@ -153,6 +153,9 @@ config.jei.advanced.addBookmarksToFront.comment=When enabled, adds new bookmarks
 config.jei.misc.mouseClickToSeeRecipes=Mouse Click to See Recipes/Usages
 config.jei.misc.mouseClickToSeeRecipes.comment=Disable to disallow mouse clicks to see recipes and usages when hovering over an ingredient
 
+config.jei.misc.tooltipShowRecipeBy=Show `Recipe By` in tooltip
+config.jei.misc.tooltipShowRecipeBy.comment=Show when a recipe has been changed by adding it to the item's tooltip
+
 config.jei.rendering.bufferIngredientRenders=Buffer Ingredient Renders
 config.jei.rendering.bufferIngredientRenders.comment=Stops extremely frequent ingredient draw calls by using a render buffer, improves FPS in menus by up to 2-3x. But animations and glint will not be applied correctly.
 
