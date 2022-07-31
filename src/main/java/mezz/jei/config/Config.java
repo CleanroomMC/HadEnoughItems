@@ -319,6 +319,10 @@ public final class Config {
 		return values.mouseClickToSeeRecipes;
 	}
 
+	public static boolean getTooltipShowRecipeBy() {
+		return values.tooltipShowRecipeBy;
+	}
+
 	@Nullable
 	public static LocalizedConfiguration getConfig() {
 		return config;
@@ -483,6 +487,8 @@ public final class Config {
 		values.bufferIngredientRenders = config.getBoolean(CATEGORY_RENDERING, "bufferIngredientRenders", defaultValues.bufferIngredientRenders);
 
 		values.mouseClickToSeeRecipes = config.getBoolean(CATEGORY_MISC, "mouseClickToSeeRecipes", defaultValues.mouseClickToSeeRecipes);
+
+		values.tooltipShowRecipeBy = config.getBoolean(CATEGORY_MISC, "tooltipShowRecipeBy", defaultValues.tooltipShowRecipeBy);
 
 		{
 			Property property = config.get(CATEGORY_ADVANCED, "debugModeEnabled", defaultValues.debugModeEnabled);
