@@ -3,7 +3,17 @@
 # HadEnoughItems (HEI)
 [HadEnoughItems](https://discord.gg/f2K4aSpG4F) is an Item and Recipe viewing mod for Minecraft with a focus on stability, performance, and ease of use.
 
-This means:
- * just items and recipes
- * clean API for developers
- * not a coremod – no dependencies other than Forge.
+This means (same as JEI of course):
+ * Just items and recipes
+ * Clean API for developers
+ * Not a coremod – no dependencies other than Forge.
+ 
+ New features in HEI:
+ * Memory optimizations
+ * Load time optimizations
+ * Render optimizations
+ * Able to change default fluid containers for when you pickup fluids from the ingredient menu
+ * Able to fill fluid containers by clicking on fluids in the ingredient menu
+ * Able to order bookmarks differently
+ * Consider diacritics when searching
+ * Removable "Recipe By" tooltip in recipe menu
