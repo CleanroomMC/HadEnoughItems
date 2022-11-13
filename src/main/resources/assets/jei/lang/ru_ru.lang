@@ -141,6 +141,9 @@ config.jei.misc.comment=Разные параметры конфигурации
 config.jei.search.searchAdvancedTooltips=Поиск расширенных всплывающих подсказок
 config.jei.search.searchAdvancedTooltips.comment=Включает расширенные всплывающие подсказки в деревьях поиска [БУДЕТ ПЕРЕЗАГРУЖЕНО ДЕРЕВА ПОИСКА]
 
+config.jei.search.searchAdvancedTooltips=Поиск расширенных всплывающих подсказок
+config.jei.search.searchAdvancedTooltips.comment=Включает расширенные всплывающие подсказки в деревьях поиска [БУДЕТ ПЕРЕЗАГРУЖЕНО ДЕРЕВА ПОИСКА]
+
 config.jei.search.searchStrippedDiacritics=Поиск удаленных диакритических знаков
 config.jei.search.searchStrippedDiacritics.comment=Включает версию строк с удаленными диакритическими знаками в деревьях поиска [БУДЕТ ПЕРЕЗАГРУЖЕНО ДЕРЕВА ПОИСКА]
 
