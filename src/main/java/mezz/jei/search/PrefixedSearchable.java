@@ -77,6 +77,7 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
                 progressBar.step(ingredient.getDisplayName());
                 submit(ingredient);
             }
+            ProgressManager.pop(progressBar);
         }
     }
 
