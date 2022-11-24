@@ -88,7 +88,7 @@ public class FluidStackRenderer implements IIngredientRenderer<FluidStack> {
 
 		int fluidColor = fluid.getColor(fluidStack);
 
-		int scaledAmount = (fluidStack.amount * height) / capacityMb;
+        int scaledAmount = (int) ((((long) fluidStack.amount) * (long) height) / ((long) capacityMb));
 		if (fluidStack.amount > 0 && scaledAmount < MIN_FLUID_HEIGHT) {
 			scaledAmount = MIN_FLUID_HEIGHT;
 		}
