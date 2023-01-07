@@ -8,7 +8,6 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkCheckHandler;
-import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
 import mezz.jei.config.Constants;
@@ -53,8 +52,5 @@ public class JustEnoughItems {
 	@Mod.EventHandler
 	public void loadComplete(FMLLoadCompleteEvent event) {
 		proxy.loadComplete(event);
-		if (FMLLaunchHandler.isDeobfuscatedEnvironment()) {
-			Internal.getIngredientFilter().logStatistics();
-		}
 	}
 }
