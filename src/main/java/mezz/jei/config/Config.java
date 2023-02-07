@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import mezz.jei.util.ReflectionUtil;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -57,6 +58,8 @@ public final class Config {
 	public static final int largestNumColumns = 100;
 	public static final int minRecipeGuiHeight = 175;
 	public static final int maxRecipeGuiHeight = 5000;
+
+	private static final boolean isOptifineInstalled = ReflectionUtil.isClassLoaded("optifine.OptiFineForgeTweaker");
 
 	@Nullable
 	private static LocalizedConfiguration config;
@@ -312,7 +315,7 @@ public final class Config {
 	}
 
 	public static boolean bufferIngredientRenders() {
-		return values.bufferIngredientRenders;
+		return !isOptifineInstalled && values.bufferIngredientRenders;
 	}
 
 	public static boolean mouseClickToSeeRecipe() {

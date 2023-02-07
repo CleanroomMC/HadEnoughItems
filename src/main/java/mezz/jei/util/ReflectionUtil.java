@@ -13,6 +13,14 @@ public final class ReflectionUtil {
 	private ReflectionUtil() {
 	}
 
+	public static boolean isClassLoaded(String className) {
+		try {
+			Class.forName(className, false, ReflectionUtil.class.getClassLoader());
+			return true;
+		} catch (ClassNotFoundException ignored) { }
+		return false;
+	}
+
 	@Nullable
 	public static <T> T getFieldWithClass(final Object object, final Class<T> fieldClass) {
 		Field field = getField(object, fieldClass);
