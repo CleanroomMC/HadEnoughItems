@@ -1,10 +1,7 @@
 package mezz.jei.transfer;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import it.unimi.dsi.fastutil.ints.*;
 import mezz.jei.startup.StackHelper.SensitiveCountMatchingItemsResult;
