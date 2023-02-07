@@ -161,3 +161,5 @@ config.jei.rendering.bufferIngredientRenders.comment=Stops extremely frequent in
 
 config.jei.interface.defaultFluidContainerItem=Default Fluid Container Item
 config.jei.interface.defaultFluidContainerItem.comment=Default item to use to fill up fluids when clicking on a fluid ingredient in the menu, (format: item_name@meta)
+
+hei.generic.ticks=%d Ticks

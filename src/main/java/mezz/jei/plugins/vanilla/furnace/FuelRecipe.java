@@ -21,6 +21,7 @@ import mezz.jei.util.Translator;
 
 public class FuelRecipe implements IRecipeWrapper {
 	private final List<List<ItemStack>> inputs;
+	private final String burnTimeString;
 	private final String smeltCountString;
 	private final IDrawableAnimated flame;
 
@@ -28,7 +29,7 @@ public class FuelRecipe implements IRecipeWrapper {
 		Preconditions.checkArgument(burnTime > 0, "burn time must be greater than 0");
 		List<ItemStack> inputList = new ArrayList<>(input);
 		this.inputs = Collections.singletonList(inputList);
-
+		this.burnTimeString = Translator.translateToLocalFormatted("hei.generic.ticks", burnTime);
 		if (burnTime == 200) {
 			this.smeltCountString = Translator.translateToLocal("gui.jei.category.fuel.smeltCount.single");
 		} else {
@@ -39,7 +40,7 @@ public class FuelRecipe implements IRecipeWrapper {
 		}
 
 		this.flame = guiHelper.drawableBuilder(Constants.RECIPE_GUI_VANILLA, 82, 114, 14, 14)
-			.buildAnimated(burnTime, IDrawableAnimated.StartDirection.TOP, true);
+				.buildAnimated(burnTime, IDrawableAnimated.StartDirection.TOP, true);
 	}
 
 	@Override
@@ -49,7 +50,8 @@ public class FuelRecipe implements IRecipeWrapper {
 
 	@Override
 	public void drawInfo(Minecraft minecraft, int recipeWidth, int recipeHeight, int mouseX, int mouseY) {
-		flame.draw(minecraft, 1, 0);
-		minecraft.fontRenderer.drawString(smeltCountString, 24, 13, Color.gray.getRGB());
+		this.flame.draw(minecraft, 1, 0);
+		minecraft.fontRenderer.drawString(this.smeltCountString, 24, 8, Color.gray.getRGB());
+		minecraft.fontRenderer.drawString(this.burnTimeString, 24, 24, Color.gray.getRGB());
 	}
 }
