@@ -36,11 +36,11 @@ public final class ItemStackListFactory {
 		final List<ItemStack> itemList = new ArrayList<>();
 		final Set<String> itemNameSet = new HashSet<>();
 
+		NonNullList<ItemStack> creativeTabItemStacks = NonNullList.create();
 		for (CreativeTabs creativeTab : CreativeTabs.CREATIVE_TAB_ARRAY) {
 			if (creativeTab == CreativeTabs.HOTBAR) {
 				continue;
 			}
-			NonNullList<ItemStack> creativeTabItemStacks = NonNullList.create();
 			try {
 				creativeTab.displayAllRelevantItems(creativeTabItemStacks);
 			} catch (RuntimeException | LinkageError e) {
@@ -56,6 +56,7 @@ public final class ItemStackListFactory {
 					addItemStack(stackHelper, itemStack, itemList, itemNameSet);
 				}
 			}
+			creativeTabItemStacks.clear();
 		}
 
 		for (Block block : ForgeRegistries.BLOCKS) {
