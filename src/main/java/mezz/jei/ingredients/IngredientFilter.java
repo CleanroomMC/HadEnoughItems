@@ -41,7 +41,6 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public IngredientFilter(IngredientBlacklistInternal blacklist, NonNullList<IIngredientListElement> ingredients) {
 		this.blacklist = blacklist;
 		this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
-		ingredients.sort(IngredientListElementComparator.INSTANCE);
 		this.elementSearch.addAll(ingredients);
 		firstBuild = false;
 	}
