@@ -17,10 +17,15 @@ import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.startup.ForgeModIdHelper;
 import mezz.jei.util.LegacyUtil;
+import org.apache.commons.lang3.mutable.MutableObject;
+
+import javax.annotation.Nullable;
 
 public class RecipeCategoryTab extends RecipeGuiTab {
 	private final IRecipeGuiLogic logic;
 	private final IRecipeCategory category;
+
+	@Nullable private MutableObject<Object> cachedRecipeCatalyst = null;
 
 	public RecipeCategoryTab(IRecipeGuiLogic logic, IRecipeCategory category, int x, int y) {
 		super(x, y);
@@ -49,9 +54,16 @@ public class RecipeCategoryTab extends RecipeGuiTab {
 			iconY += (16 - icon.getHeight()) / 2;
 			icon.draw(minecraft, iconX, iconY);
 		} else {
-			List<Object> recipeCatalysts = logic.getRecipeCatalysts(category);
-			if (!recipeCatalysts.isEmpty()) {
-				Object ingredient = recipeCatalysts.get(0);
+			if (this.cachedRecipeCatalyst == null) {
+				List<Object> cachedRecipeCatalysts = logic.getRecipeCatalysts(category);
+				if (cachedRecipeCatalysts.isEmpty()) {
+					this.cachedRecipeCatalyst = new MutableObject<>(null);
+				} else {
+					this.cachedRecipeCatalyst = new MutableObject<>(cachedRecipeCatalysts.get(0));
+				}
+			}
+			Object ingredient = this.cachedRecipeCatalyst.getValue();
+			if (ingredient != null) {
 				renderIngredient(minecraft, iconX, iconY, ingredient);
 			} else {
 				String text = category.getTitle().substring(0, 2);
