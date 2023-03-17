@@ -33,7 +33,9 @@ public class ElementSearch implements IElementSearch {
 
         for (PrefixInfo prefixInfo : PrefixInfo.all()) {
             storage = prefixInfo.createStorage();
-            searchable = Config.isSearchTreeBuildingAsync() ? new AsyncPrefixedSearchable(storage, prefixInfo) : new PrefixedSearchable(storage, prefixInfo);
+            searchable = Config.isSearchTreeBuildingAsync() && prefixInfo.isAsyncable() ?
+                    new AsyncPrefixedSearchable(storage, prefixInfo) :
+                    new PrefixedSearchable(storage, prefixInfo);
             this.prefixedSearchables.put(prefixInfo, searchable);
             this.combinedSearchables.addSearchable(searchable);
         }
