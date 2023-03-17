@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import mezz.jei.search.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -38,10 +37,12 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	private List<IIngredientListElement> ingredientListCached = Collections.emptyList();
 	@Nullable private String filterCached;
 
+	private boolean afterBlock = false;
+	@Nullable private List<Runnable> delegatedActions;
+
 	public IngredientFilter(IngredientBlacklistInternal blacklist, NonNullList<IIngredientListElement> ingredients) {
 		this.blacklist = blacklist;
 		this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
-		ingredients.sort(IngredientListElementComparator.INSTANCE);
 		this.elementSearch.addAll(ingredients);
 		firstBuild = false;
 	}
@@ -62,9 +63,27 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		this.filterCached = null;
 	}
 
+	public void delegateAfterBlock(Runnable runnable) {
+		if (this.afterBlock) {
+			runnable.run();
+			invalidateCache();
+		} else {
+			if (this.delegatedActions == null) {
+				this.delegatedActions = new ArrayList<>();
+			}
+			this.delegatedActions.add(runnable);
+		}
+	}
+
 	public void block() {
 		if (this.elementSearch instanceof ElementSearch) {
 			((ElementSearch) this.elementSearch).block();
+		}
+		if (this.delegatedActions != null) {
+			invalidateCache();
+			this.delegatedActions.forEach(Runnable::run);
+			this.delegatedActions = null;
+			this.afterBlock = true;
 		}
 	}
 

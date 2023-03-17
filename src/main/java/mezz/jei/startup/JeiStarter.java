@@ -6,11 +6,9 @@ import java.util.Map;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mezz.jei.ingredients.*;
-import mezz.jei.support.ModSupport;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.LoggedTimer;
 import net.minecraftforge.fml.common.ProgressManager;
-import net.minecraft.util.NonNullList;
 
 import mezz.jei.Internal;
 import mezz.jei.api.IJeiRuntime;
@@ -24,7 +22,6 @@ import mezz.jei.config.Config;
 import mezz.jei.gui.GuiEventHandler;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.GuiScreenHelper;
-import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.gui.overlay.bookmarks.BookmarkOverlay;
 import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
@@ -54,8 +51,6 @@ public class JeiStarter {
 		Internal.setSubtypeRegistry(subtypeRegistry);
 
 		registerItemSubtypes(plugins, subtypeRegistry);
-
-		ModSupport.registerSubtypeInterpreters(subtypeRegistry);
 
 		StackHelper stackHelper = new StackHelper(subtypeRegistry);
 		stackHelper.enableUidCache();

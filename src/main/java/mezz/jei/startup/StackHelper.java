@@ -136,19 +136,29 @@ public class StackHelper implements IStackHelper {
 			if (matching == null) {
 				matchingItemResult.missingItems.add(key);
 			} else {
-				ItemStack matchingStack = availableItemStacks.get(matching);
 				int count = requiredStacks.stream().mapToInt(ItemStack::getCount).max().orElse(1);
-				int diff = matchingStack.getCount() - count;
-				matchingStack.shrink(count);
-				if (diff < 0) {
-					matchingItemResult.missingItems.add(key);
-					availableItemStacks.remove(matching);
-				} else {
-					if (matchingStack.getCount() == 0) {
+				while (true) {
+					ItemStack matchingStack = availableItemStacks.get(matching);
+					int diff = matchingStack.getCount() - count;
+					matchingStack.shrink(count);
+					if (diff < 0) {
 						availableItemStacks.remove(matching);
+						matchingItemResult.matchingItems.put(recipeSlotNumber, matching);
+						matchingItemResult.matchingItemsCounts.put(recipeSlotNumber, count);
+						matching = containsAnyStackIndexed(availableItemStacks, requiredStacks);
+						if (matching != null) {
+							continue;
+						} else {
+							matchingItemResult.missingItems.add(key);
+						}
+					} else {
+						if (matchingStack.getCount() == 0) {
+							availableItemStacks.remove(matching);
+						}
+						matchingItemResult.matchingItems.put(recipeSlotNumber, matching);
+						matchingItemResult.matchingItemsCounts.put(recipeSlotNumber, count);
 					}
-					matchingItemResult.matchingItems.put(recipeSlotNumber, matching);
-					matchingItemResult.matchingItemsCounts.put(recipeSlotNumber, count);
+					break;
 				}
 			}
 		}

@@ -139,7 +139,7 @@ public class IngredientListBatchRenderer {
 	}
 
 	public void render(Minecraft minecraft) {
-		if (Config.bufferIngredientRenders() && OpenGlHelper.framebufferSupported) {
+		if (!Config.isEditModeEnabled() && Config.bufferIngredientRenders() && OpenGlHelper.framebufferSupported) {
 			if (framebuffer == null) {
 				framebuffer = new Framebuffer(minecraft.displayWidth, minecraft.displayHeight, true);
 				framebuffer.framebufferColor[0] = 0.0F;
@@ -175,7 +175,7 @@ public class IngredientListBatchRenderer {
 
 		renderImpl(minecraft);
 
-		if (Config.bufferIngredientRenders() && refreshBuffer && OpenGlHelper.framebufferSupported) {
+		if (!Config.isEditModeEnabled() && Config.bufferIngredientRenders() && refreshBuffer && OpenGlHelper.framebufferSupported) {
 			refreshBuffer = false;
 			minecraft.getFramebuffer().bindFramebuffer(false);
 		}

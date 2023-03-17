@@ -39,13 +39,11 @@ minecraft {
 }
 
 repositories {
-	maven {
-		url 'https://maven.blamejared.com'
-	}
+
 }
 
 dependencies {
-	compile "vazkii.patchouli:Patchouli:1.0-23.6"
+
 }
 
 processResources {
