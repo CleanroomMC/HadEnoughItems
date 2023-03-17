@@ -12,8 +12,10 @@ This means (same as JEI of course):
  * Memory optimizations
  * Load time optimizations
  * Render optimizations
- * Able to change default fluid containers for when you pickup fluids from the ingredient menu
+ * Able to change default fluid containers for when you pick up fluids from the ingredient menu
  * Able to fill fluid containers by clicking on fluids in the ingredient menu
  * Able to order bookmarks differently
  * Consider diacritics when searching
  * Removable "Recipe By" tooltip in recipe menu
+ * More information available in recipe tabs
+ * Better ordering of recipes in certain contexts

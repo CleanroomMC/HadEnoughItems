@@ -319,7 +319,7 @@ public final class Config {
 
 	public static boolean bufferIngredientRenders() {
 		boolean fastRender = false;
-		if(isOptifineInstalled) {
+		if (isOptifineInstalled) {
 			fastRender = ObfuscationReflectionHelper.getPrivateValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, "ofFastRender");
 		}
 		return !fastRender && values.bufferIngredientRenders;
