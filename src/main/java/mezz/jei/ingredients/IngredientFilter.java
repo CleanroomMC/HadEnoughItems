@@ -19,7 +19,6 @@ import mezz.jei.config.Config;
 import mezz.jei.config.EditModeToggleEvent;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.IIngredientGridSource;
-import mezz.jei.startup.PlayerJoinedWorldEvent;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Translator;
 
@@ -85,6 +84,8 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			this.delegatedActions = null;
 			this.afterBlock = true;
 		}
+		this.filterCached = null;
+		updateHidden();
 	}
 
 	public void invalidateCache() {
@@ -126,13 +127,6 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	@SubscribeEvent
 	public void onEditModeToggleEvent(EditModeToggleEvent event) {
-		this.filterCached = null;
-		updateHidden();
-	}
-
-	@SubscribeEvent
-	public void onPlayerJoinedWorldEvent(PlayerJoinedWorldEvent event) {
-		block();
 		this.filterCached = null;
 		updateHidden();
 	}
