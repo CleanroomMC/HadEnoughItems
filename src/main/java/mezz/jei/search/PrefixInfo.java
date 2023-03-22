@@ -97,27 +97,22 @@ public class PrefixInfo implements Comparable<PrefixInfo> {
             return this.stringsGetter.getStrings(element);
         }
         Collection<String> strings = this.stringsGetter.getStrings(element);
+        Collection<String> newStrings = null;
         for (String string : strings) {
-            boolean hasNonAscii = false;
             for (int i = 0; i < string.length(); i++) {
                 if (string.charAt(i) > 0x7F) {
-                    hasNonAscii = true;
+                    String stripped = StringUtil.stripAccents(string);
+                    if (!stripped.equals(string)) {
+                        if (newStrings == null) {
+                            newStrings = new ArrayList<>(strings);
+                        }
+                        newStrings.add(stripped);
+                    }
                     break;
                 }
             }
-            if (hasNonAscii) {
-                String stripped = StringUtil.stripAccents(string);
-                if (!stripped.equals(string)) {
-                    try {
-                        strings.add(stripped);
-                    } catch (UnsupportedOperationException e) { // If list is unmodifiable
-                        strings = new ArrayList<>(strings);
-                        strings.add(StringUtil.stripAccents(string));
-                    }
-                }
-            }
         }
-        return strings;
+        return newStrings == null ? strings : newStrings;
     }
 
     @Override
