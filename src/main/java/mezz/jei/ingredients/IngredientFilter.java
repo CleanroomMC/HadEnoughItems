@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import mezz.jei.search.*;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.util.NonNullList;
 
@@ -79,10 +80,12 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			((ElementSearch) this.elementSearch).block();
 		}
 		if (this.delegatedActions != null) {
-			invalidateCache();
-			this.delegatedActions.forEach(Runnable::run);
-			this.delegatedActions = null;
-			this.afterBlock = true;
+			Minecraft.getMinecraft().addScheduledTask(() -> {
+				invalidateCache();
+				this.delegatedActions.forEach(Runnable::run);
+				this.delegatedActions = null;
+				this.afterBlock = true;
+			});
 		}
 		this.filterCached = null;
 		updateHidden();

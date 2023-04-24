@@ -144,7 +144,7 @@ public class ProxyCommonClient extends ProxyCommon {
 		NetworkManager networkManager = event.getManager();
 		Config.syncWorldConfig(networkManager);
 		MinecraftForge.EVENT_BUS.post(new PlayerJoinedWorldEvent());
-		Minecraft.getMinecraft().addScheduledTask(Internal.getIngredientFilter()::block);
+		Internal.getIngredientFilter().block();
 	}
 
 	private static void reloadItemList() {
