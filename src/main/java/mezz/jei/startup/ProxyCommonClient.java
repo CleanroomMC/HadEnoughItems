@@ -153,6 +153,7 @@ public class ProxyCommonClient extends ProxyCommon {
 		if (runtime != null) {
 			IngredientListOverlay ingredientListOverlay = runtime.getIngredientListOverlay();
 			ingredientListOverlay.rebuildItemFilter();
+			ingredientListOverlay.invalidateBuffer();
 		}
 	}
 
