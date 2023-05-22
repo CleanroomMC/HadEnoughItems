@@ -84,7 +84,7 @@ public final class Config {
 	private static final Set<String> itemBlacklist = new HashSet<>();
 	private static final String[] defaultItemBlacklist = new String[]{};
 
-	private static boolean needToRebuildSearchTree;
+	public static boolean needToRebuildSearchTree;
 
 	private Config() {
 
