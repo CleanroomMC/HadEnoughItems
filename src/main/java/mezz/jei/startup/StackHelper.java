@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraft.creativetab.CreativeTabs;
@@ -108,6 +109,57 @@ public class StackHelper implements IStackHelper {
 					availableItemStacks.remove(matching);
 				}
 				matchingItemResult.matchingItems.put(recipeSlotNumber, matching);
+			}
+		}
+
+		return matchingItemResult;
+	}
+
+	public MatchingItemsResult getMatchingItemsWithSensitiveCount(Map<Integer, ItemStack> availableItemStacks, Map<Integer, ? extends IGuiIngredient<ItemStack>> ingredientsMap) {
+		SensitiveCountMatchingItemsResult matchingItemResult = new SensitiveCountMatchingItemsResult();
+
+		int recipeSlotNumber = -1;
+		SortedSet<Integer> keys = new TreeSet<>(ingredientsMap.keySet());
+		for (Integer key : keys) {
+			IGuiIngredient<ItemStack> ingredient = ingredientsMap.get(key);
+			if (!ingredient.isInput()) {
+				continue;
+			}
+			recipeSlotNumber++;
+
+			List<ItemStack> requiredStacks = ingredient.getAllIngredients();
+			if (requiredStacks.isEmpty()) {
+				continue;
+			}
+
+			Integer matching = containsAnyStackIndexed(availableItemStacks, requiredStacks);
+			if (matching == null) {
+				matchingItemResult.missingItems.add(key);
+			} else {
+				int count = requiredStacks.stream().mapToInt(ItemStack::getCount).max().orElse(1);
+				while (true) {
+					ItemStack matchingStack = availableItemStacks.get(matching);
+					int diff = matchingStack.getCount() - count;
+					matchingStack.shrink(count);
+					if (diff < 0) {
+						availableItemStacks.remove(matching);
+						matchingItemResult.matchingItems.put(recipeSlotNumber, matching);
+						matchingItemResult.matchingItemsCounts.put(recipeSlotNumber, count);
+						matching = containsAnyStackIndexed(availableItemStacks, requiredStacks);
+						if (matching != null) {
+							continue;
+						} else {
+							matchingItemResult.missingItems.add(key);
+						}
+					} else {
+						if (matchingStack.getCount() == 0) {
+							availableItemStacks.remove(matching);
+						}
+						matchingItemResult.matchingItems.put(recipeSlotNumber, matching);
+						matchingItemResult.matchingItemsCounts.put(recipeSlotNumber, count);
+					}
+					break;
+				}
 			}
 		}
 
@@ -466,6 +518,10 @@ public class StackHelper implements IStackHelper {
 		public final Map<Integer, Integer> matchingItems = new Int2IntOpenHashMap();
 		public final Int2IntMap matchingItemsCasted = (Int2IntMap) matchingItems;
 		public final List<Integer> missingItems = new IntArrayList();
+	}
+
+	public static class SensitiveCountMatchingItemsResult extends MatchingItemsResult {
+		public final Map<Integer, Integer> matchingItemsCounts = new Int2IntOpenHashMap();
 	}
 
 	private interface ItemStackMatchable<R> {

@@ -1,9 +1,6 @@
 package mezz.jei.network.packets;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.PacketBuffer;
@@ -16,15 +13,22 @@ public class PacketRecipeTransfer extends PacketJei {
 	public final Map<Integer, Integer> recipeMap;
 	public final List<Integer> craftingSlots;
 	public final List<Integer> inventorySlots;
+	public final Map<Integer, Integer> itemCounts;
 	private final boolean maxTransfer;
 	private final boolean requireCompleteSets;
 
 	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer, boolean requireCompleteSets) {
+		this(recipeMap, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets, Collections.emptyMap());
+	}
+
+	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer, boolean requireCompleteSets,
+								Map<Integer, Integer> itemCounts) {
 		this.recipeMap = recipeMap;
 		this.craftingSlots = craftingSlots;
 		this.inventorySlots = inventorySlots;
 		this.maxTransfer = maxTransfer;
 		this.requireCompleteSets = requireCompleteSets;
+		this.itemCounts = itemCounts;
 	}
 
 	@Override
@@ -52,6 +56,17 @@ public class PacketRecipeTransfer extends PacketJei {
 
 		buf.writeBoolean(maxTransfer);
 		buf.writeBoolean(requireCompleteSets);
+
+		if (!itemCounts.isEmpty()) {
+			buf.writeBoolean(true);
+			buf.writeVarInt(itemCounts.size());
+			for (Map.Entry<Integer, Integer> itemCount : itemCounts.entrySet()) {
+				buf.writeVarInt(itemCount.getKey());
+				buf.writeVarInt(itemCount.getValue());
+			}
+		} else {
+			buf.writeBoolean(false);
+		}
 	}
 
 	public static void readPacketData(PacketBuffer buf, EntityPlayer player) {
@@ -79,7 +94,18 @@ public class PacketRecipeTransfer extends PacketJei {
 		boolean maxTransfer = buf.readBoolean();
 		boolean requireCompleteSets = buf.readBoolean();
 
-		BasicRecipeTransferHandlerServer.setItems(player, recipeMap, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets);
+		Map<Integer, Integer> itemCounts = null;
+		if (buf.readBoolean()) {
+			int itemCountsSize = buf.readVarInt();
+			itemCounts = new HashMap<>(itemCountsSize);
+			for (int i = 0; i < itemCountsSize; i++) {
+				int slotIndex = buf.readVarInt();
+				int itemCount = buf.readVarInt();
+				itemCounts.put(slotIndex, itemCount);
+			}
+		}
+
+		BasicRecipeTransferHandlerServer.setItems(player, recipeMap, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets, itemCounts);
 	}
 
 }

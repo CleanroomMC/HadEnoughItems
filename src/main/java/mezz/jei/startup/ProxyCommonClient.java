@@ -123,12 +123,13 @@ public class ProxyCommonClient extends ProxyCommon {
 			// check that HEI has been started before. if not, do nothing
 			if (this.starter.hasStarted()) {
 				if (Config.isDebugModeEnabled()) {
-					Log.get().info("Restarting HEI.", new RuntimeException("Stack trace for debugging"));
+					Log.get().info("Reloading HEI ingredient filter.", new RuntimeException("Stack trace for debugging"));
 				} else {
-					Log.get().info("Restarting HEI.");
+					Log.get().info("Reloading HEI ingredient filter.");
 				}
-				Preconditions.checkNotNull(textures);
-				this.starter.start(this.plugins, textures);
+				// force search tree to reload
+				Config.needToRebuildSearchTree = true;
+				reloadItemList();
 			}
 		});
 
@@ -144,6 +145,7 @@ public class ProxyCommonClient extends ProxyCommon {
 		NetworkManager networkManager = event.getManager();
 		Config.syncWorldConfig(networkManager);
 		MinecraftForge.EVENT_BUS.post(new PlayerJoinedWorldEvent());
+		Internal.getIngredientFilter().block();
 	}
 
 	private static void reloadItemList() {
@@ -151,6 +153,7 @@ public class ProxyCommonClient extends ProxyCommon {
 		if (runtime != null) {
 			IngredientListOverlay ingredientListOverlay = runtime.getIngredientListOverlay();
 			ingredientListOverlay.rebuildItemFilter();
+			ingredientListOverlay.invalidateBuffer();
 		}
 	}
 

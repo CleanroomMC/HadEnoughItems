@@ -1,12 +1,10 @@
 package mezz.jei.transfer;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import it.unimi.dsi.fastutil.ints.*;
+import mezz.jei.startup.StackHelper.SensitiveCountMatchingItemsResult;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
@@ -65,9 +63,14 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeT
 		}
 
 		int inputCount = 0;
+		boolean stackCrafting = false;
+
 		IGuiItemStackGroup itemStackGroup = recipeLayout.getItemStacks();
 		for (IGuiIngredient<ItemStack> ingredient : itemStackGroup.getGuiIngredients().values()) {
 			if (ingredient.isInput() && !ingredient.getAllIngredients().isEmpty()) {
+				for (ItemStack stack : ingredient.getAllIngredients()) {
+					stackCrafting |= stack.getCount() > 1;
+				}
 				inputCount++;
 			}
 		}
@@ -108,7 +111,9 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeT
 			return handlerHelper.createUserErrorWithTooltip(message);
 		}
 
-		StackHelper.MatchingItemsResult matchingItemsResult = stackHelper.getMatchingItems(availableItemStacks, itemStackGroup.getGuiIngredients());
+		StackHelper.MatchingItemsResult matchingItemsResult = stackCrafting ?
+				stackHelper.getMatchingItemsWithSensitiveCount(availableItemStacks, itemStackGroup.getGuiIngredients()) :
+				stackHelper.getMatchingItems(availableItemStacks, itemStackGroup.getGuiIngredients());
 
 		if (matchingItemsResult.missingItems.size() > 0) {
 			String message = Translator.translateToLocal("jei.tooltip.error.recipe.transfer.missing");
@@ -131,7 +136,13 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeT
 		}
 
 		if (doTransfer) {
-			PacketRecipeTransfer packet = new PacketRecipeTransfer(matchingItemsResult.matchingItems, craftingSlotIndexes, inventorySlotIndexes, maxTransfer, transferHelper.requireCompleteSets());
+			PacketRecipeTransfer packet;
+			if (stackCrafting) {
+				packet = new PacketRecipeTransfer(matchingItemsResult.matchingItems, craftingSlotIndexes, inventorySlotIndexes, maxTransfer, transferHelper.requireCompleteSets(),
+						((SensitiveCountMatchingItemsResult) matchingItemsResult).matchingItemsCounts);
+			} else {
+				packet = new PacketRecipeTransfer(matchingItemsResult.matchingItems, craftingSlotIndexes, inventorySlotIndexes, maxTransfer, transferHelper.requireCompleteSets());
+			}
 			JustEnoughItems.getProxy().sendPacketToServer(packet);
 		}
 

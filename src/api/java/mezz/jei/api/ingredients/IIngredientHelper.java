@@ -112,6 +112,16 @@ public interface IIngredientHelper<V> {
 	String getResourceId(V ingredient);
 
 	/**
+	 * Return the ordinal for the ingredient
+	 *
+	 * @return the ordinal for an ingredient
+	 * @since HEI 4.23.0
+	 */
+	default int getOrdinal(V ingredient) {
+		return 0;
+	}
+
+	/**
 	 * Called when a player is in cheat mode and clicks an ingredient in the list.
 	 *
 	 * @param ingredient The ingredient to cheat in. Do not edit this ingredient.

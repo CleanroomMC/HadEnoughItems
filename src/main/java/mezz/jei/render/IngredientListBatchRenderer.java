@@ -77,8 +77,11 @@ public class IngredientListBatchRenderer {
 			}
 		}
 
-		refreshBuffer = true;
+		invalidateBuffer();
+	}
 
+	public void invalidateBuffer() {
+		refreshBuffer = true;
 	}
 
 	private <V> void set(IngredientListSlot ingredientListSlot, IIngredientListElement<V> element) {
@@ -139,7 +142,7 @@ public class IngredientListBatchRenderer {
 	}
 
 	public void render(Minecraft minecraft) {
-		if (Config.bufferIngredientRenders() && OpenGlHelper.framebufferSupported) {
+		if (!Config.isEditModeEnabled() && Config.bufferIngredientRenders() && OpenGlHelper.framebufferSupported) {
 			if (framebuffer == null) {
 				framebuffer = new Framebuffer(minecraft.displayWidth, minecraft.displayHeight, true);
 				framebuffer.framebufferColor[0] = 0.0F;
@@ -175,9 +178,11 @@ public class IngredientListBatchRenderer {
 
 		renderImpl(minecraft);
 
-		if (Config.bufferIngredientRenders() && refreshBuffer && OpenGlHelper.framebufferSupported) {
+		if (!Config.isEditModeEnabled() && Config.bufferIngredientRenders() && refreshBuffer && OpenGlHelper.framebufferSupported) {
 			refreshBuffer = false;
 			minecraft.getFramebuffer().bindFramebuffer(false);
+			// ensure that we actually render the new items
+			render(minecraft);
 		}
 	}
 

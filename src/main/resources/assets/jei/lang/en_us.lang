@@ -145,7 +145,7 @@ config.jei.search.searchStrippedDiacritics=Search Stripped Diacritics
 config.jei.search.searchStrippedDiacritics.comment=Includes stripped diacritics version of strings in search trees [WILL RELOAD SEARCH TREES]
 
 config.jei.advanced.asyncSearchTreeBuilding=Async Search Tree Building
-config.jei.advanced.asyncSearchTreeBuilding.comment=Builds search trees on multiple threads concurrently, turn this off if you're experiencing extremely high load on your CPU when loading JEI
+config.jei.advanced.asyncSearchTreeBuilding.comment=Builds search trees on multiple threads concurrently, turn this off if you're experiencing extremely high load on your CPU when loading HEI
 
 config.jei.advanced.addBookmarksToFront=Prepend New Bookmarks
 config.jei.advanced.addBookmarksToFront.comment=When enabled, adds new bookmarks to the front of the bookmark list
@@ -153,8 +153,13 @@ config.jei.advanced.addBookmarksToFront.comment=When enabled, adds new bookmarks
 config.jei.misc.mouseClickToSeeRecipes=Mouse Click to See Recipes/Usages
 config.jei.misc.mouseClickToSeeRecipes.comment=Disable to disallow mouse clicks to see recipes and usages when hovering over an ingredient
 
+config.jei.misc.tooltipShowRecipeBy=Show `Recipe By` in tooltip
+config.jei.misc.tooltipShowRecipeBy.comment=Show when a recipe has been changed by adding it to the item's tooltip
+
 config.jei.rendering.bufferIngredientRenders=Buffer Ingredient Renders
 config.jei.rendering.bufferIngredientRenders.comment=Stops extremely frequent ingredient draw calls by using a render buffer, improves FPS in menus by up to 2-3x. But animations and glint will not be applied correctly.
 
 config.jei.interface.defaultFluidContainerItem=Default Fluid Container Item
 config.jei.interface.defaultFluidContainerItem.comment=Default item to use to fill up fluids when clicking on a fluid ingredient in the menu, (format: item_name@meta)
+
+hei.generic.ticks=%d Ticks

@@ -36,15 +36,16 @@ public final class ItemStackListFactory {
 		final List<ItemStack> itemList = new ArrayList<>();
 		final Set<String> itemNameSet = new HashSet<>();
 
+		NonNullList<ItemStack> creativeTabItemStacks = NonNullList.create();
 		for (CreativeTabs creativeTab : CreativeTabs.CREATIVE_TAB_ARRAY) {
 			if (creativeTab == CreativeTabs.HOTBAR) {
 				continue;
 			}
-			NonNullList<ItemStack> creativeTabItemStacks = NonNullList.create();
 			try {
 				creativeTab.displayAllRelevantItems(creativeTabItemStacks);
 			} catch (RuntimeException | LinkageError e) {
 				Log.get().error("Creative tab crashed while getting items. Some items from this tab will be missing from the item list. {}", creativeTab, e);
+				creativeTabItemStacks.clear();
 			}
 			for (ItemStack itemStack : creativeTabItemStacks) {
 				if (itemStack.isEmpty()) {
@@ -56,6 +57,7 @@ public final class ItemStackListFactory {
 					addItemStack(stackHelper, itemStack, itemList, itemNameSet);
 				}
 			}
+			creativeTabItemStacks.clear();
 		}
 
 		for (Block block : ForgeRegistries.BLOCKS) {
@@ -90,13 +92,14 @@ public final class ItemStackListFactory {
 			return;
 		}
 
+		NonNullList<ItemStack> subBlocks = NonNullList.create();
 		for (CreativeTabs itemTab : item.getCreativeTabs()) {
-			NonNullList<ItemStack> subBlocks = NonNullList.create();
 			try {
 				block.getSubBlocks(itemTab, subBlocks);
 			} catch (RuntimeException | LinkageError e) {
 				String itemStackInfo = ErrorUtil.getItemStackInfo(new ItemStack(item));
 				Log.get().error("Failed to getSubBlocks {}", itemStackInfo, e);
+				subBlocks.clear();
 			}
 
 			for (ItemStack subBlock : subBlocks) {
@@ -108,6 +111,7 @@ public final class ItemStackListFactory {
 					addItemStack(stackHelper, subBlock, itemList, itemNameSet);
 				}
 			}
+			subBlocks.clear();
 		}
 	}
 

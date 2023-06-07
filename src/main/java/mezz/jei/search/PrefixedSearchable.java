@@ -38,6 +38,8 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
 
     @Override
     public void submit(IIngredientListElement<?> ingredient) {
+        if(prefixInfo.getMode() == Config.SearchMode.DISABLED)
+            return;
         Collection<String> strings = prefixInfo.getStrings(ingredient);
         for (String string : strings) {
             searchStorage.put(string, ingredient);
@@ -46,6 +48,8 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
 
     @Override
     public void submitAll(NonNullList<IIngredientListElement> ingredients) {
+        if(prefixInfo.getMode() == Config.SearchMode.DISABLED)
+            return;
         if (IngredientFilter.firstBuild) {
             start();
             ProgressManager.ProgressBar progressBar = null;
@@ -77,6 +81,7 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
                 progressBar.step(ingredient.getDisplayName());
                 submit(ingredient);
             }
+            ProgressManager.pop(progressBar);
         }
     }
 

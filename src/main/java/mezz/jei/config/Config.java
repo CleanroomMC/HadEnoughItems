@@ -10,12 +10,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import mezz.jei.util.ReflectionUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -58,6 +62,8 @@ public final class Config {
 	public static final int minRecipeGuiHeight = 175;
 	public static final int maxRecipeGuiHeight = 5000;
 
+	private static final boolean isOptifineInstalled = ReflectionUtil.isClassLoaded("optifine.OptiFineForgeTweaker");
+
 	@Nullable
 	private static LocalizedConfiguration config;
 	@Nullable
@@ -78,7 +84,7 @@ public final class Config {
 	private static final Set<String> itemBlacklist = new HashSet<>();
 	private static final String[] defaultItemBlacklist = new String[]{};
 
-	private static boolean needToRebuildSearchTree;
+	public static boolean needToRebuildSearchTree;
 
 	private Config() {
 
@@ -312,11 +318,19 @@ public final class Config {
 	}
 
 	public static boolean bufferIngredientRenders() {
-		return values.bufferIngredientRenders;
+		boolean fastRender = false;
+		if (isOptifineInstalled) {
+			fastRender = ObfuscationReflectionHelper.getPrivateValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, "ofFastRender");
+		}
+		return !fastRender && values.bufferIngredientRenders;
 	}
 
 	public static boolean mouseClickToSeeRecipe() {
 		return values.mouseClickToSeeRecipes;
+	}
+
+	public static boolean getTooltipShowRecipeBy() {
+		return values.tooltipShowRecipeBy;
 	}
 
 	@Nullable
@@ -483,6 +497,8 @@ public final class Config {
 		values.bufferIngredientRenders = config.getBoolean(CATEGORY_RENDERING, "bufferIngredientRenders", defaultValues.bufferIngredientRenders);
 
 		values.mouseClickToSeeRecipes = config.getBoolean(CATEGORY_MISC, "mouseClickToSeeRecipes", defaultValues.mouseClickToSeeRecipes);
+
+		values.tooltipShowRecipeBy = config.getBoolean(CATEGORY_MISC, "tooltipShowRecipeBy", defaultValues.tooltipShowRecipeBy);
 
 		{
 			Property property = config.get(CATEGORY_ADVANCED, "debugModeEnabled", defaultValues.debugModeEnabled);

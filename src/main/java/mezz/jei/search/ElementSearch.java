@@ -6,6 +6,7 @@ import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.util.Log;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -17,6 +18,8 @@ public class ElementSearch implements IElementSearch {
 
     private final Map<PrefixInfo, PrefixedSearchable> prefixedSearchables = new Reference2ObjectArrayMap<>();
     private final CombinedSearchables<IIngredientListElement<?>> combinedSearchables = new CombinedSearchables<>();
+
+    private boolean loggedStatistics = false;
 
     public ElementSearch() {
         if (Config.isSearchTreeBuildingAsync()) {
@@ -30,7 +33,9 @@ public class ElementSearch implements IElementSearch {
 
         for (PrefixInfo prefixInfo : PrefixInfo.all()) {
             storage = prefixInfo.createStorage();
-            searchable = Config.isSearchTreeBuildingAsync() ? new AsyncPrefixedSearchable(storage, prefixInfo) : new PrefixedSearchable(storage, prefixInfo);
+            searchable = Config.isSearchTreeBuildingAsync() && prefixInfo.isAsyncable() ?
+                    new AsyncPrefixedSearchable(storage, prefixInfo) :
+                    new PrefixedSearchable(storage, prefixInfo);
             this.prefixedSearchables.put(prefixInfo, searchable);
             this.combinedSearchables.addSearchable(searchable);
         }
@@ -42,6 +47,10 @@ public class ElementSearch implements IElementSearch {
             for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
                 prefixedSearchable.stop();
             }
+        }
+        if (!this.loggedStatistics && FMLLaunchHandler.isDeobfuscatedEnvironment()) {
+            this.loggedStatistics = true;
+            this.logStatistics();
         }
     }
 

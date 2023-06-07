@@ -36,12 +36,13 @@ jei.chat.error.no.cheat.permission.1=У вас нет разрешения на 
 jei.chat.error.no.cheat.permission.2=Разрешение выдаётся игрокам, которые могут использовать /give или находятся в творческом режиме.
 
 # Key Bindings
-key.jei.toggleOverlay=Переключить оверлей предметов
+key.jei.toggleOverlay=Показать/скрыть HEI
 key.jei.focusSearch=Выбрать строку поиска
 key.jei.showRecipe=Показывать рецепты предметов
 key.jei.showUses=Показывать применения предметов
 key.jei.recipeBack=Показать предыдущую страницу рецептов
-key.jei.toggleCheatMode=Переключить режим жульничества
+key.jei.toggleCheatMode=Переключить чит режим
+key.jei.toggleEditMode=Переключить режим скрытия/редактирования
 key.jei.previousPage=Предыдущая
 key.jei.nextPage=Следующая
 key.jei.bookmark=Управление закладками
@@ -100,6 +101,10 @@ config.jei.advanced.maxRecipeGuiHeight=Максимальная высота
 config.jei.advanced.maxRecipeGuiHeight.comment=Максимальная высота интерфейса рецепта.
 config.jei.advanced.giveMode=Режим получения предметов
 config.jei.advanced.giveMode.comment=Выберите, должен ли HEI давать предметы напрямую в инвентарь (inventory) или же набирать их мышкой (mouse_pickup).
+config.jei.advanced.optimizeMemoryUsage=Оптимизировать использование памяти
+config.jei.advanced.optimizeMemoryUsage.comment=Включить оптимизацию использования памяти HEI.
+config.jei.advanced.ultraLowMemoryUsage=Режим сверхнизкого использования памяти
+config.jei.advanced.ultraLowMemoryUsage.comment=Включить режим сверхнизкого использования памяти, однако это может значительно замедлить поиск.
 
 # Hide Ingredients Mode
 gui.jei.editMode.description=Режим редактирования списка HEI:
@@ -122,7 +127,37 @@ gui.jei.category.brewing=Варка
 gui.jei.category.brewing.steps=Шаги: %s
 gui.jei.category.itemInformation=Описание
 
-# DEBUG (for debug mode, do not need translation)
-description.jei.wooden.door.1=Wooden Doors allow you to block monsters from entering your building.\nTesting sentences.
-description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and visa versa.
-description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits.
+# DEBUG (для режима отладки перевод не нужен)
+description.jei.wooden.door.1=Деревянные двери позволяют блокировать проникновение монстров в ваше здание.\nПроверка предложений.
+description.jei.wooden.door.2=Нажатие на дверь меняет ее состояние с открытого на закрытое и наоборот.
+description.jei.wooden.door.3=Деревянные двери можно открывать/закрывать с помощью цепей Редстоуна.
+
+# New HEI lang keys
+config.jei.rendering=Визуализация
+config.jei.rendering.comment=Параметры конфигурации рендеринга
+config.jei.misc=Разное
+config.jei.misc.comment=Разные параметры конфигурации
+
+config.jei.search.searchAdvancedTooltips=Поиск расширенных всплывающих подсказок
+config.jei.search.searchAdvancedTooltips.comment=Включает расширенные всплывающие подсказки в деревьях поиска [БУДЕТ ПЕРЕЗАГРУЖЕНО ДЕРЕВА ПОИСКА]
+
+config.jei.search.searchStrippedDiacritics=Поиск удаленных диакритических знаков
+config.jei.search.searchStrippedDiacritics.comment=Включает версию строк с удаленными диакритическими знаками в деревьях поиска [БУДЕТ ПЕРЕЗАГРУЖЕНО ДЕРЕВА ПОИСКА]
+
+config.jei.advanced.asyncSearchTreeBuilding=Асинхронное построение дерева поиска
+config.jei.advanced.asyncSearchTreeBuilding.comment=Построение деревьев поиска в нескольких потоках одновременно, отключите эту функцию, если вы испытываете чрезвычайно высокую нагрузку на свой процессор при загрузке JEI
+
+config.jei.advanced.addBookmarksToFront=Добавлять новые закладки в начало
+config.jei.advanced.addBookmarksToFront.comment=Если включено, новые закладки добавляются в начало списка закладок
+
+config.jei.misc.mouseClickToSeeRecipes=Щелкните мышью, чтобы увидеть рецепты/использования
+config.jei.misc.mouseClickToSeeRecipes.comment=Отключите, чтобы запретить щелчки мышью для просмотра рецептов и способов использования при наведении курсора на ингредиент
+
+config.jei.misc.tooltipShowRecipeBy=Показывать `Рецепт из` во всплывающей подсказке
+config.jei.misc.tooltipShowRecipeBy.comment=Если рецепт был изменен, показывать информацию об этом во всплывающей подсказке
+
+config.jei.rendering.bufferIngredientRenders=Рендеринг ингредиентов буфера
+config.jei.rendering.bufferIngredientRenders.comment=Остановка чрезвычайно частых вызовов отрисовки ингредиентов с помощью буфера рендеринга, повышает FPS в меню до 2-3 раз. Но анимация и блеск не будут применяться правильно.
+
+config.jei.interface.defaultFluidContainerItem=Контейнер жидкости по умолчанию
+config.jei.interface.defaultFluidContainerItem.comment=Предмет по умолчанию, используемый для заполнения жидкостей при нажатии на жидкий ингредиент в меню (формат: item_name@meta)

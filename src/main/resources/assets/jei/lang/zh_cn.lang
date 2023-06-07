@@ -138,6 +138,15 @@ config.jei.rendering.comment=渲染配置
 config.jei.misc=杂项
 config.jei.misc.comment=杂项配置
 
+config.jei.search.searchAdvancedTooltips=搜索高级工具提示
+config.jei.search.searchAdvancedTooltips.comment=在搜索树中添加高级工具提示[将会重置搜索树]
+
+config.jei.search.searchStrippedDiacritics=搜索剥离的音调符号
+config.jei.search.searchStrippedDiacritics.comment=在搜索树中添加搜索剥离的音调符号[将会重置搜索树]
+
+config.jei.advanced.addBookmarksToFront=新建前置书签
+config.jei.advanced.addBookmarksToFront.comment=启用后，将新书签添加到书签列表的前面
+
 config.jei.advanced.asyncSearchTreeBuilding=异步构建搜索树
 config.jei.advanced.asyncSearchTreeBuilding.comment=在多个线程上同时构建搜索树，如果你在加载 HEI 时遇到极高的 CPU 负载，请关闭此功能
 

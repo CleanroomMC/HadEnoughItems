@@ -2,6 +2,7 @@ package mezz.jei.plugins.vanilla.crafting;
 
 import java.util.List;
 
+import mezz.jei.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Blocks;
@@ -118,7 +119,7 @@ public class CraftingRecipeCategory implements IRecipeCategory<IRecipeWrapper> {
 							modIdDifferent = !recipeModId.equals(itemModId);
 						}
 
-						if (modIdDifferent) {
+						if (modIdDifferent && Config.getTooltipShowRecipeBy()) {
 							String modName = ForgeModIdHelper.getInstance().getFormattedModNameForModId(recipeModId);
 							if (modName != null) {
 								tooltip.add(TextFormatting.GRAY + Translator.translateToLocalFormatted("jei.tooltip.recipe.by", modName));

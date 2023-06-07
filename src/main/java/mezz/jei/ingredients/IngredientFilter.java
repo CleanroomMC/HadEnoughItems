@@ -5,9 +5,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import mezz.jei.search.*;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.util.NonNullList;
 
@@ -20,7 +20,6 @@ import mezz.jei.config.Config;
 import mezz.jei.config.EditModeToggleEvent;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.IIngredientGridSource;
-import mezz.jei.startup.PlayerJoinedWorldEvent;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Translator;
 
@@ -38,10 +37,12 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	private List<IIngredientListElement> ingredientListCached = Collections.emptyList();
 	@Nullable private String filterCached;
 
+	private boolean afterBlock = false;
+	@Nullable private List<Runnable> delegatedActions;
+
 	public IngredientFilter(IngredientBlacklistInternal blacklist, NonNullList<IIngredientListElement> ingredients) {
 		this.blacklist = blacklist;
 		this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
-		ingredients.sort(IngredientListElementComparator.INSTANCE);
 		this.elementSearch.addAll(ingredients);
 		firstBuild = false;
 	}
@@ -62,10 +63,32 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		this.filterCached = null;
 	}
 
+	public void delegateAfterBlock(Runnable runnable) {
+		if (this.afterBlock) {
+			runnable.run();
+			invalidateCache();
+		} else {
+			if (this.delegatedActions == null) {
+				this.delegatedActions = new ArrayList<>();
+			}
+			this.delegatedActions.add(runnable);
+		}
+	}
+
 	public void block() {
 		if (this.elementSearch instanceof ElementSearch) {
 			((ElementSearch) this.elementSearch).block();
 		}
+		if (this.delegatedActions != null) {
+			Minecraft.getMinecraft().addScheduledTask(() -> {
+				invalidateCache();
+				this.delegatedActions.forEach(Runnable::run);
+				this.delegatedActions = null;
+				this.afterBlock = true;
+			});
+		}
+		this.filterCached = null;
+		updateHidden();
 	}
 
 	public void invalidateCache() {
@@ -96,10 +119,15 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		if (Config.doesSearchTreeNeedReload()) {
 			firstBuild = true;
 			rebuild = true;
+			afterBlock = false;
 			NonNullList<IIngredientListElement> ingredients = NonNullList.from(null, this.elementSearch.getAllIngredients().toArray(new IIngredientListElement[0]));
 			this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
 			ingredients.sort(IngredientListElementComparator.INSTANCE);
 			this.elementSearch.addAll(ingredients);
+			// make sure search tree finishes building before gameplay resumes
+			if (this.elementSearch instanceof ElementSearch) {
+				((ElementSearch) this.elementSearch).block();
+			}
 			firstBuild = false;
 			rebuild = false;
 		}
@@ -107,13 +135,6 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	@SubscribeEvent
 	public void onEditModeToggleEvent(EditModeToggleEvent event) {
-		this.filterCached = null;
-		updateHidden();
-	}
-
-	@SubscribeEvent
-	public void onPlayerJoinedWorldEvent(PlayerJoinedWorldEvent event) {
-		block();
 		this.filterCached = null;
 		updateHidden();
 	}
@@ -180,15 +201,28 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	}
 
 	private List<IIngredientListElement<?>> getIngredientListUncached(String filterText) {
-		String[] filters = filterText.split("\\|");
-		List<SearchToken> tokens = Arrays.stream(filters).map(SearchToken::parseSearchToken).filter(s -> !s.search.isEmpty()).collect(Collectors.toList());
-		Stream<IIngredientListElement<?>> stream;
-		if (tokens.isEmpty()) {
-			stream = this.elementSearch.getAllIngredients().parallelStream();
-		} else {
-			stream = tokens.stream().map(token -> token.getSearchResults(this.elementSearch)).flatMap(Set::stream);
+		if (filterText.isEmpty()) {
+			return this.elementSearch.getAllIngredients().stream()
+					.filter(IIngredientListElement::isVisible)
+					.sorted(IngredientListElementComparator.INSTANCE)
+					.collect(Collectors.toList());
 		}
-		return stream.filter(IIngredientListElement::isVisible).distinct().sorted(IngredientListElementComparator.INSTANCE).collect(Collectors.toList());
+		List<SearchToken> tokens = Arrays.stream(filterText.split("\\|"))
+				.map(SearchToken::parseSearchToken)
+				.filter(s -> !s.search.isEmpty())
+				.collect(Collectors.toList());
+		if (tokens.isEmpty()) {
+			return this.elementSearch.getAllIngredients().stream()
+					.filter(IIngredientListElement::isVisible)
+					.sorted(IngredientListElementComparator.INSTANCE)
+					.collect(Collectors.toList());
+		}
+		return tokens.stream()
+				.map(token -> token.getSearchResults(this.elementSearch))
+				.flatMap(Set::stream)
+				.filter(IIngredientListElement::isVisible)
+				.sorted(IngredientListElementComparator.INSTANCE)
+				.collect(Collectors.toList());
 	}
 
 	/**
