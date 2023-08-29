@@ -119,10 +119,15 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		if (Config.doesSearchTreeNeedReload()) {
 			firstBuild = true;
 			rebuild = true;
+			afterBlock = false;
 			NonNullList<IIngredientListElement> ingredients = NonNullList.from(null, this.elementSearch.getAllIngredients().toArray(new IIngredientListElement[0]));
 			this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
 			ingredients.sort(IngredientListElementComparator.INSTANCE);
 			this.elementSearch.addAll(ingredients);
+			// make sure search tree finishes building before gameplay resumes
+			if (this.elementSearch instanceof ElementSearch) {
+				((ElementSearch) this.elementSearch).block();
+			}
 			firstBuild = false;
 			rebuild = false;
 		}

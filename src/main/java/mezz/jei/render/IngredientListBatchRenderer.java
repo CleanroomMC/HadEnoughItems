@@ -77,8 +77,11 @@ public class IngredientListBatchRenderer {
 			}
 		}
 
-		refreshBuffer = true;
+		invalidateBuffer();
+	}
 
+	public void invalidateBuffer() {
+		refreshBuffer = true;
 	}
 
 	private <V> void set(IngredientListSlot ingredientListSlot, IIngredientListElement<V> element) {
@@ -178,6 +181,8 @@ public class IngredientListBatchRenderer {
 		if (!Config.isEditModeEnabled() && Config.bufferIngredientRenders() && refreshBuffer && OpenGlHelper.framebufferSupported) {
 			refreshBuffer = false;
 			minecraft.getFramebuffer().bindFramebuffer(false);
+			// ensure that we actually render the new items
+			render(minecraft);
 		}
 	}
 

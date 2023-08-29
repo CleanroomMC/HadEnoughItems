@@ -89,6 +89,10 @@ public class IngredientGridWithNavigation implements IShowsRecipeFocuses, IMouse
 		return true;
 	}
 
+	public void invalidateBuffer() {
+		this.ingredientGrid.invalidateBuffer();
+	}
+
 	public Rectangle getArea() {
 		return this.area;
 	}

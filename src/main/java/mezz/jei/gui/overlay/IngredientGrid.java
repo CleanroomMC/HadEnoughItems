@@ -89,6 +89,10 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		return true;
 	}
 
+	public void invalidateBuffer() {
+		this.guiIngredientSlots.invalidateBuffer();
+	}
+
 	public Rectangle getArea() {
 		return area;
 	}
