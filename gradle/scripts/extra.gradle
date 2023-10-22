@@ -1,0 +1,21 @@
+// You may write any gradle buildscript component in this file
+// This file is automatically applied after build.gradle + dependencies.gradle is ran
+
+// If you wish to use the default helper methods, uncomment the line below
+// apply from: 'gradle/scripts/helpers.gradle'
+
+base {
+    archivesName.set('HadEnoughItems_1.12.2') // Consistency
+}
+
+tasks.named('jar', Jar) {
+    from sourceSets.api.output
+}
+
+tasks.named('sourcesJar', Jar) {
+    from sourceSets.api.output
+}
+
+// tasks.named('javadocJar', Jar) {
+   // from sourceSets.api.output
+// }
