@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import mezz.jei.util.Translator;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
@@ -120,6 +121,8 @@ public class ProxyCommonClient extends ProxyCommon {
 				Config.needToRebuildSearchTree = true;
 				reloadItemList();
 			}
+
+			Translator.invalidateLocale();
 		});
 
 		Preconditions.checkNotNull(textures);
