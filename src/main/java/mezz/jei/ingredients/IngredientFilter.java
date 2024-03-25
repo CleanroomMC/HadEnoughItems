@@ -85,10 +85,12 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 				this.delegatedActions.forEach(Runnable::run);
 				this.delegatedActions = null;
 				this.afterBlock = true;
+				updateHidden();
 			});
+		} else {
+			Minecraft.getMinecraft().addScheduledTask(this::updateHidden);
 		}
-		this.filterCached = null;
-		updateHidden();
+		invalidateCache();
 	}
 
 	public void invalidateCache() {
