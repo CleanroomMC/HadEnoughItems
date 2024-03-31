@@ -119,11 +119,18 @@ public class IngredientRenderer<T> {
 			}
 		}
 
+		boolean copied = false;
+
 		if (Config.getColorSearchMode() != Config.SearchMode.DISABLED) {
+			tooltip = new ArrayList<>(tooltip);
+			copied = true;
 			addColorSearchInfoToTooltip(minecraft, element, tooltip, maxWidth);
 		}
 
 		if (Config.isEditModeEnabled()) {
+			if (!copied) {
+				tooltip = new ArrayList<>(tooltip);
+			}
 			addEditModeInfoToTooltip(minecraft, tooltip, maxWidth);
 		}
 

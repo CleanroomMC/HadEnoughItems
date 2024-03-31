@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import mezz.jei.Tags;
 import mezz.jei.ingredients.*;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.LoggedTimer;
@@ -40,7 +41,7 @@ public class JeiStarter {
 
 	public void start(List<IModPlugin> plugins, Textures textures) {
 		LoggedTimer totalTime = new LoggedTimer();
-		totalTime.start("Starting HEI");
+		totalTime.start("Starting " + Tags.MOD_NAME);
 
 		IngredientListElement.canonicalizedStringArrays = new ObjectOpenHashSet<>();
 

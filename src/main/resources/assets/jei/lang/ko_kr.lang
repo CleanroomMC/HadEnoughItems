@@ -142,7 +142,6 @@ config.jei.rendering.bufferIngredientRenders=재료 렌더링 버퍼
 config.jei.rendering.bufferIngredientRenders.comment=렌더 버퍼를 이용하여 지나치게 잦은 아이템 렌더링 호출을 막습니다. 메뉴 프레임이 2배~3배 향상되나 마법 부여 효과나 애니메이션이 정상적으로 동작하지 않을 것입니다.
 
 config.jei.interface.defaultFluidContainerItem=기본 유체 컨테이너 아이템
-however.config.jei.interface.defaultFluidContainerItem.comment=메뉴에서 유체 재료를 클릭할 시 표시할 기본 유체 보관 아이템을 지정합니다, (형식: 아이템 이름@메타데이터)
 
 jei.tooltip.bookmarks=HEI 북마크
 jei.tooltip.bookmarks.usage.nokey=조작 설정에서 HEI 북마크용 키를 할당하세요.
@@ -159,4 +158,8 @@ config.jei.advanced.maxRecipeGuiHeight.comment=조합법 창의 최대 높이를
 config.jei.advanced.optimizeMemoryUsage=메모리 사용량 최적화
 config.jei.advanced.optimizeMemoryUsage.comment=HEI 메모리 사용량 최적화를 활성화합니다.
 config.jei.advanced.ultraLowMemoryUsage=메모리 최대 절약 모드
-config.jei.advanced.ultraLowMemoryUsage.comment=메모리 최대 절약 모드를 활성화합니다. 검색이 매우 느려질 수 있습니다.
+
+config.jei.advanced.ultraLowMemoryUsage.comment=메모리 최대 절약모드를 활성화합니다. 검색이 매우 느려질 수 있습니다.
+config.jei.misc.tooltipShowRecipeBy=툴팁에 '레시피 제공자'를 표시합니다.
+config.jei.misc.tooltipShowRecipeBy.comment=툴팁에 레시피가 언제 변경되었는지 표시합니다.
+config.jei.interface.defaultFluidContainerItem.comment=메뉴에서 유체 재료를 클릭할 시 표시할 기본 유체 보관 아이템을 지정합니다, (형식: 아이템 이름@메타데이터)

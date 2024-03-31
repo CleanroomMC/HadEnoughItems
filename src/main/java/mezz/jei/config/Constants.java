@@ -2,15 +2,16 @@ package mezz.jei.config;
 
 import java.util.Locale;
 
+import mezz.jei.Tags;
 import net.minecraft.util.ResourceLocation;
 
 public final class Constants {
 	public static final String MINECRAFT_NAME = "Minecraft";
 
 	// Mod info
-	public static final String MOD_ID = "jei";
-	public static final String NAME = "Had Enough Items";
-	public static final String VERSION = "@VERSION@";
+	public static final String MOD_ID = Tags.MOD_ID;
+	public static final String NAME = Tags.MOD_NAME;
+	public static final String VERSION = Tags.VERSION;
 
 	// Textures
 	public static final String RESOURCE_DOMAIN = MOD_ID.toLowerCase(Locale.ENGLISH);

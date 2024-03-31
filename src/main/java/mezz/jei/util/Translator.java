@@ -8,7 +8,13 @@ import net.minecraft.client.resources.Language;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.util.text.translation.I18n;
 
+import javax.annotation.Nullable;
+
 public final class Translator {
+
+	@Nullable
+	private static Locale locale;
+
 	private Translator() {
 	}
 
@@ -34,18 +40,26 @@ public final class Translator {
 		return string.toLowerCase(getLocale());
 	}
 
+	public static void invalidateLocale() {
+		locale = null;
+	}
+
 	@SuppressWarnings("ConstantConditions")
 	private static Locale getLocale() {
-		Minecraft minecraft = Minecraft.getMinecraft();
-		if (minecraft != null) {
-			LanguageManager languageManager = minecraft.getLanguageManager();
-			if (languageManager != null) {
-				Language currentLanguage = languageManager.getCurrentLanguage();
-				if (currentLanguage != null) {
-					return currentLanguage.getJavaLocale();
+		if (locale == null) {
+			Minecraft minecraft = Minecraft.getMinecraft();
+			if (minecraft != null) {
+				LanguageManager languageManager = minecraft.getLanguageManager();
+				if (languageManager != null) {
+					Language currentLanguage = languageManager.getCurrentLanguage();
+					if (currentLanguage != null) {
+						locale = currentLanguage.getJavaLocale();
+						return locale;
+					}
 				}
 			}
+			locale = Locale.getDefault();
 		}
-		return Locale.getDefault();
+		return locale;
 	}
 }
