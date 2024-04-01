@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
+import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.startup.IModIdHelper;
 import mezz.jei.startup.ProxyCommonClient;
@@ -159,7 +160,8 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 
 	@Override
 	public boolean isVisible() {
-		return (!Internal.getIngredientFilter().getIngredientBlacklist().isIngredientBlacklistedByApi(ingredient, ingredientHelper)
+		return (Config.getShowHiddenIngredientsInCreative()
+				&& !Internal.getIngredientFilter().getIngredientBlacklist().isIngredientBlacklistedByApi(ingredient, ingredientHelper)
 				&& FMLLaunchHandler.side().isClient()
 				&& ProxyCommonClient.isCreative())
 				|| visible;

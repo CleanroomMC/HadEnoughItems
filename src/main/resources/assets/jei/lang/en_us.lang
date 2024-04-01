@@ -156,6 +156,9 @@ config.jei.misc.mouseClickToSeeRecipes.comment=Disable to disallow mouse clicks 
 config.jei.misc.tooltipShowRecipeBy=Show `Recipe By` in tooltip
 config.jei.misc.tooltipShowRecipeBy.comment=Show when a recipe has been changed by adding it to the item's tooltip
 
+config.jei.misc.showHiddenIngredientsInCreative=Show Hidden Ingredients in Creative Mode
+config.jei.misc.showHiddenIngredientsInCreative.comment=Show user-hidden ingredients when the player is in creative mode
+
 config.jei.rendering.bufferIngredientRenders=Buffer Ingredient Renders
 config.jei.rendering.bufferIngredientRenders.comment=Stops extremely frequent ingredient draw calls by using a render buffer, improves FPS in menus by up to 2-3x. But animations and glint will not be applied correctly.
 
