@@ -79,12 +79,12 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		if (this.elementSearch instanceof ElementSearch) {
 			((ElementSearch) this.elementSearch).block();
 		}
+		this.afterBlock = true;
 		if (this.delegatedActions != null) {
 			Minecraft.getMinecraft().addScheduledTask(() -> {
 				invalidateCache();
 				this.delegatedActions.forEach(Runnable::run);
 				this.delegatedActions = null;
-				this.afterBlock = true;
 				updateHidden();
 			});
 		} else {
@@ -121,7 +121,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		if (Config.doesSearchTreeNeedReload()) {
 			firstBuild = true;
 			rebuild = true;
-			afterBlock = false;
+			this.afterBlock = false;
 			NonNullList<IIngredientListElement> ingredients = NonNullList.from(null, this.elementSearch.getAllIngredients().toArray(new IIngredientListElement[0]));
 			this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
 			ingredients.sort(IngredientListElementComparator.INSTANCE);
@@ -132,6 +132,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			}
 			firstBuild = false;
 			rebuild = false;
+			this.afterBlock = true;
 		}
 	}
 
