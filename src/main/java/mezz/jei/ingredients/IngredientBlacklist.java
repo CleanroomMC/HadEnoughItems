@@ -37,4 +37,12 @@ public class IngredientBlacklist implements IIngredientBlacklist {
 		IIngredientHelper<V> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
 		return internal.isIngredientBlacklisted(ingredient, ingredientHelper);
 	}
+
+	@Override
+	public <V> boolean isIngredientBlacklistedByApi(V ingredient) {
+		ErrorUtil.checkNotNull(ingredient, "ingredient");
+
+		IIngredientHelper<V> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
+		return internal.isIngredientBlacklistedByApi(ingredient, ingredientHelper);
+	}
 }

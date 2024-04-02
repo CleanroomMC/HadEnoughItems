@@ -13,6 +13,7 @@ import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.runtime.JeiHelpers;
 import mezz.jei.startup.IModIdHelper;
 import mezz.jei.startup.ProxyCommonClient;
 import mezz.jei.util.LegacyUtil;
@@ -160,11 +161,14 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 
 	@Override
 	public boolean isVisible() {
-		return (Config.getShowHiddenIngredientsInCreative()
-				&& !Internal.getIngredientFilter().getIngredientBlacklist().isIngredientBlacklistedByApi(ingredient, ingredientHelper)
-				&& FMLLaunchHandler.side().isClient()
-				&& ProxyCommonClient.isCreative())
-				|| visible;
+		if (visible) {
+			return true;
+		}
+		if (FMLLaunchHandler.side().isClient()) {
+			return Config.getShowHiddenIngredientsInCreative() && ProxyCommonClient.isCreative() &&
+					!Internal.getHelpers().getIngredientBlacklist().isIngredientBlacklistedByApi(ingredient);
+		}
+		return false;
 	}
 
 	@Override
