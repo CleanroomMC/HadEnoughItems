@@ -333,6 +333,10 @@ public final class Config {
 		return values.tooltipShowRecipeBy;
 	}
 
+	public static boolean getShowHiddenIngredientsInCreative() {
+		return values.showHiddenIngredientsInCreative;
+	}
+
 	@Nullable
 	public static LocalizedConfiguration getConfig() {
 		return config;
@@ -499,6 +503,8 @@ public final class Config {
 		values.mouseClickToSeeRecipes = config.getBoolean(CATEGORY_MISC, "mouseClickToSeeRecipes", defaultValues.mouseClickToSeeRecipes);
 
 		values.tooltipShowRecipeBy = config.getBoolean(CATEGORY_MISC, "tooltipShowRecipeBy", defaultValues.tooltipShowRecipeBy);
+
+		values.showHiddenIngredientsInCreative = config.getBoolean(CATEGORY_MISC, "showHiddenIngredientsInCreative", defaultValues.showHiddenIngredientsInCreative);
 
 		{
 			Property property = config.get(CATEGORY_ADVANCED, "debugModeEnabled", defaultValues.debugModeEnabled);

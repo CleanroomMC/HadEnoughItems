@@ -184,4 +184,9 @@ public class ProxyCommonClient extends ProxyCommon {
 	public void handleTextureRemap(TextureStitchEvent.Pre event) {
 		textures = new Textures(textureMap);
 	}
+
+	@SideOnly(Side.CLIENT)
+	public static boolean isCreative() {
+		return Minecraft.getMinecraft().player != null && Minecraft.getMinecraft().player.isCreative();
+	}
 }

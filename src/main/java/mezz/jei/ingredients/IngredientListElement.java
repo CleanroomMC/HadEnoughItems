@@ -8,13 +8,17 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableSet;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
+import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.startup.IModIdHelper;
+import mezz.jei.startup.ProxyCommonClient;
 import mezz.jei.util.LegacyUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
+import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 
 public class IngredientListElement<V> implements IIngredientListElement<V> {
 	public static ObjectOpenHashSet<String[]> canonicalizedStringArrays = new ObjectOpenHashSet<>();
@@ -156,7 +160,11 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 
 	@Override
 	public boolean isVisible() {
-		return visible;
+		return (Config.getShowHiddenIngredientsInCreative()
+				&& !Internal.getIngredientFilter().getIngredientBlacklist().isIngredientBlacklistedByApi(ingredient, ingredientHelper)
+				&& FMLLaunchHandler.side().isClient()
+				&& ProxyCommonClient.isCreative())
+				|| visible;
 	}
 
 	@Override

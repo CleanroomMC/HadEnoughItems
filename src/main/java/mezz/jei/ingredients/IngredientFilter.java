@@ -290,4 +290,8 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		}
 	}
 
+	public IngredientBlacklistInternal getIngredientBlacklist() {
+		return blacklist;
+	}
+
 }
