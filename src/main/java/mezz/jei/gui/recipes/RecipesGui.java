@@ -136,7 +136,10 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 	@Override
 	public void initGui() {
 		super.initGui();
-
+		if (this.height<=5){//invalid height(due to cleanroom will fire this event when windows minimizing)
+			init = false;
+			return;
+		}
 		this.xSize = 198;
 		this.ySize = this.height - 68;
 		int extraSpace = 0;
