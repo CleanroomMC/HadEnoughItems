@@ -18,7 +18,7 @@ if (propertyBool('publish_to_maven')) {
         publications {
             mavenJava(MavenPublication) {
                 from components.java // Publish with standard artifacts
-                setGroupId(propertyString('root_package'))// Publish with root package as maven group
+                setGroupId(propertyString('root_package')) // Publish with root package as maven group propertyString('mod_name').toLowerCase().replaceAll(' ', '_')
                 setArtifactId(propertyString('mod_id')) // Publish artifacts with mod id as the artifact id
 
                 // Custom artifact:
