@@ -1,20 +1,14 @@
 package mezz.jei.plugins.vanilla.crafting;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import mezz.jei.Internal;
 import mezz.jei.startup.StackHelper;
+import net.minecraft.item.crafting.*;
 import net.minecraftforge.oredict.OreIngredient;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipes;
-import net.minecraft.item.crafting.ShapelessRecipes;
 
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.recipe.IRecipeWrapper;
@@ -23,6 +17,9 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 
 public final class CraftingRecipeChecker {
+
+	public static boolean hasTippedArrowRecipe;
+
 	private CraftingRecipeChecker() {
 	}
 
@@ -31,6 +28,8 @@ public final class CraftingRecipeChecker {
 		CraftingRecipeValidator<ShapedRecipes> shapedRecipesValidator = new CraftingRecipeValidator<>(recipe -> new ShapedRecipesWrapper(jeiHelpers, recipe));
 		CraftingRecipeValidator<ShapelessOreRecipe> shapelessOreRecipeValidator = new CraftingRecipeValidator<>(recipe -> new ShapelessRecipeWrapper<>(jeiHelpers, recipe));
 		CraftingRecipeValidator<ShapelessRecipes> shapelessRecipesValidator = new CraftingRecipeValidator<>(recipe -> new ShapelessRecipeWrapper<>(jeiHelpers, recipe));
+
+		hasTippedArrowRecipe = false;
 
 		StackHelper stackHelper = Internal.getStackHelper();
 		Iterator<IRecipe> recipeIterator = CraftingManager.REGISTRY.iterator();
@@ -54,6 +53,9 @@ public final class CraftingRecipeChecker {
 					validRecipes.add(recipe);
 				}
 			} else {
+				if (!hasTippedArrowRecipe && recipe instanceof RecipeTippedArrow) {
+					hasTippedArrowRecipe = true;
+				}
 				validRecipes.add(recipe);
 			}
 		}
