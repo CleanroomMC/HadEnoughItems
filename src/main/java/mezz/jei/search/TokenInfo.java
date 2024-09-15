@@ -9,13 +9,14 @@ public class TokenInfo {
             return null;
         }
         PrefixInfo prefixInfo = PrefixInfo.get(token.charAt(0));
-        if (prefixInfo == null || prefixInfo.getMode() == Config.SearchMode.DISABLED) {
-            return new TokenInfo(token, PrefixInfo.NO_PREFIX);
+        if (prefixInfo != null && prefixInfo.getMode() == Config.SearchMode.REQUIRE_PREFIX) {
+            token = token.substring(1);
+            if (token.isEmpty()) {
+                return null;
+            }
+            return new TokenInfo(token, prefixInfo);
         }
-        if (token.length() == 1) {
-            return null;
-        }
-        return new TokenInfo(token.substring(1), prefixInfo);
+        return new TokenInfo(token, PrefixInfo.NO_PREFIX);
     }
 
     public final String token;
