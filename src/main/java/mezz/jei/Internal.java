@@ -3,6 +3,7 @@ package mezz.jei;
 import javax.annotation.Nullable;
 
 import mezz.jei.api.ISubtypeRegistry;
+import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.runtime.SubtypeRegistry;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -38,6 +39,8 @@ public final class Internal {
 	private static GuiEventHandler guiEventHandler;
 	@Nullable
 	private static InputHandler inputHandler;
+	@Nullable
+	private static BookmarkList bookmarkList;
 
 	private Internal() {
 
@@ -131,4 +134,14 @@ public final class Internal {
 		Internal.inputHandler = inputHandler;
 		MinecraftForge.EVENT_BUS.register(inputHandler);
 	}
+
+	public static void setBookmarkList(BookmarkList bookmarkList) {
+		Internal.bookmarkList = bookmarkList;
+	}
+
+	public static BookmarkList getBookmarkList() {
+		Preconditions.checkState(bookmarkList != null, "Bookmark List has not been created yet.");
+        return bookmarkList;
+    }
+
 }

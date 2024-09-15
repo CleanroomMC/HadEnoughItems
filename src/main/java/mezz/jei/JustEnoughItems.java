@@ -2,12 +2,16 @@ package mezz.jei;
 
 import java.util.Map;
 
+import mezz.jei.command.CommandTreeHEI;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkCheckHandler;
+import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
 import mezz.jei.config.Constants;
@@ -52,5 +56,12 @@ public class JustEnoughItems {
 	@Mod.EventHandler
 	public void loadComplete(FMLLoadCompleteEvent event) {
 		proxy.loadComplete(event);
+	}
+
+	@Mod.EventHandler
+	public void onServerStarting(FMLServerStartingEvent event) {
+		if (FMLLaunchHandler.side().isClient()) {
+			ClientCommandHandler.instance.registerCommand(new CommandTreeHEI());
+		}
 	}
 }
