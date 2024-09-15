@@ -3,6 +3,7 @@ package mezz.jei.ingredients;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
+import mezz.jei.config.Config;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraft.util.NonNullList;
 
@@ -59,18 +60,31 @@ public final class IngredientListElementFactory {
 		IIngredientRenderer<V> ingredientRenderer = ingredientRegistry.getIngredientRenderer(ingredientType);
 
 		Collection<V> ingredients = ingredientRegistry.getAllIngredients(ingredientType);
-		ProgressManager.ProgressBar progressBar = ProgressManager.push("Registering ingredients: " + ingredientType.getIngredientClass().getSimpleName(), ingredients.size());
-		for (V ingredient : ingredients) {
-			progressBar.step("");
-			if (ingredient != null) {
-				int orderIndex = ORDER_TRACKER.getOrderIndex(ingredient, ingredientHelper);
-				IngredientListElement<V> ingredientListElement = IngredientListElement.create(ingredient, ingredientHelper, ingredientRenderer, modIdHelper, orderIndex);
-				if (ingredientListElement != null) {
-					baseList.add(ingredientListElement);
+
+		if (Config.skipShowingProgressBar()) {
+			for (V ingredient : ingredients) {
+				if (ingredient != null) {
+					int orderIndex = ORDER_TRACKER.getOrderIndex(ingredient, ingredientHelper);
+					IngredientListElement<V> ingredientListElement = IngredientListElement.create(ingredient, ingredientHelper, ingredientRenderer, modIdHelper, orderIndex);
+					if (ingredientListElement != null) {
+						baseList.add(ingredientListElement);
+					}
 				}
 			}
+		} else {
+			ProgressManager.ProgressBar progressBar = ProgressManager.push("Registering ingredients: " + ingredientType.getIngredientClass().getSimpleName(), ingredients.size());
+			for (V ingredient : ingredients) {
+				progressBar.step(ingredientHelper.getDisplayName(ingredient));
+                if (ingredient != null) {
+					int orderIndex = ORDER_TRACKER.getOrderIndex(ingredient, ingredientHelper);
+					IngredientListElement<V> ingredientListElement = IngredientListElement.create(ingredient, ingredientHelper, ingredientRenderer, modIdHelper, orderIndex);
+					if (ingredientListElement != null) {
+						baseList.add(ingredientListElement);
+					}
+				}
+			}
+			ProgressManager.pop(progressBar);
 		}
-		ProgressManager.pop(progressBar);
 	}
 
 }

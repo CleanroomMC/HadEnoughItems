@@ -337,6 +337,10 @@ public final class Config {
 		return values.showHiddenIngredientsInCreative;
 	}
 
+	public static boolean skipShowingProgressBar() {
+		return values.skipShowingProgressBar;
+	}
+
 	@Nullable
 	public static LocalizedConfiguration getConfig() {
 		return config;
@@ -505,6 +509,8 @@ public final class Config {
 		values.tooltipShowRecipeBy = config.getBoolean(CATEGORY_MISC, "tooltipShowRecipeBy", defaultValues.tooltipShowRecipeBy);
 
 		values.showHiddenIngredientsInCreative = config.getBoolean(CATEGORY_MISC, "showHiddenIngredientsInCreative", defaultValues.showHiddenIngredientsInCreative);
+
+		values.skipShowingProgressBar = config.getBoolean(CATEGORY_MISC, "skipShowingProgressBar", defaultValues.skipShowingProgressBar);
 
 		{
 			Property property = config.get(CATEGORY_ADVANCED, "debugModeEnabled", defaultValues.debugModeEnabled);

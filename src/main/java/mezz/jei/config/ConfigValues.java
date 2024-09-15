@@ -41,4 +41,5 @@ public class ConfigValues {
 	public boolean mouseClickToSeeRecipes = true;
 	public boolean tooltipShowRecipeBy = true;
 	public boolean showHiddenIngredientsInCreative = false;
+	public boolean skipShowingProgressBar = false;
 }

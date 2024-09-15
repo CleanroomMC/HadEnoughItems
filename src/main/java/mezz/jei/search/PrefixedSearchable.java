@@ -60,7 +60,9 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
                         .map(IIngredientListElement::getModNameForSorting)
                         .distinct()
                         .count();
-                progressBar = ProgressManager.push("Indexing ingredients", (int) modNameCount);
+                if (!Config.skipShowingProgressBar()) {
+                    progressBar = ProgressManager.push("Indexing ingredients", (int) modNameCount);
+                }
             }
             String currentModName = null;
             for (IIngredientListElement ingredient : ingredients) {

@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import mezz.jei.config.Config;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
@@ -165,19 +166,31 @@ public class RecipeRegistry implements IRecipeRegistry {
 
 	private void addRecipes(List<Object> unsortedRecipes, ListMultiMap<String, Object> recipes) {
 		Collection<Map.Entry<String, List<Object>>> entries = recipes.entrySet();
-		ProgressManager.ProgressBar progressBar = ProgressManager.push("Loading recipes", recipes.getTotalSize() + unsortedRecipes.size());
-		for (Map.Entry<String, List<Object>> entry : entries) {
-			String recipeCategoryUid = entry.getKey();
-			for (Object recipe : entry.getValue()) {
-				progressBar.step("");
-				addRecipe(recipe, recipe.getClass(), recipeCategoryUid);
+		if (Config.skipShowingProgressBar()) {
+			for (Map.Entry<String, List<Object>> entry : entries) {
+				String recipeCategoryUid = entry.getKey();
+				for (Object recipe : entry.getValue()) {
+					addRecipe(recipe, recipe.getClass(), recipeCategoryUid);
+				}
 			}
+			for (Object recipe : unsortedRecipes) {
+				addRecipe(recipe, recipe.getClass(), null);
+			}
+		} else {
+			ProgressManager.ProgressBar progressBar = ProgressManager.push("Loading recipes", recipes.getTotalSize() + unsortedRecipes.size());
+			for (Map.Entry<String, List<Object>> entry : entries) {
+				String recipeCategoryUid = entry.getKey();
+				for (Object recipe : entry.getValue()) {
+					progressBar.step("");
+					addRecipe(recipe, recipe.getClass(), recipeCategoryUid);
+				}
+			}
+			for (Object recipe : unsortedRecipes) {
+				progressBar.step("");
+				addRecipe(recipe, recipe.getClass(), null);
+			}
+			ProgressManager.pop(progressBar);
 		}
-		for (Object recipe : unsortedRecipes) {
-			progressBar.step("");
-			addRecipe(recipe, recipe.getClass(), null);
-		}
-		ProgressManager.pop(progressBar);
 	}
 
 	@Override
