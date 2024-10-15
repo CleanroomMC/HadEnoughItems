@@ -84,6 +84,10 @@ public class SubtypeRegistry implements ISubtypeRegistry {
 		if (interpreter != null) {
 			return interpreter.apply(fluidStack);
 		}
+		// Fallback to default behaviour if tag exists
+		if (fluidStack.tag != null) {
+			return fluidStack.tag.toString();
+		}
 		return null;
 	}
 
@@ -106,7 +110,7 @@ public class SubtypeRegistry implements ISubtypeRegistry {
 		public String apply(ItemStack itemStack) {
 			NBTTagCompound nbtTagCompound = itemStack.getTagCompound();
 			if (nbtTagCompound == null || nbtTagCompound.isEmpty()) {
-				return ISubtypeInterpreter.NONE;
+				return NONE;
 			}
 			return nbtTagCompound.toString();
 		}
@@ -118,7 +122,7 @@ public class SubtypeRegistry implements ISubtypeRegistry {
 		@Override
 		public String apply(FluidStack fluidStack) {
 			if (fluidStack.tag == null || fluidStack.tag.isEmpty()) {
-				return ISubtypeInterpreter.NONE;
+				return NONE;
 			}
 			return fluidStack.tag.toString();
 		}
