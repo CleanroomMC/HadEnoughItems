@@ -142,7 +142,7 @@ public class IngredientListBatchRenderer {
 	}
 
 	public void render(Minecraft minecraft) {
-		if (!Config.isEditModeEnabled() && Config.bufferIngredientRenders() && OpenGlHelper.framebufferSupported) {
+		if (!Config.isEditModeEnabled() && Config.bufferIngredientRenders() && OpenGlHelper.isFramebufferEnabled()) {
 			if (framebuffer == null) {
 				framebuffer = new Framebuffer(minecraft.displayWidth, minecraft.displayHeight, true);
 				framebuffer.framebufferColor[0] = 0.0F;

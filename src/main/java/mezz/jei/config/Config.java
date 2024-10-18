@@ -11,15 +11,12 @@ import java.util.Locale;
 import java.util.Set;
 
 import mezz.jei.util.ReflectionUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -318,11 +315,7 @@ public final class Config {
 	}
 
 	public static boolean bufferIngredientRenders() {
-		boolean fastRender = false;
-		if (isOptifineInstalled) {
-			fastRender = ObfuscationReflectionHelper.getPrivateValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, "ofFastRender");
-		}
-		return !fastRender && values.bufferIngredientRenders;
+		return values.bufferIngredientRenders;
 	}
 
 	public static boolean mouseClickToSeeRecipe() {
