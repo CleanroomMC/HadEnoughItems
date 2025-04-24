@@ -43,8 +43,6 @@ public class JeiStarter {
 		LoggedTimer totalTime = new LoggedTimer();
 		totalTime.start("Starting " + Tags.MOD_NAME);
 
-		IngredientListElement.canonicalizedStringArrays = new ObjectOpenHashSet<>();
-
 		IModIdHelper modIdHelper = ForgeModIdHelper.getInstance();
 		ErrorUtil.setModIdHelper(modIdHelper);
 
@@ -119,8 +117,6 @@ public class JeiStarter {
 		Internal.setInputHandler(inputHandler);
 
 		Config.checkForModNameFormatOverride();
-
-		IngredientListElement.canonicalizedStringArrays = new ObjectOpenHashSet<>();
 
 		started = true;
 		totalTime.stop();
