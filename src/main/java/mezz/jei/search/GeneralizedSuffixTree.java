@@ -103,7 +103,7 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
 
         while (!wordSubstring.isEmpty()) {
             // follow the edge corresponding to this char
-            Edge<T> currentEdge = currentNode.getEdge(wordSubstring);
+            Node<T> currentEdge = currentNode.getEdge(wordSubstring);
             if (currentEdge == null) {
                 // there is no edge starting with this char
                 return null;
@@ -116,11 +116,11 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
             }
             if (lenToMatch == wordSubstring.length()) {
                 // we found the edge we're looking for
-                return currentEdge.getDest();
+                return currentEdge;
             }
 
             // advance to next node
-            currentNode = currentEdge.getDest();
+            currentNode = currentEdge;
             wordSubstring = wordSubstring.substring(lenToMatch);
         }
 
@@ -140,12 +140,13 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
 
         Node<T> s = root;
 
+        final Substring keyString = new Substring(key);
         // proceed with tree construction (closely related to procedure in Ukkonen's paper)
-        Substring text = new Substring(key, 0, 0);
+        Substring text = keyString.shorten(keyString.length());
         // iterate over the string, one char at a time
         for (int i = 0; i < key.length(); i++) {
             // line 6, line 7: update the tree with the new transitions due to this new char
-            Substring rest = new Substring(key, i);
+            Substring rest = keyString.substring(i);
             Pair<Node<T>, Substring> active = update(s, text, key.charAt(i), rest, value);
             s = active.getLeft();
             text = active.getRight();
@@ -192,7 +193,7 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
         searchString = canonizeResult.getRight();
 
         if (!searchString.isEmpty()) {
-            Edge<T> g = startNode.getEdge(searchString);
+            Node<T> g = startNode.getEdge(searchString);
             assert g != null;
             // must see whether "searchString" is substring of the label of an edge
             if (g.length() > searchString.length() && g.charAt(searchString.length()) == t) {
@@ -202,7 +203,7 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
             return Pair.of(false, newNode);
         }
 
-        Edge<T> e = startNode.getEdge(remainder);
+        Node<T> e = startNode.getEdge(remainder);
         if (e == null) {
             // if there is no t-transition from s
             return Pair.of(false, startNode);
@@ -211,8 +212,7 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
         if (e.startsWith(remainder)) {
             if (e.length() == remainder.length()) {
                 // update payload of destination node
-                Node<T> dest = e.getDest();
-                dest.addRef(value);
+                e.addRef(value);
                 return Pair.of(true, startNode);
             } else {
                 Node<T> newNode = splitNode(startNode, e, remainder);
@@ -224,7 +224,7 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
         }
     }
 
-    private static <T> Node<T> splitNode(Node<T> s, Edge<T> e, Substring splitFirstPart) {
+    private static <T> Node<T> splitNode(Node<T> s, Node<T> e, Substring splitFirstPart) {
         assert e == s.getEdge(splitFirstPart);
         assert e.startsWith(splitFirstPart);
         assert e.length() > splitFirstPart.length();
@@ -233,11 +233,12 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
         Substring splitSecondPart = e.substring(splitFirstPart.length());
 
         // build a new node r in between s and e.dest
-        Node<T> r = new Node<>();
+        Node<T> r = new Node<>(splitFirstPart);
         // replace e with new getLeft part pointing to r
-        s.addEdge(new Edge<>(splitFirstPart, r));
+        s.addEdge(r);
         // r is the new node sitting in between s and the original destination
-        r.addEdge(new Edge<>(splitSecondPart, e.getDest()));
+        e.set(splitSecondPart);
+        r.addEdge(e);
 
         return r;
     }
@@ -255,11 +256,11 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
         Substring remainder = input;
 
         while (!remainder.isEmpty()) {
-            Edge<T> nextEdge = currentNode.getEdge(remainder);
+            Node<T> nextEdge = currentNode.getEdge(remainder);
             if (nextEdge == null || !nextEdge.isPrefix(remainder)) {
                 break;
             }
-            currentNode = nextEdge.getDest();
+            currentNode = nextEdge;
             remainder = remainder.substring(nextEdge.length());
         }
 
@@ -306,16 +307,16 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
         // line 2
         while (!endpoint) {
             // line 3
-            Edge<T> tempEdge = r.getEdge(newChar);
+            Node<T> tempEdge = r.getEdge(newChar);
             if (tempEdge != null) {
                 // such a node is already present. This is one of the main differences from Ukkonen's case:
                 // the tree can contain deeper nodes at this stage because different strings were added by previous iterations.
-                leaf = tempEdge.getDest();
+                leaf = tempEdge;
             } else {
                 // must build a new leaf
-                leaf = new Node<>();
+                leaf = new Node<>(rest);
                 leaf.addRef(value);
-                r.addEdge(new Edge<>(rest, leaf));
+                r.addEdge(leaf);
             }
 
             // update suffix link for newly created leaf
@@ -360,7 +361,7 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
     }
 
     private static Substring safeCutLastChar(Substring subString) {
-        if (subString.length() == 0) {
+        if (subString.isEmpty()) {
             return subString;
         }
         return subString.shorten(1);

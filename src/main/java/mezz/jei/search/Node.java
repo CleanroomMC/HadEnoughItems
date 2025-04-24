@@ -18,35 +18,38 @@ package mezz.jei.search;
 import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMaps;
+import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrays;
+import mezz.jei.collect.Char2ObjectSingletonMap;
 import mezz.jei.util.Substring;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nullable;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.IntSummaryStatistics;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 /**
- * Represents a node of the generalized suffix tree graph
+ * Represents a node (and edge for optimization purposes) of the generalized suffix tree graph
  *
  * @see GeneralizedSuffixTree
  */
-public class Node<T> {
+public class Node<T> extends Substring {
 
     /**
      * The payload array used to store the data (indexes) associated with this node.
      * In this case, it is used to store all property indexes.
      */
-    @Nullable
     private T[] data;
 
     /**
      * The set of edges starting from this node
      */
-    @Nullable
-    private Char2ObjectMap<Edge<T>> edges;
+    private Char2ObjectMap<Node<T>> edges;
 
     /**
      * The suffix link as described in Ukkonen's paper.
@@ -56,9 +59,10 @@ public class Node<T> {
     @Nullable
     private Node<T> suffix;
 
-    Node() {
-        this.data = null;
-        this.edges = null;
+    Node(Substring string) {
+        super(string);
+        this.data = (T[]) ObjectArrays.EMPTY_ARRAY;
+        this.edges = Char2ObjectMaps.emptyMap();
         this.suffix = null;
     }
 
@@ -66,14 +70,12 @@ public class Node<T> {
      * Gets data from the payload of both this node and its children, the string representation
      * of the path to this node is a substring of the one of the children nodes.
      */
-    void getData(final Set<T> ret) {
-        if (data != null) {
-            ret.addAll(Arrays.asList(data));
+    void getData(Collection<T> collection) {
+        for (int i = 0; i < data.length; i++) {
+            collection.add(data[i]);
         }
-        if (edges != null) {
-            for (Edge<T> e : edges.values()) {
-                e.getDest().getData(ret);
-            }
+        for (Node<T> e : edges.values()) {
+            e.getData(collection);
         }
     }
 
@@ -105,41 +107,42 @@ public class Node<T> {
      * @return true <tt>this</tt> contains a reference to index
      */
     protected boolean contains(T index) {
-        if (data == null) {
-            return false;
-        }
-        for (T id : data) {
-            if (id == index) {
+        for (T t : data) {
+            if (t == index) {
                 return true;
             }
         }
         return false;
     }
 
-    protected void addEdge(Edge<T> e) {
-        if (this.edges == null) {
-            this.edges = Char2ObjectMaps.singleton(e.charAt(0), e);
-        } else if (this.edges instanceof Char2ObjectMaps.Singleton) {
-            Char2ObjectMap.Entry<Edge<T>> existingEdge = edges.char2ObjectEntrySet().iterator().next();
-            this.edges = new Char2ObjectArrayMap<>(2);
-            this.edges.put(existingEdge.getCharKey(), existingEdge.getValue());
-            this.edges.put(e.charAt(0), e);
+    protected void addEdge(Node<T> e) {
+        if (edges.isEmpty()) {
+            edges = new Char2ObjectSingletonMap<>(e.charAt(0), e);
+        } else if (edges.size() == 1) {
+            Char2ObjectMap<Node<T>> newEdges = new Char2ObjectArrayMap<>(2);
+            newEdges.putAll(edges);
+            newEdges.put(e.charAt(0), e);
+            edges = newEdges;
+        } else if (edges.size() == 7) {
+            Char2ObjectMap<Node<T>> newEdges = new Char2ObjectOpenHashMap<>(edges);
+            newEdges.put(e.charAt(0), e);
+            edges = newEdges;
         } else {
-            this.edges.put(e.charAt(0), e);
+            edges.put(e.charAt(0), e);
         }
     }
 
     @Nullable
-    Edge<T> getEdge(char ch) {
-        return edges == null ? null : edges.get(ch);
+    Node<T> getEdge(char ch) {
+        return edges.get(ch);
     }
 
     @Nullable
-    Edge<T> getEdge(Substring substring) {
+    Node<T> getEdge(Substring substring) {
         if (substring.isEmpty()) {
             return null;
         }
-        return edges == null ? null : edges.get(substring.charAt(0));
+        return edges.get(substring.charAt(0));
     }
 
     @Nullable
@@ -151,17 +154,14 @@ public class Node<T> {
         this.suffix = suffix;
     }
 
+    // TODO: check performance
     protected void addValue(T index) {
-        if (this.data == null) {
-            this.data = (T[]) new Object[] { index };
-        } else {
-            this.data = ArrayUtils.add(this.data, index);
-        }
+        this.data = ArrayUtils.add(this.data, index);
     }
 
     @Override
     public String toString() {
-        return "Node: size:" + (data == null ? "nil" : data.length) + " Edges: " + edges;
+        return "Node: size:" + (data.length) + " Edges: " + edges;
     }
 
     public IntSummaryStatistics nodeSizeStats() {
@@ -169,27 +169,21 @@ public class Node<T> {
     }
 
     private IntStream nodeSizes() {
-        return IntStream.concat(IntStream.of(data == null ? 0 : data.length), edges == null ? IntStream.of(0) : edges.values().stream().flatMapToInt(e -> e.getDest().nodeSizes()));
+        return IntStream.concat(IntStream.of(data.length), edges.values().stream().flatMapToInt(Node::nodeSizes));
     }
 
     public String nodeEdgeStats() {
         IntSummaryStatistics edgeCounts = nodeEdgeCounts().summaryStatistics();
         IntSummaryStatistics edgeLengths = nodeEdgeLengths().summaryStatistics();
-        return "Edge counts: " + edgeCounts +
-                "\nEdge lengths: " + edgeLengths;
+        return "Edge counts: " + edgeCounts + "\nEdge lengths: " + edgeLengths;
     }
 
     private IntStream nodeEdgeCounts() {
-        return edges == null ? IntStream.of() : IntStream.concat(
-                IntStream.of(edges.size()), edges.values().stream().map(Edge::getDest).flatMapToInt(Node::nodeEdgeCounts)
-        );
+        return IntStream.concat(IntStream.of(edges.size()), edges.values().stream().flatMapToInt(Node::nodeEdgeCounts));
     }
 
     private IntStream nodeEdgeLengths() {
-        return edges == null ? IntStream.of() : IntStream.concat(
-                edges.values().stream().mapToInt(Edge::length),
-                edges.values().stream().map(Edge::getDest).flatMapToInt(Node::nodeEdgeLengths)
-        );
+        return IntStream.concat(edges.values().stream().mapToInt(Node::length), edges.values().stream().flatMapToInt(Node::nodeEdgeLengths));
     }
 
     public void printTree(PrintWriter out, boolean includeSuffixLinks) {
@@ -212,33 +206,28 @@ public class Node<T> {
     }
 
     private void printLeaves(PrintWriter out) {
-        if (edges == null) {
-            out.println("\t" + nodeId(this) + " [label=\"" + data + "\",shape=point,style=filled,fillcolor=lightgrey,shape=circle,width=.07,height=.07]");
+        if (edges.isEmpty()) {
+            out.println("\t" + nodeId(this) + " [label=\"" + Arrays.toString(data) + "\",shape=point,style=filled,fillcolor=lightgrey,shape=circle,width=.07,height=.07]");
         } else {
-            for (Edge<T> edge : edges.values()) {
-                edge.getDest().printLeaves(out);
+            for (Node<T> edge : edges.values()) {
+                edge.printLeaves(out);
             }
         }
     }
 
     private void printInternalNodes(Node<T> root, PrintWriter out) {
-        if (this != root && edges != null) {
-            out.println("\t" + nodeId(this) + " [label=\"" + data + "\",style=filled,fillcolor=lightgrey,shape=circle,width=.07,height=.07]");
+        if (this != root && !edges.isEmpty()) {
+            out.println("\t" + nodeId(this) + " [label=\"" + Arrays.toString(data) + "\",style=filled,fillcolor=lightgrey,shape=circle,width=.07,height=.07]");
         }
-        if (edges != null) {
-            for (Edge<T> edge : edges.values()) {
-                edge.getDest().printInternalNodes(root, out);
-            }
+        for (Node<T> edge : edges.values()) {
+            edge.printInternalNodes(root, out);
         }
     }
 
     private void printEdges(PrintWriter out) {
-        if (edges != null) {
-            for (Edge<T> edge : edges.values()) {
-                Node<T> child = edge.getDest();
-                out.println("\t" + nodeId(this) + " -> " + nodeId(child) + " [label=\"" + edge.commit() + "\",weight=10]");
-                child.printEdges(out);
-            }
+        for (Node<T> child : edges.values()) {
+            out.println("\t" + nodeId(this) + " -> " + nodeId(child) + " [label=\"" + child + "\",weight=10]");
+            child.printEdges(out);
         }
     }
 
@@ -246,10 +235,8 @@ public class Node<T> {
         if (suffix != null) {
             out.println("\t" + nodeId(this) + " -> " + nodeId(suffix) + " [label=\"\",weight=0,style=dotted]");
         }
-        if (edges != null) {
-            for (Edge<T> edge : edges.values()) {
-                edge.getDest().printSLinks(out);
-            }
+        for (Node<T> edge : edges.values()) {
+            edge.printSLinks(out);
         }
     }
 
@@ -263,6 +250,10 @@ public class Node<T> {
      * This class makes sure we don't accumulate a ton of useless values in the root node.
      */
     public static class Root<T> extends Node<T> {
+
+        public Root() {
+            super(new Substring(""));
+        }
 
         @Override
         protected boolean contains(T value) {
