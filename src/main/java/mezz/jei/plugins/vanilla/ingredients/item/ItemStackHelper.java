@@ -152,10 +152,10 @@ public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 
 	@Override
 	public Collection<String> getOreDictNames(ItemStack ingredient) {
-		Collection<String> names = new ArrayList<>();
-		for (int oreId : OreDictionary.getOreIDs(ingredient)) {
-			String oreNameLowercase = OreDictionary.getOreName(oreId).toLowerCase(Locale.ENGLISH);
-			names.add(oreNameLowercase);
+		int[] oreIds = OreDictionary.getOreIDs(ingredient);
+		Collection<String> names = new ArrayList<>(oreIds.length);
+		for (int oreId : oreIds) {
+			names.add(OreDictionary.getOreName(oreId));
 		}
 		return names;
 	}
