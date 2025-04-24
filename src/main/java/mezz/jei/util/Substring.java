@@ -2,10 +2,6 @@ package mezz.jei.util;
 
 public class Substring {
 
-    private static String intern(String string) {
-        return string;
-    }
-
     private String string;
     private int offset;
     private int length;
@@ -30,7 +26,7 @@ public class Substring {
         assert length >= 0;
         assert offset >= 0;
         assert offset + length <= string.length();
-        this.string = intern(string);
+        this.string = fromSubstring ? string : StringUtil.intern(string);
         this.offset = offset;
         this.length = length;
     }

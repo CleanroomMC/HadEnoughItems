@@ -1,16 +1,23 @@
 package mezz.jei.util;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.gui.FontRenderer;
 
 import java.text.Normalizer;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public final class StringUtil {
 
 	private static final Pattern COMBINING_DIACRITICAL_MARKS = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+	private static final ObjectOpenHashSet<String> INTERNER = new ObjectOpenHashSet<>(64);
 
 	private StringUtil() {
 
+	}
+
+	public static String intern(String string) {
+		return INTERNER.addOrGet(string);
 	}
 
 	public static String truncateStringToWidth(String string, int width, FontRenderer fontRenderer) {
