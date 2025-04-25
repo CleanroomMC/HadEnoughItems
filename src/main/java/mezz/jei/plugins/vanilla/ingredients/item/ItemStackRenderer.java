@@ -31,7 +31,13 @@ public class ItemStackRenderer implements IIngredientRenderer<ItemStack> {
 			minecraft.getRenderItem().renderItemAndEffectIntoGUI(ingredient, xPosition, yPosition);
 
 			if (ingredient.getCount() > 1) {
-				renderCustomStackSize(font, ingredient, xPosition, yPosition);
+				if (ingredient.getCount() < 65) {
+					ItemStack overlayStack = ingredient.copy();
+					overlayStack.setCount(ingredient.getCount());
+					minecraft.getRenderItem().renderItemOverlayIntoGUI(font, overlayStack, xPosition, yPosition, null);
+				} else {
+					renderCustomStackSize(font, ingredient, xPosition, yPosition);
+				}
 			} else {
 				ItemStack overlayStack = ingredient.copy();
 				overlayStack.setCount(1);
@@ -100,10 +106,9 @@ public class ItemStackRenderer implements IIngredientRenderer<ItemStack> {
 			return String.format(m % 1 == 0 ? "%.0fm" : "%.1fm", m);
 		}
 
-        float g = count / 1000000000f;
-        return String.format(g % 1 == 0 ? "%.0fg" : "%.1fg", g);
-
-    }
+		float g = count / 1000000000f;
+		return String.format(g % 1 == 0 ? "%.0fg" : "%.1fg", g);
+	}
 
 	@Override
 	public List<String> getTooltip(Minecraft minecraft, ItemStack ingredient, ITooltipFlag tooltipFlag) {
