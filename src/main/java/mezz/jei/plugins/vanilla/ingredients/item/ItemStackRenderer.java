@@ -29,12 +29,13 @@ public class ItemStackRenderer implements IIngredientRenderer<ItemStack> {
 			RenderHelper.enableGUIStandardItemLighting();
 			FontRenderer font = getFontRenderer(minecraft, ingredient);
 			minecraft.getRenderItem().renderItemAndEffectIntoGUI(ingredient, xPosition, yPosition);
-			ItemStack durabilityOnlyStack = ingredient.copy();
-			durabilityOnlyStack.setCount(1);
-			minecraft.getRenderItem().renderItemOverlayIntoGUI(font, durabilityOnlyStack, xPosition, yPosition, null);
 
-			if (ingredient.getCount() != 1) {
+			if (ingredient.getCount() > 1) {
 				renderCustomStackSize(font, ingredient, xPosition, yPosition);
+			} else {
+				ItemStack overlayStack = ingredient.copy();
+				overlayStack.setCount(1);
+				minecraft.getRenderItem().renderItemOverlayIntoGUI(font, overlayStack, xPosition, yPosition, null);
 			}
 
 			GlStateManager.disableBlend();
@@ -50,30 +51,31 @@ public class ItemStackRenderer implements IIngredientRenderer<ItemStack> {
 	 * @param yPosition Y coordinate
 	 */
 	private void renderCustomStackSize(FontRenderer font, ItemStack stack, int xPosition, int yPosition) {
-		if (stack.getCount() != 1) {
-			String countText = formatStackCount(stack.getCount());
-			GlStateManager.disableLighting();
-			GlStateManager.disableDepth();
-			GlStateManager.disableBlend();
-			boolean shouldScale = stack.getCount() > 99;
-			if (shouldScale) {
-				GlStateManager.pushMatrix();
-				GlStateManager.scale(0.5F, 0.5F, 1.0F);
-			}
-			int x = shouldScale ?
-					(xPosition + 16) * 2 - font.getStringWidth(countText) :
-					xPosition + 16 - font.getStringWidth(countText);
-			int y = shouldScale ?
-					(yPosition + 16) * 2 - 8 :
-					yPosition + 16 - 8;
-			font.drawStringWithShadow(countText, x, y, 0xFFFFFF);
-			if (shouldScale) {
-				GlStateManager.popMatrix();
-			}
-			GlStateManager.enableLighting();
-			GlStateManager.enableDepth();
-			GlStateManager.enableBlend();
+		String countText = formatStackCount(stack.getCount());
+
+		GlStateManager.pushMatrix();
+		GlStateManager.disableLighting();
+		GlStateManager.disableDepth();
+		GlStateManager.disableBlend();
+
+		boolean shouldScale = stack.getCount() > 99;
+		if (shouldScale) {
+			GlStateManager.scale(0.5F, 0.5F, 1.0F);
 		}
+
+		int x = shouldScale ?
+				(xPosition + 16) * 2 - font.getStringWidth(countText) :
+				xPosition + 16 - font.getStringWidth(countText);
+		int y = shouldScale ?
+				(yPosition + 16) * 2 - 8 :
+				yPosition + 16 - 8;
+
+		font.drawStringWithShadow(countText, x, y, 0xFFFFFF);
+
+		GlStateManager.popMatrix();
+		GlStateManager.enableLighting();
+		GlStateManager.enableDepth();
+		GlStateManager.enableBlend();
 	}
 
 	/**
