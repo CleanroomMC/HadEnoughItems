@@ -104,6 +104,10 @@ public final class Internal {
 		Internal.colorNamer = colorNamer;
 	}
 
+	public static boolean hasIngredientFilter() {
+		return ingredientFilter != null;
+	}
+
 	public static IngredientFilter getIngredientFilter() {
 		Preconditions.checkState(ingredientFilter != null, "Ingredient Filter has not been created yet.");
 		return ingredientFilter;

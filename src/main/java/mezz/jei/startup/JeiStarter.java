@@ -40,6 +40,10 @@ public class JeiStarter {
 	private boolean started;
 
 	public void start(List<IModPlugin> plugins, Textures textures) {
+		load(plugins, textures, true);
+	}
+
+	public void load(List<IModPlugin> plugins, Textures textures, boolean recipesOnly) {
 		LoggedTimer totalTime = new LoggedTimer();
 		totalTime.start("Starting " + Tags.MOD_NAME);
 
@@ -79,10 +83,16 @@ public class JeiStarter {
 		RecipeRegistry recipeRegistry = modRegistry.createRecipeRegistry(ingredientRegistry);
 		timer.stop();
 
-		timer.start("Building ingredient filter and search trees");
-		IngredientFilter ingredientFilter = new IngredientFilter(blacklist, IngredientListElementFactory.createBaseList(ingredientRegistry, modIdHelper));
-		Internal.setIngredientFilter(ingredientFilter);
-		timer.stop();
+		IngredientFilter ingredientFilter;
+		if (recipesOnly && Internal.hasIngredientFilter()) {
+			ingredientFilter = Internal.getIngredientFilter();
+			ingredientFilter.replaceBlacklist(blacklist);
+		} else {
+			timer.start("Building ingredient filter and search trees");
+			ingredientFilter = new IngredientFilter(blacklist, IngredientListElementFactory.createBaseList(ingredientRegistry, modIdHelper));
+			Internal.setIngredientFilter(ingredientFilter);
+			timer.stop();
+		}
 
 		timer.start("Building bookmarks");
 		BookmarkList bookmarkList = new BookmarkList(ingredientRegistry);
