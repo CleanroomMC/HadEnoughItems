@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.ArrayList;
 
+import mezz.jei.bookmarks.BookmarkItem;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraft.client.Minecraft;
@@ -67,7 +68,7 @@ public class InputHandler {
 		if (clicked != null) {
 			if (!Config.isBookmarkOverlayEnabled())
 				Config.toggleBookmarkEnabled();
-			return bookmarkList.add(clicked.getValue(), true);
+			return bookmarkList.add(new BookmarkItem<>(clicked.getValue()), true);
 		}
 		return false;
 	}
@@ -284,11 +285,14 @@ public class InputHandler {
 						if (!Config.isBookmarkOverlayEnabled()) {
 							Config.toggleBookmarkEnabled();
 						}
-						return bookmarkList.add(clicked.getValue());
+						return bookmarkList.add(new BookmarkItem<>(clicked.getValue()));
 					}
 				} else {
 					IFocus.Mode mode = showRecipe ? IFocus.Mode.OUTPUT : IFocus.Mode.INPUT;
-					recipesGui.show(new Focus<Object>(mode, clicked.getValue()));
+					Object value = clicked.getValue();
+					recipesGui.show(new Focus<>(
+						mode,
+						value instanceof BookmarkItem ? ((BookmarkItem<?>) value).ingredient : value));
 					clicked.onClickHandled();
 					return true;
 				}

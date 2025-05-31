@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import mezz.jei.bookmarks.BookmarkIngredientHelper;
+import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.bookmarks.BookmarkItemRender;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -54,6 +57,9 @@ public class JEIInternalPlugin implements IModPlugin {
 			DebugIngredientRenderer ingredientRenderer = new DebugIngredientRenderer(ingredientHelper);
 			ingredientRegistration.register(DebugIngredient.TYPE, Collections.emptyList(), ingredientHelper, ingredientRenderer);
 		}
+		BookmarkIngredientHelper bookmarkIngredientHelper = new BookmarkIngredientHelper();
+		BookmarkItemRender bookmarkItemRender = new BookmarkItemRender();
+		ingredientRegistration.register(BookmarkItem.TYPE, Collections.emptyList(), bookmarkIngredientHelper, bookmarkItemRender);
 	}
 
 	@Override

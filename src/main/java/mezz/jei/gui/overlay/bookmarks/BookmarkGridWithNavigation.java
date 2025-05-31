@@ -1,5 +1,7 @@
 package mezz.jei.gui.overlay.bookmarks;
 
+import mezz.jei.Internal;
+import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -8,6 +10,7 @@ import mezz.jei.gui.overlay.IIngredientGridSource;
 import mezz.jei.input.*;
 import mezz.jei.util.MathUtil;
 import net.minecraft.client.Minecraft;
+import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -37,6 +40,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         if (resetToFirstPage) {
             firstItemIndex = 0;
         }
+        @SuppressWarnings("rawtypes")
         List<IIngredientListElement> ingredientList = ingredientSource.getIngredientList();
         if (firstItemIndex >= ingredientList.size()) {
             firstItemIndex = 0;
@@ -101,12 +105,20 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 
     @Override
     public boolean handleMouseScrolled(int mouseX, int mouseY, int scrollDelta) {
-        if (scrollDelta < 0) {
-            this.pageDelegate.nextPage();
+        IIngredientListElement<?> element = this.getElementUnderMouse();
+        if ((Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) && element != null) {
+            BookmarkItem<?> item = (BookmarkItem<?>) element.getIngredient();
+            item.changeAmount(scrollDelta < 0 ? -1 : 1);
+            Internal.getBookmarkList().saveBookmarks();
             return true;
-        } else if (scrollDelta > 0) {
-            this.pageDelegate.previousPage();
-            return true;
+        } else {
+            if (scrollDelta < 0) {
+                this.pageDelegate.nextPage();
+                return true;
+            } else if (scrollDelta > 0) {
+                this.pageDelegate.previousPage();
+                return true;
+            }
         }
         return false;
     }
@@ -117,6 +129,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         return this.ingredientGrid.getIngredientUnderMouse(mouseX, mouseY);
     }
 
+    @SuppressWarnings("rawtypes")
     @Nullable
     @Override
     public IIngredientListElement getElementUnderMouse() {
