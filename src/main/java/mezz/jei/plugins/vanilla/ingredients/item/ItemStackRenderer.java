@@ -71,10 +71,10 @@ public class ItemStackRenderer implements IIngredientRenderer<ItemStack> {
 
 		int x = shouldScale ?
 				(xPosition + 16) * 2 - font.getStringWidth(countText) :
-				xPosition + 16 - font.getStringWidth(countText);
+				xPosition + 17 - font.getStringWidth(countText);
 		int y = shouldScale ?
 				(yPosition + 16) * 2 - 8 :
-				yPosition + 16 - 8;
+				yPosition + 17 - 8;
 
 		font.drawStringWithShadow(countText, x, y, 0xFFFFFF);
 
