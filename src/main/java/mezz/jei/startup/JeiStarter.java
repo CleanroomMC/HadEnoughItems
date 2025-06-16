@@ -40,7 +40,7 @@ public class JeiStarter {
 	private boolean started;
 
 	public void start(List<IModPlugin> plugins, Textures textures) {
-		load(plugins, textures, true);
+		load(plugins, textures, false);
 	}
 
 	public void load(List<IModPlugin> plugins, Textures textures, boolean recipesOnly) {
