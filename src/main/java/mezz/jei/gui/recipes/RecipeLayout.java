@@ -49,6 +49,8 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	private final Map<IIngredientType, GuiIngredientGroup> guiIngredientGroups;
 	@Nullable
 	private final RecipeTransferButton recipeTransferButton;
+	@Nullable
+	private final RecipeFavoriteButton recipeFavoriteButton;
 	private final IRecipeWrapper recipeWrapper;
 	@Nullable
 	private final IFocus<?> focus;
@@ -103,10 +105,14 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		this.guiIngredientGroups.put(VanillaTypes.FLUID, this.guiFluidStackGroup);
 
 		if (index >= 0) {
-			IDrawable icon = Internal.getHelpers().getGuiHelper().getRecipeTransfer();
-			this.recipeTransferButton = new RecipeTransferButton(recipeTransferButtonIndex + index, 0, 0, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, icon, this);
+			IDrawable transferIcon = Internal.getHelpers().getGuiHelper().getRecipeTransfer();
+			this.recipeTransferButton = new RecipeTransferButton(recipeTransferButtonIndex + index, 0, 0, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, transferIcon, this);
+			IDrawable favoriteOff = Internal.getHelpers().getGuiHelper().getFavoriteDisabled();
+			IDrawable favoriteOn = Internal.getHelpers().getGuiHelper().getFavoriteEnabled();
+			this.recipeFavoriteButton = new RecipeFavoriteButton(favoriteOff, favoriteOn, this);
 		} else {
 			this.recipeTransferButton = null;
+			this.recipeFavoriteButton = null;
 		}
 
 		setPosition(posX, posY);
@@ -125,6 +131,14 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			int height = recipeCategory.getBackground().getHeight();
 			this.recipeTransferButton.x = posX + width + RECIPE_BORDER_PADDING + 2;
 			this.recipeTransferButton.y = posY + height - RECIPE_BUTTON_SIZE;
+		}
+		if (this.recipeFavoriteButton != null) {
+			int width = recipeCategory.getBackground().getWidth();
+			int height = recipeCategory.getBackground().getHeight();
+			this.recipeFavoriteButton.updateBounds(new Rectangle(posX + width + RECIPE_BORDER_PADDING + 2,
+					posY + height - RECIPE_BUTTON_SIZE * 2 - RECIPE_BORDER_PADDING - 2,
+					RECIPE_BUTTON_SIZE,
+					RECIPE_BUTTON_SIZE));
 		}
 	}
 
@@ -171,6 +185,10 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			float partialTicks = minecraft.getRenderPartialTicks();
 			recipeTransferButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
 		}
+		if (recipeFavoriteButton != null) {
+			float partialTicks = minecraft.getRenderPartialTicks();
+			recipeFavoriteButton.draw(minecraft, mouseX, mouseY, partialTicks);
+		}
 		GlStateManager.disableBlend();
 		GlStateManager.disableLighting();
 		GlStateManager.disableAlpha();
@@ -194,6 +212,9 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		}
 		if (recipeTransferButton != null) {
 			recipeTransferButton.drawToolTip(minecraft, mouseX, mouseY);
+		}
+		if (recipeFavoriteButton != null) {
+			recipeFavoriteButton.drawTooltips(minecraft, mouseX, mouseY);
 		}
 		GlStateManager.disableBlend();
 		GlStateManager.disableLighting();
@@ -224,7 +245,8 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		final IDrawable background = recipeCategory.getBackground();
 		final Rectangle backgroundRect = new Rectangle(posX, posY, background.getWidth(), background.getHeight());
 		return backgroundRect.contains(mouseX, mouseY) ||
-			(recipeTransferButton != null && recipeTransferButton.isMouseOver());
+			(recipeTransferButton != null && recipeTransferButton.isMouseOver()) ||
+				(recipeFavoriteButton != null && recipeFavoriteButton.isMouseOver(posX, posY));
 	}
 
 	@Override
@@ -299,6 +321,15 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	}
 
 	@Override
+	public void setFavoriteButton(int posX, int posY) {
+		if (recipeFavoriteButton != null) {
+			recipeFavoriteButton.updateBounds(new Rectangle(posX + this.posX, posY + this.posY,
+					RECIPE_BUTTON_SIZE,
+					RECIPE_BUTTON_SIZE));
+		}
+	}
+
+	@Override
 	public void setShapeless() {
 		this.shapelessIcon = new ShapelessIcon();
 	}
@@ -312,6 +343,11 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	@Nullable
 	public RecipeTransferButton getRecipeTransferButton() {
 		return recipeTransferButton;
+	}
+
+	@Nullable
+	public RecipeFavoriteButton getRecipeFavoriteButton() {
+		return recipeFavoriteButton;
 	}
 
 	@Override

@@ -64,6 +64,12 @@ public interface IRecipeLayout {
 	void setRecipeTransferButton(int posX, int posY);
 
 	/**
+	 * Moves the recipe favorite button's position relative to the recipe layout.
+	 * @since JEI 4.28.0
+	 */
+	void setFavoriteButton(int posX, int posY);
+
+	/**
 	 * Adds a shapeless icon to the top right of the recipe, that shows a tooltip saying "shapeless" when hovered over.
 	 *
 	 * @since JEI 4.0.2

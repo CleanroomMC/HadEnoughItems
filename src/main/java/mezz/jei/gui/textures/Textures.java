@@ -22,6 +22,8 @@ public class Textures {
 	public final TextureInfo arrowPrevious;
 	public final TextureInfo arrowNext;
 	public final TextureInfo recipeTransfer;
+	public final TextureInfo favoriteDisabled;
+	public final TextureInfo favoriteEnabled;
 	public final TextureInfo configButtonIcon;
 	public final TextureInfo configButtonCheatIcon;
 	public final TextureInfo bookmarkButtonDisabledIcon;
@@ -59,6 +61,9 @@ public class Textures {
 		this.arrowNext = registerGuiSprite("icons/arrow_next", 9, 9)
 			.trim(0, 0, 1, 1);
 		this.recipeTransfer = registerGuiSprite("icons/recipe_transfer", 7, 7);
+		this.favoriteDisabled = registerGuiSprite("icons/favorite_disabled", 7, 7);
+		this.favoriteEnabled = registerGuiSprite("icons/favorite_enabled", 7, 7);
+
 		this.configButtonIcon = registerGuiSprite("icons/config_button", 16, 16);
 		this.configButtonCheatIcon = registerGuiSprite("icons/config_button_cheat", 16, 16);
 		this.bookmarkButtonDisabledIcon = registerGuiSprite("icons/bookmark_button_disabled", 16, 16);
