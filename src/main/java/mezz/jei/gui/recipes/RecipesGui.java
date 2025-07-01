@@ -295,7 +295,15 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		final int x = Mouse.getEventX() * width / mc.displayWidth;
 		final int y = height - Mouse.getEventY() * height / mc.displayHeight - 1;
 		if (isMouseOver(x, y)) {
+
 			int scrollDelta = Mouse.getEventDWheel();
+			if (scrollDelta != 0) {
+				for (RecipeLayout recipeLayout : recipeLayouts) {
+					if (recipeLayout.handleMouseScroll(x, y, scrollDelta)) {
+						return;
+					}
+				}
+			}
 			if (scrollDelta < 0) {
 				logic.nextPage();
 				return;
@@ -521,7 +529,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 				}
 				RecipeFavoriteButton favoriteButton = recipeLayout.getRecipeFavoriteButton();
 				if (favoriteButton != null) {
-					favoriteButton.init(container, player);
+					favoriteButton.init(recipeLayout);
 					buttonList.add(favoriteButton);
 				}
 			}

@@ -68,10 +68,10 @@ public class FavoriteRecipes {
                 if (rawRecipes.containsKey(id)) {
                     ingredients.put(rawRecipes.get(id), recipe);
                     recipeCategories.put(recipe, category);
-                }
-                rawRecipes.remove(id);
-                if (rawRecipes.isEmpty()) {
-                    break;
+                    rawRecipes.remove(id);
+                    if (rawRecipes.isEmpty()) {
+                        break;
+                    }
                 }
             }
         }
@@ -130,12 +130,22 @@ public class FavoriteRecipes {
         return ingredients.containsValue(recipe);
     }
 
-    public static void setFavorite(Object ingredient, IRecipeWrapper recipe, IRecipeCategory<?> category) {
+    public static boolean isFavoriteFor(IRecipeWrapper recipe, Object ingredient) {
+        // The below throws an error if the object isn't a supported type. Hopefully I got that right!
         String id = ingredientRegistry.getIngredientHelper(ingredient).getUniqueId(ingredient);
-        ingredients.put(id, recipe);
-        recipeCategories.put(recipe, category);
-        if (!recipeIds.containsKey(recipe)) {
-            calculateId(recipe);
+        return ingredients.containsKey(id) && ingredients.get(id) == recipe;
+    }
+
+    public static void toggleFavorite(Object ingredient, IRecipeWrapper recipe, IRecipeCategory<?> category) {
+        String id = ingredientRegistry.getIngredientHelper(ingredient).getUniqueId(ingredient);
+        if (ingredients.containsKey(id) && ingredients.get(id) == recipe) {
+            ingredients.remove(id);
+        } else {
+            ingredients.put(id, recipe);
+            recipeCategories.put(recipe, category);
+            if (!recipeIds.containsKey(recipe)) {
+                calculateId(recipe);
+            }
         }
         save();
     }
@@ -143,6 +153,16 @@ public class FavoriteRecipes {
     public static void removeFavorite(IRecipeWrapper data) {
         ingredients.entrySet().removeIf(entry -> entry.getValue() == data);
         save();
+    }
+
+    public static IRecipeWrapper getFavorite(Object ingredient) {
+        String id = ingredientRegistry.getIngredientHelper(ingredient).getUniqueId(ingredient);
+        return ingredients.get(id);
+    }
+
+    public static IRecipeCategory<?> getFavoriteCategory(Object ingredient) {
+        IRecipeWrapper recipe = getFavorite(ingredient);
+        return recipe != null ? recipeCategories.get(recipe) : null;
     }
 
 }

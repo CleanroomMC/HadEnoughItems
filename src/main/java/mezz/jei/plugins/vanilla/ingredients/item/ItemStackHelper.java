@@ -76,7 +76,7 @@ public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 		if (hashCache.containsKey(ingredient)) {
 			return hashCache.get(ingredient);
 		}
-		int hash = Objects.hash(ingredient.getItem(), ingredient.getCount(), ingredient.getItemDamage(), ingredient.getTagCompound());
+		int hash = Objects.hash(ingredient.getItem().getRegistryName(), ingredient.getCount(), ingredient.getItemDamage(), ingredient.getTagCompound());
 		hashCache.put(ingredient, hash);
 		return hash;
 	}

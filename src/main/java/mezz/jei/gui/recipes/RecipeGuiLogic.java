@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.inventory.Container;
@@ -60,15 +61,27 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 			history.push(this.state);
 		}
 
-		int recipeCategoryIndex = getRecipeCategoryIndexToShowFirst(recipeCategories);
-		IngredientLookupState state = new IngredientLookupState(translatedFocus, recipeCategories, recipeCategoryIndex, 0);
+		int recipeCategoryIndex = getRecipeCategoryIndexToShowFirst(recipeCategories, translatedFocus);
+		int recipeIndex = getRecipeIndexToShowFirst(recipeCategories, recipeCategoryIndex, translatedFocus);
+		IngredientLookupState state = new IngredientLookupState(translatedFocus, recipeCategories, recipeCategoryIndex, recipeIndex);
 		setState(state);
 
 		return true;
 	}
 
+	private int getRecipeIndexToShowFirst(List<IRecipeCategory> recipeCategories, int recipeCategoryIndex, IFocus<?> focus) {
+		if (focus.getMode() == IFocus.Mode.OUTPUT) {
+			IRecipeCategory<?> recipeCategory = recipeCategories.get(recipeCategoryIndex);
+			IRecipeWrapper favorite = FavoriteRecipes.getFavorite(focus.getValue());
+			if (favorite != null) {
+				return recipeRegistry.getRecipeWrappers(recipeCategory, focus).indexOf(favorite);
+			}
+		}
+		return 0;
+	}
+
 	@Nonnegative
-	private int getRecipeCategoryIndexToShowFirst(List<IRecipeCategory> recipeCategories) {
+	private int getRecipeCategoryIndexToShowFirst(List<IRecipeCategory> recipeCategories, IFocus<?> focus) {
 		Minecraft minecraft = Minecraft.getMinecraft();
 		EntityPlayerSP player = minecraft.player;
 		if (player != null) {
@@ -83,6 +96,12 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 						return i;
 					}
 				}
+			}
+		}
+		if (focus.getMode() == IFocus.Mode.OUTPUT) {
+			IRecipeCategory<?> favorite = FavoriteRecipes.getFavoriteCategory(focus.getValue());
+			if (favorite != null) {
+				return recipeCategories.indexOf(favorite);
 			}
 		}
 		return 0;

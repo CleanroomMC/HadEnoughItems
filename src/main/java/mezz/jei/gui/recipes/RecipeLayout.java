@@ -111,7 +111,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			IDrawable favoriteOff = Internal.getHelpers().getGuiHelper().getFavoriteDisabled();
 			IDrawable favoriteOn = Internal.getHelpers().getGuiHelper().getFavoriteEnabled();
 			this.recipeFavoriteButton = new RecipeFavoriteButton(favoriteButtonIndex + index, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, favoriteOff, favoriteOn,
-					recipeWrapper, recipeCategory);
+					recipeWrapper, recipeCategory, this);
 		} else {
 			this.recipeTransferButton = null;
 			this.recipeFavoriteButton = null;
@@ -271,6 +271,13 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 
 	public boolean handleClick(Minecraft minecraft, int mouseX, int mouseY, int mouseButton) {
 		return recipeWrapper.handleClick(minecraft, mouseX - posX, mouseY - posY, mouseButton);
+	}
+
+	public boolean handleMouseScroll(int mouseX, int mouseY, int scrollAmount) {
+		if (recipeFavoriteButton == null) {
+			return false;
+		}
+		return recipeFavoriteButton.handleMouseScrolled(mouseX, mouseY, scrollAmount);
 	}
 
 	@Override
