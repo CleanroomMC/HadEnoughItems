@@ -110,7 +110,8 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			this.recipeTransferButton = new RecipeTransferButton(recipeTransferButtonIndex + index, 0, 0, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, transferIcon, this);
 			IDrawable favoriteOff = Internal.getHelpers().getGuiHelper().getFavoriteDisabled();
 			IDrawable favoriteOn = Internal.getHelpers().getGuiHelper().getFavoriteEnabled();
-			this.recipeFavoriteButton = new RecipeFavoriteButton(favoriteButtonIndex + index, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, favoriteOff, favoriteOn, recipeWrapper);
+			this.recipeFavoriteButton = new RecipeFavoriteButton(favoriteButtonIndex + index, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, favoriteOff, favoriteOn,
+					recipeWrapper, recipeCategory);
 		} else {
 			this.recipeTransferButton = null;
 			this.recipeFavoriteButton = null;
