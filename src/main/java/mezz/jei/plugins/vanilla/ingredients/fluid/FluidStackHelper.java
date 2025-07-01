@@ -3,7 +3,10 @@ package mezz.jei.plugins.vanilla.ingredients.fluid;
 import javax.annotation.Nullable;
 import java.awt.Color;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import mezz.jei.Internal;
 import mezz.jei.config.Config;
 import net.minecraftforge.fluids.Fluid;
@@ -22,6 +25,8 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 public class FluidStackHelper implements IIngredientHelper<FluidStack> {
+	private final Map<FluidStack, Integer> hashCache = new Object2IntOpenHashMap<>();
+
 
 	@Override
 	@Nullable
@@ -48,6 +53,19 @@ public class FluidStackHelper implements IIngredientHelper<FluidStack> {
 			uniqueId.append(subtype);
 		}
 		return uniqueId.toString();
+	}
+
+	@Override
+	public int getHash(FluidStack ingredient) {
+		if (ingredient.amount == 0) {
+			return 0;
+		}
+		if (hashCache.containsKey(ingredient)) {
+			return hashCache.get(ingredient);
+		}
+		int hash = Objects.hash(ingredient.getFluid().getName(), ingredient.amount, ingredient.tag);
+		hashCache.put(ingredient, hash);
+		return hash;
 	}
 
 	@Override

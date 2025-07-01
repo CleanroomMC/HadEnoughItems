@@ -64,6 +64,8 @@ public final class Config {
 	private static LocalizedConfiguration searchColorsConfig;
 	@Nullable
 	private static File bookmarkFile;
+	@Nullable
+	private static File favoriteFile;
 
 	private static final ConfigValues defaultValues = new ConfigValues();
 	private static final ConfigValues values = new ConfigValues();
@@ -350,6 +352,11 @@ public final class Config {
 		return bookmarkFile;
 	}
 
+	@Nullable
+	public static File getFavoriteFile() {
+		return favoriteFile;
+	}
+
 	public static void preInit(FMLPreInitializationEvent event) {
 
 		File jeiConfigurationDir = new File(event.getModConfigurationDirectory(), Constants.MOD_ID);
@@ -378,6 +385,8 @@ public final class Config {
 				return;
 			}
 		}
+
+		favoriteFile = new File("./", "hei_favorites.ini");
 
 		final File configFile = new File(jeiConfigurationDir, "jei.cfg");
 		final File itemBlacklistConfigFile = new File(jeiConfigurationDir, "itemBlacklist.cfg");

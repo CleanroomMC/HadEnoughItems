@@ -41,6 +41,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	private static final int RECIPE_BUTTON_SIZE = 13;
 	private static final int RECIPE_BORDER_PADDING = 4;
 	public static final int recipeTransferButtonIndex = 100;
+	public static final int favoriteButtonIndex = 50; // There shouldn't be more than 50 recipes on a page.
 
 	private final int ingredientCycleOffset = (int) ((Math.random() * 10000) % Integer.MAX_VALUE);
 	private final IRecipeCategory recipeCategory;
@@ -109,7 +110,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			this.recipeTransferButton = new RecipeTransferButton(recipeTransferButtonIndex + index, 0, 0, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, transferIcon, this);
 			IDrawable favoriteOff = Internal.getHelpers().getGuiHelper().getFavoriteDisabled();
 			IDrawable favoriteOn = Internal.getHelpers().getGuiHelper().getFavoriteEnabled();
-			this.recipeFavoriteButton = new RecipeFavoriteButton(favoriteOff, favoriteOn, this);
+			this.recipeFavoriteButton = new RecipeFavoriteButton(favoriteButtonIndex + index, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, favoriteOff, favoriteOn, recipeWrapper);
 		} else {
 			this.recipeTransferButton = null;
 			this.recipeFavoriteButton = null;
@@ -125,20 +126,16 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	public void setPosition(int posX, int posY) {
 		this.posX = posX;
 		this.posY = posY;
+		int width = recipeCategory.getBackground().getWidth();
+		int height = recipeCategory.getBackground().getHeight();
 
 		if (this.recipeTransferButton != null) {
-			int width = recipeCategory.getBackground().getWidth();
-			int height = recipeCategory.getBackground().getHeight();
 			this.recipeTransferButton.x = posX + width + RECIPE_BORDER_PADDING + 2;
 			this.recipeTransferButton.y = posY + height - RECIPE_BUTTON_SIZE;
 		}
 		if (this.recipeFavoriteButton != null) {
-			int width = recipeCategory.getBackground().getWidth();
-			int height = recipeCategory.getBackground().getHeight();
-			this.recipeFavoriteButton.updateBounds(new Rectangle(posX + width + RECIPE_BORDER_PADDING + 2,
-					posY + height - RECIPE_BUTTON_SIZE * 2 - RECIPE_BORDER_PADDING - 2,
-					RECIPE_BUTTON_SIZE,
-					RECIPE_BUTTON_SIZE));
+			this.recipeFavoriteButton.x = posX + width + RECIPE_BORDER_PADDING + 2;
+			this.recipeFavoriteButton.y = posY + height - RECIPE_BUTTON_SIZE * 2 - 2;
 		}
 	}
 
@@ -187,7 +184,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		}
 		if (recipeFavoriteButton != null) {
 			float partialTicks = minecraft.getRenderPartialTicks();
-			recipeFavoriteButton.draw(minecraft, mouseX, mouseY, partialTicks);
+			recipeFavoriteButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
 		}
 		GlStateManager.disableBlend();
 		GlStateManager.disableLighting();
@@ -214,7 +211,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			recipeTransferButton.drawToolTip(minecraft, mouseX, mouseY);
 		}
 		if (recipeFavoriteButton != null) {
-			recipeFavoriteButton.drawTooltips(minecraft, mouseX, mouseY);
+			recipeFavoriteButton.drawToolTip(minecraft, mouseX, mouseY);
 		}
 		GlStateManager.disableBlend();
 		GlStateManager.disableLighting();
@@ -246,7 +243,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		final Rectangle backgroundRect = new Rectangle(posX, posY, background.getWidth(), background.getHeight());
 		return backgroundRect.contains(mouseX, mouseY) ||
 			(recipeTransferButton != null && recipeTransferButton.isMouseOver()) ||
-				(recipeFavoriteButton != null && recipeFavoriteButton.isMouseOver(posX, posY));
+				(recipeFavoriteButton != null && recipeFavoriteButton.isMouseOver());
 	}
 
 	@Override
@@ -323,9 +320,8 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	@Override
 	public void setFavoriteButton(int posX, int posY) {
 		if (recipeFavoriteButton != null) {
-			recipeFavoriteButton.updateBounds(new Rectangle(posX + this.posX, posY + this.posY,
-					RECIPE_BUTTON_SIZE,
-					RECIPE_BUTTON_SIZE));
+			recipeFavoriteButton.x = posX + this.posX;
+			recipeFavoriteButton.y = posY + this.posY;
 		}
 	}
 

@@ -2,11 +2,9 @@ package mezz.jei.plugins.vanilla.ingredients.item;
 
 import javax.annotation.Nullable;
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -28,6 +26,7 @@ import mezz.jei.util.ErrorUtil;
 
 public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 	private final StackHelper stackHelper;
+	private final Map<ItemStack, Integer> hashCache = new Object2IntOpenHashMap<>();
 
 	public ItemStackHelper(StackHelper stackHelper) {
 		this.stackHelper = stackHelper;
@@ -70,6 +69,16 @@ public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 	public String getUniqueId(ItemStack ingredient) {
 		ErrorUtil.checkNotEmpty(ingredient);
 		return stackHelper.getUniqueIdentifierForStack(ingredient);
+	}
+
+	@Override
+	public int getHash(ItemStack ingredient) {
+		if (hashCache.containsKey(ingredient)) {
+			return hashCache.get(ingredient);
+		}
+		int hash = Objects.hash(ingredient.getItem(), ingredient.getCount(), ingredient.getItemDamage(), ingredient.getTagCompound());
+		hashCache.put(ingredient, hash);
+		return hash;
 	}
 
 	@Override

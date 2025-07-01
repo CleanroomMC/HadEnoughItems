@@ -6,6 +6,7 @@ import java.util.Map;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mezz.jei.Tags;
+import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.ingredients.*;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.LoggedTimer;
@@ -127,6 +128,10 @@ public class JeiStarter {
 		Internal.setInputHandler(inputHandler);
 
 		Config.checkForModNameFormatOverride();
+
+		timer.start("Building favorites");
+		FavoriteRecipes.load();
+		timer.stop();
 
 		started = true;
 		totalTime.stop();

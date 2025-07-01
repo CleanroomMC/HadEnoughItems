@@ -56,6 +56,10 @@ public abstract class GuiIconToggleButton {
 		}
 	}
 
+	public final GuiIconButton getInternalButton() {
+		return this.button;
+	}
+
 	protected abstract void getTooltips(List<String> tooltip);
 
 	protected abstract boolean isIconToggledOn();

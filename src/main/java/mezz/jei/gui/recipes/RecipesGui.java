@@ -493,7 +493,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 		recipeLayouts.clear();
 		recipeLayouts.addAll(logic.getRecipeLayouts(recipeXOffset, guiTop + headerHeight + recipeSpacing, spacingY));
-		addRecipeTransferButtons(mc, recipeLayouts);
+		addRecipeSpecificButtons(mc, recipeLayouts);
 
 		nextPage.enabled = previousPage.enabled = logic.hasMultiplePages();
 		nextRecipeCategory.enabled = previousRecipeCategory.enabled = logic.hasMultipleCategories();
@@ -505,7 +505,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		recipeGuiTabs.initLayout(this);
 	}
 
-	private void addRecipeTransferButtons(Minecraft minecraft, List<RecipeLayout> recipeLayouts) {
+	private void addRecipeSpecificButtons(Minecraft minecraft, List<RecipeLayout> recipeLayouts) {
 		buttonList.clear();
 		addButtons();
 
@@ -518,6 +518,11 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 				if (button != null) {
 					button.init(container, player);
 					buttonList.add(button);
+				}
+				RecipeFavoriteButton favoriteButton = recipeLayout.getRecipeFavoriteButton();
+				if (favoriteButton != null) {
+					favoriteButton.init(container, player);
+					buttonList.add(favoriteButton);
 				}
 			}
 		}

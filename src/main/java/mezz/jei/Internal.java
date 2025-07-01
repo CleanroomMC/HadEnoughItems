@@ -3,6 +3,7 @@ package mezz.jei;
 import javax.annotation.Nullable;
 
 import mezz.jei.api.ISubtypeRegistry;
+import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.runtime.SubtypeRegistry;
 import net.minecraftforge.common.MinecraftForge;
@@ -41,6 +42,8 @@ public final class Internal {
 	private static InputHandler inputHandler;
 	@Nullable
 	private static BookmarkList bookmarkList;
+	@Nullable
+	private static FavoriteRecipes favoriteRecipeList;
 
 	private Internal() {
 
@@ -147,5 +150,4 @@ public final class Internal {
 		Preconditions.checkState(bookmarkList != null, "Bookmark List has not been created yet.");
         return bookmarkList;
     }
-
 }
