@@ -178,3 +178,7 @@ hei.generic.ticks=%d Ticks
 
 hei.command.load_bookmarks.failure=Bookmark List not found, something went horribly wrong.
 hei.command.load_bookmarks.success=Loaded %d bookmarks.
+
+hei.tooltip.unfavorite=Remove this recipe from your favorites.
+hei.tooltip.favorite=Add this recipe to your favorites.
+hei.tooltip.favorite_scroll=Scroll to change the selected item.

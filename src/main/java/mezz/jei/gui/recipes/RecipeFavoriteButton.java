@@ -73,10 +73,11 @@ public class RecipeFavoriteButton extends GuiIconButton {
 
     protected void getTooltips(List<String> tooltip) {
         if (isIconToggledOn()) {
-            tooltip.add(Translator.translateToLocal("jei.tooltip.unfavorite"));
+            tooltip.add(Translator.translateToLocal("hei.tooltip.unfavorite"));
         } else {
-            tooltip.add(Translator.translateToLocal("jei.tooltip.favorite"));
+            tooltip.add(Translator.translateToLocal("hei.tooltip.favorite"));
         }
+        tooltip.add(Translator.translateToLocal("hei.tooltip.favorite_scroll"));
     }
 
     protected boolean isIconToggledOn() {
