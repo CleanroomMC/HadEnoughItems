@@ -103,7 +103,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		guiIngredientSlots.render(minecraft);
 
 		if (!shouldDeleteItemOnClick(minecraft, mouseX, mouseY) && isMouseOver(mouseX, mouseY)) {
-			IngredientRenderer hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
+			IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
 			if (hovered != null) {
 				hovered.drawHighlight();
 			}
@@ -118,7 +118,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 				String deleteItem = Translator.translateToLocal("jei.tooltip.delete.item");
 				TooltipRenderer.drawHoveringText(minecraft, deleteItem, mouseX, mouseY);
 			} else {
-				IngredientRenderer hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
+				IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
 				if (hovered != null) {
 					hovered.drawTooltip(minecraft, mouseX, mouseY);
 				}
@@ -179,8 +179,8 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 	}
 
 	@Nullable
-	public IIngredientListElement getElementUnderMouse() {
-		IngredientRenderer hovered = guiIngredientSlots.getHovered(MouseHelper.getX(), MouseHelper.getY());
+	public IIngredientListElement<?> getElementUnderMouse() {
+		IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(MouseHelper.getX(), MouseHelper.getY());
 		if (hovered != null) {
 			return hovered.getElement();
 		}

@@ -18,7 +18,6 @@ import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.elements.GuiIconToggleButton;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IngredientGrid;
-import mezz.jei.gui.overlay.IngredientGridWithNavigation;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.input.IClickedIngredient;
 import mezz.jei.input.IShowsRecipeFocuses;
@@ -32,7 +31,7 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 	private Rectangle displayArea = new Rectangle();
 
 	// display elements
-	private final IngredientGridWithNavigation contents;
+	private final BookmarkGridWithNavigation contents;
 	private final GuiIconToggleButton bookmarkButton;
 
 	// visibility
@@ -44,7 +43,7 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 	public BookmarkOverlay(BookmarkList bookmarkList, GuiHelper guiHelper, GuiScreenHelper guiScreenHelper) {
 		this.bookmarkList = bookmarkList;
 		this.bookmarkButton = BookmarkButton.create(this, bookmarkList, guiHelper);
-		this.contents = new IngredientGridWithNavigation(bookmarkList, guiScreenHelper, GridAlignment.RIGHT);
+		this.contents = new BookmarkGridWithNavigation(bookmarkList, guiScreenHelper, GridAlignment.RIGHT);
 		bookmarkList.addListener(() -> contents.updateLayout(false));
 	}
 

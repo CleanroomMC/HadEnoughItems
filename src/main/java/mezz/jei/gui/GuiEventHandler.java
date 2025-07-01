@@ -135,4 +135,10 @@ public class GuiEventHandler {
 			event.setCanceled(true);
 		}
 	}
+
+	@SubscribeEvent
+	public void onBookmarkUpdateEvent(BookmarkUpdateEvent event) {
+		GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+		leftAreaDispatcher.updateScreen(currentScreen, true);
+	}
 }
