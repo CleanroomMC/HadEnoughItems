@@ -15,6 +15,7 @@ public class BookmarkItem<I> {
 
     public I ingredient;
     public long amount = 0L;
+    public int group;
 
     public BookmarkItem(I ingredient) {
         this.ingredient = ingredient;

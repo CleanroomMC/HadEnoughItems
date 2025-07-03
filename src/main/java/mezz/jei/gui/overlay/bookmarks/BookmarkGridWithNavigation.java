@@ -2,12 +2,16 @@ package mezz.jei.gui.overlay.bookmarks;
 
 import mezz.jei.Internal;
 import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IIngredientGridSource;
-import mezz.jei.input.*;
+import mezz.jei.input.IClickedIngredient;
+import mezz.jei.input.IMouseHandler;
+import mezz.jei.input.IPaged;
+import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
@@ -49,7 +53,8 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         this.navigation.updatePageState();
     }
 
-    public boolean updateBounds(Rectangle availableArea, Set<Rectangle> guiExclusionAreas, int minWidth) {
+    public boolean updateBounds(Rectangle availableArea, Set<Rectangle> guiExclusionAreas,
+                                BookmarkList bookmarkList, int minWidth) {
         Rectangle estimatedNavigationArea = new Rectangle(
             availableArea.x,
             availableArea.y,
@@ -64,7 +69,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
             availableArea.width,
             availableArea.height - navigationMaxY
         );
-        boolean gridHasRoom = this.ingredientGrid.updateBounds(boundsWithoutNavigation, minWidth, guiExclusionAreas);
+        boolean gridHasRoom = this.ingredientGrid.updateBounds(boundsWithoutNavigation, minWidth, guiExclusionAreas, bookmarkList);
         if (!gridHasRoom) {
             return false;
         }

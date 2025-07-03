@@ -1,5 +1,6 @@
 package mezz.jei.gui.overlay.bookmarks;
 
+import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.BookmarkUpdateEvent;
 import mezz.jei.gui.overlay.GridAlignment;
@@ -28,8 +29,8 @@ public class BookmarkGrid extends IngredientGrid {
         MinecraftForge.EVENT_BUS.post(new BookmarkUpdateEvent());
     }
 
-    @Override
-    public boolean updateBounds(Rectangle availableArea, int minWidth, Collection<Rectangle> exclusionAreas) {
+    public boolean updateBounds(Rectangle availableArea, int minWidth, Collection<Rectangle> exclusionAreas,
+                                BookmarkList bookmarkList) {
         final int columns = Math.min(availableArea.width / INGREDIENT_WIDTH, Config.getMaxColumns());
         final int rows = availableArea.height / INGREDIENT_HEIGHT;
 

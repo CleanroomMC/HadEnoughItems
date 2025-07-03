@@ -1,27 +1,26 @@
 package mezz.jei.gui.overlay.bookmarks;
 
-import javax.annotation.Nullable;
-import java.awt.Rectangle;
-import java.util.Set;
-
 import mezz.jei.api.IBookmarkOverlay;
-import mezz.jei.gui.ingredients.IIngredientListElement;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.item.ItemStack;
-
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.elements.GuiIconToggleButton;
+import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IngredientGrid;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.input.IClickedIngredient;
 import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.util.CommandUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.item.ItemStack;
+
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.Set;
 
 public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, IBookmarkOverlay {
 	private static final int BUTTON_SIZE = 20;
@@ -99,7 +98,7 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 			displayArea.width,
 			displayArea.height - (BUTTON_SIZE + 4)
 		);
-		boolean contentsHasRoom = this.contents.updateBounds(availableContentsArea, guiExclusionAreas, minWidth);
+		boolean contentsHasRoom = this.contents.updateBounds(availableContentsArea, guiExclusionAreas, bookmarkList, minWidth);
 
 		// update area to match contents size
 		Rectangle contentsArea = this.contents.getArea();
