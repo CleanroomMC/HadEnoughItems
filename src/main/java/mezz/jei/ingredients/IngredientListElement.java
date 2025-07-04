@@ -1,14 +1,10 @@
 package mezz.jei.ingredients;
 
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.ImmutableSet;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
+import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.startup.IModIdHelper;
@@ -18,6 +14,14 @@ import mezz.jei.util.Log;
 import mezz.jei.util.StringUtil;
 import mezz.jei.util.Translator;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
+
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class IngredientListElement<V> implements IIngredientListElement<V> {
 	private static final Pattern SPACE_PATTERN = Pattern.compile("\\s");
@@ -181,6 +185,22 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 	@Override
 	public void setVisible(boolean visible) {
 		this.visible = visible;
+	}
+
+	@Override
+	public int getGroupIndex() {
+		if (ingredient instanceof BookmarkItem<?> && ((BookmarkItem<?>) ingredient).group != null) {
+			return ((BookmarkItem<?>) ingredient).group.id;
+		}
+		return 0;
+	}
+
+	@Override
+	public boolean startsNewRow() {
+		if (ingredient instanceof BookmarkItem) {
+			return ((BookmarkItem<?>) ingredient).startsNewRow();
+		}
+		return false;
 	}
 
 	@Override

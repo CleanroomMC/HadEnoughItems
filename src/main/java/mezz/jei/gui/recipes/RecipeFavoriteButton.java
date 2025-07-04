@@ -8,13 +8,17 @@ import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
+import mezz.jei.autocrafting.RecipeBookmarkGroup;
+import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
+import mezz.jei.bookmarks.BookmarkList;
+import mezz.jei.config.Config;
+import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.elements.GuiIconButton;
-import mezz.jei.ingredients.Ingredients;
-import mezz.jei.input.IMouseHandler;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -85,6 +89,18 @@ public class RecipeFavoriteButton extends GuiIconButton {
     }
 
     protected boolean onMouseClicked(Minecraft mc, int mouseX, int mouseY) {
+        if (Keyboard.isKeyDown(KeyBindings.bookmark.getKeyCode())) {
+            if (!Config.isBookmarkOverlayEnabled()) {
+                Config.toggleBookmarkEnabled();
+            }
+            BookmarkList bookmarkList = Internal.getBookmarkList();
+            RecipeBookmarkGroup group = new RecipeBookmarkGroup(bookmarkList.nextId());
+            RecipeBookmarkItem<?> recipeBookmarkItem = new RecipeBookmarkItem<>(supportedIngredients.get(selectedSlot).getDisplayedIngredient());
+            recipeBookmarkItem.populateWith(recipe);
+            group.addItem(recipeBookmarkItem);
+            group.update();
+            return bookmarkList.add(group);
+        }
         if (GuiScreen.isShiftKeyDown() && isIconToggledOn()) {
             FavoriteRecipes.removeFavorite(recipe);
             favoriteSlots.clear();

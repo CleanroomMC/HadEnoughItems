@@ -1,16 +1,16 @@
 package mezz.jei.ingredients;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.IIngredientType;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class Ingredients implements IIngredients {
 	private final Map<IIngredientType, List<List>> inputs = new Reference2ObjectOpenHashMap<>();

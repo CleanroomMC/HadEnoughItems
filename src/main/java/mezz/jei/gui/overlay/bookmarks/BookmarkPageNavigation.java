@@ -24,7 +24,10 @@ public class BookmarkPageNavigation {
         GuiHelper guiHelper = Internal.getHelpers().getGuiHelper();
         this.nextButton = new GuiIconButton(0, guiHelper.getArrowNext(), (mc, mouseX, mouseY) -> paged.nextPage());
         this.backButton = new GuiIconButton(1, guiHelper.getArrowPrevious(), (mc, mouseX, mouseY) -> paged.previousPage());
-        this.pageLabel = new GuiLabelButton(2, "", (mc, mouseX, mouseY) -> { this.pageCallback.run(); return true; });
+        this.pageLabel = new GuiLabelButton(2, "", (mc, mouseX, mouseY) -> {
+            this.pageCallback.run();
+            return true;
+        });
         this.hideOnSinglePage = hideOnSinglePage;
     }
 
@@ -39,7 +42,7 @@ public class BookmarkPageNavigation {
         int pagePadding = 8;
         this.pageLabel.x = area.x + buttonSize + pagePadding;
         this.pageLabel.y = area.y;
-        this.pageLabel.width = area.width - buttonSize*2 - pagePadding*2;
+        this.pageLabel.width = area.width - buttonSize * 2 - pagePadding * 2;
         this.pageLabel.height = buttonSize;
     }
 
@@ -59,14 +62,14 @@ public class BookmarkPageNavigation {
 
     public boolean isMouseOver() {
         return nextButton.isMouseOver() ||
-            backButton.isMouseOver() ||
-            pageLabel.isMouseOver();
+                backButton.isMouseOver() ||
+                pageLabel.isMouseOver();
     }
 
     public boolean handleMouseClickedButtons(int mouseX, int mouseY) {
         Minecraft minecraft = Minecraft.getMinecraft();
         return nextButton.mousePressed(minecraft, mouseX, mouseY) ||
-            backButton.mousePressed(minecraft, mouseX, mouseY) ||
-            pageLabel.mousePressed(minecraft, mouseX, mouseY);
+                backButton.mousePressed(minecraft, mouseX, mouseY) ||
+                pageLabel.mousePressed(minecraft, mouseX, mouseY);
     }
 }

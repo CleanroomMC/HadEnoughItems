@@ -98,7 +98,7 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 			displayArea.width,
 			displayArea.height - (BUTTON_SIZE + 4)
 		);
-		boolean contentsHasRoom = this.contents.updateBounds(availableContentsArea, guiExclusionAreas, bookmarkList, minWidth);
+		boolean contentsHasRoom = this.contents.updateBounds(availableContentsArea, guiExclusionAreas, minWidth);
 
 		// update area to match contents size
 		Rectangle contentsArea = this.contents.getArea();

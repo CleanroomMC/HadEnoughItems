@@ -15,7 +15,8 @@ public class BookmarkItem<I> {
 
     public I ingredient;
     public long amount = 0L;
-    public int group;
+    @Nullable
+    public BookmarkGroup group;
 
     public BookmarkItem(I ingredient) {
         this.ingredient = ingredient;
@@ -26,7 +27,7 @@ public class BookmarkItem<I> {
     }
 
     @Nullable
-    public IIngredientListElement<I> getListElement() {
+    public IIngredientListElement<I> getSavedElement() {
         IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
         IIngredientType<I> ingredientType = ingredientRegistry.getIngredientType(ingredient);
         return IngredientListElementFactory.createUnorderedElement(
@@ -36,7 +37,15 @@ public class BookmarkItem<I> {
             ForgeModIdHelper.getInstance());
     }
 
+    public int getGroupIndex() {
+        return group == null ? 0 : group.id;
+    }
+
     public void changeAmount(long delta) {
         this.amount = Math.max(0L, this.amount + delta);
+    }
+
+    public boolean startsNewRow() {
+        return false;
     }
 }

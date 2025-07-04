@@ -3,28 +3,29 @@ package mezz.jei.autocrafting;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.autocrafting.toposort.TopologicalSort;
-import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.util.Log;
 
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RecipeChain {
     // noinspection
-    public final MutableValueGraph<RecipeBookmarkItem<?>, Integer> graphStorage = ValueGraphBuilder.directed()
+    public final MutableValueGraph<RecipeBookmarkItem<?>, Long> graphStorage = ValueGraphBuilder.directed()
             .allowsSelfLoops(false)
             .nodeOrder(ElementOrder.unordered())
             .expectedNodeCount(128)
             .build();
 
-    public final List<RecipeBookmarkItem<?>> outputs;
+    public final Map<RecipeBookmarkItem<?>, List<RecipeBookmarkItem<?>>> secondaryOutputs = new Object2ObjectOpenHashMap<>();
 
-    public RecipeChain(RecipeBookmarkItem<?> output) {
-        this.outputs = new ObjectArrayList<>();
-        this.outputs.add(output);
-        expandNodeFirst(output);
+    private final List<RecipeBookmarkItem<?>> outputs  = new ObjectArrayList<>();
+
+    public RecipeChain() {
+
     }
 
     public void recheck() {
@@ -36,6 +37,12 @@ public class RecipeChain {
         this.outputs.forEach(this::expandNode);
     }
 
+    public void addOutput(RecipeBookmarkItem<?> recipeOutput) {
+        outputs.add(recipeOutput);
+        recipeOutput.selfOutputAmount = recipeOutput.outputAmount;
+        expandNode(recipeOutput);
+    }
+
     private void expandNodeFirst(RecipeBookmarkItem<?> requester) {
         if (!requester.isPopulated()) {
             requester.populateWithFavorite();
@@ -43,21 +50,25 @@ public class RecipeChain {
                 return;
             }
         }
-        for (Object input : requester.inputs.keySet()) {
-            RecipeBookmarkItem<?> needed = getRecipeOutput(input);
+        for (RecipeBookmarkItem<?> input : requester.inputs) {
+            // First, see if it's already in the graph under some alias.
+            RecipeBookmarkItem<?> needed = findOutputUsingAnAlias(input);
             // If it's already in the graph, it would have been populated if possible.
             if (needed == null) {
-                needed = new RecipeBookmarkItem<>(input);
-                requester.populateWithFavorite();
+                needed = new RecipeBookmarkItem<>(input.aliases); // Make a copy of the input; don't modify the original amounts!
+                needed.populateWithFavorite();
                 expandNodeFirst(needed);
 
-                BookmarkItem<?> possiblePrimaryOutput = findSameOutputRecipe(needed);
+                // Maybe this recipe is being used to make something else, so we should connect it to that.
+                RecipeBookmarkItem<?> possiblePrimaryOutput = findOutputWithSameRecipe(needed);
                 if (possiblePrimaryOutput != null) {
                     needed.secondaryTo = possiblePrimaryOutput;
+                    secondaryOutputs.computeIfAbsent(possiblePrimaryOutput, k -> new ObjectArrayList<>())
+                            .add(needed);
                 }
             }
             try {
-                graphStorage.putEdgeValue(requester, needed, requester.inputs.get(input));
+                graphStorage.putEdgeValue(requester, needed, input.amount);
             } catch (IllegalArgumentException e) {
                 Log.get().error("Failed to add edge from {} to {}.", requester, needed, e);
             }
@@ -72,21 +83,24 @@ public class RecipeChain {
         }
     }
 
-    public RecipeBookmarkItem<?> getRecipeOutput(Object output) {
+    public RecipeBookmarkItem<?> findOutputUsingAnAlias(RecipeBookmarkItem<?> output) {
         return graphStorage.nodes().stream()
-                .filter(node -> node.ingredient.equals(output))
+                .filter(node -> output.aliases.contains(node.ingredient))
                 .findFirst()
                 .orElse(null);
     }
 
-    public RecipeBookmarkItem<?> findSameOutputRecipe(RecipeBookmarkItem<?> output) {
+    public RecipeBookmarkItem<?> findOutputWithSameRecipe(RecipeBookmarkItem<?> output) {
         return graphStorage.nodes().stream()
-                .filter(node -> node.recipe.equals(output.recipe))
+                .filter(node -> node.recipe != null && node != output && node.recipe.equals(output.recipe))
                 .findFirst()
                 .orElse(null);
     }
 
-    public void update() {
+    public void calculateCrafting() {
+        for (RecipeBookmarkItem<?> node : graphStorage.nodes()) {
+            node.amount = node.selfOutputAmount;
+        }
         TopologicalSort.topologicalSort(graphStorage, (r, r1) -> {
             if (r.equals(r1.secondaryTo)) {
                 return 1;
@@ -94,10 +108,10 @@ public class RecipeChain {
                 return -1;
             }
             return 0; // Primary ordering still applies.
-        }).forEach(this::update);
+        }).forEach(this::calculateCrafting);
     }
 
-    public void update(RecipeBookmarkItem<?> needed) {
+    public void calculateCrafting(RecipeBookmarkItem<?> needed) {
         if (graphStorage.predecessors(needed).isEmpty())
             return;
         for (RecipeBookmarkItem<?> requester : graphStorage.predecessors(needed)) {
@@ -106,10 +120,39 @@ public class RecipeChain {
                 continue;
             }
             // Divide the amount of the item used in the recipe by how many of the requested item it produces (rounding up).
-            needed.amount += (graphStorage.edgeValue(requester, needed) + requester.outputAmount - 1) / requester.outputAmount;
+            needed.amount += (requester.amount * graphStorage.edgeValue(requester, needed) + requester.outputAmount - 1) / requester.outputAmount;
         }
         if (needed.secondaryTo != null) {
             needed.secondaryTo.amount = Math.max(needed.secondaryTo.amount, needed.amount);
+        }
+    }
+
+    public List<RecipeBookmarkItem<?>> getDisplayOutputs() {
+        // Sort the graph in topological order, and then resort it based on the recipe wrapper.
+        return TopologicalSort.topologicalSort(graphStorage, (r, r1) -> {
+            if (r.equals(r1.secondaryTo)) {
+                return 1;
+            } else if (r1.equals(r.secondaryTo)) {
+                return -1;
+            }
+            return 0; // Primary ordering still applies.
+        });
+    }
+
+    public void removeNode(RecipeBookmarkItem<?> node) {
+        graphStorage.removeNode(node);
+        outputs.remove(node);
+        List<RecipeBookmarkItem<?>> affectedSecondaries = secondaryOutputs.remove(node);
+        if (affectedSecondaries != null && !affectedSecondaries.isEmpty()) {
+            if (affectedSecondaries.size() == 1) {
+                affectedSecondaries.get(0).secondaryTo = null;
+            } else {
+                for (int i = 1; i < affectedSecondaries.size(); i++) {
+                    affectedSecondaries.get(i).secondaryTo = affectedSecondaries.get(0);
+                }
+                affectedSecondaries.remove(0);
+                secondaryOutputs.put(affectedSecondaries.get(0), affectedSecondaries);
+            }
         }
     }
 

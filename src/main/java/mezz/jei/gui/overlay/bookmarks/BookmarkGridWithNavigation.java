@@ -2,7 +2,6 @@ package mezz.jei.gui.overlay.bookmarks;
 
 import mezz.jei.Internal;
 import mezz.jei.bookmarks.BookmarkItem;
-import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -53,8 +52,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         this.navigation.updatePageState();
     }
 
-    public boolean updateBounds(Rectangle availableArea, Set<Rectangle> guiExclusionAreas,
-                                BookmarkList bookmarkList, int minWidth) {
+    public boolean updateBounds(Rectangle availableArea, Set<Rectangle> guiExclusionAreas, int minWidth) {
         Rectangle estimatedNavigationArea = new Rectangle(
             availableArea.x,
             availableArea.y,
@@ -69,7 +67,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
             availableArea.width,
             availableArea.height - navigationMaxY
         );
-        boolean gridHasRoom = this.ingredientGrid.updateBounds(boundsWithoutNavigation, minWidth, guiExclusionAreas, bookmarkList);
+        boolean gridHasRoom = this.ingredientGrid.updateBounds(boundsWithoutNavigation, minWidth, guiExclusionAreas);
         if (!gridHasRoom) {
             return false;
         }

@@ -1,6 +1,5 @@
 package mezz.jei.gui.overlay.bookmarks;
 
-import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.BookmarkUpdateEvent;
 import mezz.jei.gui.overlay.GridAlignment;
@@ -11,6 +10,8 @@ import mezz.jei.util.MathUtil;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.awt.*;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class BookmarkGrid extends IngredientGrid {
@@ -29,8 +30,7 @@ public class BookmarkGrid extends IngredientGrid {
         MinecraftForge.EVENT_BUS.post(new BookmarkUpdateEvent());
     }
 
-    public boolean updateBounds(Rectangle availableArea, int minWidth, Collection<Rectangle> exclusionAreas,
-                                BookmarkList bookmarkList) {
+    public boolean updateBounds(Rectangle availableArea, int minWidth, Collection<Rectangle> exclusionAreas) {
         final int columns = Math.min(availableArea.width / INGREDIENT_WIDTH, Config.getMaxColumns());
         final int rows = availableArea.height / INGREDIENT_HEIGHT;
 
@@ -53,27 +53,19 @@ public class BookmarkGrid extends IngredientGrid {
             return false;
         }
 
-        if (rowOrder) {
-            for (int row = 0; row < rows; row++) {
-                int y1 = y + (row * INGREDIENT_HEIGHT);
-                for (int column = 0; column < columns; column++) {
-                    int x1 = xOffset + (column * INGREDIENT_WIDTH);
-                    IngredientListSlot ingredientListSlot = new IngredientListSlot(x1, y1, INGREDIENT_PADDING);
-                    Rectangle stackArea = ingredientListSlot.getArea();
-                    final boolean blocked = MathUtil.intersects(exclusionAreas, stackArea);
-                    ingredientListSlot.setBlocked(blocked);
-                    this.guiIngredientSlots.add(ingredientListSlot);
-                }
-            }
-        } else {
-            for (int row = 0; row < rows; row++) {
-                int y1 = y + (row * INGREDIENT_HEIGHT);
-                IngredientListSlot ingredientListSlot = new IngredientListSlot(x, y1, INGREDIENT_PADDING);
+        for (int row = 0; row < rows; row++) {
+            int y1 = y + (row * INGREDIENT_HEIGHT);
+            List<IngredientListSlot> ingredientRow = new ArrayList<>();
+            for (int column = 0; column < columns; column++) {
+                int x1 = xOffset + (column * INGREDIENT_WIDTH);
+                IngredientListSlot ingredientListSlot = new IngredientListSlot(x1, y1, INGREDIENT_PADDING);
                 Rectangle stackArea = ingredientListSlot.getArea();
                 final boolean blocked = MathUtil.intersects(exclusionAreas, stackArea);
                 ingredientListSlot.setBlocked(blocked);
-                this.guiIngredientSlots.add(ingredientListSlot);
+                ingredientRow.add(ingredientListSlot);
             }
+            this.guiIngredientSlots.add(ingredientRow);
+
         }
         return true;
     }
