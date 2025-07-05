@@ -11,7 +11,6 @@ import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IngredientGrid;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.input.IClickedIngredient;
-import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.util.CommandUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -22,7 +21,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, IBookmarkOverlay {
+public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 	private static final int BUTTON_SIZE = 20;
 
 	// areas
@@ -39,11 +38,14 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 	// data
 	private final BookmarkList bookmarkList;
 
+
+
 	public BookmarkOverlay(BookmarkList bookmarkList, GuiHelper guiHelper, GuiScreenHelper guiScreenHelper) {
 		this.bookmarkList = bookmarkList;
 		this.bookmarkButton = BookmarkButton.create(this, bookmarkList, guiHelper);
 		this.contents = new BookmarkGridWithNavigation(bookmarkList, guiScreenHelper, GridAlignment.RIGHT);
 		bookmarkList.addListener(() -> contents.updateLayout(false));
+		bookmarkList.setGroupOrganizer(contents.getBookmarkGroupOrganizer());
 	}
 
 	public boolean isListDisplayed() {
@@ -181,6 +183,15 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 			if (elementUnderMouse != null) {
 				return elementUnderMouse.getIngredient();
 			}
+		}
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public IIngredientListElement getElementUnderMouse() {
+		if (isListDisplayed()) {
+			return this.contents.getElementUnderMouse();
 		}
 		return null;
 	}

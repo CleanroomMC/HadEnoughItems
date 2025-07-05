@@ -22,20 +22,23 @@ import java.util.Set;
 
 public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHandler, IGhostIngredientDragSource {
     private static final int NAVIGATION_HEIGHT = 20;
+    public static final int BOOKMARK_TAB_WIDTH = 10;
 
     private int firstItemIndex = 0;
     private final IPaged pageDelegate;
     private final BookmarkPageNavigation navigation;
+    private BookmarkGroupOrganizer groupOrganizer;
     private final GuiScreenHelper guiScreenHelper;
     private final BookmarkGrid ingredientGrid;
     private final IIngredientGridSource ingredientSource;
     private Rectangle area = new Rectangle();
 
     public BookmarkGridWithNavigation(IIngredientGridSource ingredientSource, GuiScreenHelper guiScreenHelper, GridAlignment alignment) {
-        this.ingredientGrid = new BookmarkGrid(alignment);
+        this.groupOrganizer = new BookmarkGroupOrganizer();
+        this.ingredientGrid = new BookmarkGrid(alignment, groupOrganizer);
         this.ingredientSource = ingredientSource;
         this.guiScreenHelper = guiScreenHelper;
-        this.pageDelegate = new BookmarkGridWithNavigation.IngredientGridPaged();
+        this.pageDelegate = new IngredientGridPaged();
         this.navigation = new BookmarkPageNavigation(this.pageDelegate, this.ingredientGrid::changeOrder, false);
     }
 
@@ -62,10 +65,16 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         Rectangle movedNavigationArea = MathUtil.moveDownToAvoidIntersection(guiExclusionAreas, estimatedNavigationArea);
         int navigationMaxY = movedNavigationArea.y + movedNavigationArea.height;
         Rectangle boundsWithoutNavigation = new Rectangle(
-            availableArea.x,
+            availableArea.x + BOOKMARK_TAB_WIDTH,
             navigationMaxY,
-            availableArea.width,
+            availableArea.width - BOOKMARK_TAB_WIDTH,
             availableArea.height - navigationMaxY
+        );
+        Rectangle groupOrganizerBounds = new Rectangle(
+                availableArea.x,
+                navigationMaxY,
+                availableArea.width,
+                availableArea.height - navigationMaxY
         );
         boolean gridHasRoom = this.ingredientGrid.updateBounds(boundsWithoutNavigation, minWidth, guiExclusionAreas);
         if (!gridHasRoom) {
@@ -74,6 +83,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         Rectangle displayArea = this.ingredientGrid.getArea();
         Rectangle navigationArea = new Rectangle(displayArea.x, movedNavigationArea.y, displayArea.width, NAVIGATION_HEIGHT);
         this.navigation.updateBounds(navigationArea);
+        this.groupOrganizer.updateBounds(groupOrganizerBounds);
         this.area = displayArea.union(navigationArea);
         return true;
     }
@@ -85,6 +95,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
     public void draw(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
         this.ingredientGrid.draw(minecraft, mouseX, mouseY);
         this.navigation.draw(minecraft, mouseX, mouseY, partialTicks);
+        this.groupOrganizer.draw(minecraft, mouseX, mouseY);
     }
 
     public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
@@ -142,6 +153,10 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
     @Override
     public boolean canSetFocusWithMouse() {
         return this.ingredientGrid.canSetFocusWithMouse();
+    }
+
+    public BookmarkGroupOrganizer getBookmarkGroupOrganizer() {
+        return groupOrganizer;
     }
 
     private class IngredientGridPaged implements IPaged {

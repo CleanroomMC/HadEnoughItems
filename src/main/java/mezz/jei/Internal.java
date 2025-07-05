@@ -1,14 +1,8 @@
 package mezz.jei;
 
-import javax.annotation.Nullable;
-
-import mezz.jei.api.ISubtypeRegistry;
-import mezz.jei.autocrafting.favorites.FavoriteRecipes;
-import mezz.jei.bookmarks.BookmarkList;
-import mezz.jei.runtime.SubtypeRegistry;
-import net.minecraftforge.common.MinecraftForge;
-
 import com.google.common.base.Preconditions;
+import mezz.jei.api.ISubtypeRegistry;
+import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.color.ColorNamer;
 import mezz.jei.gui.GuiEventHandler;
 import mezz.jei.ingredients.IngredientFilter;
@@ -16,7 +10,11 @@ import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.input.InputHandler;
 import mezz.jei.runtime.JeiHelpers;
 import mezz.jei.runtime.JeiRuntime;
+import mezz.jei.runtime.SubtypeRegistry;
 import mezz.jei.startup.StackHelper;
+import net.minecraftforge.common.MinecraftForge;
+
+import javax.annotation.Nullable;
 
 /**
  * For HEI internal use only, these are normally accessed from the API.
@@ -42,8 +40,6 @@ public final class Internal {
 	private static InputHandler inputHandler;
 	@Nullable
 	private static BookmarkList bookmarkList;
-	@Nullable
-	private static FavoriteRecipes favoriteRecipeList;
 
 	private Internal() {
 
@@ -140,6 +136,11 @@ public final class Internal {
 
 		Internal.inputHandler = inputHandler;
 		MinecraftForge.EVENT_BUS.register(inputHandler);
+	}
+
+	@Nullable
+	public static InputHandler getInputHandler() {
+		return inputHandler;
 	}
 
 	public static void setBookmarkList(BookmarkList bookmarkList) {

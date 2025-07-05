@@ -1,41 +1,43 @@
 package mezz.jei.startup;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import mezz.jei.Tags;
-import mezz.jei.autocrafting.favorites.FavoriteRecipes;
-import mezz.jei.ingredients.*;
-import mezz.jei.util.ErrorUtil;
-import mezz.jei.util.LoggedTimer;
-import net.minecraftforge.fml.common.ProgressManager;
-
 import mezz.jei.Internal;
+import mezz.jei.Tags;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.api.gui.IGlobalGuiHandler;
 import mezz.jei.api.gui.IGuiScreenHandler;
+import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiEventHandler;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.GuiScreenHelper;
+import mezz.jei.gui.ghost.GhostIngredientDragManager;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.gui.overlay.bookmarks.BookmarkOverlay;
 import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.gui.textures.Textures;
+import mezz.jei.ingredients.IngredientBlacklistInternal;
+import mezz.jei.ingredients.IngredientFilter;
+import mezz.jei.ingredients.IngredientListElementFactory;
+import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.input.InputHandler;
 import mezz.jei.plugins.vanilla.VanillaPlugin;
 import mezz.jei.recipes.RecipeRegistry;
 import mezz.jei.runtime.JeiHelpers;
 import mezz.jei.runtime.JeiRuntime;
 import mezz.jei.runtime.SubtypeRegistry;
+import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
+import mezz.jei.util.LoggedTimer;
+import net.minecraftforge.fml.common.ProgressManager;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class JeiStarter {
 	private boolean started;
@@ -107,6 +109,7 @@ public class JeiStarter {
 		Map<Class, IGuiScreenHandler> guiScreenHandlers = modRegistry.getGuiScreenHandlers();
 		Map<Class, IGhostIngredientHandler> ghostIngredientHandlers = modRegistry.getGhostIngredientHandlers();
 		GuiScreenHelper guiScreenHelper = new GuiScreenHelper(ingredientRegistry, globalGuiHandlers, advancedGuiHandlers, ghostIngredientHandlers, guiScreenHandlers);
+		GhostIngredientDragManager ghostIngredientDragManager = new GhostIngredientDragManager(guiScreenHelper, ingredientRegistry);
 		IngredientListOverlay ingredientListOverlay = new IngredientListOverlay(ingredientFilter, ingredientRegistry, guiScreenHelper);
 
 		BookmarkOverlay bookmarkOverlay = new BookmarkOverlay(bookmarkList, jeiHelpers.getGuiHelper(), guiScreenHelper);
@@ -122,9 +125,9 @@ public class JeiStarter {
 		LeftAreaDispatcher leftAreaDispatcher = new LeftAreaDispatcher(guiScreenHelper);
 		leftAreaDispatcher.addContent(bookmarkOverlay);
 
-		GuiEventHandler guiEventHandler = new GuiEventHandler(guiScreenHelper, leftAreaDispatcher, ingredientListOverlay, recipeRegistry);
+		GuiEventHandler guiEventHandler = new GuiEventHandler(guiScreenHelper, leftAreaDispatcher, ingredientListOverlay, recipeRegistry, ghostIngredientDragManager);
 		Internal.setGuiEventHandler(guiEventHandler);
-		InputHandler inputHandler = new InputHandler(jeiRuntime, ingredientRegistry, ingredientListOverlay, guiScreenHelper, leftAreaDispatcher, bookmarkList);
+		InputHandler inputHandler = new InputHandler(jeiRuntime, ingredientRegistry, ingredientListOverlay, guiScreenHelper, leftAreaDispatcher, bookmarkList, ghostIngredientDragManager);
 		Internal.setInputHandler(inputHandler);
 
 		Config.checkForModNameFormatOverride();

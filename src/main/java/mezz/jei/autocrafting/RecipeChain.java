@@ -24,8 +24,10 @@ public class RecipeChain {
 
     private final List<RecipeBookmarkItem<?>> outputs  = new ObjectArrayList<>();
 
-    public RecipeChain() {
+    private final RecipeBookmarkGroup group;
 
+    public RecipeChain(RecipeBookmarkGroup group) {
+        this.group = group;
     }
 
     public void recheck() {
@@ -56,6 +58,7 @@ public class RecipeChain {
             // If it's already in the graph, it would have been populated if possible.
             if (needed == null) {
                 needed = new RecipeBookmarkItem<>(input.aliases); // Make a copy of the input; don't modify the original amounts!
+                needed.group = group;
                 needed.populateWithFavorite();
                 expandNodeFirst(needed);
 

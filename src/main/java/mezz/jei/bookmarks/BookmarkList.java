@@ -6,9 +6,8 @@ import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.IIngredientGridSource;
-import mezz.jei.ingredients.IngredientListElementFactory;
+import mezz.jei.gui.overlay.bookmarks.BookmarkGroupOrganizer;
 import mezz.jei.ingredients.IngredientRegistry;
-import mezz.jei.startup.ForgeModIdHelper;
 import mezz.jei.util.LegacyUtil;
 import mezz.jei.util.Log;
 import net.minecraft.item.ItemStack;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
 public class BookmarkList implements IIngredientGridSource {
@@ -34,10 +34,10 @@ public class BookmarkList implements IIngredientGridSource {
     private static final String MARKER_STACK = "T:";
 
     private final List<BookmarkGroup> list = new LinkedList<>();
-    private final List<IIngredientListElement> ingredientListElements = new LinkedList<>();
     private final IngredientRegistry ingredientRegistry;
     private final List<IIngredientGridSource.Listener> listeners = new ArrayList<>();
     private int nextId = 0;
+    private BookmarkGroupOrganizer bookmarkGroupOrganizer;
 
     public BookmarkList(IngredientRegistry ingredientRegistry) {
         this.ingredientRegistry = ingredientRegistry;
@@ -49,9 +49,6 @@ public class BookmarkList implements IIngredientGridSource {
 
     public boolean add(BookmarkGroup group) {
         list.add(group);
-        for (BookmarkItem<?> item : group.getItems()) {
-            ingredientListElements.add(getIngredientListElement(item));
-        }
         notifyListenersOfChange();
         saveBookmarks();
         return true;
@@ -113,10 +110,8 @@ public class BookmarkList implements IIngredientGridSource {
     }
 
     public boolean remove(Object ingredient, boolean looseEqualCheck) {
-        int index = 0;
         for (BookmarkGroup group : list) {
             if (!group.acceptsChanges()) {
-                index += group.getItems().size();
                 continue;
             }
             for (int i = 0; i < group.getItems().size(); i++) {
@@ -125,28 +120,35 @@ public class BookmarkList implements IIngredientGridSource {
                     String id1 = ingredientRegistry.getIngredientHelper(ingredient).getUniqueId(ingredient);
                     String id2 = ingredientRegistry.getIngredientHelper(existing).getUniqueId(existing);
                     if (id1.equals(id2)) {
-                        group.getItems().remove(existing);
-                        ingredientListElements.remove(index);
-                        notifyListenersOfChange();
-                        saveBookmarks();
+                        removeItemFromGroup(group, existing);
                         return true;
                     }
                 }
                 if (ingredient == existing) {
-                    group.getItems().remove(existing);
-                    ingredientListElements.remove(index);
-                    notifyListenersOfChange();
-                    saveBookmarks();
+                    removeItemFromGroup(group, existing);
                     return true;
                 }
-                index++;
             }
         }
         return false;
     }
 
+    private void removeItemFromGroup(BookmarkGroup group, BookmarkItem<?> item) {
+        group.removeItem(item);
+        if (group.items.isEmpty() && !containsAnyAddableGroups()) {
+            list.remove(group);
+        }
+        notifyListenersOfChange();
+        saveBookmarks();
+    }
+
+    private boolean containsAnyAddableGroups() {
+        return this.list.stream().anyMatch(BookmarkGroup::acceptsChanges);
+    }
+
     public void saveBookmarks() {
         List<String> strings = new ArrayList<>();
+        List<IIngredientListElement> ingredientListElements = getIngredientList();
         for (IIngredientListElement<?> element : ingredientListElements) {
             BookmarkItem item = (BookmarkItem) element.getIngredient();
             if (item.ingredient instanceof ItemStack) {
@@ -190,7 +192,6 @@ public class BookmarkList implements IIngredientGridSource {
         otherIngredientTypes.remove(VanillaTypes.ITEM);
 
         list.clear();
-        ingredientListElements.clear();
         for (String ingredientJsonString : ingredientJsonStrings) {
             if (ingredientJsonString.startsWith(MARKER_STACK)) {
                 ParsedIngredient parsed = parseIngredientString(ingredientJsonString, MARKER_STACK);
@@ -224,6 +225,15 @@ public class BookmarkList implements IIngredientGridSource {
             }
         }
         notifyListenersOfChange();
+    }
+
+    public BookmarkGroup getBookmarkGroup(int id) {
+        for (BookmarkGroup group : list) {
+            if (group.id == id) {
+                return group;
+            }
+        }
+        return null;
     }
 
     private static class ParsedIngredient {
@@ -270,24 +280,7 @@ public class BookmarkList implements IIngredientGridSource {
     }
 
     private boolean addToLists(BookmarkItem<?> ingredient, boolean addToFront) { // false = stackT ingredient, boolean addToFront) {
-        IIngredientListElement element = getIngredientListElement(ingredient);
-        if (element != null) {
-            if (addToFront) {
-                getAddingGroup(true).addItem(ingredient, true);
-                ingredientListElements.add(0, element);
-            } else {
-                getAddingGroup(false).addItem(ingredient, false);
-                ingredientListElements.add(element);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    @Nullable
-    private IIngredientListElement getIngredientListElement(BookmarkItem<?> ingredient) {
-        IIngredientType ingredientType = ingredientRegistry.getIngredientType(ingredient);
-        return IngredientListElementFactory.createUnorderedElement(ingredientRegistry, ingredientType, ingredient, ForgeModIdHelper.getInstance());
+        return getAddingGroup(addToFront).addItem(ingredient, addToFront);
     }
 
     private BookmarkGroup getAddingGroup(boolean front) {
@@ -314,16 +307,18 @@ public class BookmarkList implements IIngredientGridSource {
 
     @Override
     public List<IIngredientListElement> getIngredientList() {
-        return ingredientListElements;
+        return this.list.stream()
+                .flatMap(group -> group.getIngredientListElements().stream())
+                .collect(Collectors.toList());
     }
 
     @Override
     public int size() {
-        return ingredientListElements.size();
+        return getIngredientList().size();
     }
 
     public boolean isEmpty() {
-        return ingredientListElements.isEmpty();
+        return getIngredientList().isEmpty();
     }
 
     @Override
@@ -331,7 +326,7 @@ public class BookmarkList implements IIngredientGridSource {
         listeners.add(listener);
     }
 
-    private void notifyListenersOfChange() {
+    public void notifyListenersOfChange() {
         for (IIngredientGridSource.Listener listener : listeners) {
             listener.onChange();
         }
@@ -339,5 +334,14 @@ public class BookmarkList implements IIngredientGridSource {
 
     public int nextId() {
         return nextId++;
+    }
+
+    @Nullable
+    public BookmarkGroupOrganizer getGroupOrganizer() {
+        return bookmarkGroupOrganizer;
+    }
+
+    public void setGroupOrganizer(BookmarkGroupOrganizer bookmarkGroupOrganizer) {
+        this.bookmarkGroupOrganizer = bookmarkGroupOrganizer;
     }
 }

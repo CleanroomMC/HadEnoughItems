@@ -3,6 +3,7 @@ package mezz.jei.bookmarks;
 import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.recipe.IIngredientType;
+import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.ingredients.IngredientRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -23,19 +24,28 @@ public class BookmarkItemRender implements IIngredientRenderer<BookmarkItem> {
             IIngredientType<Object> ingredientType = registry.getIngredientType(ingredient.ingredient);
             registry.getIngredientRenderer(ingredientType).render(minecraft, xPosition, yPosition, ingredient.ingredient);
 
-            if (ingredient.amount != 0L) {
-                String text = String.valueOf(ingredient.amount);
+            if (ingredient.getDisplayAmount() != 0L) {
+                String text = String.valueOf(ingredient.getDisplayAmount());
                 drawScaledText(
-                    text,
-                    new Rectangle(xPosition + 1, yPosition + 1, 12, 14),
-                    1f,
-                    0xFFFFFFFF,
-                    true);
+                        text,
+                        new Rectangle(xPosition + 1, yPosition + 1, 12, 14),
+                        1f,
+                        0xFFFFFFFF,
+                        true, true);
+            }
+            if (ingredient instanceof RecipeBookmarkItem && ((RecipeBookmarkItem<?>) ingredient).selfOutputAmount != 0L) {
+                String text = "x" + ((RecipeBookmarkItem<?>) ingredient).selfOutputAmount;
+                drawScaledText(
+                        text,
+                        new Rectangle(xPosition + 1, yPosition + 1, 12, 14),
+                        1f,
+                        0xBBBBBBBB,
+                        true, false);
             }
         }
     }
 
-    private static void drawScaledText(String text, Rectangle rect, float scale, int color, boolean shadow) {
+    private static void drawScaledText(String text, Rectangle rect, float scale, int color, boolean shadow, boolean isAmountText) {
         Minecraft mc = Minecraft.getMinecraft();
         @SuppressWarnings("ConstantConditions")
         float screenScale = mc.currentScreen.width * 1f / mc.displayWidth;
@@ -44,14 +54,11 @@ public class BookmarkItemRender implements IIngredientRenderer<BookmarkItem> {
         GlStateManager.disableDepth();
         {
             final int width = mc.fontRenderer.getStringWidth(text);
-            final float partW = rect.getWidth() / 2f;
-            final float partH = rect.getHeight() / 2f;
+            final int multiplier = isAmountText ? 1 : 0;
             final double offsetX = Math
-                .ceil(rect.getX() + partW + partW - (width / 2f) * textScale);
-            final double offsetY = Math.ceil(
-                rect.getY() + partH
-                    + partH
-                    - (mc.fontRenderer.FONT_HEIGHT / 2f) * textScale);
+                    .ceil(rect.getX() + (rect.getWidth() - (width / 2f) * textScale) * multiplier);
+            final double offsetY = Math.ceil(rect.getY() +
+                    (rect.getHeight() - (mc.fontRenderer.FONT_HEIGHT / 2f) * textScale) * multiplier);
 
             GL11.glTranslated(offsetX, offsetY, 0);
             GL11.glScaled(textScale, textScale, 1);

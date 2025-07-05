@@ -13,12 +13,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
+    // How much of this item is produced by its recipe.
     public long outputAmount = 0L;
+    // How much of this item the player requested apart from the recipe chain.
     public long selfOutputAmount = 0L;
     public IRecipeWrapper recipe;
     public List<RecipeBookmarkItem<?>> inputs;
     public BookmarkItem<?> secondaryTo;
-    public RecipeChain chain;
     // These are possible ingredients, which are helpful for OreDictionary.
     public List<I> aliases;
 
@@ -112,7 +113,18 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     }
 
     public List<DummyBookmarkItem<?>> getInputs() {
-        long multiplier = (amount + outputAmount - 1) / outputAmount;
-        return inputs.stream().map((input) -> new DummyBookmarkItem<>(input.aliases.get(0), group, input.amount * multiplier)).collect(Collectors.toList());
+        return inputs.stream().map((input) -> new DummyBookmarkItem<>(input.aliases.get(0), group, () -> input.amount * getMultiplier())).collect(Collectors.toList());
+    }
+
+    private long getMultiplier() {
+        return (amount + outputAmount - 1) / outputAmount;
+    }
+
+    @Override
+    public void changeAmount(long delta) {
+        this.selfOutputAmount = Math.max(0L, this.selfOutputAmount + delta);
+        if (this.group instanceof RecipeBookmarkGroup) {
+            ((RecipeBookmarkGroup) this.group).update();
+        }
     }
 }

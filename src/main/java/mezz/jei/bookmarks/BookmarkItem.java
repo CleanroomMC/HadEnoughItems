@@ -48,4 +48,8 @@ public class BookmarkItem<I> {
     public boolean startsNewRow() {
         return false;
     }
+
+    public long getDisplayAmount() {
+        return amount;
+    }
 }

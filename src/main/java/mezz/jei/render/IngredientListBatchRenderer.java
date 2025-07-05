@@ -25,16 +25,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class IngredientListBatchRenderer {
-    private final List<List<IngredientListSlot>> slots = new ObjectArrayList<>();
+    protected final List<List<IngredientListSlot>> slots = new ObjectArrayList<>();
 
-    private final List<ItemStackFastRenderer> renderItems2d = new ArrayList<>();
-    private final List<ItemStackFastRenderer> renderItems3d = new ArrayList<>();
-    private final List<IngredientRenderer> renderOther = new ArrayList<>();
+    protected final List<ItemStackFastRenderer> renderItems2d = new ArrayList<>();
+    protected final List<ItemStackFastRenderer> renderItems3d = new ArrayList<>();
+    protected final List<IngredientRenderer> renderOther = new ArrayList<>();
 
     @Nullable
     private Framebuffer framebuffer = null;
     private boolean refreshBuffer = true;
-    private int size = 0;
+    protected int size = 0;
 
     public void clear() {
         slots.clear();
@@ -70,7 +70,6 @@ public class IngredientListBatchRenderer {
             }
         }
 
-        int currentGroup = -1;
         int i = startIndex;
         for (List<IngredientListSlot> row : slots) {
             for (int column = 0; column < row.size(); column++) {
@@ -78,15 +77,6 @@ public class IngredientListBatchRenderer {
                     break;
                 }
                 IIngredientListElement<?> element = ingredientList.get(i);
-                if (currentGroup == -1) {
-                    currentGroup = element.getGroupIndex();
-                }
-                if (element.getGroupIndex() != currentGroup || element.startsNewRow()) {
-                    currentGroup = element.getGroupIndex();
-                    if (column > 0) {
-                        break;
-                    }
-                }
                 IngredientListSlot ingredientListSlot = row.get(column);
                 if (ingredientListSlot.isBlocked()) {
                     continue;
@@ -104,7 +94,7 @@ public class IngredientListBatchRenderer {
         refreshBuffer = true;
     }
 
-    private <V> void set(IngredientListSlot ingredientListSlot, IIngredientListElement<V> element) {
+    protected <V> void set(IngredientListSlot ingredientListSlot, IIngredientListElement<V> element) {
         V ingredient = element.getIngredient();
         if (ingredient instanceof ItemStack) {
             //noinspection unchecked
@@ -149,7 +139,6 @@ public class IngredientListBatchRenderer {
 
     @Nullable
     public IngredientRenderer getHovered(int mouseX, int mouseY) {
-        // Leaving this syntax in for the sake of learning :halo:
         for (List<IngredientListSlot> row : slots)
             for (IngredientListSlot slot : row)
                 if (slot.isMouseOver(mouseX, mouseY))

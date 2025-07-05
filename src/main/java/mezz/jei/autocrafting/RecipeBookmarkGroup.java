@@ -2,24 +2,29 @@ package mezz.jei.autocrafting;
 
 import mezz.jei.bookmarks.BookmarkGroup;
 import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.gui.ingredients.IIngredientListElement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class RecipeBookmarkGroup extends BookmarkGroup {
-    private final RecipeChain chain = new RecipeChain();
+    private final RecipeChain chain = new RecipeChain(this);
 
     public RecipeBookmarkGroup(int id) {
         super(id);
     }
 
-    public boolean addItem(BookmarkItem<?> item) {
+    protected void addItemInternal(BookmarkItem<?> item) {
+        super.addItemInternal(item);
         if (item instanceof RecipeBookmarkItem) {
-            RecipeBookmarkItem<?> recipeBookmarkItem = (RecipeBookmarkItem<?>) item;
-            chain.addOutput(recipeBookmarkItem);
-            super.addItem(item);
+            chain.addOutput((RecipeBookmarkItem<?>) item);
         }
-        return false;
+    }
+
+    public boolean canAddItem(BookmarkItem<?> item) {
+        return item instanceof RecipeBookmarkItem;
     }
 
     @Override
@@ -37,6 +42,10 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
         return list;
     }
 
+    public List<IIngredientListElement<?>> getIngredientListElements() {
+        return getItems().stream().map(this::getIngredientListElement).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
     @Override
     public boolean acceptsChanges() {
         return false;
@@ -45,5 +54,11 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
     public void update() {
         chain.recheck();
         chain.calculateCrafting();
+    }
+
+
+
+    public int getColor() {
+        return 0x9F00FF00;
     }
 }

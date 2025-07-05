@@ -44,9 +44,9 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 	private Rectangle area = new Rectangle();
 	protected final IngredientListBatchRenderer guiIngredientSlots;
 
-	public IngredientGrid(GridAlignment alignment) {
+	public IngredientGrid(IngredientListBatchRenderer guiIngredientSlots, GridAlignment alignment) {
 		this.alignment = alignment;
-		this.guiIngredientSlots = new IngredientListBatchRenderer();
+		this.guiIngredientSlots = guiIngredientSlots;
 	}
 
 	public int size() {

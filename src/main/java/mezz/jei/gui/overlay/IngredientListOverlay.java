@@ -1,17 +1,5 @@
 package mezz.jei.gui.overlay;
 
-import javax.annotation.Nullable;
-import java.awt.Rectangle;
-import java.util.List;
-import java.util.Set;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.item.ItemStack;
-
 import com.google.common.collect.ImmutableList;
 import mezz.jei.api.IIngredientListOverlay;
 import mezz.jei.api.gui.IGuiProperties;
@@ -19,7 +7,7 @@ import mezz.jei.config.Config;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.elements.GuiIconToggleButton;
-import mezz.jei.gui.ghost.GhostIngredientDragManager;
+import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.ingredients.IngredientFilter;
@@ -30,8 +18,18 @@ import mezz.jei.input.IMouseHandler;
 import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.util.CommandUtil;
 import mezz.jei.util.Log;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.item.ItemStack;
 
-public class IngredientListOverlay implements IIngredientListOverlay, IMouseHandler, IShowsRecipeFocuses {
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.List;
+import java.util.Set;
+
+public class IngredientListOverlay implements IIngredientListOverlay, IMouseHandler, IShowsRecipeFocuses, IGhostIngredientDragSource {
 	private static final int BORDER_PADDING = 2;
 	private static final int BUTTON_SIZE = 20;
 	private static final int SEARCH_HEIGHT = 20;
@@ -47,7 +45,6 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	private final IngredientGridWithNavigation contents;
 	private final GuiScreenHelper guiScreenHelper;
 	private final GuiTextFieldFilter searchField;
-	private final GhostIngredientDragManager ghostIngredientDragManager;
 	private Rectangle displayArea = new Rectangle();
 
 	// properties of the gui we're beside
@@ -62,7 +59,6 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 		ingredientFilter.addListener(() -> onSetFilterText(Config.getFilterText()));
 		this.searchField = new GuiTextFieldFilter(0, ingredientFilter);
 		this.configButton = ConfigButton.create(this);
-		this.ghostIngredientDragManager = new GhostIngredientDragManager(this.contents, guiScreenHelper, ingredientRegistry);
 		this.setKeyboardFocus(false);
 	}
 
@@ -97,7 +93,6 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 			if (this.guiProperties != null) {
 				this.guiProperties = null;
 				setKeyboardFocus(false);
-				this.ghostIngredientDragManager.stopDrag();
 			}
 		} else {
 			if (forceUpdate || this.guiProperties == null || !GuiProperties.areEqual(this.guiProperties, guiProperties)) {
@@ -199,7 +194,6 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
 		if (isListDisplayed()) {
 			this.configButton.drawTooltips(minecraft, mouseX, mouseY);
-			this.ghostIngredientDragManager.drawTooltips(minecraft, mouseX, mouseY);
 			this.contents.drawTooltips(minecraft, mouseX, mouseY);
 		} else if (this.guiProperties != null) {
 			this.configButton.drawTooltips(minecraft, mouseX, mouseY);
@@ -207,12 +201,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	}
 
 	public void drawOnForeground(Minecraft minecraft, GuiContainer gui, int mouseX, int mouseY) {
-		if (isListDisplayed()) {
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(-gui.getGuiLeft(), -gui.getGuiTop(), 0);
-			this.ghostIngredientDragManager.drawOnForeground(minecraft, mouseX, mouseY);
-			GlStateManager.popMatrix();
-		}
+
 	}
 
 	public void handleTick() {
@@ -255,10 +244,6 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	@Override
 	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
 		if (isListDisplayed()) {
-			if (this.ghostIngredientDragManager.handleMouseClicked(mouseX, mouseY)) {
-				return true;
-			}
-
 			if (this.configButton.handleMouseClick(mouseX, mouseY)) {
 				return true;
 			}
@@ -300,13 +285,6 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 						}
 						clicked.onClickHandled();
 						return true;
-					}
-					EntityPlayerSP player = minecraft.player;
-					if (player != null) {
-						ItemStack mouseItem = player.inventory.getItemStack();
-						if (mouseItem.isEmpty() && this.ghostIngredientDragManager.handleClickGhostIngredient(currentScreen, clicked)) {
-							return true;
-						}
 					}
 				}
 			}
@@ -397,4 +375,9 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 		return ImmutableList.of();
 	}
 
+	@Override
+	@Nullable
+	public IIngredientListElement getElementUnderMouse() {
+		return this.contents.getElementUnderMouse();
+	}
 }
