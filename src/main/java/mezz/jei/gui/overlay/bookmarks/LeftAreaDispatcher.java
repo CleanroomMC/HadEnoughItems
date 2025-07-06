@@ -194,4 +194,8 @@ public class LeftAreaDispatcher implements IShowsRecipeFocuses, IGhostIngredient
 	public IIngredientListElement<?> getElementUnderMouse() {
 		return contents.get(current).getElementUnderMouse();
 	}
+
+	public boolean onKeyPressed(char typedChar, int eventKey) {
+		return contents.get(current).onKeyPressed(typedChar, eventKey);
+	}
 }

@@ -7,16 +7,19 @@ import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IIngredientGridSource;
+import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
 import mezz.jei.input.IClickedIngredient;
 import mezz.jei.input.IMouseHandler;
 import mezz.jei.input.IPaged;
 import mezz.jei.input.IShowsRecipeFocuses;
+import mezz.jei.render.BookmarkListBatchRenderer;
 import mezz.jei.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -26,20 +29,22 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 
     private int firstItemIndex = 0;
     private final IPaged pageDelegate;
+    private List<Integer> pageBoundaries;
     private final BookmarkPageNavigation navigation;
+
     private BookmarkGroupOrganizer groupOrganizer;
     private final GuiScreenHelper guiScreenHelper;
-    private final BookmarkGrid ingredientGrid;
+    private final BookmarkGrid bookmarkGrid;
     private final IIngredientGridSource ingredientSource;
     private Rectangle area = new Rectangle();
 
     public BookmarkGridWithNavigation(IIngredientGridSource ingredientSource, GuiScreenHelper guiScreenHelper, GridAlignment alignment) {
         this.groupOrganizer = new BookmarkGroupOrganizer();
-        this.ingredientGrid = new BookmarkGrid(alignment, groupOrganizer);
+        this.bookmarkGrid = new BookmarkGrid(alignment, groupOrganizer);
         this.ingredientSource = ingredientSource;
         this.guiScreenHelper = guiScreenHelper;
-        this.pageDelegate = new IngredientGridPaged();
-        this.navigation = new BookmarkPageNavigation(this.pageDelegate, this.ingredientGrid::changeOrder, false);
+        this.pageDelegate = new BookmarkGridPaged();
+        this.navigation = new BookmarkPageNavigation(this.pageDelegate, false);
     }
 
     public void updateLayout(boolean resetToFirstPage) {
@@ -51,7 +56,8 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         if (firstItemIndex >= ingredientList.size()) {
             firstItemIndex = 0;
         }
-        this.ingredientGrid.getGuiIngredientSlots().set(firstItemIndex, ingredientList);
+        this.bookmarkGrid.getGuiIngredientSlots().set(firstItemIndex, ingredientList);
+        this.pageBoundaries = ((BookmarkListBatchRenderer) this.bookmarkGrid.getGuiIngredientSlots()).sizePages(ingredientList);
         this.navigation.updatePageState();
     }
 
@@ -76,11 +82,11 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
                 availableArea.width,
                 availableArea.height - navigationMaxY
         );
-        boolean gridHasRoom = this.ingredientGrid.updateBounds(boundsWithoutNavigation, minWidth, guiExclusionAreas);
+        boolean gridHasRoom = this.bookmarkGrid.updateBounds(boundsWithoutNavigation, minWidth, guiExclusionAreas);
         if (!gridHasRoom) {
             return false;
         }
-        Rectangle displayArea = this.ingredientGrid.getArea();
+        Rectangle displayArea = this.bookmarkGrid.getArea();
         Rectangle navigationArea = new Rectangle(displayArea.x, movedNavigationArea.y, displayArea.width, NAVIGATION_HEIGHT);
         this.navigation.updateBounds(navigationArea);
         this.groupOrganizer.updateBounds(groupOrganizerBounds);
@@ -93,14 +99,15 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
     }
 
     public void draw(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
-        this.ingredientGrid.draw(minecraft, mouseX, mouseY);
+        this.bookmarkGrid.draw(minecraft, mouseX, mouseY);
         this.navigation.draw(minecraft, mouseX, mouseY, partialTicks);
         this.groupOrganizer.draw(minecraft, mouseX, mouseY);
     }
 
     public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
         if (!this.guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY)) {
-            this.ingredientGrid.drawTooltips(minecraft, mouseX, mouseY);
+            this.bookmarkGrid.drawTooltips(minecraft, mouseX, mouseY);
+            this.groupOrganizer.drawTooltips(minecraft, mouseX, mouseY);
         }
     }
 
@@ -113,7 +120,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
     @Override
     public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
         return !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY) &&
-            (this.ingredientGrid.handleMouseClicked(mouseX, mouseY) ||
+            (this.bookmarkGrid.handleMouseClicked(mouseX, mouseY) ||
                 this.navigation.handleMouseClickedButtons(mouseX, mouseY));
     }
 
@@ -140,65 +147,46 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
     @Nullable
     @Override
     public IClickedIngredient<?> getIngredientUnderMouse(int mouseX, int mouseY) {
-        return this.ingredientGrid.getIngredientUnderMouse(mouseX, mouseY);
+        return this.bookmarkGrid.getIngredientUnderMouse(mouseX, mouseY);
     }
 
     @SuppressWarnings("rawtypes")
     @Nullable
     @Override
     public IIngredientListElement getElementUnderMouse() {
-        return this.ingredientGrid.getElementUnderMouse();
+        return this.bookmarkGrid.getElementUnderMouse();
     }
 
     @Override
     public boolean canSetFocusWithMouse() {
-        return this.ingredientGrid.canSetFocusWithMouse();
+        return this.bookmarkGrid.canSetFocusWithMouse();
     }
 
     public BookmarkGroupOrganizer getBookmarkGroupOrganizer() {
         return groupOrganizer;
     }
 
-    private class IngredientGridPaged implements IPaged {
+    private class BookmarkGridPaged implements IPaged {
         @Override
         public boolean nextPage() {
-            final int itemsCount = ingredientSource.size();
-            if (itemsCount > 0) {
-                firstItemIndex += ingredientGrid.size();
-                if (firstItemIndex >= itemsCount) {
-                    firstItemIndex = 0;
-                }
-                updateLayout(false);
-                return true;
-            } else {
-                firstItemIndex = 0;
+            int pageNum = getPageNumber();
+            if (pageNum == getPageCount() - 1) {
                 updateLayout(false);
                 return false;
             }
+            firstItemIndex = pageBoundaries.get(pageNum + 1);
+            updateLayout(false);
+            return true;
         }
 
         @Override
         public boolean previousPage() {
-            final int itemsPerPage = ingredientGrid.size();
-            if (itemsPerPage == 0) {
-                firstItemIndex = 0;
-                updateLayout(false);
+            int pageNum = getPageNumber();
+            if (pageNum == 0) {
+                updateLayout(true);
                 return false;
             }
-            final int itemsCount = ingredientSource.size();
-
-            int pageNum = firstItemIndex / itemsPerPage;
-            if (pageNum == 0) {
-                pageNum = itemsCount / itemsPerPage;
-            } else {
-                pageNum--;
-            }
-
-            firstItemIndex = itemsPerPage * pageNum;
-            if (firstItemIndex > 0 && firstItemIndex == itemsCount) {
-                pageNum--;
-                firstItemIndex = itemsPerPage * pageNum;
-            }
+            firstItemIndex = pageBoundaries.get(pageNum - 1);
             updateLayout(false);
             return true;
         }
@@ -206,36 +194,36 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         @Override
         public boolean hasNext() {
             // true if there is more than one page because this wraps around
-            int itemsPerPage = ingredientGrid.size();
-            return itemsPerPage > 0 && ingredientSource.size() > itemsPerPage;
+            return getPageNumber() < getPageCount() - 1;
         }
 
         @Override
         public boolean hasPrevious() {
             // true if there is more than one page because this wraps around
-            int itemsPerPage = ingredientGrid.size();
-            return itemsPerPage > 0 && ingredientSource.size() > itemsPerPage;
+            return getPageNumber() > 0;
         }
 
         @Override
         public int getPageCount() {
-            final int itemCount = ingredientSource.size();
-            final int stacksPerPage = ingredientGrid.size();
-            if (stacksPerPage == 0) {
-                return 1;
-            }
-            int pageCount = MathUtil.divideCeil(itemCount, stacksPerPage);
-            pageCount = Math.max(1, pageCount);
-            return pageCount;
+            return pageBoundaries.size();
         }
 
         @Override
         public int getPageNumber() {
-            final int stacksPerPage = ingredientGrid.size();
-            if (stacksPerPage == 0) {
+            if (pageBoundaries.isEmpty()) {
+                firstItemIndex = 0;
                 return 0;
             }
-            return firstItemIndex / stacksPerPage;
+            // Binary search on page boundaries to find the index of the page boundary that is closest to firstItemIndex without going over it
+            int index = Collections.binarySearch(pageBoundaries, firstItemIndex);
+            if (index < 0) { // This is just how Collections.binarySearch returns if it doesn't find an exact match
+                index = -index - 1;
+                if (index == pageBoundaries.size()) { // And here's what it does if it's larger than everything in it.
+                    index--;
+                }
+            }
+            firstItemIndex = pageBoundaries.get(index); // This side effect is fine.
+            return index;
         }
     }
 }

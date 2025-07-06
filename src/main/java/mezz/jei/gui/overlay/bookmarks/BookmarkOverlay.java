@@ -175,6 +175,11 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 		return false;
 	}
 
+	@Override
+	public boolean onKeyPressed(char typedChar, int eventKey) {
+		return isListDisplayed() && this.contents.getBookmarkGroupOrganizer().onKeyPressed(typedChar, eventKey);
+	}
+
 	@Nullable
 	@Override
 	public Object getIngredientUnderMouse() {

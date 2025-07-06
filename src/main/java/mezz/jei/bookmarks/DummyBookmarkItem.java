@@ -3,7 +3,7 @@ package mezz.jei.bookmarks;
 import java.util.function.Supplier;
 
 public class DummyBookmarkItem<I> extends BookmarkItem<I> {
-    private Supplier<Long> displayAmountSupplier;
+    private final Supplier<Long> displayAmountSupplier;
     public DummyBookmarkItem(I ingredient, BookmarkGroup group, Supplier<Long> displayAmountSupplier) {
         super(ingredient);
         this.group = group;
@@ -17,7 +17,7 @@ public class DummyBookmarkItem<I> extends BookmarkItem<I> {
 
     @Override
     public void changeAmount(long delta) {
-
+        // It would be rather weird to change the amount of a dummy item in a recipe...
     }
 
     @Override

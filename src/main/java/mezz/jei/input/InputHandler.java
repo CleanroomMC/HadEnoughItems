@@ -270,6 +270,10 @@ public class InputHandler {
             }
         }
 
+        if (leftAreaDispatcher.onKeyPressed(typedChar, eventKey)) {
+            return true;
+        }
+
         if (handleGlobalKeybinds(eventKey)) {
             return true;
         }

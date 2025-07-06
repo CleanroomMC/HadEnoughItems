@@ -12,22 +12,17 @@ import java.awt.*;
 
 public class BookmarkPageNavigation {
     private final IPaged paged;
-    private final Runnable pageCallback;
     private final GuiButton nextButton;
     private final GuiButton backButton;
     private final GuiLabelButton pageLabel;
     private final boolean hideOnSinglePage;
 
-    public BookmarkPageNavigation(IPaged paged, Runnable pageCallback, boolean hideOnSinglePage) {
+    public BookmarkPageNavigation(IPaged paged, boolean hideOnSinglePage) {
         this.paged = paged;
-        this.pageCallback = pageCallback;
         GuiHelper guiHelper = Internal.getHelpers().getGuiHelper();
         this.nextButton = new GuiIconButton(0, guiHelper.getArrowNext(), (mc, mouseX, mouseY) -> paged.nextPage());
         this.backButton = new GuiIconButton(1, guiHelper.getArrowPrevious(), (mc, mouseX, mouseY) -> paged.previousPage());
-        this.pageLabel = new GuiLabelButton(2, "", (mc, mouseX, mouseY) -> {
-            this.pageCallback.run();
-            return true;
-        });
+        this.pageLabel = new GuiLabelButton(2, "", null);
         this.hideOnSinglePage = hideOnSinglePage;
     }
 

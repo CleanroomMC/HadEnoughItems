@@ -1,14 +1,13 @@
 package mezz.jei.gui.overlay.bookmarks;
 
 import mezz.jei.config.Config;
-import mezz.jei.gui.BookmarkUpdateEvent;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IngredientGrid;
+import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
 import mezz.jei.render.BookmarkListBatchRenderer;
 import mezz.jei.render.IngredientListBatchRenderer;
 import mezz.jei.render.IngredientListSlot;
 import mezz.jei.util.MathUtil;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -19,16 +18,10 @@ public class BookmarkGrid extends IngredientGrid {
     private static final int INGREDIENT_PADDING = 1;
     private final GridAlignment alignment;
     private Rectangle area = new Rectangle();
-    private boolean rowOrder = true;
 
     public BookmarkGrid(GridAlignment alignment, BookmarkGroupOrganizer groupOrganizer) {
         super(new BookmarkListBatchRenderer(groupOrganizer), alignment);
         this.alignment = alignment;
-    }
-
-    protected void changeOrder() {
-        this.rowOrder = !this.rowOrder;
-        MinecraftForge.EVENT_BUS.post(new BookmarkUpdateEvent());
     }
 
     public boolean updateBounds(Rectangle availableArea, int minWidth, Collection<Rectangle> exclusionAreas) {
@@ -66,7 +59,6 @@ public class BookmarkGrid extends IngredientGrid {
                 ingredientRow.add(ingredientListSlot);
             }
             this.guiIngredientSlots.add(ingredientRow);
-
         }
         return true;
     }

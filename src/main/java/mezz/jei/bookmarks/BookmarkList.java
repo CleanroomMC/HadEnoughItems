@@ -6,7 +6,7 @@ import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.IIngredientGridSource;
-import mezz.jei.gui.overlay.bookmarks.BookmarkGroupOrganizer;
+import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.LegacyUtil;
 import mezz.jei.util.Log;
@@ -22,10 +22,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
@@ -343,5 +340,26 @@ public class BookmarkList implements IIngredientGridSource {
 
     public void setGroupOrganizer(BookmarkGroupOrganizer bookmarkGroupOrganizer) {
         this.bookmarkGroupOrganizer = bookmarkGroupOrganizer;
+    }
+
+    public int getBookmarkIndex(int id) {
+        for (int index = 0; index < list.size(); index++) {
+            if (list.get(index).id == id) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    public boolean moveGroup(BookmarkGroup group, boolean up) {
+        int groupIndex = getBookmarkIndex(group.id);
+        if (up && groupIndex > 0) {
+            Collections.swap(list, groupIndex, groupIndex - 1);
+            return true;
+        } else if (!up && groupIndex < list.size() - 1) {
+            Collections.swap(list, groupIndex, groupIndex + 1);
+            return true;
+        }
+        return false;
     }
 }

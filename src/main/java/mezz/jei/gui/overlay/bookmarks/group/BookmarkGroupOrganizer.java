@@ -1,14 +1,18 @@
-package mezz.jei.gui.overlay.bookmarks;
+package mezz.jei.gui.overlay.bookmarks.group;
 
 import mezz.jei.Internal;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.autocrafting.RecipeBookmarkGroup;
 import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.bookmarks.BookmarkGroup;
-import mezz.jei.bookmarks.BookmarkItem;
-import mezz.jei.config.Config;
+import mezz.jei.bookmarks.BookmarkList;
+import mezz.jei.gui.TooltipRenderer;
+import mezz.jei.gui.overlay.bookmarks.BookmarkGridWithNavigation;
+import mezz.jei.input.MouseHelper;
+import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -18,7 +22,7 @@ import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_HEIGHT;
 
 public class BookmarkGroupOrganizer {
     private Rectangle area = new Rectangle();
-    private final List<BookmarkGroupDisplay> groups = new ArrayList<>();; // Equivalence between group area and group id
+    private final List<BookmarkGroupDisplay> groups = new ArrayList<>(); // Equivalence between group area and group id
     public final int GROUP_PADDING_Y = INGREDIENT_HEIGHT / 2 - 5;
     public final int GROUP_PADDING_X = BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH / 2 - 1;
 
@@ -39,15 +43,20 @@ public class BookmarkGroupOrganizer {
             if (groupId == contiguousGroupId) {
                 continue;
             }
-
-            Rectangle groupArea = getGroupArea(startOfSequence, i - 1, area);
-            groups.add(new BookmarkGroupDisplay(groupArea, contiguousGroupId));
+            addGroup(startOfSequence, i - 1, contiguousGroupId);
 
             startOfSequence = i;
             contiguousGroupId = groupId;
         }
-        Rectangle groupArea = getGroupArea(startOfSequence, bookmarkGroupIds.size() - 1, area);
-        groups.add(new BookmarkGroupDisplay(groupArea, contiguousGroupId));
+        addGroup(startOfSequence, bookmarkGroupIds.size() - 1, contiguousGroupId);
+    }
+
+    private void addGroup(int start, int end, int groupId) {
+        if (groupId == -1) {
+            return;
+        }
+        Rectangle groupArea = getGroupArea(start, end, area);
+        groups.add(new BookmarkGroupDisplay(groupArea, groupId));
     }
 
     private Rectangle getGroupArea(int rowStart, int rowEnd, Rectangle availableArea) {
@@ -64,11 +73,13 @@ public class BookmarkGroupOrganizer {
 
     public void draw(Minecraft minecraft, int mouseX, int mouseY) {
         for (BookmarkGroupDisplay groupDisplay : groups) {
-            this.drawGroup(minecraft, mouseX, mouseY, groupDisplay.group, groupDisplay.area);
+            this.drawGroup(minecraft, mouseX, mouseY, groupDisplay);
         }
     }
 
-    private void drawGroup(Minecraft minecraft, int mouseX, int mouseY, BookmarkGroup group, Rectangle groupArea) {
+    private void drawGroup(Minecraft minecraft, int mouseX, int mouseY, BookmarkGroupDisplay display) {
+        Rectangle groupArea = display.area;
+        BookmarkGroup group = display.group;
         int color = group.getColor();
         // Rectangle 1: a rectangle going down the left edge of the group area
         int top = groupArea.y + GROUP_PADDING_Y;
@@ -83,6 +94,27 @@ public class BookmarkGroupOrganizer {
         GuiScreen.drawRect(left, bottom, groupArea.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH, bottom + 2, color);
     }
 
+    public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
+        if (mouseX > area.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH) {
+            return;
+        }
+
+        for (BookmarkGroupDisplay group : groups) {
+            if (mouseY < group.area.y || mouseY > group.area.y + group.area.height) {
+                continue;
+            }
+            List<String> tooltips = new ArrayList<>();
+            if (Keyboard.isKeyDown(Keyboard.KEY_LMETA) || Keyboard.isKeyDown(Keyboard.KEY_RMETA)) {
+
+            } else {
+                tooltips.add(Translator.translateToLocal("hei.tooltip.press_alt"));
+            }
+
+            TooltipRenderer.drawHoveringText(minecraft, tooltips, mouseX, mouseY);
+            break;
+        }
+    }
+
     public <I> List<IGhostIngredientHandler.Target<I>> getTargets(I ingredient) {
         List<IGhostIngredientHandler.Target<I>> targets = new ArrayList<>();
         for (BookmarkGroupDisplay groupDisplay : groups) {
@@ -94,41 +126,32 @@ public class BookmarkGroupOrganizer {
         return targets;
     }
 
-    public class BookmarkGroupDisplay implements IGhostIngredientHandler.Target {
-        private Rectangle area;
-        private BookmarkGroup group;
-
-        public BookmarkGroupDisplay(Rectangle area, int groupId) {
-            this.area = area;
-            this.group = Internal.getBookmarkList().getBookmarkGroup(groupId);
+    public boolean onKeyPressed(char typedChar, int eventKey) {
+        int mouseX = MouseHelper.getX();
+        int mouseY = MouseHelper.getY();
+        if (mouseX > area.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH) {
+            return false;
         }
-
-        @Override
-        public Rectangle getArea() {
-            return area;
-        }
-
-        @Override
-        public void accept(Object ingredient) {
-            if (ingredient instanceof BookmarkItem) {
-                BookmarkGroup oldGroup = ((BookmarkItem<?>) ingredient).group;
-                boolean canAdd = group.addItem((BookmarkItem<?>) ingredient);
-                if (canAdd) {
-                    if (oldGroup != null) {
-                        oldGroup.removeItem((BookmarkItem<?>) ingredient);
-                    }
-                    Internal.getBookmarkList().saveBookmarks();
-                    Internal.getBookmarkList().notifyListenersOfChange();
+        for (BookmarkGroupDisplay group : groups) {
+            if (mouseY < group.area.y || mouseY > group.area.y + group.area.height) {
+                continue;
+            }
+            BookmarkList bookmarkList = Internal.getBookmarkList();
+            if (Keyboard.isKeyDown(Keyboard.KEY_UP)) {
+                if (bookmarkList.moveGroup(group.group, true)) {
+                    bookmarkList.saveBookmarks();
+                    bookmarkList.notifyListenersOfChange();
+                    return true;
                 }
-            } else {
-                BookmarkItem<?> item = new BookmarkItem<>(ingredient);
-                if (group.addItem(item)) {
-                    if (!Config.isBookmarkOverlayEnabled())
-                        Config.toggleBookmarkEnabled();
-                    Internal.getBookmarkList().saveBookmarks();
-                    Internal.getBookmarkList().notifyListenersOfChange();
+            }
+            if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
+                if (bookmarkList.moveGroup(group.group, false)) {
+                    bookmarkList.saveBookmarks();
+                    bookmarkList.notifyListenersOfChange();
+                    return true;
                 }
             }
         }
+        return false;
     }
 }

@@ -2,7 +2,7 @@ package mezz.jei.render;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import mezz.jei.gui.ingredients.IIngredientListElement;
-import mezz.jei.gui.overlay.bookmarks.BookmarkGroupOrganizer;
+import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
 
 import java.util.List;
 
@@ -34,6 +34,13 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
         List<Integer> groupIndices = new IntArrayList();
         for (List<IngredientListSlot> row : slots) {
             for (int column = 0; column < row.size(); column++) {
+                IngredientListSlot ingredientListSlot = row.get(column);
+                if (ingredientListSlot.isBlocked()) {
+                    if (column == 0) {
+                        groupIndices.add(-1);
+                    }
+                    continue;
+                }
                 if (i >= ingredientList.size()) {
                     break;
                 }
@@ -47,10 +54,7 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                 if (column == 0) {
                     groupIndices.add(currentGroup);
                 }
-                IngredientListSlot ingredientListSlot = row.get(column);
-                if (ingredientListSlot.isBlocked()) {
-                    continue;
-                }
+
                 set(ingredientListSlot, element);
                 size++;
                 i++;
@@ -61,4 +65,37 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
         invalidateBuffer();
     }
 
+    public List<Integer> sizePages(List<IIngredientListElement> ingredientList) {
+        List<Integer> pages = new IntArrayList();
+        pages.add(0);
+        if (ingredientList.isEmpty()) {
+            return pages;
+        }
+
+        int ingredientIndex = 0;
+        int currentGroup = ingredientList.get(ingredientIndex).getGroupIndex();
+        while (true) {
+            for (int rowIndex = 0; rowIndex < slots.size(); rowIndex++) {
+                List<IngredientListSlot> row = slots.get(rowIndex);
+                for (int column = 0; column < row.size(); column++) {
+                    IngredientListSlot ingredientListSlot = row.get(column);
+                    if (ingredientListSlot.isBlocked()) {
+                        continue;
+                    }
+                    if (ingredientIndex >= ingredientList.size()) {
+                        return pages;
+                    }
+                    IIngredientListElement<?> element = ingredientList.get(ingredientIndex);
+                    if (element.getGroupIndex() != currentGroup || element.startsNewRow()) {
+                        currentGroup = element.getGroupIndex();
+                        if (column > 0) {
+                            break;
+                        }
+                    }
+                    ingredientIndex++;
+                }
+            }
+            pages.add(ingredientIndex);
+        }
+    }
 }
