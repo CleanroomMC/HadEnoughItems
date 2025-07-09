@@ -28,7 +28,7 @@ public interface IRecipeTransferRegistry {
 	/**
 	 * Advanced method for adding a recipe transfer handler.
 	 * <p>
-	 * Use this when recipe slots or inventory slots are spread out in different number ranges.
+	 * Use this when recipe slots or inventory slots are spread out in different number ranges or if the container supports autocrafting.
 	 */
 	<C extends Container> void addRecipeTransferHandler(IRecipeTransferInfo<C> recipeTransferInfo);
 

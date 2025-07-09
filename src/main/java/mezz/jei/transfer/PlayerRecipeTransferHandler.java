@@ -1,18 +1,5 @@
 package mezz.jei.transfer;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
-
 import com.google.common.collect.ImmutableSet;
 import mezz.jei.Internal;
 import mezz.jei.JustEnoughItems;
@@ -30,6 +17,13 @@ import mezz.jei.network.packets.PacketRecipeTransfer;
 import mezz.jei.startup.StackHelper;
 import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ContainerPlayer;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<ContainerPlayer> {
 	private final StackHelper stackHelper;
@@ -50,6 +44,10 @@ public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<Conta
 	@Nullable
 	@Override
 	public IRecipeTransferError transferRecipe(ContainerPlayer container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer) {
+		return transferRecipe(container, recipeLayout, player, maxTransfer ? Integer.MAX_VALUE : 1, false, doTransfer);
+	}
+
+	protected IRecipeTransferError transferRecipe(ContainerPlayer container, IRecipeLayout recipeLayout, EntityPlayer player, int maxTransfer, boolean performRecipe, boolean doTransfer) {
 		if (!ServerInfo.isJeiOnServer()) {
 			String tooltipMessage = Translator.translateToLocal("jei.tooltip.error.recipe.transfer.no.server");
 			return handlerHelper.createUserErrorWithTooltip(tooltipMessage);
@@ -164,10 +162,16 @@ public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<Conta
 		}
 
 		if (doTransfer) {
-			PacketRecipeTransfer packet = new PacketRecipeTransfer(matchingItemsResult.matchingItems, craftingSlotIndexes, inventorySlotIndexes, maxTransfer, false);
+			PacketRecipeTransfer packet = new PacketRecipeTransfer(matchingItemsResult.matchingItems, craftingSlotIndexes, inventorySlotIndexes, maxTransfer, performRecipe, false);
 			JustEnoughItems.getProxy().sendPacketToServer(packet);
 		}
 
 		return null;
+	}
+
+	@Nullable
+	@Override
+	public IRecipeTransferError craft(ContainerPlayer container, IRecipeLayout recipeLayout, EntityPlayer player, int amount, boolean doTransfer) {
+		return this.transferRecipe(container, recipeLayout, player, amount, true, doTransfer);
 	}
 }

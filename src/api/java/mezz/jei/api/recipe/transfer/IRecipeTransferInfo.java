@@ -1,9 +1,9 @@
 package mezz.jei.api.recipe.transfer;
 
-import java.util.List;
-
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
+
+import java.util.List;
 
 /**
  * Gives JEI the information it needs to transfer recipes from a slotted inventory into the crafting area.
@@ -29,6 +29,15 @@ public interface IRecipeTransferInfo<C extends Container> {
 	 * @since JEI 4.0.2
 	 */
 	boolean canHandle(C container);
+
+	/**
+	 * Return the crafting slot index. Return -1 if there is no crafting slot or if this is unsupported.
+	 *
+	 * @since HEI 4.28.0
+	 */
+	default int getCraftingSlot() {
+		return -1;
+	}
 
 	/**
 	 * Return a list of slots for the recipe area.

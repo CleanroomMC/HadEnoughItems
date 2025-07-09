@@ -1,13 +1,13 @@
 package mezz.jei.api.gui;
 
-import javax.annotation.Nullable;
-
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
+
+import javax.annotation.Nullable;
 
 /**
  * Represents the layout of one recipe on-screen.
@@ -62,12 +62,6 @@ public interface IRecipeLayout {
 	 * If it doesn't fit there, you can use this to move it when you init the recipe layout.
 	 */
 	void setRecipeTransferButton(int posX, int posY);
-
-	/**
-	 * Moves the recipe favorite button's position relative to the recipe layout.
-	 * @since JEI 4.28.0
-	 */
-	void setFavoriteButton(int posX, int posY);
 
 	/**
 	 * Adds a shapeless icon to the top right of the recipe, that shows a tooltip saying "shapeless" when hovered over.

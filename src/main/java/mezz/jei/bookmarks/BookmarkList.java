@@ -108,9 +108,6 @@ public class BookmarkList implements IIngredientGridSource {
 
     public boolean remove(Object ingredient, boolean looseEqualCheck) {
         for (BookmarkGroup group : list) {
-            if (!group.acceptsChanges()) {
-                continue;
-            }
             for (int i = 0; i < group.getItems().size(); i++) {
                 BookmarkItem existing = group.getItems().get(i);
                 if (looseEqualCheck) {
@@ -231,6 +228,15 @@ public class BookmarkList implements IIngredientGridSource {
             }
         }
         return null;
+    }
+
+    public boolean removeGroup(BookmarkGroup group) {
+        if (list.remove(group)) {
+            notifyListenersOfChange();
+            saveBookmarks();
+            return true;
+        }
+        return false;
     }
 
     private static class ParsedIngredient {
@@ -355,9 +361,13 @@ public class BookmarkList implements IIngredientGridSource {
         int groupIndex = getBookmarkIndex(group.id);
         if (up && groupIndex > 0) {
             Collections.swap(list, groupIndex, groupIndex - 1);
+            notifyListenersOfChange();
+            saveBookmarks();
             return true;
         } else if (!up && groupIndex < list.size() - 1) {
             Collections.swap(list, groupIndex, groupIndex + 1);
+            notifyListenersOfChange();
+            saveBookmarks();
             return true;
         }
         return false;

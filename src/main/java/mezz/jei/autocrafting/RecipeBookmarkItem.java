@@ -2,12 +2,19 @@ package mezz.jei.autocrafting;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.Internal;
+import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.recipe.IIngredientType;
+import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.DummyBookmarkItem;
+import mezz.jei.gui.recipes.RecipeLayout;
 import mezz.jei.ingredients.Ingredients;
+import mezz.jei.recipes.RecipeRegistry;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +25,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     // How much of this item the player requested apart from the recipe chain.
     public long selfOutputAmount = 0L;
     public IRecipeWrapper recipe;
+    public IRecipeCategory<?> category;
     public List<RecipeBookmarkItem<?>> inputs;
     public BookmarkItem<?> secondaryTo;
     // These are possible ingredients, which are helpful for OreDictionary.
@@ -47,14 +55,15 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         for (I alias : aliases) {
             IRecipeWrapper favorite = FavoriteRecipes.getFavorite(alias);
             if (favorite != null) {
+                IRecipeCategory<?> favoriteCategory = FavoriteRecipes.getFavoriteCategory(alias);
                 this.ingredient = alias;
-                populateWith(favorite);
+                populateWith(favorite, favoriteCategory);
                 return;
             }
         }
     }
 
-    public void populateWith(IRecipeWrapper recipe) {
+    public void populateWith(IRecipeWrapper recipe, IRecipeCategory<?> category) {
         this.recipe = recipe;
         Ingredients ingredients = new Ingredients();
         recipe.getIngredients(ingredients);
@@ -126,5 +135,18 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         if (this.group instanceof RecipeBookmarkGroup) {
             ((RecipeBookmarkGroup) this.group).update();
         }
+    }
+
+    public IRecipeLayout createLayout() {
+        return RecipeLayout.create(-1, (IRecipeCategory) category, recipe, null, 0, 0);
+    }
+
+    public boolean canPhysicallyCraft(RecipeRegistry recipeRegistry, Container container, EntityPlayer player) {
+        IRecipeTransferHandler recipeTransferHandler = recipeRegistry.getRecipeTransferHandler(container, category);
+        IRecipeLayout recipeLayout = createLayout();
+        if (recipeTransferHandler == null) {
+            return false;
+        }
+        return recipeTransferHandler.craft(container, recipeLayout, player, 1, false);
     }
 }

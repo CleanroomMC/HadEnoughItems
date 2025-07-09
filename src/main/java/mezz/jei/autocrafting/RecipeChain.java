@@ -5,11 +5,20 @@ import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mezz.jei.Internal;
+import mezz.jei.api.recipe.IRecipeCategory;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.autocrafting.toposort.TopologicalSort;
+import mezz.jei.recipes.RecipeRegistry;
 import mezz.jei.util.Log;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerPlayer;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RecipeChain {
@@ -22,7 +31,7 @@ public class RecipeChain {
 
     public final Map<RecipeBookmarkItem<?>, List<RecipeBookmarkItem<?>>> secondaryOutputs = new Object2ObjectOpenHashMap<>();
 
-    private final List<RecipeBookmarkItem<?>> outputs  = new ObjectArrayList<>();
+    private final List<RecipeBookmarkItem<?>> outputs = new ObjectArrayList<>();
 
     private final RecipeBookmarkGroup group;
 
@@ -157,6 +166,38 @@ public class RecipeChain {
                 secondaryOutputs.put(affectedSecondaries.get(0), affectedSecondaries);
             }
         }
+    }
+
+    public void autocraft() {
+        List<RecipeBookmarkItem<?>> outputs = TopologicalSort.topologicalSort(graphStorage, null).stream()
+                .filter(node -> node.secondaryTo == null)
+                .collect(Collectors.toList());
+
+        Minecraft minecraft = Minecraft.getMinecraft();
+        EntityPlayerSP player = minecraft.player;
+        if (player != null) {
+            Container openContainer = player.openContainer;
+            RecipeRegistry recipeRegistry = Internal.getRuntime().getRecipeRegistry();
+            if (openContainer != null) {
+                if (openContainer instanceof ContainerPlayer)
+                    return;
+                IRecipeCategory recipeCategory = recipeCategories.get(i);
+                IRecipeTransferHandler recipeTransferHandler = recipeRegistry.getRecipeTransferHandler(openContainer, recipeCategory);
+            }
+        }
+
+        for (RecipeBookmarkItem<?> output : outputs) {
+            for (int i = 0; i < output.amount; i++) {
+                output.recipe.autocraft(output.ingredient, output.group);
+            }
+        }
+    }
+
+    public void test(int t) {
+        if (t == 0) {
+            return;
+        }
+        test(t - 1);
     }
 
 }

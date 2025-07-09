@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
+import mezz.jei.api.recipe.transfer.RecipeTransferErrorInternal;
 import mezz.jei.util.ErrorUtil;
 
 public class RecipeTransferHandlerHelper implements IRecipeTransferHandlerHelper {

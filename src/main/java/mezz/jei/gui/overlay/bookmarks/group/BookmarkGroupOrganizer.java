@@ -139,15 +139,22 @@ public class BookmarkGroupOrganizer {
             BookmarkList bookmarkList = Internal.getBookmarkList();
             if (Keyboard.isKeyDown(Keyboard.KEY_UP)) {
                 if (bookmarkList.moveGroup(group.group, true)) {
-                    bookmarkList.saveBookmarks();
-                    bookmarkList.notifyListenersOfChange();
                     return true;
                 }
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
                 if (bookmarkList.moveGroup(group.group, false)) {
-                    bookmarkList.saveBookmarks();
-                    bookmarkList.notifyListenersOfChange();
+                    return true;
+                }
+            }
+            if (Keyboard.isKeyDown(Keyboard.KEY_DELETE)) {
+                if (bookmarkList.removeGroup(group.group)) {
+                    return true;
+                }
+            }
+            if (Keyboard.isKeyDown(Keyboard.KEY_ADD)) {
+                if (bookmarkList.addGroup(group.group,
+                        Keyboard.isKeyDown(Keyboard.KEY_LMETA) || Keyboard.isKeyDown(Keyboard.KEY_RMETA))) {
                     return true;
                 }
             }

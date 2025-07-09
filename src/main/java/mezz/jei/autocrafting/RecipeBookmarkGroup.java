@@ -56,7 +56,17 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
         chain.calculateCrafting();
     }
 
+    @Override
+    public void removeItem(BookmarkItem<?> item) {
+        if (item instanceof RecipeBookmarkItem) {
+            chain.removeNode((RecipeBookmarkItem<?>) item);
+        }
+        super.removeItem(item);
+    }
 
+    public void autocraft() {
+        chain.autocraft();
+    }
 
     public int getColor() {
         return 0x9F00FF00;
