@@ -1,5 +1,6 @@
 package mezz.jei.autocrafting;
 
+import mezz.jei.Internal;
 import mezz.jei.bookmarks.BookmarkGroup;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -65,7 +66,7 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
     }
 
     public void autocraft() {
-        chain.autocraft();
+        ((AutocraftingHandler) Internal.getRuntime().getAutocraftingHandler()).startAutocrafting(chain);
     }
 
     public int getColor() {

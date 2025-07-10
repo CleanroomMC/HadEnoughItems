@@ -2,6 +2,7 @@ package mezz.jei.network;
 
 import mezz.jei.network.packets.IPacketJeiHandler;
 import mezz.jei.network.packets.PacketCheatPermission;
+import mezz.jei.network.packets.PacketCraftUpdate;
 import mezz.jei.util.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,6 +23,7 @@ public class PacketHandlerClient extends PacketHandler {
 
 	public PacketHandlerClient() {
 		clientHandlers.put(PacketIdClient.CHEAT_PERMISSION, PacketCheatPermission::readPacketData);
+		clientHandlers.put(PacketIdClient.CRAFT_UPDATE, PacketCraftUpdate::readPacketData);
 	}
 
 	@SubscribeEvent

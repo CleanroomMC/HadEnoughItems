@@ -24,9 +24,10 @@ public final class KeyBindings {
 	public static final KeyBinding nextPage;
 	public static final KeyBinding bookmark;
 	public static final KeyBinding toggleBookmarkOverlay;
+	public static final KeyBinding crafting;
 	private static final List<KeyBinding> allBindings;
 
-	static {
+    static {
 		allBindings = ImmutableList.of(
 			toggleOverlay = new KeyBinding("key.jei.toggleOverlay", KeyConflictContext.GUI, KeyModifier.CONTROL, Keyboard.KEY_O, categoryName),
 			focusSearch = new KeyBinding("key.jei.focusSearch", KeyConflictContext.GUI, KeyModifier.CONTROL, Keyboard.KEY_F, categoryName),
@@ -38,7 +39,8 @@ public final class KeyBindings {
 			previousPage = new KeyBinding("key.jei.previousPage", KeyConflictContext.GUI, Keyboard.KEY_PRIOR, categoryName),
 			nextPage = new KeyBinding("key.jei.nextPage", KeyConflictContext.GUI, Keyboard.KEY_NEXT, categoryName),
 			bookmark = new KeyBinding("key.jei.bookmark", KeyConflictContext.GUI, KeyModifier.NONE, Keyboard.KEY_A, categoryName),
-			toggleBookmarkOverlay = new KeyBinding("key.jei.toggleBookmarkOverlay", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName)
+			toggleBookmarkOverlay = new KeyBinding("key.jei.toggleBookmarkOverlay", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
+			crafting = new KeyBinding("key.jei.crafting", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_C, categoryName)
 		);
 	}
 

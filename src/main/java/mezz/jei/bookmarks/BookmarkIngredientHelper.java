@@ -23,7 +23,7 @@ public class BookmarkIngredientHelper implements IIngredientHelper<BookmarkItem>
 
     @Override
     public String getUniqueId(BookmarkItem ingredient) {
-        return ingredient.ingredient.toString();
+        return getIngredientHelper(ingredient.ingredient).getUniqueId(ingredient.ingredient);
     }
 
     @Override

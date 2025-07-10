@@ -6,15 +6,11 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.DummyBookmarkItem;
 import mezz.jei.gui.recipes.RecipeLayout;
 import mezz.jei.ingredients.Ingredients;
-import mezz.jei.recipes.RecipeRegistry;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -125,7 +121,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         return inputs.stream().map((input) -> new DummyBookmarkItem<>(input.aliases.get(0), group, () -> input.amount * getMultiplier())).collect(Collectors.toList());
     }
 
-    private long getMultiplier() {
+    public long getMultiplier() {
         return (amount + outputAmount - 1) / outputAmount;
     }
 
@@ -139,14 +135,5 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 
     public IRecipeLayout createLayout() {
         return RecipeLayout.create(-1, (IRecipeCategory) category, recipe, null, 0, 0);
-    }
-
-    public boolean canPhysicallyCraft(RecipeRegistry recipeRegistry, Container container, EntityPlayer player) {
-        IRecipeTransferHandler recipeTransferHandler = recipeRegistry.getRecipeTransferHandler(container, category);
-        IRecipeLayout recipeLayout = createLayout();
-        if (recipeTransferHandler == null) {
-            return false;
-        }
-        return recipeTransferHandler.craft(container, recipeLayout, player, 1, false);
     }
 }

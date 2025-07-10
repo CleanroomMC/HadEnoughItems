@@ -25,7 +25,7 @@ public class BasicRecipeTransferInfo<C extends Container> implements IRecipeTran
 		this.inventorySlotCount = inventorySlotCount;
 	}
 
-	public BasicRecipeTransferInfo setCraftingSlot(int craftingSlot) {
+	public BasicRecipeTransferInfo<C> setCraftingSlot(int craftingSlot) {
 		this.craftingSlot = craftingSlot;
 		return this;
 	}

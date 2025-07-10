@@ -6,6 +6,7 @@ import mezz.jei.autocrafting.RecipeBookmarkGroup;
 import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.bookmarks.BookmarkGroup;
 import mezz.jei.bookmarks.BookmarkList;
+import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.overlay.bookmarks.BookmarkGridWithNavigation;
 import mezz.jei.input.MouseHelper;
@@ -147,15 +148,14 @@ public class BookmarkGroupOrganizer {
                     return true;
                 }
             }
-            if (Keyboard.isKeyDown(Keyboard.KEY_DELETE)) {
+            if (KeyBindings.bookmark.isKeyDown()) {
                 if (bookmarkList.removeGroup(group.group)) {
                     return true;
                 }
             }
-            if (Keyboard.isKeyDown(Keyboard.KEY_ADD)) {
-                if (bookmarkList.addGroup(group.group,
-                        Keyboard.isKeyDown(Keyboard.KEY_LMETA) || Keyboard.isKeyDown(Keyboard.KEY_RMETA))) {
-                    return true;
+            if (KeyBindings.crafting.isKeyDown()) {
+                if (group.group instanceof RecipeBookmarkGroup) {
+                    ((RecipeBookmarkGroup) group.group).autocraft();
                 }
             }
         }

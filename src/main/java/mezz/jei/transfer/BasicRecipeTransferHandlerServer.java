@@ -1,6 +1,10 @@
 package mezz.jei.transfer;
 
+import mezz.jei.JustEnoughItems;
+import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
+import mezz.jei.network.packets.PacketCraftUpdate;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -293,7 +297,26 @@ public final class BasicRecipeTransferHandlerServer {
         return null;
     }
 
-    public static void performRecipe(EntityPlayer player) {
+    /**
+     * Perform the recipe, in this case by taking the result in the output slot and giving it to the player if possible.
+     * Sends a network message to the client which calls {@link IAutocraftingHandler#informOfAutocrafting(boolean, int)} to continue the autocrafting process.
+     *
+     * @param player The player whose inventory to check
+     * @param outputSlot The index of the output slot in the given crafting inventory
+     */
+    public static void performRecipe(EntityPlayer player, int outputSlot) {
+        ItemStack outputStack = player.openContainer.getSlot(outputSlot).getStack();
+        EntityPlayerMP playerMP = (EntityPlayerMP) player;
+        if (!outputStack.isEmpty()) {
+            int count = outputStack.getCount();
+            boolean added = player.inventory.addItemStackToInventory(outputStack);
+            if (added) {
+                playerMP.openContainer.getSlot(outputSlot).putStack(ItemStack.EMPTY);
+                playerMP.updateHeldItem();
+                JustEnoughItems.getProxy().sendPacketToClient(new PacketCraftUpdate(true, count), playerMP);
 
+            }
+        }
+        JustEnoughItems.getProxy().sendPacketToClient(new PacketCraftUpdate(false, 0), playerMP);
     }
 }

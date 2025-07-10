@@ -48,6 +48,7 @@ key.jei.nextPage=Show Next Page
 key.jei.bookmark=Add/Remove a Bookmarked Ingredient
 key.jei.recipeBookmark=Add/Remove a Bookmarked Recipe
 key.jei.toggleBookmarkOverlay=Show/Hide Bookmarked Ingredients
+key.jei.crafting=Perform Autocrafting on Bookmarked Recipe Chain
 
 # Config
 config.jei.default=Default

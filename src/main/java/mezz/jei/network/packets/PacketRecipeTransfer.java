@@ -12,6 +12,7 @@ public class PacketRecipeTransfer extends PacketJei {
 	public final Map<Integer, Integer> recipeMap;
 	public final List<Integer> craftingSlots;
 	public final List<Integer> inventorySlots;
+	public int outputSlot = -1;
 	public final Map<Integer, Integer> itemCounts;
 	private final int maxTransfer;
 	private final boolean performRecipe;
@@ -22,14 +23,19 @@ public class PacketRecipeTransfer extends PacketJei {
 	}
 
 	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, int maxTransfer, boolean performRecipe, boolean requireCompleteSets,
-								Map<Integer, Integer> itemCounts) {
+                                Map<Integer, Integer> itemCounts) {
 		this.recipeMap = recipeMap;
 		this.craftingSlots = craftingSlots;
 		this.inventorySlots = inventorySlots;
-		this.maxTransfer = maxTransfer;
+        this.maxTransfer = maxTransfer;
 		this.performRecipe = performRecipe;
 		this.requireCompleteSets = requireCompleteSets;
 		this.itemCounts = itemCounts;
+	}
+
+	public PacketRecipeTransfer setOutputSlot(int outputSlot) {
+		this.outputSlot = outputSlot;
+		return this;
 	}
 
 	@Override
@@ -58,6 +64,7 @@ public class PacketRecipeTransfer extends PacketJei {
 		buf.writeInt(maxTransfer);
 		buf.writeBoolean(performRecipe);
 		buf.writeBoolean(requireCompleteSets);
+		buf.writeInt(outputSlot);
 
 		if (!itemCounts.isEmpty()) {
 			buf.writeBoolean(true);
@@ -96,6 +103,7 @@ public class PacketRecipeTransfer extends PacketJei {
 		int maxTransfer = buf.readInt();
 		boolean performRecipe = buf.readBoolean();
 		boolean requireCompleteSets = buf.readBoolean();
+		int outputSlot = buf.readInt();
 
 		Map<Integer, Integer> itemCounts = null;
 		if (buf.readBoolean()) {
@@ -109,8 +117,8 @@ public class PacketRecipeTransfer extends PacketJei {
 		}
 
 		BasicRecipeTransferHandlerServer.setItems(player, recipeMap, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets, itemCounts);
-		if (performRecipe) {
-			BasicRecipeTransferHandlerServer.performRecipe(player);
+		if (performRecipe && outputSlot != -1) {
+			BasicRecipeTransferHandlerServer.performRecipe(player, outputSlot);
 		}
 	}
 

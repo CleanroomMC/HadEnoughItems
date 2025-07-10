@@ -6,18 +6,13 @@ import com.google.common.graph.ValueGraphBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.Internal;
-import mezz.jei.api.recipe.IRecipeCategory;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.autocrafting.toposort.TopologicalSort;
-import mezz.jei.recipes.RecipeRegistry;
+import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.Log;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerPlayer;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -168,29 +163,18 @@ public class RecipeChain {
         }
     }
 
-    public void autocraft() {
-        List<RecipeBookmarkItem<?>> outputs = TopologicalSort.topologicalSort(graphStorage, null).stream()
-                .filter(node -> node.secondaryTo == null)
-                .collect(Collectors.toList());
+    public Map<String, Long> getNodeSet() {
+        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+        return graphStorage.nodes().stream().collect(
+                Collectors.toMap(ingredientRegistry::getUniqueId, node -> node.amount));
+    }
 
-        Minecraft minecraft = Minecraft.getMinecraft();
-        EntityPlayerSP player = minecraft.player;
-        if (player != null) {
-            Container openContainer = player.openContainer;
-            RecipeRegistry recipeRegistry = Internal.getRuntime().getRecipeRegistry();
-            if (openContainer != null) {
-                if (openContainer instanceof ContainerPlayer)
-                    return;
-                IRecipeCategory recipeCategory = recipeCategories.get(i);
-                IRecipeTransferHandler recipeTransferHandler = recipeRegistry.getRecipeTransferHandler(openContainer, recipeCategory);
-            }
-        }
-
-        for (RecipeBookmarkItem<?> output : outputs) {
-            for (int i = 0; i < output.amount; i++) {
-                output.recipe.autocraft(output.ingredient, output.group);
-            }
-        }
+    public Stack<RecipeBookmarkItem<?>> getOutputsInAutocraftingOrder(Map<String, Long> missingIngredients) {
+        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+        Stack<RecipeBookmarkItem<?>> outputs = TopologicalSort.topologicalSort(graphStorage, null).stream()
+                .filter(node -> node.secondaryTo == null && missingIngredients.get(ingredientRegistry.getUniqueId(node.ingredient)) != null)
+                .collect(Collectors.toCollection(Stack::new));
+        return outputs;
     }
 
     public void test(int t) {

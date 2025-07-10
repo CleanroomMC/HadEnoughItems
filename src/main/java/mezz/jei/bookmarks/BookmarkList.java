@@ -3,6 +3,7 @@ package mezz.jei.bookmarks;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IIngredientType;
+import mezz.jei.autocrafting.RecipeBookmarkGroup;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.IIngredientGridSource;
@@ -29,6 +30,8 @@ import java.util.stream.Collectors;
 public class BookmarkList implements IIngredientGridSource {
     private static final String MARKER_OTHER = "O:";
     private static final String MARKER_STACK = "T:";
+    private static final String MARKER_GROUP = "B:";
+    private static final String MARKER_RECIPE_GROUP = "R:";
 
     private final List<BookmarkGroup> list = new LinkedList<>();
     private final IngredientRegistry ingredientRegistry;
@@ -142,18 +145,26 @@ public class BookmarkList implements IIngredientGridSource {
 
     public void saveBookmarks() {
         List<String> strings = new ArrayList<>();
-        List<IIngredientListElement> ingredientListElements = getIngredientList();
-        for (IIngredientListElement<?> element : ingredientListElements) {
-            BookmarkItem item = (BookmarkItem) element.getIngredient();
-            if (item.ingredient instanceof ItemStack) {
-                strings.add(MARKER_STACK + item.amount + ":" + ((ItemStack) item.ingredient).writeToNBT(new NBTTagCompound()));
+        for (BookmarkGroup group : list) {
+            if (group instanceof RecipeBookmarkGroup) {
+                strings.add(MARKER_RECIPE_GROUP);
             } else {
-                IIngredientListElement<?> listElement = item.getSavedElement();
-                if (listElement != null) {
-                    strings.add(MARKER_OTHER + item.amount + ":" + getUid(listElement));
+                strings.add(MARKER_GROUP);
+            }
+            List<IIngredientListElement<?>> ingredientListElements = group.getIngredientListElements();
+            for (IIngredientListElement<?> element : ingredientListElements) {
+                BookmarkItem item = (BookmarkItem) element.getIngredient();
+                if (item.ingredient instanceof ItemStack) {
+                    strings.add(MARKER_STACK + item.amount + ":" + ((ItemStack) item.ingredient).writeToNBT(new NBTTagCompound()));
+                } else {
+                    IIngredientListElement<?> listElement = item.getSavedElement();
+                    if (listElement != null) {
+                        strings.add(MARKER_OTHER + item.amount + ":" + getUid(listElement));
+                    }
                 }
             }
         }
+
         File file = Config.getBookmarkFile();
         if (file != null) {
             try (FileWriter writer = new FileWriter(file)) {
@@ -186,6 +197,7 @@ public class BookmarkList implements IIngredientGridSource {
         otherIngredientTypes.remove(VanillaTypes.ITEM);
 
         list.clear();
+        BookmarkGroup group = new BookmarkGroup(nextId++);
         for (String ingredientJsonString : ingredientJsonStrings) {
             if (ingredientJsonString.startsWith(MARKER_STACK)) {
                 ParsedIngredient parsed = parseIngredientString(ingredientJsonString, MARKER_STACK);
@@ -214,9 +226,22 @@ public class BookmarkList implements IIngredientGridSource {
                         addToLists(normalized, false);
                     }
                 }
+            } else if (ingredientJsonString.startsWith(MARKER_GROUP)) {
+                if (!group.items.isEmpty()) {
+                    list.add(group);
+                    group = new BookmarkGroup(nextId++);
+                }
+            } else if (ingredientJsonString.startsWith(MARKER_RECIPE_GROUP)) {
+                if (!group.items.isEmpty()) {
+                    list.add(group);
+                    group = new RecipeBookmarkGroup(nextId++);
+                }
             } else {
                 Log.get().error("Failed to load unknown bookmarked ingredient:\n{}", ingredientJsonString);
             }
+        }
+        if (!group.items.isEmpty()) {
+            list.add(group);
         }
         notifyListenersOfChange();
     }

@@ -1,5 +1,7 @@
 package mezz.jei.api;
 
+import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
+
 /**
  * Gives access to JEI functions that are available once everything has loaded.
  * The IJeiRuntime instance is passed to your mod plugin in {@link IModPlugin#onRuntimeAvailable(IJeiRuntime)}.
@@ -26,6 +28,11 @@ public interface IJeiRuntime {
 	 * @since JEI 4.15.0
 	 */
 	IBookmarkOverlay getBookmarkOverlay();
+
+	/**
+	 * @since HEI 4.28.0
+	 */
+	IAutocraftingHandler getAutocraftingHandler();
 
 	/**
 	 * @deprecated since JEI 4.5.0. Use {@link #getIngredientListOverlay()}

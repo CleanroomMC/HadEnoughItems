@@ -129,6 +129,8 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeT
 		IntList inventorySlotIndexes = new IntArrayList(inventorySlots.keySet());
 		Collections.sort(inventorySlotIndexes);
 
+		int outputSlot = transferHelper.getCraftingSlot();
+
 		// check that the slots exist and can be altered
 		for (Int2IntMap.Entry entry : matchingItemsResult.matchingItemsCasted.int2IntEntrySet()) {
 			int slotNumber = craftingSlotIndexes.get(entry.getIntKey());
@@ -142,9 +144,11 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeT
 			PacketRecipeTransfer packet;
 			if (stackCrafting) {
 				packet = new PacketRecipeTransfer(matchingItemsResult.matchingItems, craftingSlotIndexes, inventorySlotIndexes, maxTransfer, performRecipe, transferHelper.requireCompleteSets(),
-						((SensitiveCountMatchingItemsResult) matchingItemsResult).matchingItemsCounts);
+						((SensitiveCountMatchingItemsResult) matchingItemsResult).matchingItemsCounts)
+						.setOutputSlot(outputSlot);
 			} else {
-				packet = new PacketRecipeTransfer(matchingItemsResult.matchingItems, craftingSlotIndexes, inventorySlotIndexes, maxTransfer, performRecipe, transferHelper.requireCompleteSets());
+				packet = new PacketRecipeTransfer(matchingItemsResult.matchingItems, craftingSlotIndexes, inventorySlotIndexes, maxTransfer, performRecipe, transferHelper.requireCompleteSets())
+						.setOutputSlot(outputSlot);
 			}
 			JustEnoughItems.getProxy().sendPacketToServer(packet);
 		}
