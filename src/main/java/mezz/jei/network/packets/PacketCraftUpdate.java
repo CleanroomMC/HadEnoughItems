@@ -22,7 +22,8 @@ public class PacketCraftUpdate extends PacketJei {
 
     @Override
     public void writePacketData(PacketBuffer buf) {
-
+        buf.writeBoolean(success);
+        buf.writeInt(itemsCrafted);
     }
 
 

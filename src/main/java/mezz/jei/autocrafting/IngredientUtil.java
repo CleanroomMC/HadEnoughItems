@@ -1,7 +1,10 @@
 package mezz.jei.autocrafting;
 
 import mezz.jei.Internal;
+import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.recipe.IIngredientType;
+import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.util.LegacyUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -25,8 +28,8 @@ public class IngredientUtil {
         if (type1 == null || type2 == null || type1 != type2) {
             return false;
         }
-        return Internal.getIngredientRegistry().getIngredientHelper(type1).getUniqueId(o1).equals(
-            Internal.getIngredientRegistry().getIngredientHelper(type2).getUniqueId(o2));
+        return Internal.getIngredientRegistry().getUniqueId(o1).equals(
+            Internal.getIngredientRegistry().getUniqueId(o2));
     }
 
     public static <A, B> boolean aliasesEquals(List<A> l1, List<B> l2) {
@@ -40,5 +43,30 @@ public class IngredientUtil {
             }
         }
         return true;
+    }
+
+    public static <T> BookmarkItem<T> normalizeBookmark(BookmarkItem<T> ingredient) {
+        IIngredientHelper<BookmarkItem<T>> ingredientHelper = Internal.getIngredientRegistry().getIngredientHelper(ingredient);
+        BookmarkItem<T> copy = LegacyUtil.getIngredientCopy(ingredient, ingredientHelper);
+        normalizeCopy(copy.ingredient);
+        return copy;
+    }
+
+    public static <T> void normalize(T ingredient) {
+        if (ingredient instanceof ItemStack) {
+            ((ItemStack) ingredient).setCount(1);
+        } else if (ingredient instanceof FluidStack) {
+            ((FluidStack) ingredient).amount = 1000;
+        }
+    }
+
+    public static <T> T normalizeCopy(T orig) {
+        T ingredient = LegacyUtil.getIngredientCopy(orig, Internal.getIngredientRegistry().getIngredientHelper(orig));
+        if (ingredient instanceof ItemStack) {
+            ((ItemStack) ingredient).setCount(1);
+        } else if (ingredient instanceof FluidStack) {
+            ((FluidStack) ingredient).amount = 1000;
+        }
+        return ingredient;
     }
 }

@@ -72,4 +72,5 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
     public int getColor() {
         return 0x9F00FF00;
     }
+
 }

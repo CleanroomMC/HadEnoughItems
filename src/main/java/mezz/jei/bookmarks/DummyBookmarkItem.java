@@ -1,5 +1,7 @@
 package mezz.jei.bookmarks;
 
+import mezz.jei.autocrafting.IngredientUtil;
+
 import java.util.function.Supplier;
 
 public class DummyBookmarkItem<I> extends BookmarkItem<I> {
@@ -8,6 +10,7 @@ public class DummyBookmarkItem<I> extends BookmarkItem<I> {
         super(ingredient);
         this.group = group;
         this.displayAmountSupplier = displayAmountSupplier;
+        IngredientUtil.normalizeCopy(this.ingredient);
     }
 
     @Override

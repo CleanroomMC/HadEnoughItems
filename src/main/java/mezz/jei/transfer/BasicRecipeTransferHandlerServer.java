@@ -5,6 +5,7 @@ import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
 import mezz.jei.network.packets.PacketCraftUpdate;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -183,11 +184,6 @@ public final class BasicRecipeTransferHandlerServer {
                 }
             }
 
-            // Only increment the sets transferred if we found an item.
-            if (!noItemsFound) {
-                setsTransferred++;
-            }
-
             // Merge the contents of the temporary map with the result map.
             for (Map.Entry<Integer, ItemStack> entry : foundItemsInSet.entrySet()) {
                 ItemStack resultItemStack = result.get(entry.getKey());
@@ -207,6 +203,10 @@ public final class BasicRecipeTransferHandlerServer {
             }
 
             setsTransferred++;
+            if (setsTransferred >= maxTransfer) {
+                // The player has requested a maximum number of sets to transfer.
+                break;
+            }
         }
 
         return result;
@@ -301,22 +301,25 @@ public final class BasicRecipeTransferHandlerServer {
      * Perform the recipe, in this case by taking the result in the output slot and giving it to the player if possible.
      * Sends a network message to the client which calls {@link IAutocraftingHandler#informOfAutocrafting(boolean, int)} to continue the autocrafting process.
      *
-     * @param player The player whose inventory to check
+     * @param player     The player whose inventory to check
      * @param outputSlot The index of the output slot in the given crafting inventory
      */
     public static void performRecipe(EntityPlayer player, int outputSlot) {
+        if (player.openContainer == null) {
+            return;
+        }
+        player.openContainer.onCraftMatrixChanged(player.inventory); // The inventory doesn't seem to matter?
         ItemStack outputStack = player.openContainer.getSlot(outputSlot).getStack();
         EntityPlayerMP playerMP = (EntityPlayerMP) player;
         if (!outputStack.isEmpty()) {
             int count = outputStack.getCount();
-            boolean added = player.inventory.addItemStackToInventory(outputStack);
-            if (added) {
-                playerMP.openContainer.getSlot(outputSlot).putStack(ItemStack.EMPTY);
-                playerMP.updateHeldItem();
-                JustEnoughItems.getProxy().sendPacketToClient(new PacketCraftUpdate(true, count), playerMP);
-
-            }
+            playerMP.openContainer.slotClick(outputSlot, 0, ClickType.QUICK_MOVE, player);
+            playerMP.updateHeldItem();
+            playerMP.openContainer.detectAndSendChanges();
+            JustEnoughItems.getProxy().sendPacketToClient(new PacketCraftUpdate(true, count), playerMP);
+            return;
         }
+        playerMP.openContainer.detectAndSendChanges();
         JustEnoughItems.getProxy().sendPacketToClient(new PacketCraftUpdate(false, 0), playerMP);
     }
 }

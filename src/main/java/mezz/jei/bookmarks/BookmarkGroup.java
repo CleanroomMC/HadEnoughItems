@@ -86,4 +86,5 @@ public class BookmarkGroup {
     public int getColor() {
         return 0x7FFFFFFF;
     }
+
 }

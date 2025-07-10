@@ -158,7 +158,6 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeT
 
 	@Override
 	public IRecipeTransferError craft(C container, IRecipeLayout recipeLayout, EntityPlayer player, int amount, boolean doTransfer) {
-		IRecipeTransferError error = transferRecipe(container, recipeLayout, player, true, doTransfer);
 		return this.transferRecipe(container, recipeLayout, player, amount, true, doTransfer);
 	}
 }

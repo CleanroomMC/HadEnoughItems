@@ -26,6 +26,19 @@ public interface IRecipeTransferRegistry {
 	<C extends Container> void addRecipeTransferHandler(Class<C> containerClass, String recipeCategoryUid, int recipeSlotStart, int recipeSlotCount, int inventorySlotStart, int inventorySlotCount);
 
 	/**
+	 * Basic method for adding a recipe transfer handler.
+	 *
+	 * @param containerClass     the class of the container that this recipe transfer handler is for
+	 * @param recipeCategoryUid  the recipe categories that this container can use
+	 * @param recipeSlotStart    the first slot for recipe inputs
+	 * @param recipeSlotCount    the number of slots for recipe inputs
+	 * @param inventorySlotStart the first slot of the available inventory (usually player inventory)
+	 * @param inventorySlotCount the number of slots of the available inventory
+	 * @param outputSlot         the output slot that resulting items may be taken from for autocrafting
+	 */
+	<C extends Container> void addRecipeTransferHandler(Class<C> containerClass, String recipeCategoryUid, int recipeSlotStart, int recipeSlotCount, int inventorySlotStart, int inventorySlotCount, int outputSlot);
+
+	/**
 	 * Advanced method for adding a recipe transfer handler.
 	 * <p>
 	 * Use this when recipe slots or inventory slots are spread out in different number ranges or if the container supports autocrafting.

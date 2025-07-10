@@ -43,7 +43,7 @@ public class GuiLabelButton extends GuiButton {
     @Override
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
         if (super.mousePressed(mc, mouseX, mouseY)) {
-            if (mouseClickCallback.mousePressed(mc, mouseX, mouseY)) {
+            if (mouseClickCallback != null && mouseClickCallback.mousePressed(mc, mouseX, mouseY)) {
                 playPressSound(mc.getSoundHandler());
                 return true;
             }

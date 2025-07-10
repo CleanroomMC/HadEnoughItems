@@ -3,19 +3,18 @@ package mezz.jei.bookmarks;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IIngredientType;
+import mezz.jei.autocrafting.IngredientUtil;
 import mezz.jei.autocrafting.RecipeBookmarkGroup;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.IIngredientGridSource;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
 import mezz.jei.ingredients.IngredientRegistry;
-import mezz.jei.util.LegacyUtil;
 import mezz.jei.util.Log;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Nullable;
@@ -55,7 +54,7 @@ public class BookmarkList implements IIngredientGridSource {
     }
 
     public <T> boolean add(BookmarkItem<T> ingredient, boolean forceFront) {
-        BookmarkItem<T> normalized = normalize(ingredient);
+        BookmarkItem<T> normalized = IngredientUtil.normalizeBookmark(ingredient);
         if (!contains(normalized)) {
             if (addToLists(normalized, forceFront || Config.isAddingBookmarksToFront())) {
                 notifyListenersOfChange();
@@ -73,17 +72,6 @@ public class BookmarkList implements IIngredientGridSource {
             }
         }
         return false;
-    }
-
-    protected <T> BookmarkItem<T> normalize(BookmarkItem<T> ingredient) {
-        IIngredientHelper<BookmarkItem<T>> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
-        BookmarkItem<T> copy = LegacyUtil.getIngredientCopy(ingredient, ingredientHelper);
-        if (copy.ingredient instanceof ItemStack) {
-            ((ItemStack) copy.ingredient).setCount(1);
-        } else if (copy.ingredient instanceof FluidStack) {
-            ((FluidStack) copy.ingredient).amount = 1000;
-        }
-        return copy;
     }
 
     private boolean contains(Object ingredient) {
@@ -206,7 +194,7 @@ public class BookmarkList implements IIngredientGridSource {
                         NBTTagCompound itemStackAsNbt = JsonToNBT.getTagFromJson(parsed.content);
                         ItemStack itemStack = new ItemStack(itemStackAsNbt);
                         if (!itemStack.isEmpty()) {
-                            BookmarkItem<ItemStack> normalized = normalize(new BookmarkItem<>(itemStack));
+                            BookmarkItem<ItemStack> normalized = IngredientUtil.normalizeBookmark(new BookmarkItem<>(itemStack));
                             normalized.amount = parsed.amount;
                             addToLists(normalized, false);
                         } else {
@@ -221,7 +209,7 @@ public class BookmarkList implements IIngredientGridSource {
                 if (parsed != null) {
                     Object ingredient = getUnknownIngredientByUid(otherIngredientTypes, parsed.content);
                     if (ingredient != null) {
-                        BookmarkItem<?> normalized = normalize(new BookmarkItem<>(ingredient));
+                        BookmarkItem<?> normalized = IngredientUtil.normalizeBookmark(new BookmarkItem<>(ingredient));
                         normalized.amount = parsed.amount;
                         addToLists(normalized, false);
                     }

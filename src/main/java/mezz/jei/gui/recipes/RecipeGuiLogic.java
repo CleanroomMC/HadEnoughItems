@@ -1,16 +1,5 @@
 package mezz.jei.gui.recipes;
 
-import javax.annotation.Nonnegative;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
-
-import mezz.jei.autocrafting.favorites.FavoriteRecipes;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.inventory.Container;
-
 import com.google.common.collect.ImmutableList;
 import mezz.jei.api.IRecipeRegistry;
 import mezz.jei.api.ingredients.IIngredientHelper;
@@ -18,11 +7,21 @@ import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
+import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.gui.Focus;
 import mezz.jei.gui.ingredients.IngredientLookupState;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.MathUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerPlayer;
+
+import javax.annotation.Nonnegative;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 
 public class RecipeGuiLogic implements IRecipeGuiLogic {
 	private final IRecipeRegistry recipeRegistry;
@@ -74,7 +73,10 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 			IRecipeCategory<?> recipeCategory = recipeCategories.get(recipeCategoryIndex);
 			IRecipeWrapper favorite = FavoriteRecipes.getFavorite(focus.getValue());
 			if (favorite != null) {
-				return recipeRegistry.getRecipeWrappers(recipeCategory, focus).indexOf(favorite);
+				int index = recipeRegistry.getRecipeWrappers(recipeCategory, focus).indexOf(favorite);
+				if (index >= 0) {
+					return index;
+				}
 			}
 		}
 		return 0;
@@ -86,9 +88,7 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 		EntityPlayerSP player = minecraft.player;
 		if (player != null) {
 			Container openContainer = player.openContainer;
-			if (openContainer != null) {
-				if (openContainer instanceof ContainerPlayer)
-					return 0;
+			if (openContainer != null && !(openContainer instanceof ContainerPlayer)) {
 				for (int i = 0; i < recipeCategories.size(); i++) {
 					IRecipeCategory recipeCategory = recipeCategories.get(i);
 					IRecipeTransferHandler recipeTransferHandler = recipeRegistry.getRecipeTransferHandler(openContainer, recipeCategory);

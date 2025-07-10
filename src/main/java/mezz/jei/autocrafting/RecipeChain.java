@@ -9,7 +9,11 @@ import mezz.jei.Internal;
 import mezz.jei.autocrafting.toposort.TopologicalSort;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.Log;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -98,8 +102,10 @@ public class RecipeChain {
     }
 
     public RecipeBookmarkItem<?> findOutputWithSameRecipe(RecipeBookmarkItem<?> output) {
+        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+        String uniqueId = ingredientRegistry.getUniqueId(output.ingredient);
         return graphStorage.nodes().stream()
-                .filter(node -> node.recipe != null && node != output && node.recipe.equals(output.recipe))
+                .filter(node -> node.recipe != null && !uniqueId.equals(ingredientRegistry.getUniqueId(output.ingredient)) && node.recipe.equals(output.recipe))
                 .findFirst()
                 .orElse(null);
     }
@@ -165,8 +171,58 @@ public class RecipeChain {
 
     public Map<String, Long> getNodeSet() {
         IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
-        return graphStorage.nodes().stream().collect(
+        return graphStorage.nodes().stream().filter(node -> node.secondaryTo == null).collect(
                 Collectors.toMap(ingredientRegistry::getUniqueId, node -> node.amount));
+    }
+
+    public Map<String, Long> getOutputSet() {
+        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+        return outputs.stream().collect(
+                Collectors.toMap(ingredientRegistry::getUniqueId, node -> node.selfOutputAmount));
+    }
+
+    public void calculateMissingIngredients(Stack<RecipeBookmarkItem<?>> recipeList) {
+        for (RecipeBookmarkItem<?> node : graphStorage.nodes()) {
+            node.amount = node.selfOutputAmount;
+        }
+
+        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+        InventoryPlayer inv = Minecraft.getMinecraft().player.inventory;
+        Map<String, Long> invCounts = new HashMap<>();
+        for (int i = 0; i < inv.getSizeInventory(); i++) {
+            ItemStack stack = inv.getStackInSlot(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            String uniqueId = ingredientRegistry.getUniqueId(inv.getStackInSlot(i));
+            invCounts.put(uniqueId, invCounts.getOrDefault(uniqueId, 0L) + inv.getStackInSlot(i).getCount());
+        }
+
+        TopologicalSort.topologicalSort(graphStorage, (r, r1) -> {
+            if (r.equals(r1.secondaryTo)) {
+                return 1;
+            } else if (r1.equals(r.secondaryTo)) {
+                return -1;
+            }
+            return 0; // Primary ordering still applies.
+        }).forEach(ingredient -> calculateMissingIngredients(ingredient, invCounts, recipeList));
+    }
+
+    public void calculateMissingIngredients(RecipeBookmarkItem<?> needed, Map<String, Long> invCounts, Stack<RecipeBookmarkItem<?>> recipeList) {
+        calculateCrafting(needed);
+        if (needed.amount <= 0) {
+            return;
+        }
+        if (needed.selfOutputAmount == 0) {
+            String uniqueId = Internal.getIngredientRegistry().getUniqueId(needed.ingredient);
+            if (invCounts.containsKey(uniqueId)) {
+                needed.amount = Math.max(0L, needed.amount - invCounts.get(uniqueId));
+                invCounts.put(uniqueId, Math.max(0L, invCounts.get(uniqueId) - needed.amount));
+            }
+        }
+        if (recipeList != null && needed.amount > 0 && needed.category != null) { // If we're preparing for autocrafting and this can be crafted, add it.
+            recipeList.add(needed);
+        }
     }
 
     public Stack<RecipeBookmarkItem<?>> getOutputsInAutocraftingOrder(Map<String, Long> missingIngredients) {

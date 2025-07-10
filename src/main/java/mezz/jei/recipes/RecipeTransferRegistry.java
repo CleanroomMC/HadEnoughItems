@@ -34,6 +34,16 @@ public class RecipeTransferRegistry implements IRecipeTransferRegistry {
 	}
 
 	@Override
+	public <C extends Container> void addRecipeTransferHandler(Class<C> containerClass, String recipeCategoryUid, int recipeSlotStart, int recipeSlotCount, int inventorySlotStart, int inventorySlotCount, int outputSlot) {
+		ErrorUtil.checkNotNull(containerClass, "containerClass");
+		ErrorUtil.checkNotNull(recipeCategoryUid, "recipeCategoryUid");
+
+		IRecipeTransferInfo<C> recipeTransferHelper = new BasicRecipeTransferInfo<>(containerClass, recipeCategoryUid, recipeSlotStart, recipeSlotCount, inventorySlotStart, inventorySlotCount)
+				.setCraftingSlot(outputSlot);
+		addRecipeTransferHandler(recipeTransferHelper);
+	}
+
+	@Override
 	public <C extends Container> void addRecipeTransferHandler(IRecipeTransferInfo<C> recipeTransferInfo) {
 		ErrorUtil.checkNotNull(recipeTransferInfo, "recipeTransferInfo");
 

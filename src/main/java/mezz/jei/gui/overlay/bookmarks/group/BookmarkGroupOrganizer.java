@@ -10,6 +10,7 @@ import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.overlay.bookmarks.BookmarkGridWithNavigation;
 import mezz.jei.input.MouseHelper;
+import mezz.jei.render.IngredientRenderer;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -24,6 +25,7 @@ import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_HEIGHT;
 public class BookmarkGroupOrganizer {
     private Rectangle area = new Rectangle();
     private final List<BookmarkGroupDisplay> groups = new ArrayList<>(); // Equivalence between group area and group id
+    private final List<IngredientRenderer> missingIngredientRenderers = new ArrayList<>();
     public final int GROUP_PADDING_Y = INGREDIENT_HEIGHT / 2 - 5;
     public final int GROUP_PADDING_X = BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH / 2 - 1;
 
@@ -148,14 +150,15 @@ public class BookmarkGroupOrganizer {
                     return true;
                 }
             }
-            if (KeyBindings.bookmark.isKeyDown()) {
+            if (KeyBindings.bookmark.isActiveAndMatches(eventKey)) {
                 if (bookmarkList.removeGroup(group.group)) {
                     return true;
                 }
             }
-            if (KeyBindings.crafting.isKeyDown()) {
+            if (KeyBindings.crafting.isActiveAndMatches(eventKey)) {
                 if (group.group instanceof RecipeBookmarkGroup) {
                     ((RecipeBookmarkGroup) group.group).autocraft();
+                    return true;
                 }
             }
         }

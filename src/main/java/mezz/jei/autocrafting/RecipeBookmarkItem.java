@@ -29,6 +29,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 
     public RecipeBookmarkItem(I ingredient) {
         super(ingredient);
+        this.ingredient = IngredientUtil.normalizeCopy(ingredient);
         this.aliases = new ObjectArrayList<>();
         this.aliases.add(ingredient);
     }
@@ -61,6 +62,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 
     public void populateWith(IRecipeWrapper recipe, IRecipeCategory<?> category) {
         this.recipe = recipe;
+        this.category = category;
         Ingredients ingredients = new Ingredients();
         recipe.getIngredients(ingredients);
         inputs = new ObjectArrayList<>();
@@ -135,5 +137,10 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 
     public IRecipeLayout createLayout() {
         return RecipeLayout.create(-1, (IRecipeCategory) category, recipe, null, 0, 0);
+    }
+
+    @Override
+    public long getDisplayAmount() {
+        return outputAmount * getMultiplier();
     }
 }
