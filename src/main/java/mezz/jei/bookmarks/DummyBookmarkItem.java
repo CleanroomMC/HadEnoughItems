@@ -1,6 +1,7 @@
 package mezz.jei.bookmarks;
 
 import mezz.jei.autocrafting.IngredientUtil;
+import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.function.Supplier;
 
@@ -26,5 +27,15 @@ public class DummyBookmarkItem<I> extends BookmarkItem<I> {
     @Override
     public long getDisplayAmount() {
         return displayAmountSupplier.get();
+    }
+
+    @Override
+    public String serialize() {
+        return null;
+    }
+
+    @Override
+    public boolean deserialize(NBTTagCompound ingredientJsonString) {
+        return false;
     }
 }

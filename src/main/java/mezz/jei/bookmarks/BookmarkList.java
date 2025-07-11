@@ -11,10 +11,6 @@ import mezz.jei.gui.overlay.IIngredientGridSource;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.Log;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
-import net.minecraft.nbt.NBTTagCompound;
 import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Nullable;
@@ -27,8 +23,6 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
 public class BookmarkList implements IIngredientGridSource {
-    private static final String MARKER_OTHER = "O:";
-    private static final String MARKER_STACK = "T:";
     private static final String MARKER_GROUP = "B:";
     private static final String MARKER_RECIPE_GROUP = "R:";
 
@@ -139,17 +133,12 @@ public class BookmarkList implements IIngredientGridSource {
             } else {
                 strings.add(MARKER_GROUP);
             }
-            List<IIngredientListElement<?>> ingredientListElements = group.getIngredientListElements();
-            for (IIngredientListElement<?> element : ingredientListElements) {
-                BookmarkItem item = (BookmarkItem) element.getIngredient();
-                if (item.ingredient instanceof ItemStack) {
-                    strings.add(MARKER_STACK + item.amount + ":" + ((ItemStack) item.ingredient).writeToNBT(new NBTTagCompound()));
-                } else {
-                    IIngredientListElement<?> listElement = item.getSavedElement();
-                    if (listElement != null) {
-                        strings.add(MARKER_OTHER + item.amount + ":" + getUid(listElement));
-                    }
+            for (BookmarkItem<?> item : group.getItems()) {
+                String serialized = item.serialize();
+                if (serialized == null) {
+                    continue;
                 }
+                strings.add(serialized);
             }
         }
 
@@ -187,43 +176,20 @@ public class BookmarkList implements IIngredientGridSource {
         list.clear();
         BookmarkGroup group = new BookmarkGroup(nextId++);
         for (String ingredientJsonString : ingredientJsonStrings) {
-            if (ingredientJsonString.startsWith(MARKER_STACK)) {
-                ParsedIngredient parsed = parseIngredientString(ingredientJsonString, MARKER_STACK);
-                if (parsed != null) {
-                    try {
-                        NBTTagCompound itemStackAsNbt = JsonToNBT.getTagFromJson(parsed.content);
-                        ItemStack itemStack = new ItemStack(itemStackAsNbt);
-                        if (!itemStack.isEmpty()) {
-                            BookmarkItem<ItemStack> normalized = IngredientUtil.normalizeBookmark(new BookmarkItem<>(itemStack));
-                            normalized.amount = parsed.amount;
-                            addToLists(normalized, false);
-                        } else {
-                            Log.get().warn("Failed to load bookmarked ItemStack, the item no longer exists:\n{}", parsed.content);
-                        }
-                    } catch (NBTException e) {
-                        Log.get().error("Failed to parse bookmarked ItemStack from JSON:\n{}", parsed.content, e);
-                    }
-                }
-            } else if (ingredientJsonString.startsWith(MARKER_OTHER)) {
-                ParsedIngredient parsed = parseIngredientString(ingredientJsonString, MARKER_OTHER);
-                if (parsed != null) {
-                    Object ingredient = getUnknownIngredientByUid(otherIngredientTypes, parsed.content);
-                    if (ingredient != null) {
-                        BookmarkItem<?> normalized = IngredientUtil.normalizeBookmark(new BookmarkItem<>(ingredient));
-                        normalized.amount = parsed.amount;
-                        addToLists(normalized, false);
-                    }
-                }
+            BookmarkItem<?> item = BookmarkItem.deserialize(ingredientJsonString, otherIngredientTypes);
+            if (item != null) {
+                group.getItemsInternal().add(item); // Don't cause recipe chains to update
+                item.group = group;
             } else if (ingredientJsonString.startsWith(MARKER_GROUP)) {
                 if (!group.items.isEmpty()) {
                     list.add(group);
-                    group = new BookmarkGroup(nextId++);
                 }
+                group = new BookmarkGroup(nextId++);
             } else if (ingredientJsonString.startsWith(MARKER_RECIPE_GROUP)) {
                 if (!group.items.isEmpty()) {
                     list.add(group);
-                    group = new RecipeBookmarkGroup(nextId++);
                 }
+                group = new RecipeBookmarkGroup(nextId++);
             } else {
                 Log.get().error("Failed to load unknown bookmarked ingredient:\n{}", ingredientJsonString);
             }
@@ -231,7 +197,10 @@ public class BookmarkList implements IIngredientGridSource {
         if (!group.items.isEmpty()) {
             list.add(group);
         }
-        notifyListenersOfChange();
+        for (BookmarkGroup newGroup : list) {
+            newGroup.finishLoading();
+        }
+        //notifyListenersOfChange();
     }
 
     public BookmarkGroup getBookmarkGroup(int id) {
@@ -252,48 +221,6 @@ public class BookmarkList implements IIngredientGridSource {
         return false;
     }
 
-    private static class ParsedIngredient {
-        public final long amount;
-        public final String content;
-
-        public ParsedIngredient(long amount, String content) {
-            this.amount = amount;
-            this.content = content;
-        }
-    }
-
-    @Nullable
-    private ParsedIngredient parseIngredientString(String ingredientString, String marker) {
-        int colonAfterMarker = ingredientString.indexOf(':', marker.length());
-        if (colonAfterMarker < 0) {
-            Log.get().error("Bookmark ingredient parsing error: missing amount separator ':' in bookmark string:\n{}", ingredientString);
-            return null;
-        }
-        try {
-            String amountPart = ingredientString.substring(marker.length(), colonAfterMarker);
-            long amount = Long.parseLong(amountPart);
-            if (amount < 0) {
-                Log.get().error("Bookmark ingredient parsing error: amount must be non-negative in bookmark string:\n{}", ingredientString);
-                return null;
-            }
-            String content = ingredientString.substring(colonAfterMarker + 1);
-            return new ParsedIngredient(amount, content);
-        } catch (NumberFormatException e) {
-            Log.get().error("Bookmark ingredient parsing error: invalid number format in bookmark string:\n{}", ingredientString, e);
-            return null;
-        }
-    }
-
-    @Nullable
-    private Object getUnknownIngredientByUid(Collection<IIngredientType> ingredientTypes, String uid) {
-        for (IIngredientType<?> ingredientType : ingredientTypes) {
-            Object ingredient = ingredientRegistry.getIngredientByUid(ingredientType, uid);
-            if (ingredient != null) {
-                return ingredient;
-            }
-        }
-        return null;
-    }
 
     private boolean addToLists(BookmarkItem<?> ingredient, boolean addToFront) { // false = stackT ingredient, boolean addToFront) {
         return getAddingGroup(addToFront).addItem(ingredient, addToFront);

@@ -97,11 +97,8 @@ public class JeiStarter {
 			timer.stop();
 		}
 
-		timer.start("Building bookmarks");
 		BookmarkList bookmarkList = new BookmarkList(ingredientRegistry);
-		bookmarkList.loadBookmarks();
 		Internal.setBookmarkList(bookmarkList);
-		timer.stop();
 
 		timer.start("Building runtime");
 		List<IAdvancedGuiHandler<?>> advancedGuiHandlers = modRegistry.getAdvancedGuiHandlers();
@@ -125,16 +122,20 @@ public class JeiStarter {
 		LeftAreaDispatcher leftAreaDispatcher = new LeftAreaDispatcher(guiScreenHelper);
 		leftAreaDispatcher.addContent(bookmarkOverlay);
 
+		timer.start("Building favorites");
+		FavoriteRecipes.load();
+		timer.stop();
+
+		timer.start("Building bookmarks");
+		bookmarkList.loadBookmarks();
+		timer.stop();
+
 		GuiEventHandler guiEventHandler = new GuiEventHandler(guiScreenHelper, leftAreaDispatcher, ingredientListOverlay, recipeRegistry, ghostIngredientDragManager);
 		Internal.setGuiEventHandler(guiEventHandler);
 		InputHandler inputHandler = new InputHandler(jeiRuntime, ingredientRegistry, ingredientListOverlay, guiScreenHelper, leftAreaDispatcher, bookmarkList, ghostIngredientDragManager);
 		Internal.setInputHandler(inputHandler);
 
 		Config.checkForModNameFormatOverride();
-
-		timer.start("Building favorites");
-		FavoriteRecipes.load();
-		timer.stop();
 
 		started = true;
 		totalTime.stop();

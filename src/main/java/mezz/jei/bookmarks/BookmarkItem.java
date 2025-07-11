@@ -2,12 +2,20 @@ package mezz.jei.bookmarks;
 
 import mezz.jei.Internal;
 import mezz.jei.api.recipe.IIngredientType;
+import mezz.jei.autocrafting.IngredientUtil;
+import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.IngredientListElementFactory;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.startup.ForgeModIdHelper;
+import mezz.jei.util.Log;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
+import net.minecraft.nbt.NBTTagCompound;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 
 public class BookmarkItem<I> {
     @SuppressWarnings("rawtypes")
@@ -17,6 +25,11 @@ public class BookmarkItem<I> {
     public long amount = 0L;
     @Nullable
     public BookmarkGroup group;
+
+    protected static final String MARKER_OTHER = "O:";
+    protected static final String MARKER_STACK = "T:";
+    private static final char MARKER_NORMAL = 'B';
+    protected static final char MARKER_RECIPE = 'R';
 
     public BookmarkItem(I ingredient) {
         this.ingredient = ingredient;
@@ -31,10 +44,10 @@ public class BookmarkItem<I> {
         IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
         IIngredientType<I> ingredientType = ingredientRegistry.getIngredientType(ingredient);
         return IngredientListElementFactory.createUnorderedElement(
-            ingredientRegistry,
-            ingredientType,
-            ingredient,
-            ForgeModIdHelper.getInstance());
+                ingredientRegistry,
+                ingredientType,
+                ingredient,
+                ForgeModIdHelper.getInstance());
     }
 
     public int getGroupIndex() {
@@ -51,5 +64,114 @@ public class BookmarkItem<I> {
 
     public long getDisplayAmount() {
         return amount;
+    }
+
+    public boolean deserialize(NBTTagCompound tag) {
+        this.amount = tag.getLong("amount");
+        return true;
+    }
+
+    @Nullable
+    public String serialize() {
+        NBTTagCompound tag = getNBTOfIngredient(ingredient);
+        tag.setLong("amount", amount);
+        if (ingredient instanceof ItemStack) {
+            return MARKER_NORMAL + MARKER_STACK + tag;
+        } else {
+            return MARKER_NORMAL + MARKER_OTHER + tag;
+        }
+    }
+
+    protected NBTTagCompound getNBTOfIngredient(Object ingredient) {
+        if (ingredient instanceof ItemStack) {
+            return ((ItemStack) ingredient).writeToNBT(new NBTTagCompound());
+        } else {
+            IIngredientListElement<?> listElement = this.getSavedElement();
+            if (listElement == null) {
+                return null;
+            }
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("uid", Internal.getIngredientRegistry().getUniqueId(listElement));
+            return tag;
+        }
+    }
+
+    @Nullable
+    public static BookmarkItem<?> deserialize(String ingredientJsonString, Collection<IIngredientType> otherIngredientTypes) {
+        Object ingredient = parseIngredient(ingredientJsonString.substring(1), otherIngredientTypes);
+        if (ingredient == null) {
+            return null;
+        }
+        BookmarkItem<?> item;
+        switch (ingredientJsonString.charAt(0)) {
+            case MARKER_NORMAL:
+                item = new BookmarkItem<>(ingredient);
+                break;
+            case MARKER_RECIPE:
+                item = new RecipeBookmarkItem<>(ingredient);
+                break;
+            default:
+                return null;
+        }
+        if (item.deserialize(getNBT(ingredientJsonString))) {
+            return item;
+        }
+        return null;
+    }
+
+    @Nullable
+    protected static Object parseIngredient(String ingredientJsonString, Collection<IIngredientType> otherIngredientTypes) {
+        if (ingredientJsonString.startsWith(MARKER_STACK)) {
+            NBTTagCompound parsed = getNBT(ingredientJsonString);
+            if (parsed != null) {
+                ItemStack itemStack = new ItemStack(parsed);
+                if (!itemStack.isEmpty()) {
+                    IngredientUtil.normalize(itemStack);
+                    return itemStack;
+                } else {
+                    Log.get().warn("Failed to load bookmarked ItemStack, the item no longer exists:\n{}", parsed);
+                }
+            }
+        } else if (ingredientJsonString.startsWith(MARKER_OTHER)) {
+            NBTTagCompound parsed = getNBT(ingredientJsonString);
+            if (parsed != null) {
+                Object ingredient = getUnknownIngredientByUid(otherIngredientTypes, parsed.getString("uid"));
+                if (ingredient != null) {
+                    IngredientUtil.normalize(ingredient);
+                    return ingredient;
+                } else {
+                    Log.get().warn("Failed to load bookmarked unknown ingredient, the ingredient no longer exists:\n{}", parsed);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private static Object getUnknownIngredientByUid(Collection<IIngredientType> ingredientTypes, String uid) {
+        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+        for (IIngredientType<?> ingredientType : ingredientTypes) {
+            Object ingredient = ingredientRegistry.getIngredientByUid(ingredientType, uid);
+            if (ingredient != null) {
+                return ingredient;
+            }
+        }
+        return null;
+    }
+
+
+    @Nullable
+    private static NBTTagCompound getNBT(String ingredientString) {
+        int colonAfterMarker = ingredientString.indexOf(':');
+        if (colonAfterMarker < 0) {
+            Log.get().error("Bookmark ingredient parsing error: missing separator ':' in bookmark string:\n{}", ingredientString);
+            return null;
+        }
+        try {
+            return JsonToNBT.getTagFromJson(ingredientString.substring(colonAfterMarker + 1));
+        } catch (NBTException e) {
+            Log.get().error("Failed to parse bookmarked ingredient from JSON:\n{}", ingredientString, e);
+            return null;
+        }
     }
 }

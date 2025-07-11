@@ -11,6 +11,8 @@ import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.DummyBookmarkItem;
 import mezz.jei.gui.recipes.RecipeLayout;
 import mezz.jei.ingredients.Ingredients;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +28,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     public BookmarkItem<?> secondaryTo;
     // These are possible ingredients, which are helpful for OreDictionary.
     public List<I> aliases;
+    public boolean foundAliases = false;
 
     public RecipeBookmarkItem(I ingredient) {
         super(ingredient);
@@ -78,6 +81,37 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         }
     }
 
+    public void populateSelf(RecipeChain chain) {
+        Ingredients ingredients = new Ingredients();
+        recipe.getIngredients(ingredients);
+        inputs = new ObjectArrayList<>();
+        for (IIngredientType<?> type : ingredients.getInputIngredients().keySet()) {
+            populateInputType(ingredients.getInputs(type));
+        }
+        for (int i = 0; i < inputs.size(); i++) {
+            RecipeBookmarkItem<?> other = chain.findOutputUsingAnAlias(inputs.get(i));
+            if (other != null) {
+                if (!other.foundAliases) {
+                    other.foundAliases = true;
+                    other.aliases = (List) inputs.get(i).aliases;
+                } else {
+                    other.aliases.retainAll(inputs.get(i).aliases);
+                }
+            }
+        }
+        this.outputAmount = 0L;
+        for (Object other :
+                ingredients.getOutputIngredients().get(Internal.getIngredientRegistry().getIngredientType(ingredient))) {
+            if (IngredientUtil.equals(ingredient, other)) {
+                this.outputAmount += IngredientUtil.getCount(other);
+            }
+        }
+        RecipeBookmarkItem<?> possibleSecondary = chain.findOutputWithSameRecipe(this);
+        if (possibleSecondary != null) {
+            secondaryTo = possibleSecondary;
+        }
+    }
+
     private <T> void populateInputType(List<List<T>> typeInputs) {
         int typeSize = typeInputs.size();
         boolean[] seen = new boolean[typeSize];
@@ -99,6 +133,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
             }
             inputs.add(new RecipeBookmarkItem<>(inputAliases, count));
         }
+        inputs.forEach(input -> input.foundAliases = true);
     }
 
     private <T> List<T> removeNulls(List<T> list) {
@@ -142,5 +177,28 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     @Override
     public long getDisplayAmount() {
         return outputAmount * getMultiplier();
+    }
+
+    @Override
+    public boolean deserialize(NBTTagCompound serialized) {
+        super.deserialize(serialized);
+        this.selfOutputAmount = serialized.getLong("selfOutputAmount");
+        this.category = Internal.getRuntime().getRecipeRegistry().getRecipeCategory(serialized.getString("category"));
+        this.recipe = Internal.getRuntime().getRecipeRegistry().getRecipeById(serialized.getLong("recipe"), category);
+        return true;
+    }
+
+    public String serialize() {
+        NBTTagCompound tag = getNBTOfIngredient(ingredient);
+        tag.setLong("amount", amount);
+        tag.setLong("selfOutputAmount", selfOutputAmount);
+        tag.setString("category", category.getUid());
+        tag.setLong("recipe", Internal.getRuntime().getRecipeRegistry().getRecipeId(recipe));
+
+        if (ingredient instanceof ItemStack) {
+            return MARKER_RECIPE + MARKER_STACK + tag;
+        } else {
+            return MARKER_RECIPE + MARKER_OTHER + tag;
+        }
     }
 }

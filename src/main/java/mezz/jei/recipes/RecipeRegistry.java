@@ -1,48 +1,19 @@
 package mezz.jei.recipes;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import mezz.jei.config.Config;
-import net.minecraftforge.fml.common.ProgressManager;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.inventory.Container;
-import net.minecraft.item.ItemStack;
-
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.*;
+import it.unimi.dsi.fastutil.objects.*;
 import mezz.jei.Internal;
 import mezz.jei.api.IRecipeRegistry;
 import mezz.jei.api.gui.IRecipeLayoutDrawable;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.VanillaTypes;
-import mezz.jei.api.recipe.IFocus;
-import mezz.jei.api.recipe.IIngredientType;
-import mezz.jei.api.recipe.IRecipeCategory;
-import mezz.jei.api.recipe.IRecipeHandler;
-import mezz.jei.api.recipe.IRecipeRegistryPlugin;
-import mezz.jei.api.recipe.IRecipeWrapper;
-import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
+import mezz.jei.api.recipe.*;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.collect.ListMultiMap;
 import mezz.jei.collect.SetMultiMap;
 import mezz.jei.collect.Table;
+import mezz.jei.config.Config;
 import mezz.jei.config.Constants;
 import mezz.jei.gui.Focus;
 import mezz.jei.gui.recipes.RecipeClickableArea;
@@ -53,8 +24,16 @@ import mezz.jei.ingredients.Ingredients;
 import mezz.jei.plugins.vanilla.furnace.SmeltingRecipe;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.inventory.Container;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.ProgressManager;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 public class RecipeRegistry implements IRecipeRegistry {
+	private final Map<IRecipeWrapper, Long> recipeIds = new Object2LongOpenHashMap<>();
 	private final IngredientRegistry ingredientRegistry;
 	@Deprecated
 	private final ImmutableList<IRecipeHandler> unsortedRecipeHandlers;
@@ -68,6 +47,7 @@ public class RecipeRegistry implements IRecipeRegistry {
 	private final ImmutableMap<String, IRecipeCategory> recipeCategoriesMap;
 	private final RecipeCategoryComparator recipeCategoryComparator;
 	private final Table<String, Object, IRecipeWrapper> wrapperMaps = new Table<>(new Object2ObjectOpenHashMap<>(), Reference2ObjectOpenHashMap::new); // used when removing recipes
+	private final Table<Long, IRecipeCategory, IRecipeWrapper> recipeWrappersByCategory = Table.hashBasedTable(); // used for getting recipes by ID
 	private final ListMultiMap<IRecipeCategory, IRecipeWrapper> recipeWrappersForCategories = new ListMultiMap<>();
 	private final RecipeMap recipeInputMap;
 	private final RecipeMap recipeOutputMap;
@@ -129,6 +109,31 @@ public class RecipeRegistry implements IRecipeRegistry {
 		for (IRecipeRegistryPlugin plugin : plugins) {
 			this.plugins.add(new RecipeRegistryPluginSafeWrapper(plugin));
 		}
+	}
+
+	private long calculateId(IRecipeWrapper recipe, IRecipeCategory<?> category) {
+		Ingredients ings = new Ingredients();
+		recipe.getIngredients(ings);
+		long step = 1;
+		long hash = 0;
+		for (IIngredientType<?> type : ings.getInputIngredients().keySet()) {
+			for (Object ingredient : ings.getInputIngredients().get(type)) {
+				hash += (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) * step;
+				step++;
+			}
+		}
+		for (IIngredientType<?> type : ings.getOutputIngredients().keySet()) {
+			for (Object ingredient : ings.getOutputIngredients().get(type)) {
+				hash += (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) * step;
+				step++;
+			}
+		}
+		hash += category.getUid().hashCode() * step;
+		if (!recipeIds.containsValue(hash)) { // Yes, this actually happens sometimes.
+			recipeIds.put(recipe, hash);
+			recipeWrappersForCategories.get(category).add(recipe);
+		}
+		return hash;
 	}
 
 	private <T> String getUniqueId(T ingredient) {
@@ -294,6 +299,10 @@ public class RecipeRegistry implements IRecipeRegistry {
 		recipeOutputMap.addRecipe(recipeWrapper, recipeCategory, ingredients.getOutputIngredients());
 
 		recipeWrappersForCategories.put(recipeCategory, recipeWrapper);
+
+		long recipeId = calculateId(recipeWrapper, recipeCategory);
+		recipeIds.put(recipeWrapper, recipeId);
+		recipeWrappersByCategory.put(recipeId, recipeCategory, recipeWrapper);
 
 		unhideRecipe(recipeWrapper, recipeCategory.getUid());
 
@@ -739,6 +748,15 @@ public class RecipeRegistry implements IRecipeRegistry {
 		}
 		hiddenRecipeCategoryUids.remove(recipeCategoryUid);
 		recipeCategoriesVisibleCache.clear();
+	}
+
+	@Nullable
+	public IRecipeWrapper getRecipeById(long id, IRecipeCategory recipeCategory) {
+		return recipeWrappersByCategory.get(id, recipeCategory);
+	}
+
+	public long getRecipeId(IRecipeWrapper recipe) {
+		return recipeIds.get(recipe);
 	}
 
 	@Override

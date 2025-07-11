@@ -24,7 +24,7 @@ import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_HEIGHT;
 
 public class BookmarkGroupOrganizer {
     private Rectangle area = new Rectangle();
-    private final List<BookmarkGroupDisplay> groups = new ArrayList<>(); // Equivalence between group area and group id
+    private final List<BookmarkGroupDisplay> groups = new ArrayList<>();
     private final List<IngredientRenderer> missingIngredientRenderers = new ArrayList<>();
     public final int GROUP_PADDING_Y = INGREDIENT_HEIGHT / 2 - 5;
     public final int GROUP_PADDING_X = BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH / 2 - 1;
@@ -39,6 +39,9 @@ public class BookmarkGroupOrganizer {
     public void setBookmarkGroupIds(List<Integer> bookmarkGroupIds) {
         // Find contiguous groups
         this.groups.clear();
+        if (bookmarkGroupIds.isEmpty()) {
+            return;
+        }
         int startOfSequence = 0;
         int contiguousGroupId = bookmarkGroupIds.get(0);
         for (int i = 0; i < bookmarkGroupIds.size(); i++) {
@@ -58,8 +61,12 @@ public class BookmarkGroupOrganizer {
         if (groupId == -1) {
             return;
         }
+        BookmarkGroup group = Internal.getBookmarkList().getBookmarkGroup(groupId);
+        if (group == null) {
+            return;
+        }
         Rectangle groupArea = getGroupArea(start, end, area);
-        groups.add(new BookmarkGroupDisplay(groupArea, groupId));
+        groups.add(new BookmarkGroupDisplay(groupArea, group));
     }
 
     private Rectangle getGroupArea(int rowStart, int rowEnd, Rectangle availableArea) {

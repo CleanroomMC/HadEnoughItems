@@ -38,7 +38,11 @@ public class BookmarkGroup {
         return false;
     }
 
-    protected void addItemInternal(BookmarkItem<?> item) {
+    public List<BookmarkItem<?>> getItemsInternal() {
+        return items;
+    }
+
+    public void addItemInternal(BookmarkItem<?> item) {
         items.add(item);
         ingredientListElements.add(getIngredientListElement(item));
         item.group = this;
@@ -87,4 +91,6 @@ public class BookmarkGroup {
         return 0x7FFFFFFF;
     }
 
+    public void finishLoading() {
+    }
 }

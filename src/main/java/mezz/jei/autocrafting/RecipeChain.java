@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.Internal;
 import mezz.jei.autocrafting.toposort.TopologicalSort;
+import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.Log;
 import net.minecraft.client.Minecraft;
@@ -17,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RecipeChain {
@@ -94,18 +94,32 @@ public class RecipeChain {
         }
     }
 
+    private Map<String, RecipeBookmarkItem<?>> getAliasMap() {
+        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+        Map<String, RecipeBookmarkItem<?>> aliasToNode = new Object2ObjectOpenHashMap<>();
+        group.getItemsInternal().forEach(node -> ((RecipeBookmarkItem) node).aliases.forEach(alias -> aliasToNode.put(ingredientRegistry.getUniqueId(alias),
+                ((RecipeBookmarkItem) node))));
+        return aliasToNode;
+    }
+
     public RecipeBookmarkItem<?> findOutputUsingAnAlias(RecipeBookmarkItem<?> output) {
-        return graphStorage.nodes().stream()
-                .filter(node -> output.aliases.contains(node.ingredient))
-                .findFirst()
-                .orElse(null);
+        Map<String, RecipeBookmarkItem<?>> aliasToNode = getAliasMap();
+        for (Object alias : output.aliases) {
+            String uniqueId = Internal.getIngredientRegistry().getUniqueId(alias);
+            if (aliasToNode.containsKey(uniqueId)) {
+                // Take the intersection of the two lists.
+                aliasToNode.get(uniqueId).aliases.retainAll(output.aliases);
+                return aliasToNode.get(uniqueId);
+            }
+        }
+        return null;
     }
 
     public RecipeBookmarkItem<?> findOutputWithSameRecipe(RecipeBookmarkItem<?> output) {
         IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
         String uniqueId = ingredientRegistry.getUniqueId(output.ingredient);
-        return graphStorage.nodes().stream()
-                .filter(node -> node.recipe != null && !uniqueId.equals(ingredientRegistry.getUniqueId(output.ingredient)) && node.recipe.equals(output.recipe))
+        return (RecipeBookmarkItem<?>) group.getItemsInternal().stream()
+                .filter(node -> ((RecipeBookmarkItem) node).recipe != null && !uniqueId.equals(ingredientRegistry.getUniqueId(output.ingredient)) && ((RecipeBookmarkItem) node).recipe.equals(output.recipe))
                 .findFirst()
                 .orElse(null);
     }
@@ -169,18 +183,6 @@ public class RecipeChain {
         }
     }
 
-    public Map<String, Long> getNodeSet() {
-        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
-        return graphStorage.nodes().stream().filter(node -> node.secondaryTo == null).collect(
-                Collectors.toMap(ingredientRegistry::getUniqueId, node -> node.amount));
-    }
-
-    public Map<String, Long> getOutputSet() {
-        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
-        return outputs.stream().collect(
-                Collectors.toMap(ingredientRegistry::getUniqueId, node -> node.selfOutputAmount));
-    }
-
     public void calculateMissingIngredients(Stack<RecipeBookmarkItem<?>> recipeList) {
         for (RecipeBookmarkItem<?> node : graphStorage.nodes()) {
             node.amount = node.selfOutputAmount;
@@ -225,19 +227,29 @@ public class RecipeChain {
         }
     }
 
-    public Stack<RecipeBookmarkItem<?>> getOutputsInAutocraftingOrder(Map<String, Long> missingIngredients) {
-        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
-        Stack<RecipeBookmarkItem<?>> outputs = TopologicalSort.topologicalSort(graphStorage, null).stream()
-                .filter(node -> node.secondaryTo == null && missingIngredients.get(ingredientRegistry.getUniqueId(node.ingredient)) != null)
-                .collect(Collectors.toCollection(Stack::new));
-        return outputs;
-    }
-
-    public void test(int t) {
-        if (t == 0) {
-            return;
+    public void rebuildGraph() {
+        for (BookmarkItem<?> node : group.getItemsInternal()) {
+            if (node instanceof RecipeBookmarkItem) {
+                ((RecipeBookmarkItem<?>) node).populateSelf(this); // This looks for new inputs and sets input aliases.
+                if (((RecipeBookmarkItem<?>) node).selfOutputAmount > 0) {
+                    outputs.add(((RecipeBookmarkItem<?>) node));
+                }
+            }
         }
-        test(t - 1);
+        for (BookmarkItem<?> node : group.getItemsInternal()) {
+            if (node instanceof RecipeBookmarkItem) {
+                RecipeBookmarkItem<?> requester = (RecipeBookmarkItem<?>) node;
+                for (RecipeBookmarkItem<?> input : requester.inputs) {
+                    RecipeBookmarkItem<?> other = findOutputUsingAnAlias(input);
+                    try {
+                        graphStorage.putEdgeValue(requester, other != null ? other : input, input.amount);
+                    } catch (IllegalArgumentException e) {
+                        Log.get().error("Failed to add edge from {} to {}.", requester, input, e);
+                    }
+                }
+            }
+        }
+        recheck();
     }
 
 }

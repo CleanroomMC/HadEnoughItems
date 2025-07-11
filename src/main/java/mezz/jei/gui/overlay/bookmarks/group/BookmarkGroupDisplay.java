@@ -12,9 +12,9 @@ public class BookmarkGroupDisplay implements IGhostIngredientHandler.Target {
     Rectangle area;
     BookmarkGroup group;
 
-    public BookmarkGroupDisplay(Rectangle area, int groupId) {
+    public BookmarkGroupDisplay(Rectangle area, BookmarkGroup group) {
         this.area = area;
-        this.group = Internal.getBookmarkList().getBookmarkGroup(groupId);
+        this.group = group;
     }
 
     @Override

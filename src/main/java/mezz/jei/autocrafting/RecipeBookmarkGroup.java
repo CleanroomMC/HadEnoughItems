@@ -17,7 +17,7 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
         super(id);
     }
 
-    protected void addItemInternal(BookmarkItem<?> item) {
+    public void addItemInternal(BookmarkItem<?> item) {
         super.addItemInternal(item);
         if (item instanceof RecipeBookmarkItem) {
             chain.addOutput((RecipeBookmarkItem<?>) item);
@@ -41,6 +41,10 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
             }
         }
         return list;
+    }
+
+    public void finishLoading() {
+        chain.rebuildGraph();
     }
 
     public List<IIngredientListElement<?>> getIngredientListElements() {

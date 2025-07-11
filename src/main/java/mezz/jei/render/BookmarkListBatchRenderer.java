@@ -68,7 +68,7 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
     public List<Integer> sizePages(List<IIngredientListElement> ingredientList) {
         List<Integer> pages = new IntArrayList();
         pages.add(0);
-        if (ingredientList.isEmpty()) {
+        if (ingredientList.isEmpty() || slots.isEmpty()) {
             return pages;
         }
 

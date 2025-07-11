@@ -1,16 +1,12 @@
 package mezz.jei.autocrafting.favorites;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import mezz.jei.Internal;
-import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.config.Config;
 import mezz.jei.ingredients.IngredientRegistry;
-import mezz.jei.ingredients.Ingredients;
 import mezz.jei.recipes.RecipeRegistry;
 import mezz.jei.util.Log;
 import org.apache.commons.io.IOUtils;
@@ -27,15 +23,14 @@ public class FavoriteRecipes {
 
     private static final Map<String, IRecipeWrapper> ingredients = new Object2ObjectOpenHashMap<>();
     private static IngredientRegistry ingredientRegistry;
-    public static final BiMap<IRecipeWrapper, Long> recipeIds = HashBiMap.create(128);
+    private static RecipeRegistry recipeRegistry;
     private static final Map<IRecipeWrapper, IRecipeCategory<?>> recipeCategories = new Object2ObjectOpenHashMap<>(8192);
-
 
     public static void load() {
         ingredients.clear();
-        recipeIds.clear();
         recipeCategories.clear();
         ingredientRegistry = Internal.getIngredientRegistry();
+        recipeRegistry = Internal.getRuntime().getRecipeRegistry();
         File file = Config.getFavoriteFile();
         if (file == null || !file.exists()) {
             return;
@@ -68,43 +63,15 @@ public class FavoriteRecipes {
 
     public static void addRecipesForCategory(IRecipeCategory<?> category, Map<Long, String> rawRecipes, RecipeRegistry recipeRegistry) {
         if (category != null && !rawRecipes.isEmpty()) {
-            for (IRecipeWrapper recipe : recipeRegistry.getRecipeWrappers(category)) {
-                long id = calculateId(recipe, category);
-                if (rawRecipes.containsKey(id)) {
-                    ingredients.put(rawRecipes.get(id), recipe);
+            for (Map.Entry<Long, String> entry : rawRecipes.entrySet()) {
+                IRecipeWrapper recipe = recipeRegistry.getRecipeById(entry.getKey(), category);
+                if (recipe != null) {
+                    ingredients.put(entry.getValue(), recipe);
                     recipeCategories.put(recipe, category);
-                    rawRecipes.remove(id);
-                    if (rawRecipes.isEmpty()) {
-                        break;
-                    }
                 }
             }
         }
         rawRecipes.clear();
-    }
-
-    public static long calculateId(IRecipeWrapper recipe, IRecipeCategory<?> category) {
-        Ingredients ings = new Ingredients();
-        recipe.getIngredients(ings);
-        long step = 1;
-        long hash = 0;
-        for (IIngredientType<?> type : ings.getInputIngredients().keySet()) {
-            for (Object ingredient : ings.getInputIngredients().get(type)) {
-                hash += (long) ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) * step;
-                step++;
-            }
-        }
-        for (IIngredientType<?> type : ings.getOutputIngredients().keySet()) {
-            for (Object ingredient : ings.getOutputIngredients().get(type)) {
-                hash += (long) ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) * step;
-                step++;
-            }
-        }
-        hash += category.getUid().hashCode() * step;
-        if (!recipeIds.containsValue(hash)) { // Yes, this actually happens sometimes.
-            recipeIds.put(recipe, hash);
-        }
-        return hash;
     }
 
     public static void save() {
@@ -121,7 +88,7 @@ public class FavoriteRecipes {
         for (Map.Entry<IRecipeCategory<?>, Map<String, IRecipeWrapper>> categoryEntry : categoryMap.entrySet()) {
             strings.add("#" + categoryEntry.getKey().getUid());
             for (Map.Entry<String, IRecipeWrapper> ingredientAndRecipe : categoryEntry.getValue().entrySet()) {
-                strings.add(recipeIds.get(ingredientAndRecipe.getValue()) + "%" + ingredientAndRecipe.getKey());
+                strings.add(recipeRegistry.getRecipeId(ingredientAndRecipe.getValue()) + "%" + ingredientAndRecipe.getKey());
             }
         }
 
@@ -151,9 +118,6 @@ public class FavoriteRecipes {
         } else {
             ingredients.put(id, recipe);
             recipeCategories.put(recipe, category);
-            if (!recipeIds.containsKey(recipe)) {
-                calculateId(recipe, category);
-            }
         }
         save();
     }
