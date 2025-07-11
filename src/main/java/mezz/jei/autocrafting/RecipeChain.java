@@ -14,10 +14,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RecipeChain {
@@ -66,7 +64,7 @@ public class RecipeChain {
             // If it's already in the graph, it would have been populated if possible.
             if (needed == null) {
                 needed = new RecipeBookmarkItem<>(input.aliases); // Make a copy of the input; don't modify the original amounts!
-                needed.group = group;
+                this.group.addItem(needed);
                 needed.populateWithFavorite();
                 expandNodeFirst(needed);
 
@@ -104,11 +102,17 @@ public class RecipeChain {
 
     public RecipeBookmarkItem<?> findOutputUsingAnAlias(RecipeBookmarkItem<?> output) {
         Map<String, RecipeBookmarkItem<?>> aliasToNode = getAliasMap();
-        for (Object alias : output.aliases) {
-            String uniqueId = Internal.getIngredientRegistry().getUniqueId(alias);
+        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+        List<String> aliasIds = output.aliases.stream().map(ingredientRegistry::getUniqueId).collect(Collectors.toList());
+        for (String uniqueId : aliasIds) {
             if (aliasToNode.containsKey(uniqueId)) {
+                if (!aliasToNode.get(uniqueId).foundAliases) {
+                    aliasToNode.get(uniqueId).foundAliases = true;
+                    aliasToNode.get(uniqueId).aliases = (List) new ObjectArrayList<>(output.aliases);
+                    aliasToNode.get(uniqueId).setIngredient(output.ingredient);
+                }
                 // Take the intersection of the two lists.
-                aliasToNode.get(uniqueId).aliases.retainAll(output.aliases);
+                aliasToNode.get(uniqueId).aliases.removeIf(a -> !aliasIds.contains(ingredientRegistry.getUniqueId(a)));
                 return aliasToNode.get(uniqueId);
             }
         }
@@ -181,6 +185,18 @@ public class RecipeChain {
                 secondaryOutputs.put(affectedSecondaries.get(0), affectedSecondaries);
             }
         }
+        // We do need to check for dead nodes now.
+        recheck();
+        calculateCrafting();
+        List<RecipeBookmarkItem> nodesToRemove = new ArrayList<>();
+        for (RecipeBookmarkItem otherNode : graphStorage.nodes()) {
+            if (otherNode.amount == 0) {
+                nodesToRemove.add(otherNode);
+            }
+        }
+        for (RecipeBookmarkItem otherNode : nodesToRemove) {
+            graphStorage.removeNode(otherNode);
+        }
     }
 
     public void calculateMissingIngredients(Stack<RecipeBookmarkItem<?>> recipeList) {
@@ -230,17 +246,17 @@ public class RecipeChain {
     public void rebuildGraph() {
         for (BookmarkItem<?> node : group.getItemsInternal()) {
             if (node instanceof RecipeBookmarkItem) {
-                ((RecipeBookmarkItem<?>) node).populateSelf(this); // This looks for new inputs and sets input aliases.
+                RecipeBookmarkItem<?> requester = (RecipeBookmarkItem<?>) node;
+
+                requester.populateSelf(this); // This looks for new inputs and sets input aliases.
                 if (((RecipeBookmarkItem<?>) node).selfOutputAmount > 0) {
                     outputs.add(((RecipeBookmarkItem<?>) node));
                 }
-            }
-        }
-        for (BookmarkItem<?> node : group.getItemsInternal()) {
-            if (node instanceof RecipeBookmarkItem) {
-                RecipeBookmarkItem<?> requester = (RecipeBookmarkItem<?>) node;
                 for (RecipeBookmarkItem<?> input : requester.inputs) {
                     RecipeBookmarkItem<?> other = findOutputUsingAnAlias(input);
+                    if (other == null && input.inputs != null) {
+                        Log.get().warn("Failed to get connections for {}", input);
+                    }
                     try {
                         graphStorage.putEdgeValue(requester, other != null ? other : input, input.amount);
                     } catch (IllegalArgumentException e) {
@@ -249,7 +265,6 @@ public class RecipeChain {
                 }
             }
         }
-        recheck();
     }
 
 }

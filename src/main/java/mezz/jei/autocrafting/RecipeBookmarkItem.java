@@ -88,17 +88,6 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         for (IIngredientType<?> type : ingredients.getInputIngredients().keySet()) {
             populateInputType(ingredients.getInputs(type));
         }
-        for (int i = 0; i < inputs.size(); i++) {
-            RecipeBookmarkItem<?> other = chain.findOutputUsingAnAlias(inputs.get(i));
-            if (other != null) {
-                if (!other.foundAliases) {
-                    other.foundAliases = true;
-                    other.aliases = (List) inputs.get(i).aliases;
-                } else {
-                    other.aliases.retainAll(inputs.get(i).aliases);
-                }
-            }
-        }
         this.outputAmount = 0L;
         for (Object other :
                 ingredients.getOutputIngredients().get(Internal.getIngredientRegistry().getIngredientType(ingredient))) {

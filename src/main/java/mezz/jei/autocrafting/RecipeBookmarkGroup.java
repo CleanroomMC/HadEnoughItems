@@ -19,9 +19,17 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
 
     public void addItemInternal(BookmarkItem<?> item) {
         super.addItemInternal(item);
-        if (item instanceof RecipeBookmarkItem) {
-            chain.addOutput((RecipeBookmarkItem<?>) item);
+    }
+
+    public boolean addItem(BookmarkItem<?> item) {
+        if (canAddItem(item)) {
+            addItemInternal(item);
+            if (item instanceof RecipeBookmarkItem) {
+                chain.addOutput((RecipeBookmarkItem<?>) item);
+            }
+            return true;
         }
+        return false;
     }
 
     public boolean canAddItem(BookmarkItem<?> item) {
@@ -32,7 +40,7 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
     public List<BookmarkItem<?>> getItems() {
         List<BookmarkItem<?>> list = new ArrayList<>();
         for (RecipeBookmarkItem<?> item : chain.getDisplayOutputs()) {
-            if (item.secondaryTo == null && item.inputs != null) {
+            if (item.secondaryTo == null && item.inputs != null && !item.inputs.isEmpty()) {
                 list.add(item);
                 if (chain.secondaryOutputs.containsKey(item)) {
                     list.addAll(chain.secondaryOutputs.get(item));
@@ -63,10 +71,10 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
 
     @Override
     public void removeItem(BookmarkItem<?> item) {
+        super.removeItem(item);
         if (item instanceof RecipeBookmarkItem) {
             chain.removeNode((RecipeBookmarkItem<?>) item);
         }
-        super.removeItem(item);
     }
 
     public void autocraft() {

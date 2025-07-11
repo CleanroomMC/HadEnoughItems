@@ -174,4 +174,10 @@ public class BookmarkItem<I> {
             return null;
         }
     }
+
+    public <O> void setIngredient(O ingredient) {
+        if (this.ingredient.getClass().isAssignableFrom(ingredient.getClass())) { // Incredible instanceof
+            this.ingredient = (I) ingredient;
+        }
+    }
 }

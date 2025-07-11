@@ -178,8 +178,7 @@ public class BookmarkList implements IIngredientGridSource {
         for (String ingredientJsonString : ingredientJsonStrings) {
             BookmarkItem<?> item = BookmarkItem.deserialize(ingredientJsonString, otherIngredientTypes);
             if (item != null) {
-                group.getItemsInternal().add(item); // Don't cause recipe chains to update
-                item.group = group;
+                group.addItemInternal(item); // Don't cause recipe chains to update
             } else if (ingredientJsonString.startsWith(MARKER_GROUP)) {
                 if (!group.items.isEmpty()) {
                     list.add(group);
