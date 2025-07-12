@@ -96,8 +96,9 @@ public class RecipeFavoriteButton extends GuiIconButton {
             BookmarkList bookmarkList = Internal.getBookmarkList();
             RecipeBookmarkGroup group = new RecipeBookmarkGroup(bookmarkList.nextId());
             RecipeBookmarkItem<?> recipeBookmarkItem = new RecipeBookmarkItem<>(supportedIngredients.get(selectedSlot).getDisplayedIngredient());
+            recipeBookmarkItem.setGroup(group); // Do this early so that the dummy items are also added.
             recipeBookmarkItem.populateWith(recipe, category);
-            group.addItem(recipeBookmarkItem);
+            group.addItem(recipeBookmarkItem); // Do this late so that the recipe isn't overwritten.
             group.update();
             return bookmarkList.add(group);
         }

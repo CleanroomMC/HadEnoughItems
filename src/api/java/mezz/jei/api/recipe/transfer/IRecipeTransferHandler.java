@@ -36,7 +36,7 @@ public interface IRecipeTransferHandler<C extends Container> {
 
 
     /**
-     * Implementations of this method must lead to {@link IAutocraftingHandler#informOfAutocrafting} being called at some point!
+     * Implementations of this method must lead to {@link IAutocraftingHandler#informOfEvent} being called at some point!
      * @param container    the container to act on
      * @param recipeLayout the layout of the recipe, with information about the ingredients
      * @param player       the player, to do the slot manipulation

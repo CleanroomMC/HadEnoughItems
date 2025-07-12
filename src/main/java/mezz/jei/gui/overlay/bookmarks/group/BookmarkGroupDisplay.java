@@ -25,7 +25,7 @@ public class BookmarkGroupDisplay implements IGhostIngredientHandler.Target {
     @Override
     public void accept(Object ingredient) {
         if (ingredient instanceof BookmarkItem) {
-            BookmarkGroup oldGroup = ((BookmarkItem<?>) ingredient).group;
+            BookmarkGroup oldGroup = ((BookmarkItem<?>) ingredient).getGroup();
             boolean canAdd = group.addItem((BookmarkItem<?>) ingredient);
             if (canAdd) {
                 if (oldGroup != null) {

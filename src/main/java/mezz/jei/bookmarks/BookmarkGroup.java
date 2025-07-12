@@ -45,7 +45,7 @@ public class BookmarkGroup {
     public void addItemInternal(BookmarkItem<?> item) {
         items.add(item);
         ingredientListElements.add(getIngredientListElement(item));
-        item.group = this;
+        item.setGroup(this);
     }
 
     public boolean canAddItem(BookmarkItem<?> item) {
@@ -72,7 +72,7 @@ public class BookmarkGroup {
             items.add(item);
             ingredientListElements.add(element);
         }
-        item.group = this;
+        item.setGroup(this);
         return true;
     }
 

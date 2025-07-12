@@ -189,8 +189,8 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 
 	@Override
 	public int getGroupIndex() {
-		if (ingredient instanceof BookmarkItem<?> && ((BookmarkItem<?>) ingredient).group != null) {
-			return ((BookmarkItem<?>) ingredient).group.id;
+		if (ingredient instanceof BookmarkItem<?> && ((BookmarkItem<?>) ingredient).getGroup() != null) {
+			return ((BookmarkItem<?>) ingredient).getGroup().id;
 		}
 		return 0;
 	}

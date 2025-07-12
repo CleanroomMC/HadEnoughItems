@@ -9,7 +9,7 @@ public class DummyBookmarkItem<I> extends BookmarkItem<I> {
     private final Supplier<Long> displayAmountSupplier;
     public DummyBookmarkItem(I ingredient, BookmarkGroup group, Supplier<Long> displayAmountSupplier) {
         super(ingredient);
-        this.group = group;
+        this.setGroup(group);
         this.displayAmountSupplier = displayAmountSupplier;
         IngredientUtil.normalizeCopy(this.ingredient);
     }

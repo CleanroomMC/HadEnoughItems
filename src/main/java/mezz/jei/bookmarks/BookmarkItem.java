@@ -24,7 +24,7 @@ public class BookmarkItem<I> {
     public I ingredient;
     public long amount = 0L;
     @Nullable
-    public BookmarkGroup group;
+    protected BookmarkGroup group;
 
     protected static final String MARKER_OTHER = "O:";
     protected static final String MARKER_STACK = "T:";
@@ -51,7 +51,7 @@ public class BookmarkItem<I> {
     }
 
     public int getGroupIndex() {
-        return group == null ? 0 : group.id;
+        return getGroup() == null ? 0 : getGroup().id;
     }
 
     public void changeAmount(long delta) {
@@ -179,5 +179,14 @@ public class BookmarkItem<I> {
         if (this.ingredient.getClass().isAssignableFrom(ingredient.getClass())) { // Incredible instanceof
             this.ingredient = (I) ingredient;
         }
+    }
+
+    public void setGroup(BookmarkGroup group) {
+        this.group = group;
+    }
+
+    @Nullable
+    public BookmarkGroup getGroup() {
+        return group;
     }
 }

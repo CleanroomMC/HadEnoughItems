@@ -1,6 +1,7 @@
 package mezz.jei.autocrafting;
 
 import mezz.jei.Internal;
+import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
 import mezz.jei.bookmarks.BookmarkGroup;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -26,6 +27,7 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
             addItemInternal(item);
             if (item instanceof RecipeBookmarkItem) {
                 chain.addOutput((RecipeBookmarkItem<?>) item);
+                update();
             }
             return true;
         }
@@ -65,7 +67,6 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
     }
 
     public void update() {
-        chain.recheck();
         chain.calculateCrafting();
     }
 
@@ -74,11 +75,16 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
         super.removeItem(item);
         if (item instanceof RecipeBookmarkItem) {
             chain.removeNode((RecipeBookmarkItem<?>) item);
+            // NOTE: there may be a bug here with removing certain intermediate steps.
+            // I happened upon a glitch like it once, but ten hours later, I can't reproduce it.
         }
     }
 
     public void autocraft() {
-        ((AutocraftingHandler) Internal.getRuntime().getAutocraftingHandler()).startAutocrafting(chain);
+        IAutocraftingHandler handler = Internal.getRuntime().getAutocraftingHandler();
+        if (!handler.isActive()) {
+            ((AutocraftingHandler) Internal.getRuntime().getAutocraftingHandler()).start(chain);
+        }
     }
 
     public int getColor() {

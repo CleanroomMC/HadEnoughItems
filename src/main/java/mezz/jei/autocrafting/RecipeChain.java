@@ -46,9 +46,28 @@ public class RecipeChain {
     }
 
     public void addOutput(RecipeBookmarkItem<?> recipeOutput) {
-        outputs.add(recipeOutput);
-        recipeOutput.selfOutputAmount = recipeOutput.outputAmount;
-        expandNode(recipeOutput);
+        boolean connected = false;
+        // We need to check if it's an input to an existing recipe.
+        Map<RecipeBookmarkItem<?>, RecipeBookmarkItem<?>> others = new Object2ObjectOpenHashMap<>();
+        for (RecipeBookmarkItem<?> node : graphStorage.nodes()) {
+            if (!node.isPopulated()) {
+                continue;
+            }
+            for (RecipeBookmarkItem<?> input : node.inputs) {
+                if (IngredientUtil.equals(input.ingredient, recipeOutput.ingredient)) {
+                    connected = true;
+                    others.put(node, input);
+                }
+            }
+        }
+        for (Map.Entry<RecipeBookmarkItem<?>, RecipeBookmarkItem<?>> entry : others.entrySet()) {
+            graphStorage.putEdgeValue(entry.getKey(), recipeOutput, entry.getValue().amount);
+        }
+        if (!connected) {
+            outputs.add(recipeOutput);
+            recipeOutput.selfOutputAmount = recipeOutput.outputAmount;
+        }
+        expandNodeFirst(recipeOutput); // This also can look for matching inputs!
     }
 
     private void expandNodeFirst(RecipeBookmarkItem<?> requester) {
@@ -78,6 +97,7 @@ public class RecipeChain {
             }
             try {
                 graphStorage.putEdgeValue(requester, needed, input.amount);
+                needed.setGroup(group); // May not be the case if we're dragging in a new recipe.
             } catch (IllegalArgumentException e) {
                 Log.get().error("Failed to add edge from {} to {}.", requester, needed, e);
             }
@@ -258,7 +278,7 @@ public class RecipeChain {
                         Log.get().warn("Failed to get connections for {}", input);
                     }
                     try {
-                        graphStorage.putEdgeValue(requester, other != null ? other : input, input.amount);
+                        graphStorage.putEdgeValue(requester, other != null ? other : new RecipeBookmarkItem<>(input.aliases), input.amount);
                     } catch (IllegalArgumentException e) {
                         Log.get().error("Failed to add edge from {} to {}.", requester, input, e);
                     }

@@ -48,7 +48,7 @@ public class IngredientUtil {
     public static <T> BookmarkItem<T> normalizeBookmark(BookmarkItem<T> ingredient) {
         IIngredientHelper<BookmarkItem<T>> ingredientHelper = Internal.getIngredientRegistry().getIngredientHelper(ingredient);
         BookmarkItem<T> copy = LegacyUtil.getIngredientCopy(ingredient, ingredientHelper);
-        normalizeCopy(copy.ingredient);
+        copy.ingredient = normalizeCopy(copy.ingredient);
         return copy;
     }
 

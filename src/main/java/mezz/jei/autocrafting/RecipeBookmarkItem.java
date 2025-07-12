@@ -7,6 +7,7 @@ import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
+import mezz.jei.bookmarks.BookmarkGroup;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.DummyBookmarkItem;
 import mezz.jei.gui.recipes.RecipeLayout;
@@ -29,6 +30,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     // These are possible ingredients, which are helpful for OreDictionary.
     public List<I> aliases;
     public boolean foundAliases = false;
+    private List<DummyBookmarkItem<?>> inputDummyItems; // Cached for performance
 
     public RecipeBookmarkItem(I ingredient) {
         super(ingredient);
@@ -79,22 +81,15 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
                 this.outputAmount += IngredientUtil.getCount(other);
             }
         }
+
+        inputDummyItems = inputs.stream().map((input) -> {
+            final long initialSize = input.amount;
+            return new DummyBookmarkItem<>(input.aliases.get(0), getGroup(), () -> initialSize * getMultiplier());
+        }).collect(Collectors.toList());
     }
 
     public void populateSelf(RecipeChain chain) {
-        Ingredients ingredients = new Ingredients();
-        recipe.getIngredients(ingredients);
-        inputs = new ObjectArrayList<>();
-        for (IIngredientType<?> type : ingredients.getInputIngredients().keySet()) {
-            populateInputType(ingredients.getInputs(type));
-        }
-        this.outputAmount = 0L;
-        for (Object other :
-                ingredients.getOutputIngredients().get(Internal.getIngredientRegistry().getIngredientType(ingredient))) {
-            if (IngredientUtil.equals(ingredient, other)) {
-                this.outputAmount += IngredientUtil.getCount(other);
-            }
-        }
+        populateWith(recipe, category);
         RecipeBookmarkItem<?> possibleSecondary = chain.findOutputWithSameRecipe(this);
         if (possibleSecondary != null) {
             secondaryTo = possibleSecondary;
@@ -144,7 +139,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     }
 
     public List<DummyBookmarkItem<?>> getInputs() {
-        return inputs.stream().map((input) -> new DummyBookmarkItem<>(input.aliases.get(0), group, () -> input.amount * getMultiplier())).collect(Collectors.toList());
+        return inputDummyItems;
     }
 
     public long getMultiplier() {
@@ -154,8 +149,8 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     @Override
     public void changeAmount(long delta) {
         this.selfOutputAmount = Math.max(0L, this.selfOutputAmount + delta);
-        if (this.group instanceof RecipeBookmarkGroup) {
-            ((RecipeBookmarkGroup) this.group).update();
+        if (this.getGroup() instanceof RecipeBookmarkGroup) {
+            ((RecipeBookmarkGroup) this.getGroup()).update();
         }
     }
 
@@ -188,6 +183,14 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
             return MARKER_RECIPE + MARKER_STACK + tag;
         } else {
             return MARKER_RECIPE + MARKER_OTHER + tag;
+        }
+    }
+
+    @Override
+    public void setGroup(BookmarkGroup group) {
+        super.setGroup(group);
+        if (this.inputDummyItems != null) {
+            this.inputDummyItems.forEach(item -> item.setGroup(group));
         }
     }
 }

@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.recipe.IFocus;
+import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
@@ -45,6 +46,7 @@ public class InputHandler {
     private final IngredientListOverlay ingredientListOverlay;
     private final LeftAreaDispatcher leftAreaDispatcher;
     private final BookmarkList bookmarkList;
+    private final IAutocraftingHandler autocraftingHandler;
     private final List<IShowsRecipeFocuses> showsRecipeFocuses = new ArrayList<>();
     private final IntSet clickHandled = new IntArraySet();
     private final GhostIngredientDragManager ghostIngredientDragManager;
@@ -57,6 +59,7 @@ public class InputHandler {
         this.ingredientListOverlay = ingredientListOverlay;
         this.leftAreaDispatcher = leftAreaDispatcher;
         this.bookmarkList = bookmarkList;
+        this.autocraftingHandler = runtime.getAutocraftingHandler();
         this.ghostIngredientDragManager = ghostIngredientDragManager;
 
         this.showsRecipeFocuses.add(recipesGui);
@@ -245,7 +248,7 @@ public class InputHandler {
     }
 
     private boolean hasKeyboardFocus() {
-        return ingredientListOverlay.hasKeyboardFocus();
+        return ingredientListOverlay.hasKeyboardFocus() || autocraftingHandler.isActive();
     }
 
     private boolean handleKeyEvent() {
@@ -257,6 +260,13 @@ public class InputHandler {
     }
 
     private boolean handleKeyDown(char typedChar, int eventKey) {
+        if (autocraftingHandler.isActive()) {
+            if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+                autocraftingHandler.stop();
+                return true;
+            }
+        }
+
         if (ghostIngredientDragManager.handleKeyDown(eventKey)) {
             return true;
         }

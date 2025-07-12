@@ -20,13 +20,13 @@ public class AutocraftingHandler implements IAutocraftingHandler {
     private RecipeBookmarkItem<?> currentRequester;
     private Stack<RecipeBookmarkItem<?>> recipesToAutocraft;
 
-    public void startAutocrafting(RecipeChain chain) {
+    public void start(RecipeChain chain) {
         this.currentChain = chain;
 
         recipesToAutocraft = new Stack<>();
         chain.calculateMissingIngredients(recipesToAutocraft);
         if (recipesToAutocraft.isEmpty()) {
-            reset();
+            stop();
             return;
         }
         chain.calculateCrafting(); // Reset the displayed amounts.
@@ -37,19 +37,19 @@ public class AutocraftingHandler implements IAutocraftingHandler {
     // Returns true if the autocrafting can continue (if a recipe isn't craftable, we just continue to something else).
     private boolean autocraft() {
         if (this.currentRequester == null) {
-            reset();
+            stop();
             return false;
         }
         Minecraft minecraft = Minecraft.getMinecraft();
         EntityPlayerSP player = minecraft.player;
         if (player == null) {
-            reset();
+            stop();
             return false;
         }
         Container openContainer = player.openContainer;
         RecipeRegistry recipeRegistry = Internal.getRuntime().getRecipeRegistry();
         if (openContainer == null) {
-            reset();
+            stop();
             return false;
         }
         IRecipeCategory recipeCategory = currentRequester.category;
@@ -65,9 +65,9 @@ public class AutocraftingHandler implements IAutocraftingHandler {
         return true;
     }
 
-    public void autocraftLoop() {
+    private void autocraftLoop() {
         if (recipesToAutocraft.isEmpty()) {
-            reset();
+            stop();
             return;
         }
         do {
@@ -76,7 +76,7 @@ public class AutocraftingHandler implements IAutocraftingHandler {
     }
 
     @Override
-    public void informOfAutocrafting(boolean success, int amount) {
+    public void informOfEvent(boolean success, int amount) {
         if (this.recipesToAutocraft == null) {
             return;
         }
@@ -87,9 +87,16 @@ public class AutocraftingHandler implements IAutocraftingHandler {
         autocraftLoop();
     }
 
-    private void reset() {
+    @Override
+    public void stop() {
         this.currentChain = null;
         this.currentRequester = null;
         this.recipesToAutocraft = null;
     }
+
+    @Override
+    public boolean isActive() {
+        return this.currentChain != null;
+    }
+
 }

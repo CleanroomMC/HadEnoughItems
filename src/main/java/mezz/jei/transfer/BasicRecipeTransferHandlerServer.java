@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public final class BasicRecipeTransferHandlerServer {
+    public static int itemsCrafted;
     private BasicRecipeTransferHandlerServer() {
     }
 
@@ -299,7 +300,7 @@ public final class BasicRecipeTransferHandlerServer {
 
     /**
      * Perform the recipe, in this case by taking the result in the output slot and giving it to the player if possible.
-     * Sends a network message to the client which calls {@link IAutocraftingHandler#informOfAutocrafting(boolean, int)} to continue the autocrafting process.
+     * Sends a network message to the client which calls {@link IAutocraftingHandler#informOfEvent(boolean, int)} to continue the autocrafting process.
      *
      * @param player     The player whose inventory to check
      * @param outputSlot The index of the output slot in the given crafting inventory
@@ -312,14 +313,15 @@ public final class BasicRecipeTransferHandlerServer {
         ItemStack outputStack = player.openContainer.getSlot(outputSlot).getStack();
         EntityPlayerMP playerMP = (EntityPlayerMP) player;
         if (!outputStack.isEmpty()) {
-            int count = outputStack.getCount();
+            // You may be asking yourself why I'm not just getting the result from the below method.
+            // As it turns out, Minecraft gets the output one click at a time, overwriting the stack every single time.
+            // So, we have to hook into the listener system and see how many times the output slot updates to figure this out!
+            itemsCrafted = 0;
             playerMP.openContainer.slotClick(outputSlot, 0, ClickType.QUICK_MOVE, player);
             playerMP.updateHeldItem();
-            playerMP.openContainer.detectAndSendChanges();
-            JustEnoughItems.getProxy().sendPacketToClient(new PacketCraftUpdate(true, count), playerMP);
+            JustEnoughItems.getProxy().sendPacketToClient(new PacketCraftUpdate(true, itemsCrafted), playerMP);
             return;
         }
-        playerMP.openContainer.detectAndSendChanges();
         JustEnoughItems.getProxy().sendPacketToClient(new PacketCraftUpdate(false, 0), playerMP);
     }
 }
