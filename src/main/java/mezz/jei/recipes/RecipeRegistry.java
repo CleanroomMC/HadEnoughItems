@@ -121,15 +121,13 @@ public class RecipeRegistry implements IRecipeRegistry {
 	private long calculateId(IRecipeWrapper recipe, IRecipeCategory<?> category) {
 		Ingredients ings = new Ingredients();
 		recipe.getIngredients(ings);
-		long step = 1;
 		long hash = 0;
 		for (IIngredientType<?> type : supportedTypes) {
 			if (ings.getInputIngredients().get(type) == null) {
 				continue;
 			}
-			for (Object ingredient : ings.getInputIngredients().get(type)) { // TODO: replace with better hash function
-				hash += (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) * step;
-				step++;
+			for (Object ingredient : ings.getInputIngredients().get(type)) {
+				hash = (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) + hash * 31;
 			}
 		}
 		for (IIngredientType<?> type : supportedTypes) {
@@ -137,16 +135,14 @@ public class RecipeRegistry implements IRecipeRegistry {
 				continue;
 			}
 			for (Object ingredient : ings.getOutputIngredients().get(type)) {
-				hash += (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) * step;
-				step++;
+				hash = (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) + hash * 31;
 			}
 		}
-		hash += category.getUid().hashCode() * step;
+		hash = category.getUid().hashCode() + hash * 31;
 		if (!recipeIds.containsValue(hash)) { // Yes, this actually happens sometimes.
 			recipeIds.put(recipe, hash);
 			recipeWrappersForCategories.get(category).add(recipe);
 		}
-		//Log.get().info("Calculated recipe id: {}", hash);
 		return hash;
 	}
 
