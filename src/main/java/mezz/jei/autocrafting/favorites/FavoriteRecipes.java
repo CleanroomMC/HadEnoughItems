@@ -68,6 +68,8 @@ public class FavoriteRecipes {
                 if (recipe != null) {
                     ingredients.put(entry.getValue(), recipe);
                     recipeCategories.put(recipe, category);
+                } else {
+                    Log.get().warn("Could not find recipe with id {} in category {}!", entry.getKey(), category.getUid());
                 }
             }
         }

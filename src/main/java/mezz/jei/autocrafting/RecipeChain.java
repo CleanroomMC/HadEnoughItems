@@ -172,7 +172,7 @@ public class RecipeChain {
                 continue;
             }
             // Divide the amount of the item used in the recipe by how many of the requested item it produces (rounding up).
-            needed.amount += (requester.amount * graphStorage.edgeValue(requester, needed) + requester.outputAmount - 1) / requester.outputAmount;
+            needed.amount += ((requester.amount + requester.outputAmount - 1) / requester.outputAmount) * graphStorage.edgeValue(requester, needed);
         }
         if (needed.secondaryTo != null) {
             needed.secondaryTo.amount = Math.max(needed.secondaryTo.amount, needed.amount);
@@ -288,7 +288,6 @@ public class RecipeChain {
         for (BookmarkItem<?> node : group.getItemsInternal()) {
             if (node instanceof RecipeBookmarkItem) {
                 RecipeBookmarkItem<?> requester = (RecipeBookmarkItem<?>) node;
-
                 requester.populateSelf(this); // This looks for new inputs and sets input aliases.
                 if (((RecipeBookmarkItem<?>) node).selfOutputAmount > 0) {
                     outputs.add(((RecipeBookmarkItem<?>) node));

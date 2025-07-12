@@ -32,7 +32,7 @@ public class BookmarkItem<I> {
     protected static final char MARKER_RECIPE = 'R';
 
     public BookmarkItem(I ingredient) {
-        this.ingredient = ingredient;
+        this.ingredient = IngredientUtil.normalizeCopy(ingredient);
     }
 
     public BookmarkItem<I> copy() {

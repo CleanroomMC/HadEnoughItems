@@ -1,6 +1,5 @@
 package mezz.jei.bookmarks;
 
-import mezz.jei.autocrafting.IngredientUtil;
 import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.function.Supplier;
@@ -11,7 +10,6 @@ public class DummyBookmarkItem<I> extends BookmarkItem<I> {
         super(ingredient);
         this.setGroup(group);
         this.displayAmountSupplier = displayAmountSupplier;
-        IngredientUtil.normalizeCopy(this.ingredient);
     }
 
     @Override

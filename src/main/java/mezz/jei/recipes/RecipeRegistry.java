@@ -111,18 +111,31 @@ public class RecipeRegistry implements IRecipeRegistry {
 		}
 	}
 
+	public static List<IIngredientType> supportedTypes = new ArrayList<>(); // Creates a constant order; required for recipe ID consistency
+
+	static {
+		supportedTypes.add(VanillaTypes.ITEM);
+		supportedTypes.add(VanillaTypes.FLUID);
+	}
+
 	private long calculateId(IRecipeWrapper recipe, IRecipeCategory<?> category) {
 		Ingredients ings = new Ingredients();
 		recipe.getIngredients(ings);
 		long step = 1;
 		long hash = 0;
-		for (IIngredientType<?> type : ings.getInputIngredients().keySet()) {
-			for (Object ingredient : ings.getInputIngredients().get(type)) {
+		for (IIngredientType<?> type : supportedTypes) {
+			if (ings.getInputIngredients().get(type) == null) {
+				continue;
+			}
+			for (Object ingredient : ings.getInputIngredients().get(type)) { // TODO: replace with better hash function
 				hash += (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) * step;
 				step++;
 			}
 		}
-		for (IIngredientType<?> type : ings.getOutputIngredients().keySet()) {
+		for (IIngredientType<?> type : supportedTypes) {
+			if (ings.getOutputIngredients().get(type) == null) {
+				continue;
+			}
 			for (Object ingredient : ings.getOutputIngredients().get(type)) {
 				hash += (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) * step;
 				step++;
@@ -133,6 +146,7 @@ public class RecipeRegistry implements IRecipeRegistry {
 			recipeIds.put(recipe, hash);
 			recipeWrappersForCategories.get(category).add(recipe);
 		}
+		//Log.get().info("Calculated recipe id: {}", hash);
 		return hash;
 	}
 

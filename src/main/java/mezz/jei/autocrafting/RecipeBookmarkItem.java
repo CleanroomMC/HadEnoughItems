@@ -34,7 +34,6 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 
     public RecipeBookmarkItem(I ingredient) {
         super(ingredient);
-        this.ingredient = IngredientUtil.normalizeCopy(ingredient);
         this.aliases = new ObjectArrayList<>();
         this.aliases.add(ingredient);
     }
@@ -69,7 +68,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         this.recipe = recipe;
         this.category = category;
         Ingredients ingredients = new Ingredients();
-        recipe.getIngredients(ingredients);
+        this.recipe.getIngredients(ingredients);
         inputs = new ObjectArrayList<>();
         for (IIngredientType<?> type : ingredients.getInputIngredients().keySet()) {
             populateInputType(ingredients.getInputs(type));
