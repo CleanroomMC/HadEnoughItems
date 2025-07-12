@@ -1,6 +1,7 @@
 package mezz.jei.render;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
 
@@ -14,6 +15,10 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
     }
 
     public void set(final int startIndex, List<IIngredientListElement> ingredientList) {
+        if (!Config.areRecipeBookmarksEnabled()) {
+            super.set(startIndex, ingredientList);
+            return;
+        }
         renderItems2d.clear();
         renderItems3d.clear();
         renderOther.clear();

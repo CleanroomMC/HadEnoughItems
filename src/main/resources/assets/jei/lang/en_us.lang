@@ -62,8 +62,8 @@ config.jei.mode.cheatItemsEnabled=Cheat Mode
 config.jei.mode.cheatItemsEnabled.comment=Give items instead of showing the recipe.
 config.jei.mode.editEnabled=Hide Ingredients Mode
 config.jei.mode.editEnabled.comment=Hide and unhide ingredients by clicking them in the list.
-config.jei.mode.recipeBookmarksEnabled=Recipe Bookmarks
-config.jei.mode.recipeBookmarksEnabled.comment=Add and remove bookmarks for recipes and use them for autocrafting.
+config.jei.mode.recipeBookmarksEnabled=Enable Recipe Bookmarks
+config.jei.mode.recipeBookmarksEnabled.comment=Add and remove bookmark groups for recipes and use them for autocrafting.
 
 config.jei.interface=Interface
 config.jei.interface.comment=Options related to the User Interface.

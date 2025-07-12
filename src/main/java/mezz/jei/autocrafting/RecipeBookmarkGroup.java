@@ -5,6 +5,7 @@ import mezz.jei.Internal;
 import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
 import mezz.jei.bookmarks.BookmarkGroup;
 import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 
 import java.util.ArrayList;
@@ -42,6 +43,9 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
     @Override
     public List<BookmarkItem<?>> getItems() {
         List<BookmarkItem<?>> list = new ArrayList<>();
+        if (!Config.areRecipeBookmarksEnabled()) {
+            return list;
+        }
         for (RecipeBookmarkItem<?> item : chain.getDisplayOutputs()) {
             if (item.secondaryTo == null && item.inputs != null && !item.inputs.isEmpty()) {
                 list.add(item);

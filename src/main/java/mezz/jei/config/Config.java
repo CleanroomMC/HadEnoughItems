@@ -174,6 +174,10 @@ public final class Config {
 		MinecraftForge.EVENT_BUS.post(new EditModeToggleEvent(values.editModeEnabled));
 	}
 
+	public static boolean areRecipeBookmarksEnabled() {
+		return values.recipeBookmarksEnabled;
+	}
+
 	public static boolean isDebugModeEnabled() {
 		return values.debugModeEnabled;
 	}
@@ -622,8 +626,7 @@ public final class Config {
 		property = worldConfig.get(worldCategory, "recipeBookmarksEnabled", defaultValues.recipeBookmarksEnabled);
 		property.setLanguageKey("config.jei.mode.recipeBookmarksEnabled");
 		property.setComment(Translator.translateToLocal("config.jei.mode.recipeBookmarksEnabled.comment"));
-		values.cheatItemsEnabled = property.getBoolean();
-
+		values.recipeBookmarksEnabled = property.getBoolean();
 
 		property = worldConfig.get(worldCategory, "filterText", defaultValues.filterText);
 		property.setShowInGui(false);

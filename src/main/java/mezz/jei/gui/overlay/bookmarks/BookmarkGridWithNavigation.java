@@ -2,6 +2,7 @@ package mezz.jei.gui.overlay.bookmarks;
 
 import mezz.jei.Internal;
 import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.config.Config;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -71,9 +72,9 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         Rectangle movedNavigationArea = MathUtil.moveDownToAvoidIntersection(guiExclusionAreas, estimatedNavigationArea);
         int navigationMaxY = movedNavigationArea.y + movedNavigationArea.height;
         Rectangle boundsWithoutNavigation = new Rectangle(
-            availableArea.x + BOOKMARK_TAB_WIDTH,
+            availableArea.x + (Config.areRecipeBookmarksEnabled() ? BOOKMARK_TAB_WIDTH : 0),
             navigationMaxY,
-            availableArea.width - BOOKMARK_TAB_WIDTH,
+            availableArea.width - (Config.areRecipeBookmarksEnabled() ? BOOKMARK_TAB_WIDTH : 0),
             availableArea.height - navigationMaxY
         );
         Rectangle groupOrganizerBounds = new Rectangle(

@@ -7,6 +7,7 @@ import mezz.jei.autocrafting.RecipeBookmarkGroup;
 import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.bookmarks.BookmarkGroup;
 import mezz.jei.bookmarks.BookmarkList;
+import mezz.jei.config.Config;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -87,6 +88,9 @@ public class BookmarkGroupOrganizer {
     }
 
     public void draw(Minecraft minecraft, int mouseX, int mouseY) {
+        if (!Config.areRecipeBookmarksEnabled()) {
+            return;
+        }
         for (BookmarkGroupDisplay groupDisplay : groups) {
             this.drawGroup(minecraft, mouseX, mouseY, groupDisplay);
         }
@@ -110,6 +114,9 @@ public class BookmarkGroupOrganizer {
     }
 
     public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
+        if (!Config.areRecipeBookmarksEnabled()) {
+            return;
+        }
         if (mouseX > area.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH) {
             hoveredGroupId = -1;
             return;
