@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_HEIGHT;
+import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_WIDTH;
+
 public class IngredientListBatchRenderer {
     protected final List<List<IngredientListSlot>> slots = new ObjectArrayList<>();
 
@@ -35,6 +38,9 @@ public class IngredientListBatchRenderer {
     private Framebuffer framebuffer = null;
     private boolean refreshBuffer = true;
     protected int size = 0;
+    private int width;
+    private int maxWidth;
+    private int height;
 
     public void clear() {
         slots.clear();
@@ -43,6 +49,10 @@ public class IngredientListBatchRenderer {
         renderItems3d.clear();
         renderOther.clear();
         size = 0;
+
+        width = 0;
+        maxWidth = 0;
+        height = 0;
     }
 
     public int size() {
@@ -125,6 +135,36 @@ public class IngredientListBatchRenderer {
         IngredientRenderer<V> renderer = new IngredientRenderer<>(element);
         ingredientListSlot.setIngredientRenderer(renderer);
         renderOther.add(renderer);
+    }
+
+    /**
+     * Moves the slots around to fit the given width. Used for tooltip rendering, which can have width resizing.
+     * @param maxWidth The maximum width allowed for the grid.
+     */
+    public void moveSlotsToFit(int maxWidth) {
+        if (this.maxWidth / INGREDIENT_WIDTH == maxWidth / INGREDIENT_WIDTH) {
+            return;
+        }
+        int xPos = 0;
+        int yPos = 0;
+        this.maxWidth = maxWidth;
+        width = 0;
+        for (List<IngredientListSlot> row : slots) {
+            for (IngredientListSlot slot : row) {
+                if (xPos >= maxWidth) {
+                    xPos = 0;
+                    yPos += INGREDIENT_HEIGHT;
+                }
+                slot.getArea().setLocation(xPos, yPos);
+                xPos += INGREDIENT_WIDTH;
+                if (xPos > width) {
+                    width = xPos;
+                }
+            }
+            xPos = 0;
+            yPos += INGREDIENT_HEIGHT;
+        }
+        this.height = yPos;
     }
 
     @Nullable
@@ -251,4 +291,11 @@ public class IngredientListBatchRenderer {
         RenderHelper.disableStandardItemLighting();
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }

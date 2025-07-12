@@ -24,7 +24,7 @@ public class AutocraftingHandler implements IAutocraftingHandler {
         this.currentChain = chain;
 
         recipesToAutocraft = new Stack<>();
-        chain.calculateMissingIngredients(recipesToAutocraft);
+        chain.calculateMissingIngredients(recipesToAutocraft, null);
         if (recipesToAutocraft.isEmpty()) {
             stop();
             return;

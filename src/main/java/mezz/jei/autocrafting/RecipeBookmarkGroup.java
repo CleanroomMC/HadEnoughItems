@@ -1,5 +1,6 @@
 package mezz.jei.autocrafting;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.Internal;
 import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
 import mezz.jei.bookmarks.BookmarkGroup;
@@ -91,4 +92,9 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
         return 0x9F00FF00;
     }
 
+    public List<IIngredientListElement> getMissingIngredients() {
+        List<BookmarkItem<?>> missing = new ObjectArrayList<>();
+        chain.calculateMissingIngredients(null, missing);
+        return missing.stream().map(this::getIngredientListElement).filter(Objects::nonNull).collect(Collectors.toList());
+    }
 }

@@ -1,24 +1,5 @@
 package mezz.jei.config;
 
-import javax.annotation.Nullable;
-import java.awt.Color;
-import java.io.File;
-import java.util.*;
-
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.ConfigCategory;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.util.text.TextFormatting;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import mezz.jei.Internal;
@@ -37,6 +18,25 @@ import mezz.jei.startup.IModIdHelper;
 import mezz.jei.util.GiveMode;
 import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.ConfigCategory;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.io.File;
+import java.util.*;
+import java.util.List;
 
 public final class Config {
 	private static final String configKeyPrefix = "config.jei";
@@ -618,6 +618,12 @@ public final class Config {
 		property.setComment(Translator.translateToLocal("config.jei.interface.bookmarkOverlayEnabled.comment"));
 		property.setShowInGui(false);
 		values.bookmarkOverlayEnabled = property.getBoolean();
+
+		property = worldConfig.get(worldCategory, "recipeBookmarksEnabled", defaultValues.recipeBookmarksEnabled);
+		property.setLanguageKey("config.jei.mode.recipeBookmarksEnabled");
+		property.setComment(Translator.translateToLocal("config.jei.mode.recipeBookmarksEnabled.comment"));
+		values.cheatItemsEnabled = property.getBoolean();
+
 
 		property = worldConfig.get(worldCategory, "filterText", defaultValues.filterText);
 		property.setShowInGui(false);

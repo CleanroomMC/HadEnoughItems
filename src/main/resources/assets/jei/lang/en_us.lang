@@ -62,6 +62,8 @@ config.jei.mode.cheatItemsEnabled=Cheat Mode
 config.jei.mode.cheatItemsEnabled.comment=Give items instead of showing the recipe.
 config.jei.mode.editEnabled=Hide Ingredients Mode
 config.jei.mode.editEnabled.comment=Hide and unhide ingredients by clicking them in the list.
+config.jei.mode.recipeBookmarksEnabled=Recipe Bookmarks
+config.jei.mode.recipeBookmarksEnabled.comment=Add and remove bookmarks for recipes and use them for autocrafting.
 
 config.jei.interface=Interface
 config.jei.interface.comment=Options related to the User Interface.
@@ -184,3 +186,9 @@ hei.command.load_bookmarks.success=Loaded %d bookmarks.
 hei.tooltip.unfavorite=Remove this recipe from your favorites.
 hei.tooltip.favorite=Add this recipe to your favorites.
 hei.tooltip.favorite_scroll=Scroll to change the selected item.
+
+hei.tooltip.press_alt=Press §fALT§r to see tooltips
+hei.tooltip.organizer.1=§fUP§r or §fDOWN§r: Shift group up/down
+hei.tooltip.organizer.2=§fCTRL + SCROLL§r: Change craft output
+hei.tooltip.organizer.3=§fSHIFT + C§r: Autocraft (by default)
+hei.tooltip.missing_ingredients=§cMissing ingredients:

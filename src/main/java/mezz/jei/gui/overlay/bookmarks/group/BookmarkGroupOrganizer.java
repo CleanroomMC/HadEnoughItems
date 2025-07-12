@@ -1,5 +1,6 @@
 package mezz.jei.gui.overlay.bookmarks.group;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.Internal;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.autocrafting.RecipeBookmarkGroup;
@@ -8,9 +9,11 @@ import mezz.jei.bookmarks.BookmarkGroup;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.TooltipRenderer;
+import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.bookmarks.BookmarkGridWithNavigation;
 import mezz.jei.input.MouseHelper;
-import mezz.jei.render.IngredientRenderer;
+import mezz.jei.render.IngredientListBatchRenderer;
+import mezz.jei.render.IngredientListSlot;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -21,11 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_HEIGHT;
+import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_PADDING;
 
 public class BookmarkGroupOrganizer {
     private Rectangle area = new Rectangle();
     private final List<BookmarkGroupDisplay> groups = new ArrayList<>();
-    private final List<IngredientRenderer> missingIngredientRenderers = new ArrayList<>();
+    private IngredientListBatchRenderer missingIngredientRenderer = new IngredientListBatchRenderer();
+    private int hoveredGroupId = -1;
     public final int GROUP_PADDING_Y = INGREDIENT_HEIGHT / 2 - 5;
     public final int GROUP_PADDING_X = BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH / 2 - 1;
 
@@ -106,22 +111,45 @@ public class BookmarkGroupOrganizer {
 
     public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
         if (mouseX > area.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH) {
+            hoveredGroupId = -1;
             return;
         }
 
+        boolean hovered = false;
         for (BookmarkGroupDisplay group : groups) {
             if (mouseY < group.area.y || mouseY > group.area.y + group.area.height) {
                 continue;
             }
-            List<String> tooltips = new ArrayList<>();
-            if (Keyboard.isKeyDown(Keyboard.KEY_LMETA) || Keyboard.isKeyDown(Keyboard.KEY_RMETA)) {
-
+            List<Object> tooltips = new ArrayList<>();
+            if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
+                tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.1"));
+                if (group.group instanceof RecipeBookmarkGroup) {
+                    tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.2"));
+                    tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.3"));
+                }
             } else {
+                hovered = true;
                 tooltips.add(Translator.translateToLocal("hei.tooltip.press_alt"));
+                if (group.group instanceof RecipeBookmarkGroup) {
+                    tooltips.add(Translator.translateToLocal("hei.tooltip.missing_ingredients"));
+                    if (group.group.id != hoveredGroupId) {
+                        List<IIngredientListElement> missing = ((RecipeBookmarkGroup) group.group).getMissingIngredients();
+                        this.missingIngredientRenderer.clear();
+                        List<IngredientListSlot> slots = new ObjectArrayList<>();
+                        for (IIngredientListElement a : missing) {
+                            slots.add(new IngredientListSlot(0, 0, INGREDIENT_PADDING));
+                        }
+                        this.missingIngredientRenderer.add(slots);
+                        this.missingIngredientRenderer.set(0, missing);
+                    }
+                    tooltips.add(this.missingIngredientRenderer);
+                }
             }
-
-            TooltipRenderer.drawHoveringText(minecraft, tooltips, mouseX, mouseY);
+            TooltipRenderer.drawHoveringTextAndItems(minecraft, tooltips, mouseX, mouseY);
             break;
+        }
+        if (!hovered) {
+            hoveredGroupId = -1;
         }
     }
 

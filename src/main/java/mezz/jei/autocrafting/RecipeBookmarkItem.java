@@ -160,6 +160,9 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 
     @Override
     public long getDisplayAmount() {
+        if (outputAmount == 0) {
+            return amount;
+        }
         return outputAmount * getMultiplier();
     }
 

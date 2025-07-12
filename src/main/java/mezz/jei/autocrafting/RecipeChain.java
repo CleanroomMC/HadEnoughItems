@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.Internal;
 import mezz.jei.autocrafting.toposort.TopologicalSort;
 import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.bookmarks.DummyBookmarkItem;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.Log;
 import net.minecraft.client.Minecraft;
@@ -219,7 +220,7 @@ public class RecipeChain {
         }
     }
 
-    public void calculateMissingIngredients(Stack<RecipeBookmarkItem<?>> recipeList) {
+    public void calculateMissingIngredients(Stack<RecipeBookmarkItem<?>> recipeList, List<BookmarkItem<?>> missing) {
         for (RecipeBookmarkItem<?> node : graphStorage.nodes()) {
             node.amount = node.selfOutputAmount;
         }
@@ -236,6 +237,7 @@ public class RecipeChain {
             invCounts.put(uniqueId, invCounts.getOrDefault(uniqueId, 0L) + inv.getStackInSlot(i).getCount());
         }
 
+        final Map<String, BookmarkItem<?>> lookup = missing == null ? null : new HashMap<>();
         TopologicalSort.topologicalSort(graphStorage, (r, r1) -> {
             if (r.equals(r1.secondaryTo)) {
                 return 1;
@@ -243,10 +245,16 @@ public class RecipeChain {
                 return -1;
             }
             return 0; // Primary ordering still applies.
-        }).forEach(ingredient -> calculateMissingIngredients(ingredient, invCounts, recipeList));
+        }).forEach(ingredient -> calculateMissingIngredients(ingredient, invCounts, recipeList, lookup));
+        if (missing != null) {
+            for (Map.Entry<String, BookmarkItem<?>> entry : lookup.entrySet()) {
+                missing.add(new DummyBookmarkItem(entry.getValue(), null, () -> entry.getValue().amount));
+            }
+        }
     }
 
-    public void calculateMissingIngredients(RecipeBookmarkItem<?> needed, Map<String, Long> invCounts, Stack<RecipeBookmarkItem<?>> recipeList) {
+    public void calculateMissingIngredients(RecipeBookmarkItem<?> needed, Map<String, Long> invCounts,
+                                            Stack<RecipeBookmarkItem<?>> recipeList, Map<String, BookmarkItem<?>> lookup) {
         calculateCrafting(needed);
         if (needed.amount <= 0) {
             return;
@@ -258,8 +266,21 @@ public class RecipeChain {
                 invCounts.put(uniqueId, Math.max(0L, invCounts.get(uniqueId) - needed.amount));
             }
         }
-        if (recipeList != null && needed.amount > 0 && needed.category != null) { // If we're preparing for autocrafting and this can be crafted, add it.
+        if (recipeList != null && needed.amount > 0 && needed.category != null) {
+            // If we're preparing for autocrafting and this can be crafted, add it.
             recipeList.add(needed);
+        } else if (lookup != null && needed.amount > 0 && needed.inputs == null) {
+            IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+            String uniqueId = ingredientRegistry.getUniqueId(needed.ingredient);
+            // If we're preparing just to show the missing items, we can add it.
+            lookup.compute(uniqueId, (k, v) -> {
+                if (v == null) {
+                    return needed;
+                } else {
+                    v.amount += needed.amount;
+                }
+                return v;
+            });
         }
     }
 
