@@ -32,6 +32,15 @@ public class IngredientUtil {
             Internal.getIngredientRegistry().getUniqueId(o2));
     }
 
+    public static <A, B> boolean aliasesContains(List<A> l1, B o2) {
+        for (A a : l1) {
+            if (equals(a, o2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static <A, B> boolean aliasesEquals(List<A> l1, List<B> l2) {
         // I do not care enough to allow for order permutations. Really, no mod should do that.
         if (l1.size() != l2.size()) {

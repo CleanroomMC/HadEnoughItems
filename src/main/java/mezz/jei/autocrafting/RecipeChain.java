@@ -46,29 +46,21 @@ public class RecipeChain {
         this.outputs.forEach(this::expandNode);
     }
 
-    public void addOutput(RecipeBookmarkItem<?> recipeOutput) {
-        boolean connected = false;
-        // We need to check if it's an input to an existing recipe.
-        Map<RecipeBookmarkItem<?>, RecipeBookmarkItem<?>> others = new Object2ObjectOpenHashMap<>();
-        for (RecipeBookmarkItem<?> node : graphStorage.nodes()) {
-            if (!node.isPopulated()) {
-                continue;
-            }
-            for (RecipeBookmarkItem<?> input : node.inputs) {
-                if (IngredientUtil.equals(input.ingredient, recipeOutput.ingredient)) {
-                    connected = true;
-                    others.put(node, input);
-                }
+    public boolean addOutput(RecipeBookmarkItem<?> recipeOutput) {
+        // We need to check if it overlaps an existing node (usually an input).
+        for (RecipeBookmarkItem<?> input : graphStorage.nodes()) {
+            if (IngredientUtil.aliasesContains(input.aliases, recipeOutput.ingredient)) {
+                input.setIngredient(recipeOutput.ingredient);
+                input.populateWith(recipeOutput.recipe, recipeOutput.category);
+                expandNodeFirst(input);
+                removeDanglingNodes();
+                return true;
             }
         }
-        for (Map.Entry<RecipeBookmarkItem<?>, RecipeBookmarkItem<?>> entry : others.entrySet()) {
-            graphStorage.putEdgeValue(entry.getKey(), recipeOutput, entry.getValue().amount);
-        }
-        if (!connected) {
-            outputs.add(recipeOutput);
-            recipeOutput.selfOutputAmount = recipeOutput.outputAmount;
-        }
+        outputs.add(recipeOutput);
+        recipeOutput.selfOutputAmount = recipeOutput.outputAmount;
         expandNodeFirst(recipeOutput); // This also can look for matching inputs!
+        return false;
     }
 
     private void expandNodeFirst(RecipeBookmarkItem<?> requester) {
@@ -84,7 +76,7 @@ public class RecipeChain {
             // If it's already in the graph, it would have been populated if possible.
             if (needed == null) {
                 needed = new RecipeBookmarkItem<>(input.aliases); // Make a copy of the input; don't modify the original amounts!
-                this.group.addItem(needed);
+                this.group.addItemInternal(needed); // Don't add it as an output (as would occur with the normal addItem method).
                 needed.populateWithFavorite();
                 expandNodeFirst(needed);
 
@@ -207,7 +199,10 @@ public class RecipeChain {
             }
         }
         // We do need to check for dead nodes now.
-        recheck();
+        removeDanglingNodes();
+    }
+
+    public void removeDanglingNodes() {
         calculateCrafting();
         List<RecipeBookmarkItem> nodesToRemove = new ArrayList<>();
         for (RecipeBookmarkItem otherNode : graphStorage.nodes()) {
@@ -269,7 +264,7 @@ public class RecipeChain {
         if (recipeList != null && needed.amount > 0 && needed.category != null) {
             // If we're preparing for autocrafting and this can be crafted, add it.
             recipeList.add(needed);
-        } else if (lookup != null && needed.amount > 0 && needed.inputs == null) {
+        } else if (lookup != null && needed.amount > 0 && graphStorage.successors(needed).isEmpty()) {
             IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
             String uniqueId = ingredientRegistry.getUniqueId(needed.ingredient);
             // If we're preparing just to show the missing items, we can add it.
