@@ -319,9 +319,11 @@ public final class BasicRecipeTransferHandlerServer {
             itemsCrafted = 0;
             playerMP.openContainer.slotClick(outputSlot, 0, ClickType.QUICK_MOVE, player);
             playerMP.updateHeldItem();
+            playerMP.openContainer.detectAndSendChanges();
             JustEnoughItems.getProxy().sendPacketToClient(new PacketCraftUpdate(true, itemsCrafted), playerMP);
             return;
         }
+        playerMP.openContainer.detectAndSendChanges();
         JustEnoughItems.getProxy().sendPacketToClient(new PacketCraftUpdate(false, 0), playerMP);
     }
 }

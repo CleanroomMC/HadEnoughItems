@@ -62,8 +62,8 @@ public class PacketRecipeTransfer extends PacketJei {
 		}
 
 		buf.writeInt(maxTransfer);
-		buf.writeBoolean(performRecipe);
 		buf.writeBoolean(requireCompleteSets);
+		buf.writeBoolean(performRecipe);
 		buf.writeInt(outputSlot);
 
 		if (!itemCounts.isEmpty()) {

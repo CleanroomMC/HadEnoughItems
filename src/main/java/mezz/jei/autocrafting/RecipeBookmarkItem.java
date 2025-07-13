@@ -35,17 +35,19 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     public RecipeBookmarkItem(I ingredient) {
         super(ingredient);
         this.aliases = new ObjectArrayList<>();
-        this.aliases.add(ingredient);
+        this.aliases.add(this.ingredient);
     }
 
     public RecipeBookmarkItem(List<I> aliases) {
         super(aliases.get(0));
         this.aliases = aliases;
+        this.aliases.set(0, this.ingredient); // In case it needed to be normalized.
     }
 
     public RecipeBookmarkItem(List<I> aliases, int amount) {
         super(aliases.get(0));
         this.aliases = aliases;
+        this.aliases.set(0, this.ingredient); // In case it needed to be normalized.
         this.amount = amount;
     }
 

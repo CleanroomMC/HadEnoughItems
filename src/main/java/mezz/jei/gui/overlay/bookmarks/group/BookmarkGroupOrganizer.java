@@ -32,6 +32,7 @@ public class BookmarkGroupOrganizer {
     private final List<BookmarkGroupDisplay> groups = new ArrayList<>();
     private IngredientListBatchRenderer missingIngredientRenderer = new IngredientListBatchRenderer();
     private int hoveredGroupId = -1;
+    private int missingIngredients = 0;
     public final int GROUP_PADDING_Y = INGREDIENT_HEIGHT / 2 - 5;
     public final int GROUP_PADDING_X = BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH / 2 - 1;
 
@@ -138,9 +139,9 @@ public class BookmarkGroupOrganizer {
                 hovered = true;
                 tooltips.add(Translator.translateToLocal("hei.tooltip.press_alt"));
                 if (group.group instanceof RecipeBookmarkGroup) {
-                    tooltips.add(Translator.translateToLocal("hei.tooltip.missing_ingredients"));
                     if (group.group.id != hoveredGroupId) {
                         List<IIngredientListElement> missing = ((RecipeBookmarkGroup) group.group).getMissingIngredients();
+                        this.missingIngredients = missing.size();
                         this.missingIngredientRenderer.clear();
                         List<IngredientListSlot> slots = new ObjectArrayList<>();
                         for (IIngredientListElement a : missing) {
@@ -149,7 +150,10 @@ public class BookmarkGroupOrganizer {
                         this.missingIngredientRenderer.add(slots);
                         this.missingIngredientRenderer.set(0, missing);
                     }
-                    tooltips.add(this.missingIngredientRenderer);
+                    if (missingIngredients > 0) {
+                        tooltips.add(Translator.translateToLocal("hei.tooltip.missing_ingredients"));
+                        tooltips.add(this.missingIngredientRenderer);
+                    }
                 }
             }
             TooltipRenderer.drawHoveringTextAndItems(minecraft, tooltips, mouseX, mouseY);

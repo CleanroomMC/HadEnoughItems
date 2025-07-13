@@ -73,6 +73,9 @@ public class AutocraftingHandler implements IAutocraftingHandler {
         do {
             this.currentRequester = recipesToAutocraft.pop();
         } while (autocraft() && !recipesToAutocraft.isEmpty());
+        if (recipesToAutocraft != null && recipesToAutocraft.isEmpty()) {
+            stop();
+        }
     }
 
     @Override
