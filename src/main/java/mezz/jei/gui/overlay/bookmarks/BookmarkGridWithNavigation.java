@@ -130,7 +130,11 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         IIngredientListElement<?> element = this.getElementUnderMouse();
         if ((Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) && element != null) {
             BookmarkItem<?> item = (BookmarkItem<?>) element.getIngredient();
-            item.changeAmount(scrollDelta < 0 ? -1 : 1);
+            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+                item.changeAmount(scrollDelta < 0 ? -64 : 64);
+            } else {
+                item.changeAmount(scrollDelta < 0 ? -1 : 1);
+            }
             Internal.getBookmarkList().saveBookmarks();
             return true;
         } else {

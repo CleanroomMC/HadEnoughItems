@@ -55,7 +55,9 @@ public class BookmarkItem<I> {
     }
 
     public void changeAmount(long delta) {
-        this.amount = Math.max(0L, this.amount + delta);
+        // Make sure the amount reaches a multiple of the delta (it acts as a step).
+        this.amount = Math.round(this.amount / delta) * delta;
+        this.amount += delta;
     }
 
     public boolean startsNewRow() {
