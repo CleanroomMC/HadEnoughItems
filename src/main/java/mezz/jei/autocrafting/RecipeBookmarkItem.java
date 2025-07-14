@@ -151,6 +151,8 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     public void changeAmount(long delta) {
         this.selfOutputAmount = Math.round(this.selfOutputAmount / delta) * delta;
         this.selfOutputAmount += delta;
+        this.selfOutputAmount = Math.max(0, this.selfOutputAmount);
+
         if (this.getGroup() instanceof RecipeBookmarkGroup) {
             ((RecipeBookmarkGroup) this.getGroup()).update();
         }
