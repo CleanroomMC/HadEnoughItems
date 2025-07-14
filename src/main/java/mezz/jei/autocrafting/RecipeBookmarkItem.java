@@ -176,7 +176,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         this.selfOutputAmount = serialized.getLong("selfOutputAmount");
         this.category = Internal.getRuntime().getRecipeRegistry().getRecipeCategory(serialized.getString("category"));
         this.recipe = Internal.getRuntime().getRecipeRegistry().getRecipeById(serialized.getLong("recipe"), category);
-        return true;
+        return category != null && recipe != null;
     }
 
     public String serialize() {
