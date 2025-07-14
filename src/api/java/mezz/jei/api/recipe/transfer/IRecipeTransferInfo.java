@@ -33,7 +33,7 @@ public interface IRecipeTransferInfo<C extends Container> {
 	/**
 	 * Return the crafting slot index. Return -1 if there is no crafting slot or if this is unsupported.
 	 *
-	 * @since HEI 4.28.0
+	 * @since HEI 4.29.0
 	 */
 	default int getCraftingSlot() {
 		return -1;

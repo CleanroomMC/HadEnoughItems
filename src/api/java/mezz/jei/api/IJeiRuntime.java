@@ -30,7 +30,7 @@ public interface IJeiRuntime {
 	IBookmarkOverlay getBookmarkOverlay();
 
 	/**
-	 * @since HEI 4.28.0
+	 * @since HEI 4.29.0
 	 */
 	IAutocraftingHandler getAutocraftingHandler();
 
