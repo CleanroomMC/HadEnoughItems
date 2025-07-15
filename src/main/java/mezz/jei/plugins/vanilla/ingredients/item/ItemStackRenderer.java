@@ -28,20 +28,12 @@ public class ItemStackRenderer implements IIngredientRenderer<ItemStack> {
 			GlStateManager.enableDepth();
 			RenderHelper.enableGUIStandardItemLighting();
 			FontRenderer font = getFontRenderer(minecraft, ingredient);
-			minecraft.getRenderItem().renderItemAndEffectIntoGUI(ingredient, xPosition, yPosition);
+			minecraft.getRenderItem().renderItemAndEffectIntoGUI(null, ingredient, xPosition, yPosition);
 
-			if (ingredient.getCount() > 1) {
-				if (ingredient.getCount() < 65) {
-					ItemStack overlayStack = ingredient.copy();
-					overlayStack.setCount(ingredient.getCount());
-					minecraft.getRenderItem().renderItemOverlayIntoGUI(font, overlayStack, xPosition, yPosition, null);
-				} else {
-					renderCustomStackSize(font, ingredient, xPosition, yPosition);
-				}
+			if (ingredient.getCount() > 64) {
+				renderCustomStackSize(font, ingredient, xPosition, yPosition);
 			} else {
-				ItemStack overlayStack = ingredient.copy();
-				overlayStack.setCount(1);
-				minecraft.getRenderItem().renderItemOverlayIntoGUI(font, overlayStack, xPosition, yPosition, null);
+				minecraft.getRenderItem().renderItemOverlayIntoGUI(font, ingredient, xPosition, yPosition, null);
 			}
 
 			GlStateManager.disableBlend();
