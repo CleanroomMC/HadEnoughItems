@@ -123,18 +123,20 @@ public class RecipeRegistry implements IRecipeRegistry {
 		recipe.getIngredients(ings);
 		long hash = 0;
 		for (IIngredientType<?> type : supportedTypes) {
-			if (ings.getInputIngredients().get(type) == null) {
+			List<Object> ingredients = ings.getInputIngredients().get(type);
+			if (ingredients == null) {
 				continue;
 			}
-			for (Object ingredient : ings.getInputIngredients().get(type)) {
+			for (Object ingredient : ingredients) {
 				hash = (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) + hash * 31;
 			}
 		}
 		for (IIngredientType<?> type : supportedTypes) {
-			if (ings.getOutputIngredients().get(type) == null) {
+			List<Object> ingredients = ings.getOutputIngredients().get(type);
+			if (ingredients == null) {
 				continue;
 			}
-			for (Object ingredient : ings.getOutputIngredients().get(type)) {
+			for (Object ingredient : ingredients) {
 				hash = (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) + hash * 31;
 			}
 		}

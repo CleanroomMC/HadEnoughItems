@@ -1,28 +1,26 @@
 package mezz.jei.plugins.vanilla.ingredients.fluid;
 
-import javax.annotation.Nullable;
-import java.awt.Color;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
-
+import com.google.common.base.MoreObjects;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import mezz.jei.Internal;
+import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.color.ColorGetter;
 import mezz.jei.config.Config;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-
-import com.google.common.base.MoreObjects;
-import mezz.jei.api.ingredients.IIngredientHelper;
-import mezz.jei.color.ColorGetter;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.Collections;
+import java.util.Map;
 
 public class FluidStackHelper implements IIngredientHelper<FluidStack> {
 	private final Map<FluidStack, Integer> hashCache = new Object2IntOpenHashMap<>();
@@ -63,7 +61,9 @@ public class FluidStackHelper implements IIngredientHelper<FluidStack> {
 		if (hashCache.containsKey(ingredient)) {
 			return hashCache.get(ingredient);
 		}
-		int hash = Objects.hash(ingredient.getFluid().getName(), ingredient.amount, ingredient.tag);
+		int hash = ingredient.amount * 31 + ingredient.getFluid().getName().hashCode();
+		hash = (hash * 31) + (ingredient.tag == null ? 0 : ingredient.tag.hashCode());
+		//int hash = Objects.hash(ingredient.getFluid().getName(), ingredient.amount, ingredient.tag);
 		hashCache.put(ingredient, hash);
 		return hash;
 	}

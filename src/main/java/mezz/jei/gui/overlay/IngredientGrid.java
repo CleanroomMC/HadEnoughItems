@@ -49,6 +49,10 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		this.guiIngredientSlots = guiIngredientSlots;
 	}
 
+	public IngredientGrid(GridAlignment alignment) { // Left in for compatibility with JEI Utilities
+		this(new IngredientListBatchRenderer(), alignment);
+	}
+
 	public int size() {
 		return this.guiIngredientSlots.size();
 	}
