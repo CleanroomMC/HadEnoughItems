@@ -121,7 +121,8 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         inputs.forEach(input -> input.foundAliases = true);
     }
 
-    private <T> List<T> removeNulls(List<T> list) {
+    private <T> List<T> removeNulls(List<T> orig) {
+        List<T> list = new ObjectArrayList<>(orig);
         for (int i = list.size() - 1; i >= 0; i--) {
             if (list.get(i) == null) {
                 list.remove(i);

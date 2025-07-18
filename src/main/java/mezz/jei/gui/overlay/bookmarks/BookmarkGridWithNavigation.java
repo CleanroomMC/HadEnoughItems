@@ -16,6 +16,8 @@ import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.render.BookmarkListBatchRenderer;
 import mezz.jei.util.MathUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nullable;
@@ -64,18 +66,18 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 
     public boolean updateBounds(Rectangle availableArea, Set<Rectangle> guiExclusionAreas, int minWidth) {
         Rectangle estimatedNavigationArea = new Rectangle(
-            availableArea.x,
-            availableArea.y,
-            availableArea.width,
-            NAVIGATION_HEIGHT
+                availableArea.x,
+                availableArea.y,
+                availableArea.width,
+                NAVIGATION_HEIGHT
         );
         Rectangle movedNavigationArea = MathUtil.moveDownToAvoidIntersection(guiExclusionAreas, estimatedNavigationArea);
         int navigationMaxY = movedNavigationArea.y + movedNavigationArea.height;
         Rectangle boundsWithoutNavigation = new Rectangle(
-            availableArea.x + (Config.areRecipeBookmarksEnabled() ? BOOKMARK_TAB_WIDTH : 0),
-            navigationMaxY,
-            availableArea.width - (Config.areRecipeBookmarksEnabled() ? BOOKMARK_TAB_WIDTH : 0),
-            availableArea.height - navigationMaxY
+                availableArea.x + (Config.areRecipeBookmarksEnabled() ? BOOKMARK_TAB_WIDTH : 0),
+                navigationMaxY,
+                availableArea.width - (Config.areRecipeBookmarksEnabled() ? BOOKMARK_TAB_WIDTH : 0),
+                availableArea.height - navigationMaxY
         );
         Rectangle groupOrganizerBounds = new Rectangle(
                 availableArea.x,
@@ -115,14 +117,14 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
     @Override
     public boolean isMouseOver(int mouseX, int mouseY) {
         return this.area.contains(mouseX, mouseY) &&
-            !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY);
+                !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY);
     }
 
     @Override
     public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
         return !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY) &&
-            (this.bookmarkGrid.handleMouseClicked(mouseX, mouseY) ||
-                this.navigation.handleMouseClickedButtons(mouseX, mouseY));
+                (this.bookmarkGrid.handleMouseClicked(mouseX, mouseY) ||
+                        this.navigation.handleMouseClickedButtons(mouseX, mouseY));
     }
 
     @Override
@@ -131,7 +133,13 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         if ((Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) && element != null) {
             BookmarkItem<?> item = (BookmarkItem<?>) element.getIngredient();
             if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                item.changeAmount(scrollDelta < 0 ? -64 : 64);
+                if (item.ingredient instanceof ItemStack) {
+                    item.changeAmount(scrollDelta < 0 ? -64 : 64);
+                } else if (item.ingredient instanceof FluidStack) {
+                    item.changeAmount(scrollDelta < 0 ? -1000 : 1000);
+                } else {
+                    item.changeAmount(scrollDelta < 0 ? -1 : 1);
+                }
             } else {
                 item.changeAmount(scrollDelta < 0 ? -1 : 1);
             }

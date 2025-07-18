@@ -94,7 +94,7 @@ public class BookmarkItem<I> {
                 return null;
             }
             NBTTagCompound tag = new NBTTagCompound();
-            tag.setString("uid", Internal.getIngredientRegistry().getUniqueId(listElement));
+            tag.setString("uid", Internal.getIngredientRegistry().getUniqueId(listElement.getIngredient()));
             return tag;
         }
     }
