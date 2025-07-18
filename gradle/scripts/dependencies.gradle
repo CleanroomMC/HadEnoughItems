@@ -41,8 +41,8 @@ dependencies {
     // Example - CurseMaven dependencies:
     // 'curse.maven:had-enough-items-557549:4543375' << had-enough-items = project slug, 557549 = project id, 4543375 = file id
     // Full documentation: https://cursemaven.com/
-    implementation rfg.deobf('curse.maven:codechicken-lib-1-8-242818:2779848')
-    implementation rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:5519022")
+    //implementation rfg.deobf('curse.maven:codechicken-lib-1-8-242818:2779848')
+    //implementation rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:5519022")
 
     // Example - Modrinth dependencies:
     // 'maven.modrinth:jei:4.16.1.1000' << jei = project name, 4.16.1.1000 = file version
