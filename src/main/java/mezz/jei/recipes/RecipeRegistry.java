@@ -143,7 +143,6 @@ public class RecipeRegistry implements IRecipeRegistry {
 		hash = category.getUid().hashCode() + hash * 31;
 		if (!recipeIds.containsValue(hash)) { // Yes, this actually happens sometimes.
 			recipeIds.put(recipe, hash);
-			recipeWrappersForCategories.get(category).add(recipe);
 		}
 		return hash;
 	}
