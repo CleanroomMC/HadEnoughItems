@@ -1,25 +1,19 @@
 package mezz.jei.gui.recipes;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import mezz.jei.Internal;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiIngredient;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
-import mezz.jei.autocrafting.RecipeBookmarkGroup;
-import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
-import mezz.jei.bookmarks.BookmarkList;
-import mezz.jei.config.Config;
-import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.elements.GuiIconButton;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.input.Keyboard;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,19 +83,6 @@ public class RecipeFavoriteButton extends GuiIconButton {
     }
 
     protected boolean onMouseClicked(Minecraft mc, int mouseX, int mouseY) {
-        if (Keyboard.isKeyDown(KeyBindings.bookmark.getKeyCode())) {
-            if (!Config.isBookmarkOverlayEnabled()) {
-                Config.toggleBookmarkEnabled();
-            }
-            BookmarkList bookmarkList = Internal.getBookmarkList();
-            RecipeBookmarkGroup group = new RecipeBookmarkGroup(bookmarkList.nextId());
-            RecipeBookmarkItem<?> recipeBookmarkItem = new RecipeBookmarkItem<>(supportedIngredients.get(selectedSlot).getDisplayedIngredient());
-            recipeBookmarkItem.setGroup(group); // Do this early so that the dummy items are also added.
-            recipeBookmarkItem.populateWith(recipe, category);
-            group.addItem(recipeBookmarkItem); // Do this late so that the recipe isn't overwritten.
-            group.update();
-            return bookmarkList.add(group);
-        }
         if (GuiScreen.isShiftKeyDown() && isIconToggledOn()) {
             FavoriteRecipes.removeFavorite(recipe);
             favoriteSlots.clear();
@@ -116,12 +97,10 @@ public class RecipeFavoriteButton extends GuiIconButton {
         return true;
     }
 
-
-
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
         super.drawButton(mc, mouseX, mouseY, partialTicks);
-        if (!isMouseOver()) {
+        if (!isMouseOver() && !layout.getRecipeBookmarkButton().isMouseOver()) {
             return;
         }
         supportedIngredients.get(selectedSlot).drawHighlight(mc, selectedColor, this.layout.getPosX(), this.layout.getPosY());
@@ -144,5 +123,10 @@ public class RecipeFavoriteButton extends GuiIconButton {
         }
 
         return true;
+    }
+
+    @Nullable
+    public Object getDisplayedIngredient() {
+        return supportedIngredients.get(selectedSlot).getDisplayedIngredient();
     }
 }

@@ -185,7 +185,8 @@ hei.command.load_bookmarks.success=Loaded %d bookmarks.
 
 hei.tooltip.unfavorite=Remove this recipe from your favorites.
 hei.tooltip.favorite=Add this recipe to your favorites.
-hei.tooltip.favorite_scroll=Scroll: change favorited item. Click + A: bookmark this recipe.
+hei.tooltip.favorite_scroll=Scroll: change favorited item.
+hei.tooltip.recipe_bookmark=Bookmark this recipe.
 
 hei.tooltip.press_alt=Press §fALT§r to see tooltips
 hei.tooltip.organizer.1=§fUP§r or §fDOWN§r: Shift group up/down

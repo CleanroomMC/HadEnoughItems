@@ -1,22 +1,5 @@
 package mezz.jei.gui.recipes;
 
-import javax.annotation.Nullable;
-import java.awt.Color;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraftforge.fml.client.config.HoverChecker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-
 import mezz.jei.Internal;
 import mezz.jei.api.IRecipeRegistry;
 import mezz.jei.api.IRecipesGui;
@@ -43,7 +26,23 @@ import mezz.jei.transfer.RecipeTransferUtil;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.StringUtil;
 import mezz.jei.util.Translator;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraftforge.fml.client.config.HoverChecker;
 import org.lwjgl.input.Mouse;
+
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFocuses, IRecipeLogicStateListener {
 	private static final int borderPadding = 6;
@@ -531,6 +530,11 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 				if (favoriteButton != null) {
 					favoriteButton.init(recipeLayout);
 					buttonList.add(favoriteButton);
+				}
+				RecipeBookmarkButton bookmarkButton = recipeLayout.getRecipeBookmarkButton();
+				if (bookmarkButton != null) {
+					bookmarkButton.init(recipeLayout);
+					buttonList.add(bookmarkButton);
 				}
 			}
 		}
