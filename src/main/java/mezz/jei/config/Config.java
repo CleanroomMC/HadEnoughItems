@@ -3,6 +3,7 @@ package mezz.jei.config;
 import javax.annotation.Nullable;
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 import net.minecraft.init.Items;
@@ -37,6 +38,7 @@ import mezz.jei.startup.IModIdHelper;
 import mezz.jei.util.GiveMode;
 import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
+import org.apache.commons.io.FileUtils;
 
 public final class Config {
 	private static final String configKeyPrefix = "config.jei";
@@ -369,11 +371,8 @@ public final class Config {
 		File oldBookmarkFile = new File(jeiConfigurationDir, "bookmarks.ini");
 		if (oldBookmarkFile.exists() && !bookmarkFile.exists()) {
 			try {
-				if (!oldBookmarkFile.renameTo(bookmarkFile)) {
-					Log.get().error("Could not move the old bookmark file from {} to {}", jeiConfigurationDir, "./");
-					return;
-				}
-			} catch (SecurityException e) {
+				FileUtils.moveFile(oldBookmarkFile, bookmarkFile);
+			} catch (IOException e) {
 				Log.get().error("Could not move the old bookmark file from {} to {}", jeiConfigurationDir, "./", e);
 				return;
 			}
