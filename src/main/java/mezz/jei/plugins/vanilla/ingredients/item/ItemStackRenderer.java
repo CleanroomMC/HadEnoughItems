@@ -49,14 +49,15 @@ public class ItemStackRenderer implements IIngredientRenderer<ItemStack> {
 	 * @param yPosition Y coordinate
 	 */
 	private void renderCustomStackSize(FontRenderer font, ItemStack stack, int xPosition, int yPosition) {
-		String countText = formatStackCount(stack.getCount());
+		int count = stack.getCount();
+		String countText = formatStackCount(count);
 
 		GlStateManager.pushMatrix();
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		GlStateManager.disableBlend();
 
-		boolean shouldScale = stack.getCount() > 99;
+		boolean shouldScale = count > 99;
 		if (shouldScale) {
 			GlStateManager.scale(0.5F, 0.5F, 1.0F);
 		}
@@ -80,10 +81,6 @@ public class ItemStackRenderer implements IIngredientRenderer<ItemStack> {
 	 * Formats the stack count for display
 	 */
 	private String formatStackCount(int count) {
-		if (count <= 99) {
-			return String.valueOf(count);
-		}
-
 		if (count <= 9999) {
 			return String.valueOf(count);
 		}
