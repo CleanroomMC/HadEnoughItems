@@ -7,6 +7,7 @@ import mezz.jei.config.Config;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.elements.GuiIconToggleButton;
+import mezz.jei.gui.ghost.GhostIngredientDragManager;
 import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.recipes.RecipesGui;
@@ -45,13 +46,14 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	private final IngredientGridWithNavigation contents;
 	private final GuiScreenHelper guiScreenHelper;
 	private final GuiTextFieldFilter searchField;
+	@Deprecated private final GhostIngredientDragManager ghostIngredientDragManager; // Meant to keep compatibility with other mods.
 	private Rectangle displayArea = new Rectangle();
 
 	// properties of the gui we're beside
 	@Nullable
 	private IGuiProperties guiProperties;
 
-	public IngredientListOverlay(IngredientFilter ingredientFilter, IngredientRegistry ingredientRegistry, GuiScreenHelper guiScreenHelper) {
+	public IngredientListOverlay(IngredientFilter ingredientFilter, IngredientRegistry ingredientRegistry, GuiScreenHelper guiScreenHelper, GhostIngredientDragManager dragManager) {
 		this.ingredientFilter = ingredientFilter;
 		this.guiScreenHelper = guiScreenHelper;
 
@@ -59,6 +61,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 		ingredientFilter.addListener(() -> onSetFilterText(Config.getFilterText()));
 		this.searchField = new GuiTextFieldFilter(0, ingredientFilter);
 		this.configButton = ConfigButton.create(this);
+		this.ghostIngredientDragManager = dragManager;
 		this.setKeyboardFocus(false);
 	}
 

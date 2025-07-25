@@ -107,7 +107,7 @@ public class JeiStarter {
 		Map<Class, IGhostIngredientHandler> ghostIngredientHandlers = modRegistry.getGhostIngredientHandlers();
 		GuiScreenHelper guiScreenHelper = new GuiScreenHelper(ingredientRegistry, globalGuiHandlers, advancedGuiHandlers, ghostIngredientHandlers, guiScreenHandlers);
 		GhostIngredientDragManager ghostIngredientDragManager = new GhostIngredientDragManager(guiScreenHelper, ingredientRegistry);
-		IngredientListOverlay ingredientListOverlay = new IngredientListOverlay(ingredientFilter, ingredientRegistry, guiScreenHelper);
+		IngredientListOverlay ingredientListOverlay = new IngredientListOverlay(ingredientFilter, ingredientRegistry, guiScreenHelper, ghostIngredientDragManager);
 
 		BookmarkOverlay bookmarkOverlay = new BookmarkOverlay(bookmarkList, jeiHelpers.getGuiHelper(), guiScreenHelper);
 		RecipesGui recipesGui = new RecipesGui(recipeRegistry, ingredientRegistry);

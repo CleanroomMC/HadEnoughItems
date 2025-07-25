@@ -47,7 +47,7 @@ public class RecipeRegistry implements IRecipeRegistry {
     private final ImmutableMap<String, IRecipeCategory> recipeCategoriesMap;
     private final RecipeCategoryComparator recipeCategoryComparator;
     private final Table<String, Object, IRecipeWrapper> wrapperMaps = new Table<>(new Object2ObjectOpenHashMap<>(), Reference2ObjectOpenHashMap::new); // used when removing recipes
-    private final Table<Long, IRecipeCategory, IRecipeWrapper> recipeWrappersByCategory = Table.hashBasedTable(); // used for getting recipes by ID
+    private final Table<IRecipeCategory, Long, IRecipeWrapper> recipeWrappersByCategory = Table.hashBasedTable(); // used for getting recipes by ID
     private final ListMultiMap<IRecipeCategory, IRecipeWrapper> recipeWrappersForCategories = new ListMultiMap<>();
     private final RecipeMap recipeInputMap;
     private final RecipeMap recipeOutputMap;
@@ -128,6 +128,9 @@ public class RecipeRegistry implements IRecipeRegistry {
                 continue;
             }
             for (Object ingredient : ingredients) {
+                if (ingredient == null) { // Looking at you, Techguns
+                    continue;
+                }
                 hash = (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) + hash * 31;
             }
         }
@@ -137,6 +140,9 @@ public class RecipeRegistry implements IRecipeRegistry {
                 continue;
             }
             for (Object ingredient : ingredients) {
+                if (ingredient == null) {
+                    continue;
+                }
                 hash = (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) + hash * 31;
             }
         }
@@ -311,7 +317,7 @@ public class RecipeRegistry implements IRecipeRegistry {
 
         long recipeId = calculateId(recipeWrapper, recipeCategory);
         recipeIds.put(recipeWrapper, recipeId);
-        recipeWrappersByCategory.put(recipeId, recipeCategory, recipeWrapper);
+        recipeWrappersByCategory.put(recipeCategory, recipeId, recipeWrapper);
 
         unhideRecipe(recipeWrapper, recipeCategory.getUid());
 
@@ -761,7 +767,7 @@ public class RecipeRegistry implements IRecipeRegistry {
 
     @Nullable
     public IRecipeWrapper getRecipeById(long id, IRecipeCategory recipeCategory) {
-        return recipeWrappersByCategory.get(id, recipeCategory);
+        return recipeWrappersByCategory.get(recipeCategory, id);
     }
 
     public long getRecipeId(IRecipeWrapper recipe) {
