@@ -100,7 +100,7 @@ public class RecipeFavoriteButton extends GuiIconButton {
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
         super.drawButton(mc, mouseX, mouseY, partialTicks);
-        if (!isMouseOver() && !layout.getRecipeBookmarkButton().isMouseOver()) {
+        if (!isMouseOver() && (!visible || !layout.getRecipeBookmarkButton().isMouseOver())) {
             return;
         }
         supportedIngredients.get(selectedSlot).drawHighlight(mc, selectedColor, this.layout.getPosX(), this.layout.getPosY());

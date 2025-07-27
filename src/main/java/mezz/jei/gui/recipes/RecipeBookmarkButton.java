@@ -27,11 +27,13 @@ public class RecipeBookmarkButton extends GuiIconButtonSmall {
 
     public void init(RecipeLayout recipeLayout) {
         this.recipeLayout = recipeLayout;
+        // Propagates the state of the favorite button if there are no outputs to the recipe.
+        this.enabled = this.visible = recipeLayout.getRecipeFavoriteButton().enabled;
     }
 
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-        visible = Config.areRecipeBookmarksEnabled();
+        visible = enabled && Config.areRecipeBookmarksEnabled();
         super.drawButton(mc, mouseX, mouseY, partialTicks);
     }
 
