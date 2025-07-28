@@ -111,18 +111,11 @@ public class RecipeRegistry implements IRecipeRegistry {
         }
     }
 
-    public static List<IIngredientType> supportedTypes = new ArrayList<>(); // Creates a constant order; required for recipe ID consistency
-
-    static {
-        supportedTypes.add(VanillaTypes.ITEM);
-        supportedTypes.add(VanillaTypes.FLUID);
-    }
-
     private long calculateId(IRecipeWrapper recipe, IRecipeCategory<?> category) {
         Ingredients ings = new Ingredients();
         recipe.getIngredients(ings);
         long hash = 0;
-        for (IIngredientType<?> type : supportedTypes) {
+        for (IIngredientType<?> type : Internal.getIngredientRegistry().getCraftableIngredientTypes()) {
             List<Object> ingredients = ings.getInputIngredients().get(type);
             if (ingredients == null) {
                 continue;
@@ -134,7 +127,7 @@ public class RecipeRegistry implements IRecipeRegistry {
                 hash = (long) this.ingredientRegistry.getIngredientHelper(ingredient).getHash(ingredient) + hash * 31;
             }
         }
-        for (IIngredientType<?> type : supportedTypes) {
+        for (IIngredientType<?> type : Internal.getIngredientRegistry().getCraftableIngredientTypes()) {
             List<Object> ingredients = ings.getOutputIngredients().get(type);
             if (ingredients == null) {
                 continue;

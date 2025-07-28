@@ -128,8 +128,9 @@ public class BookmarkGroupOrganizer {
             if (mouseY < group.area.y || mouseY > group.area.y + group.area.height) {
                 continue;
             }
-            List<Object> tooltips = new ArrayList<>();
-            if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
+            List<String> tooltips = new ArrayList<>();
+            List<IngredientListBatchRenderer> slotRows = new ArrayList<>();
+            if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) { // Alt keys
                 tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.1"));
                 if (group.group instanceof RecipeBookmarkGroup) {
                     tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.2"));
@@ -144,7 +145,7 @@ public class BookmarkGroupOrganizer {
                         this.missingIngredients = missing.size();
                         this.missingIngredientRenderer.clear();
                         List<IngredientListSlot> slots = new ObjectArrayList<>();
-                        for (IIngredientListElement a : missing) {
+                        for (IIngredientListElement any : missing) {
                             slots.add(new IngredientListSlot(0, 0, INGREDIENT_PADDING));
                         }
                         this.missingIngredientRenderer.add(slots);
@@ -152,11 +153,11 @@ public class BookmarkGroupOrganizer {
                     }
                     if (missingIngredients > 0) {
                         tooltips.add(Translator.translateToLocal("hei.tooltip.missing_ingredients"));
-                        tooltips.add(this.missingIngredientRenderer);
+                        slotRows.add(this.missingIngredientRenderer);
                     }
                 }
             }
-            TooltipRenderer.drawHoveringTextAndItems(minecraft, tooltips, mouseX, mouseY);
+            TooltipRenderer.drawHoveringTextAndItems(minecraft, tooltips, slotRows, mouseX, mouseY);
             break;
         }
         if (!hovered) {

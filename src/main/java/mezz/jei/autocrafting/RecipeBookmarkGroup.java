@@ -99,7 +99,7 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
     }
 
     public int getColor() {
-        return 0x9F00FF00;
+        return Config.getRecipeBookmarkGroupColor();
     }
 
     public List<IIngredientListElement> getMissingIngredients() {

@@ -14,7 +14,6 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public final class TooltipRenderer {
     private TooltipRenderer() {
@@ -53,18 +52,17 @@ public final class TooltipRenderer {
         drawHoveringText(itemStack, minecraft, textLines, x, y, maxWidth, minecraft.fontRenderer);
     }
 
-    public static void drawHoveringTextAndItems(Minecraft minecraft, List<Object> textLines, int x, int y) {
-        drawHoveringTextAndItems(ItemStack.EMPTY, minecraft, textLines, x, y, -1, minecraft.fontRenderer);
+    public static void drawHoveringTextAndItems(Minecraft minecraft, List<String> textLines, List<IngredientListBatchRenderer> itemLines, int x, int y) {
+        drawHoveringTextAndItems(ItemStack.EMPTY, minecraft, textLines, itemLines, x, y, -1, minecraft.fontRenderer);
     }
 
-    public static void drawHoveringTextAndItems(ItemStack stack, Minecraft minecraft, List<Object> lines, int mouseX, int mouseY, int maxTextWidth, FontRenderer font) {
+    public static void drawHoveringTextAndItems(ItemStack stack, Minecraft minecraft, List<String> lines, List<IngredientListBatchRenderer> itemLines, int mouseX, int mouseY, int maxTextWidth, FontRenderer font) {
         // Almost a copy from GuiUtils.drawHoveringText, but also allowing IngredientListBatchRenderer lines.
 
         ScaledResolution scaledresolution = new ScaledResolution(minecraft);
         int screenWidth = scaledresolution.getScaledWidth();
         int screenHeight = scaledresolution.getScaledHeight();
-        List<String> textLinesOnly = lines.stream().filter(String.class::isInstance).map(String.class::cast).collect(Collectors.toList());
-        RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(stack, textLinesOnly, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
+        RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(stack, lines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
         if (MinecraftForge.EVENT_BUS.post(event)) {
             return;
         }
@@ -81,14 +79,11 @@ public final class TooltipRenderer {
         GlStateManager.disableDepth();
         int tooltipTextWidth = 0;
 
-        for (Object line : lines) {
-            if (line instanceof String) {
-                String textLine = (String) line;
-                int textLineWidth = font.getStringWidth(textLine);
+        for (String line : lines) {
+            int textLineWidth = font.getStringWidth(line);
 
-                if (textLineWidth > tooltipTextWidth) {
-                    tooltipTextWidth = textLineWidth;
-                }
+            if (textLineWidth > tooltipTextWidth) {
+                tooltipTextWidth = textLineWidth;
             }
         }
 
@@ -116,23 +111,19 @@ public final class TooltipRenderer {
 
         if (needsWrap) {
             int wrappedTooltipWidth = 0;
-            List<Object> wrappedTextLines = new ArrayList<>();
+            List<String> wrappedTextLines = new ArrayList<>();
             for (int i = 0; i < lines.size(); i++) {
-                if (lines.get(i) instanceof String) {
-                    String textLine = (String) lines.get(i);
-                    List<String> wrappedLine = font.listFormattedStringToWidth(textLine, tooltipTextWidth);
-                    if (i == 0) {
-                        titleLinesCount = wrappedLine.size();
+                String textLine = lines.get(i);
+                List<String> wrappedLine = font.listFormattedStringToWidth(textLine, tooltipTextWidth);
+                if (i == 0) {
+                    titleLinesCount = wrappedLine.size();
+                }
+                for (String line : wrappedLine) {
+                    int lineWidth = font.getStringWidth(line);
+                    if (lineWidth > wrappedTooltipWidth) {
+                        wrappedTooltipWidth = lineWidth;
                     }
-                    for (String line : wrappedLine) {
-                        int lineWidth = font.getStringWidth(line);
-                        if (lineWidth > wrappedTooltipWidth) {
-                            wrappedTooltipWidth = lineWidth;
-                        }
-                        wrappedTextLines.add(line);
-                    }
-                } else {
-                    wrappedTextLines.add(lines.get(i));
+                    wrappedTextLines.add(line);
                 }
             }
             tooltipTextWidth = wrappedTooltipWidth;
@@ -145,19 +136,13 @@ public final class TooltipRenderer {
             }
 
             // This part is particularly different. We try to wrap any IngredientListBatchRenderer lines based on the wrappedTooltipWidth.
-            for (int i = 0; i < lines.size(); i++) {
-                if (lines.get(i) instanceof IngredientListBatchRenderer) {
-                    IngredientListBatchRenderer renderer = (IngredientListBatchRenderer) lines.get(i);
-                    renderer.moveSlotsToFit(wrappedTooltipWidth); // This is cached, fortunately.
-                }
+            for (IngredientListBatchRenderer renderer : itemLines) {
+                renderer.moveSlotsToFit(wrappedTooltipWidth);
             }
         } else {
-            for (int i = 0; i < lines.size(); i++) {
-                if (lines.get(i) instanceof IngredientListBatchRenderer) {
-                    IngredientListBatchRenderer renderer = (IngredientListBatchRenderer) lines.get(i);
-                    renderer.moveSlotsToFit(screenWidth / 2); // This is cached, fortunately.
-                    tooltipTextWidth = Math.max(tooltipTextWidth, renderer.getWidth());
-                }
+            for (IngredientListBatchRenderer renderer : itemLines) {
+                renderer.moveSlotsToFit(screenWidth / 2); // This is cached, fortunately.
+                tooltipTextWidth = Math.max(tooltipTextWidth, renderer.getWidth());
             }
         }
 
@@ -166,15 +151,15 @@ public final class TooltipRenderer {
 
         if (lines.size() > 1) {
             for (int i = 1; i < lines.size(); i++) { // Skip the first line
-                Object line = lines.get(i);
-                if (line instanceof String) {
-                    tooltipHeight += 10;
-                } else if (line instanceof IngredientListBatchRenderer) {
-                    tooltipHeight += ((IngredientListBatchRenderer) line).getHeight();
-                }
+                tooltipHeight += 10;
             }
             if (lines.size() > titleLinesCount) {
                 tooltipHeight += 2; // gap between title lines and next lines
+            }
+        }
+        if (!itemLines.isEmpty()) {
+            for (IngredientListBatchRenderer renderer : itemLines) {
+                tooltipHeight += renderer.getHeight();
             }
         }
 
@@ -188,7 +173,7 @@ public final class TooltipRenderer {
         int backgroundColor = 0xF0100010;
         int borderColorStart = 0x505000FF;
         int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
-        RenderTooltipEvent.Color colorEvent = new RenderTooltipEvent.Color(stack, textLinesOnly, tooltipX, tooltipY, font, backgroundColor, borderColorStart, borderColorEnd);
+        RenderTooltipEvent.Color colorEvent = new RenderTooltipEvent.Color(stack, lines, tooltipX, tooltipY, font, backgroundColor, borderColorStart, borderColorEnd);
         MinecraftForge.EVENT_BUS.post(colorEvent);
         backgroundColor = colorEvent.getBackground();
         borderColorStart = colorEvent.getBorderStart();
@@ -203,28 +188,26 @@ public final class TooltipRenderer {
         GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
         GuiUtils.drawGradientRect(zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
 
-        MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, textLinesOnly, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));
+        MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, lines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));
         int tooltipTop = tooltipY;
 
-        for (int lineNumber = 0; lineNumber < lines.size(); ++lineNumber) {
-            Object lineObject = lines.get(lineNumber);
-            if (lineObject instanceof String) {
-                font.drawStringWithShadow((String) lineObject, (float) tooltipX, (float) tooltipY, -1);
-                tooltipY += 10;
-            } else if (lineObject instanceof IngredientListBatchRenderer) {
-                GlStateManager.pushMatrix();
-                GlStateManager.translate(tooltipX, tooltipY, 100.0F);
-                ((IngredientListBatchRenderer) lineObject).render(minecraft);
-                GlStateManager.popMatrix();
-                tooltipY += ((IngredientListBatchRenderer) lineObject).getHeight();
-            }
+        for (int lineNumber = 0; lineNumber < titleLinesCount; ++lineNumber) {
+            font.drawStringWithShadow(lines.get(lineNumber), (float) tooltipX, (float) tooltipY, -1);
+            tooltipY += 10;
 
             if (lineNumber + 1 == titleLinesCount) {
                 tooltipY += 2;
             }
         }
+        for (IngredientListBatchRenderer line : itemLines) {
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(tooltipX, tooltipY, 100.0F);
+            line.render(minecraft);
+            GlStateManager.popMatrix();
+            tooltipY += line.getHeight();
+        }
 
-        MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(stack, textLinesOnly, tooltipX, tooltipTop, font, tooltipTextWidth, tooltipHeight));
+        MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(stack, lines, tooltipX, tooltipTop, font, tooltipTextWidth, tooltipHeight));
 
         GlStateManager.enableLighting();
         GlStateManager.enableDepth();

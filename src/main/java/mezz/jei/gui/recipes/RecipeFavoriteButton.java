@@ -1,10 +1,9 @@
 package mezz.jei.gui.recipes;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import mezz.jei.Internal;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiIngredient;
-import mezz.jei.api.ingredients.VanillaTypes;
-import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
@@ -15,7 +14,6 @@ import net.minecraft.client.gui.GuiScreen;
 
 import javax.annotation.Nullable;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +21,6 @@ import java.util.stream.Collectors;
 public class RecipeFavoriteButton extends GuiIconButton {
     private final IRecipeWrapper recipe;
     private final IRecipeCategory<?> category;
-    private static List<IIngredientType<?>> supportedTypes = new ArrayList<>();
     private List<IGuiIngredient<?>> supportedIngredients;
     private final Set<Integer> favoriteSlots = new IntOpenHashSet();
     private int selectedSlot = 0;
@@ -32,10 +29,6 @@ public class RecipeFavoriteButton extends GuiIconButton {
     private static final Color selectedColor = new Color(0.0f, 0.0f, 1.0f, 0.3f);
     private static final Color favoritedColor = new Color(0.0f, 1.0f, 0.0f, 0.3f);
 
-    static {
-        supportedTypes.add(VanillaTypes.ITEM);
-        supportedTypes.add(VanillaTypes.FLUID);
-    }
 
     public RecipeFavoriteButton(int index, int width, int height, IDrawable offIcon, IDrawable onIcon, IRecipeWrapper recipe, IRecipeCategory<?> category, RecipeLayout layout) {
         super(index, null, null); // We're going to replace these, but it doesn't let me pass in lambdas referring to the object yet.
@@ -51,7 +44,7 @@ public class RecipeFavoriteButton extends GuiIconButton {
     }
 
     private void setSupportedIngredients(RecipeLayout layout) {
-        supportedIngredients = supportedTypes.stream()
+        supportedIngredients = Internal.getIngredientRegistry().getCraftableIngredientTypes().stream()
                 .map(t -> layout.getIngredientsGroup(t).getGuiIngredients())
                 .flatMap((map) -> map.values().stream()
                         .filter((ing) -> ing.getDisplayedIngredient() != null && !ing.isInput()))

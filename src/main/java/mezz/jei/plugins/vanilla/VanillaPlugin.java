@@ -115,11 +115,13 @@ public class VanillaPlugin implements IModPlugin {
 		ItemStackHelper itemStackHelper = new ItemStackHelper(stackHelper);
 		ItemStackRenderer itemStackRenderer = new ItemStackRenderer();
 		ingredientRegistration.register(VanillaTypes.ITEM, itemStacks, itemStackHelper, itemStackRenderer);
+		ingredientRegistration.markAsCraftable(VanillaTypes.ITEM);
 
 		List<FluidStack> fluidStacks = FluidStackListFactory.create();
 		FluidStackHelper fluidStackHelper = new FluidStackHelper();
 		FluidStackRenderer fluidStackRenderer = new FluidStackRenderer();
 		ingredientRegistration.register(VanillaTypes.FLUID, fluidStacks, fluidStackHelper, fluidStackRenderer);
+		ingredientRegistration.markAsCraftable(VanillaTypes.FLUID);
 
 		List<EnchantmentData> enchantments = EnchantDataListFactory.create();
 		EnchantedBookCache enchantedBookCache = new EnchantedBookCache();
