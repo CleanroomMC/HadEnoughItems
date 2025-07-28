@@ -4,6 +4,7 @@ import mezz.jei.Internal;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
+import mezz.jei.api.recipe.transfer.IRecipeCraftingHandler;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.recipes.RecipeRegistry;
 import net.minecraft.client.Minecraft;
@@ -55,11 +56,12 @@ public class AutocraftingHandler implements IAutocraftingHandler {
         IRecipeCategory recipeCategory = currentRequester.category;
         IRecipeLayout recipeLayout = currentRequester.createLayout();
         IRecipeTransferHandler recipeTransferHandler = recipeRegistry.getRecipeTransferHandler(openContainer, recipeCategory);
-        if (recipeTransferHandler == null) {
+        if (recipeTransferHandler == null || !(recipeTransferHandler instanceof IRecipeCraftingHandler)) {
             return true;
         }
-        if (recipeTransferHandler.craft(openContainer, recipeLayout, player, (int) this.currentRequester.getMultiplier(), false) == null) {
-            recipeTransferHandler.craft(openContainer, recipeLayout, player, (int) this.currentRequester.getMultiplier(), true);
+        IRecipeCraftingHandler craftingHandler = (IRecipeCraftingHandler) recipeTransferHandler;
+        if (craftingHandler.craft(openContainer, recipeLayout, player, (int) this.currentRequester.getMultiplier(), false) == null) {
+            craftingHandler.craft(openContainer, recipeLayout, player, (int) this.currentRequester.getMultiplier(), true);
             return false; // This "false" return is different from the others; it just means we're waiting for the recipe to complete
         }
         return true;
@@ -79,7 +81,7 @@ public class AutocraftingHandler implements IAutocraftingHandler {
     }
 
     @Override
-    public void informOfEvent(boolean success, int amount) {
+    public void stepFinished(boolean success, int amount) {
         if (this.recipesToAutocraft == null) {
             return;
         }

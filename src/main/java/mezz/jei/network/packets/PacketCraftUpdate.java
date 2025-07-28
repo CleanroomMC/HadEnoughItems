@@ -30,6 +30,6 @@ public class PacketCraftUpdate extends PacketJei {
     public static void readPacketData(PacketBuffer packetBuffer, EntityPlayer entityPlayer) {
         boolean success = packetBuffer.readBoolean();
         int itemsCrafted = packetBuffer.readInt();
-        Internal.getRuntime().getAutocraftingHandler().informOfEvent(success, itemsCrafted);
+        Internal.getRuntime().getAutocraftingHandler().stepFinished(success, itemsCrafted);
     }
 }

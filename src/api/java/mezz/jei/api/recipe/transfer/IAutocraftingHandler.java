@@ -11,7 +11,7 @@ public interface IAutocraftingHandler {
      * @param success If the autocrafting was successful at all; if false, the autocrafting will be stopped.
      * @param amount The number of recipes that were completed.
      */
-    void informOfEvent(boolean success, int amount);
+    void stepFinished(boolean success, int amount);
 
     /**
      * Returns true if HEI is currently autocrafting.

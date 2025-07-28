@@ -7,10 +7,7 @@ import mezz.jei.api.gui.IGuiIngredient;
 import mezz.jei.api.gui.IGuiItemStackGroup;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
-import mezz.jei.api.recipe.transfer.IRecipeTransferError;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
-import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
+import mezz.jei.api.recipe.transfer.*;
 import mezz.jei.config.ServerInfo;
 import mezz.jei.gui.ingredients.GuiItemStackGroup;
 import mezz.jei.network.packets.PacketRecipeTransfer;
@@ -25,7 +22,7 @@ import net.minecraft.item.ItemStack;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<ContainerPlayer> {
+public class PlayerRecipeTransferHandler implements IRecipeCraftingHandler<ContainerPlayer> {
     private final StackHelper stackHelper;
     private final IRecipeTransferHandlerHelper handlerHelper;
     private final IRecipeTransferInfo<ContainerPlayer> transferHelper;
@@ -164,7 +161,7 @@ public class PlayerRecipeTransferHandler implements IRecipeTransferHandler<Conta
 
         if (doTransfer) {
             PacketRecipeTransfer packet = new PacketRecipeTransfer(matchingItemsResult.matchingItems, craftingSlotIndexes, inventorySlotIndexes,
-                    maxTransfer, performRecipe, false).setOutputSlot(transferHelper.getCraftingSlot());
+                    maxTransfer, performRecipe, false).setOutputSlot(transferHelper.getOutputSlot());
             JustEnoughItems.getProxy().sendPacketToServer(packet);
         }
 

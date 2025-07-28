@@ -5,10 +5,7 @@ import mezz.jei.JustEnoughItems;
 import mezz.jei.api.gui.IGuiIngredient;
 import mezz.jei.api.gui.IGuiItemStackGroup;
 import mezz.jei.api.gui.IRecipeLayout;
-import mezz.jei.api.recipe.transfer.IRecipeTransferError;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
-import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
+import mezz.jei.api.recipe.transfer.*;
 import mezz.jei.config.ServerInfo;
 import mezz.jei.network.packets.PacketRecipeTransfer;
 import mezz.jei.startup.StackHelper;
@@ -23,7 +20,7 @@ import net.minecraft.item.ItemStack;
 import javax.annotation.Nullable;
 import java.util.Collections;
 
-public class BasicRecipeTransferHandler<C extends Container> implements IRecipeTransferHandler<C> {
+public class BasicRecipeTransferHandler<C extends Container> implements IRecipeCraftingHandler<C> {
 	private final StackHelper stackHelper;
 	private final IRecipeTransferHandlerHelper handlerHelper;
 	private final IRecipeTransferInfo<C> transferHelper;
@@ -129,7 +126,7 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeT
 		IntList inventorySlotIndexes = new IntArrayList(inventorySlots.keySet());
 		Collections.sort(inventorySlotIndexes);
 
-		int outputSlot = transferHelper.getCraftingSlot();
+		int outputSlot = transferHelper.getOutputSlot();
 
 		// check that the slots exist and can be altered
 		for (Int2IntMap.Entry entry : matchingItemsResult.matchingItemsCasted.int2IntEntrySet()) {

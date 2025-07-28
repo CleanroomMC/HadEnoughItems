@@ -31,11 +31,11 @@ public interface IRecipeTransferInfo<C extends Container> {
 	boolean canHandle(C container);
 
 	/**
-	 * Return the crafting slot index. Return -1 if there is no crafting slot or if this is unsupported.
+	 * Return the output/crafting slot index. Return -1 if there is no output slot or if this is unsupported.
 	 *
 	 * @since HEI 4.29.0
 	 */
-	default int getCraftingSlot() {
+	default int getOutputSlot() {
 		return -1;
 	}
 

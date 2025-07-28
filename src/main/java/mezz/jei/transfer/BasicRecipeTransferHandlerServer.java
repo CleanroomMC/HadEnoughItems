@@ -300,7 +300,7 @@ public final class BasicRecipeTransferHandlerServer {
 
     /**
      * Perform the recipe, in this case by taking the result in the output slot and giving it to the player if possible.
-     * Sends a network message to the client which calls {@link IAutocraftingHandler#informOfEvent(boolean, int)} to continue the autocrafting process.
+     * Sends a network message to the client which calls {@link IAutocraftingHandler#stepFinished(boolean, int)} to continue the autocrafting process.
      *
      * @param player     The player whose inventory to check
      * @param outputSlot The index of the output slot in the given crafting inventory

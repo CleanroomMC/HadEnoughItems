@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
  * <p>
  * Useful functions for implementing a recipe transfer handler can be found in {@link IRecipeTransferHandlerHelper}.
  * <p>
- * To register your recipe transfer handler, use {@link IRecipeTransferRegistry#addRecipeTransferHandler(IRecipeTransferHandler, String)}.
+ * To register your recipe transfer handler, use {@link IRecipeTransferRegistry#addRecipeTransferHandlerWithOutput(IRecipeTransferHandler, String)}.
  */
 public interface IRecipeTransferHandler<C extends Container> {
     /**
@@ -34,19 +34,4 @@ public interface IRecipeTransferHandler<C extends Container> {
     @Nullable
     IRecipeTransferError transferRecipe(C container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer);
 
-
-    /**
-     * Implementations of this method must lead to {@link IAutocraftingHandler#informOfEvent} being called at some point!
-     * @param container    the container to act on
-     * @param recipeLayout the layout of the recipe, with information about the ingredients
-     * @param player       the player, to do the slot manipulation
-     * @param amount       number of sets of items to transfer
-     * @param doTransfer   if true, do the transfer. if false, check for errors but do not actually transfer the items
-     * @return a recipe transfer error if the recipe can't be transferred. Return null on success.
-     * @since HEI
-     */
-    @Nullable
-    default IRecipeTransferError craft(C container, IRecipeLayout recipeLayout, EntityPlayer player, int amount, boolean doTransfer) {
-        return RecipeTransferErrorInternal.INSTANCE;
-    }
 }

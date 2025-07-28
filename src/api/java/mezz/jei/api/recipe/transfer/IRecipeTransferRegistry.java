@@ -26,7 +26,7 @@ public interface IRecipeTransferRegistry {
 	<C extends Container> void addRecipeTransferHandler(Class<C> containerClass, String recipeCategoryUid, int recipeSlotStart, int recipeSlotCount, int inventorySlotStart, int inventorySlotCount);
 
 	/**
-	 * Basic method for adding a recipe transfer handler.
+	 * More advanced method for adding a recipe transfer handler including an output slot for autocrafting.
 	 *
 	 * @param containerClass     the class of the container that this recipe transfer handler is for
 	 * @param recipeCategoryUid  the recipe categories that this container can use
@@ -36,7 +36,9 @@ public interface IRecipeTransferRegistry {
 	 * @param inventorySlotCount the number of slots of the available inventory
 	 * @param outputSlot         the output slot that resulting items may be taken from for autocrafting
 	 */
-	<C extends Container> void addRecipeTransferHandler(Class<C> containerClass, String recipeCategoryUid, int recipeSlotStart, int recipeSlotCount, int inventorySlotStart, int inventorySlotCount, int outputSlot);
+	default <C extends Container> void addRecipeTransferHandlerWithOutput(Class<C> containerClass, String recipeCategoryUid, int recipeSlotStart, int recipeSlotCount, int inventorySlotStart, int inventorySlotCount, int outputSlot) {
+		addRecipeTransferHandler(containerClass, recipeCategoryUid, recipeSlotStart, recipeSlotCount, inventorySlotStart, inventorySlotCount);
+	}
 
 	/**
 	 * Advanced method for adding a recipe transfer handler.
@@ -51,7 +53,7 @@ public interface IRecipeTransferRegistry {
 	 *
 	 * @since JEI 3.12.4
 	 */
-	void addRecipeTransferHandler(IRecipeTransferHandler<?> recipeTransferHandler, String recipeCategoryUid);
+	void addRecipeTransferHandlerWithOutput(IRecipeTransferHandler<?> recipeTransferHandler, String recipeCategoryUid);
 
 	/**
 	 * Add a universal handler that can handle any category of recipe.

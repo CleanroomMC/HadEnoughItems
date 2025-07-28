@@ -46,9 +46,9 @@ key.jei.toggleEditMode=Toggle Hide/Edit Mode
 key.jei.previousPage=Show Previous Page
 key.jei.nextPage=Show Next Page
 key.jei.bookmark=Add/Remove a Bookmarked Ingredient
-key.jei.recipeBookmark=Add/Remove a Bookmarked Recipe
+key.hei.recipeBookmark=Add/Remove a Bookmarked Recipe
 key.jei.toggleBookmarkOverlay=Show/Hide Bookmarked Ingredients
-key.jei.crafting=Perform Autocrafting on Bookmarked Recipe Chain
+key.hei.crafting=Autocraft Selected Bookmarked Recipes
 
 # Config
 config.jei.default=Default
@@ -189,7 +189,7 @@ hei.tooltip.favorite_scroll=Scroll: change favorited item.
 hei.tooltip.recipe_bookmark=Bookmark this recipe.
 
 hei.tooltip.press_alt=Press §fALT§r to see tooltips
-hei.tooltip.organizer.1=§fUP§r or §fDOWN§r: Shift group up/down
-hei.tooltip.organizer.2=§fCTRL + SCROLL§r: Change craft output
+hei.tooltip.organizer.1=§fUP§r or §fDOWN§r: Move Group Up or Down
+hei.tooltip.organizer.2=§fCTRL + SCROLL§r: Change Crafting Output
 hei.tooltip.organizer.3=§fSHIFT + C§r: Autocraft (by default)
 hei.tooltip.missing_ingredients=§cMissing ingredients:
