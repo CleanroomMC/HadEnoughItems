@@ -23,13 +23,12 @@ public class PacketCraftUpdate extends PacketJei {
     @Override
     public void writePacketData(PacketBuffer buf) {
         buf.writeBoolean(success);
-        buf.writeInt(itemsCrafted);
+        buf.writeVarInt(itemsCrafted);
     }
-
 
     public static void readPacketData(PacketBuffer packetBuffer, EntityPlayer entityPlayer) {
         boolean success = packetBuffer.readBoolean();
-        int itemsCrafted = packetBuffer.readInt();
+        int itemsCrafted = packetBuffer.readVarInt();
         Internal.getRuntime().getAutocraftingHandler().stepFinished(success, itemsCrafted);
     }
 }

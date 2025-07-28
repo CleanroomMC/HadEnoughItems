@@ -84,7 +84,7 @@ public class BookmarkIngredientHelper implements IIngredientHelper<BookmarkItem>
     @Override
     public String getErrorInfo(@Nullable BookmarkItem ingredient) {
         if (ingredient == null) {
-            return "null";
+            return "A bookmark ingredient is itself null!";
         }
         return getIngredientHelper(ingredient.ingredient).getErrorInfo(ingredient.ingredient);
     }

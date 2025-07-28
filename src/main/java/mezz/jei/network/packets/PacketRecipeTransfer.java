@@ -61,10 +61,10 @@ public class PacketRecipeTransfer extends PacketJei {
 			buf.writeVarInt(inventorySlot);
 		}
 
-		buf.writeInt(maxTransfer);
+		buf.writeVarInt(maxTransfer);
 		buf.writeBoolean(requireCompleteSets);
 		buf.writeBoolean(performRecipe);
-		buf.writeInt(outputSlot);
+		buf.writeVarInt(outputSlot);
 
 		if (!itemCounts.isEmpty()) {
 			buf.writeBoolean(true);
@@ -100,10 +100,10 @@ public class PacketRecipeTransfer extends PacketJei {
 			int slotIndex = buf.readVarInt();
 			inventorySlots.add(slotIndex);
 		}
-		int maxTransfer = buf.readInt();
+		int maxTransfer = buf.readVarInt();
 		boolean performRecipe = buf.readBoolean();
 		boolean requireCompleteSets = buf.readBoolean();
-		int outputSlot = buf.readInt();
+		int outputSlot = buf.readVarInt();
 
 		Map<Integer, Integer> itemCounts = null;
 		if (buf.readBoolean()) {
