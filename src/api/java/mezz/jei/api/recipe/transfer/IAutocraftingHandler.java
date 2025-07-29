@@ -3,7 +3,7 @@ package mezz.jei.api.recipe.transfer;
 /**
  * HEI's handler for current autocrafting. Keeps track of the recipes required to complete a recipe chain,
  * and listens for when steps are completed.
- * @since HEI 4.28.0
+ * @since HEI 4.29.0
  */
 public interface IAutocraftingHandler {
     /**
