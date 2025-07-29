@@ -1,17 +1,11 @@
 package mezz.jei.plugins.vanilla.ingredients.item;
 
-import javax.annotation.Nullable;
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.oredict.OreDictionary;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.recipe.IFocus;
+import mezz.jei.color.ColorGetter;
+import mezz.jei.startup.StackHelper;
+import mezz.jei.util.ErrorUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
@@ -19,15 +13,22 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.oredict.OreDictionary;
 
-import mezz.jei.api.ingredients.IIngredientHelper;
-import mezz.jei.api.recipe.IFocus;
-import mezz.jei.color.ColorGetter;
-import mezz.jei.startup.StackHelper;
-import mezz.jei.util.ErrorUtil;
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 	private final StackHelper stackHelper;
+	private final Map<ItemStack, Integer> hashCache = new Object2IntOpenHashMap<>();
 
 	public ItemStackHelper(StackHelper stackHelper) {
 		this.stackHelper = stackHelper;
@@ -70,6 +71,19 @@ public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 	public String getUniqueId(ItemStack ingredient) {
 		ErrorUtil.checkNotEmpty(ingredient);
 		return stackHelper.getUniqueIdentifierForStack(ingredient);
+	}
+
+	@Override
+	public int getHash(ItemStack ingredient) {
+		if (hashCache.containsKey(ingredient)) {
+			return hashCache.get(ingredient);
+		}
+		int hash = ingredient.getCount();
+		hash = hash * 31 + ingredient.getItemDamage();
+		hash = hash * 31 + ingredient.getItem().getRegistryName().hashCode();
+		hash = hash * 31 + (ingredient.getTagCompound() == null ? 0 : ingredient.getTagCompound().hashCode());
+		hashCache.put(ingredient, hash);
+		return hash;
 	}
 
 	@Override

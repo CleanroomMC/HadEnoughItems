@@ -1,14 +1,14 @@
 package mezz.jei.gui.overlay.bookmarks;
 
-import java.awt.Rectangle;
-import java.util.Set;
-
+import mezz.jei.gui.ghost.IGhostIngredientDragSource;
+import mezz.jei.input.IShowsRecipeFocuses;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 
-import mezz.jei.input.IShowsRecipeFocuses;
+import java.awt.*;
+import java.util.Set;
 
-public interface ILeftAreaContent extends IShowsRecipeFocuses {
+public interface ILeftAreaContent extends IShowsRecipeFocuses, IGhostIngredientDragSource {
 
 	void drawScreen(Minecraft minecraft, int mouseX, int mouseY, float partialTicks);
 
@@ -22,4 +22,5 @@ public interface ILeftAreaContent extends IShowsRecipeFocuses {
 
 	boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton);
 
+    boolean onKeyPressed(char typedChar, int eventKey);
 }

@@ -1,12 +1,12 @@
 package mezz.jei.api.ingredients;
 
-import java.util.Collection;
-import java.util.List;
-
-import net.minecraft.item.ItemStack;
-
+import com.google.common.collect.ImmutableList;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.recipe.IIngredientType;
+import net.minecraft.item.ItemStack;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * The IIngredientRegistry is provided by JEI and has some useful functions related to recipe ingredients.
@@ -93,6 +93,13 @@ public interface IIngredientRegistry {
 	 * @since JEI 4.12.0
 	 */
 	<V> IIngredientType<V> getIngredientType(Class<? extends V> ingredientClass);
+
+	/**
+	 * Returns a list of all the craftable ingredient types.
+	 *
+	 * @since JEI 4.12.0
+	 */
+	ImmutableList<IIngredientType> getCraftableIngredientTypes();
 
 	/**
 	 * Returns an unmodifiable collection of all the ingredients known to JEI, of the specified class.

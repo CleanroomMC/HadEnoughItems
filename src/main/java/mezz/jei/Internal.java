@@ -1,13 +1,8 @@
 package mezz.jei;
 
-import javax.annotation.Nullable;
-
+import com.google.common.base.Preconditions;
 import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.bookmarks.BookmarkList;
-import mezz.jei.runtime.SubtypeRegistry;
-import net.minecraftforge.common.MinecraftForge;
-
-import com.google.common.base.Preconditions;
 import mezz.jei.color.ColorNamer;
 import mezz.jei.gui.GuiEventHandler;
 import mezz.jei.ingredients.IngredientFilter;
@@ -15,7 +10,11 @@ import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.input.InputHandler;
 import mezz.jei.runtime.JeiHelpers;
 import mezz.jei.runtime.JeiRuntime;
+import mezz.jei.runtime.SubtypeRegistry;
 import mezz.jei.startup.StackHelper;
+import net.minecraftforge.common.MinecraftForge;
+
+import javax.annotation.Nullable;
 
 /**
  * For HEI internal use only, these are normally accessed from the API.
@@ -139,6 +138,11 @@ public final class Internal {
 		MinecraftForge.EVENT_BUS.register(inputHandler);
 	}
 
+	@Nullable
+	public static InputHandler getInputHandler() {
+		return inputHandler;
+	}
+
 	public static void setBookmarkList(BookmarkList bookmarkList) {
 		Internal.bookmarkList = bookmarkList;
 	}
@@ -147,5 +151,4 @@ public final class Internal {
 		Preconditions.checkState(bookmarkList != null, "Bookmark List has not been created yet.");
         return bookmarkList;
     }
-
 }

@@ -1,25 +1,5 @@
 package mezz.jei.config;
 
-import javax.annotation.Nullable;
-import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.ConfigCategory;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.util.text.TextFormatting;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import mezz.jei.Internal;
@@ -38,7 +18,27 @@ import mezz.jei.startup.IModIdHelper;
 import mezz.jei.util.GiveMode;
 import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.ConfigCategory;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.commons.io.FileUtils;
+
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
 
 public final class Config {
 	private static final String configKeyPrefix = "config.jei";
@@ -66,6 +66,8 @@ public final class Config {
 	private static LocalizedConfiguration searchColorsConfig;
 	@Nullable
 	private static File bookmarkFile;
+	@Nullable
+	private static File favoriteFile;
 
 	private static final ConfigValues defaultValues = new ConfigValues();
 	private static final ConfigValues values = new ConfigValues();
@@ -174,6 +176,10 @@ public final class Config {
 		MinecraftForge.EVENT_BUS.post(new EditModeToggleEvent(values.editModeEnabled));
 	}
 
+	public static boolean areRecipeBookmarksEnabled() {
+		return values.recipeBookmarksEnabled;
+	}
+
 	public static boolean isDebugModeEnabled() {
 		return values.debugModeEnabled;
 	}
@@ -275,6 +281,10 @@ public final class Config {
 		return needToRebuildSearchTree;
 	}
 
+	public static boolean isAutocraftingEnabled() {
+		return values.autocraftingEnabled && values.bookmarkOverlayEnabled;
+	}
+
 	public enum SearchMode {
 		ENABLED, REQUIRE_PREFIX, DISABLED
 	}
@@ -333,6 +343,10 @@ public final class Config {
 		return values.hideBottomRightCornerConfigButton;
 	}
 
+	public static int getRecipeBookmarkGroupColor() {
+		return values.recipeBookmarkGroupColor;
+	}
+
 	public static List<String> categoryUidOrder() {
 		return values.categoryUidOrder;
 	}
@@ -350,6 +364,11 @@ public final class Config {
 	@Nullable
 	public static File getBookmarkFile() {
 		return bookmarkFile;
+	}
+
+	@Nullable
+	public static File getFavoriteFile() {
+		return favoriteFile;
 	}
 
 	public static void preInit(FMLPreInitializationEvent event) {
@@ -377,6 +396,8 @@ public final class Config {
 				return;
 			}
 		}
+
+		favoriteFile = new File("./", "hei_favorites.ini");
 
 		final File configFile = new File(jeiConfigurationDir, "jei.cfg");
 		final File itemBlacklistConfigFile = new File(jeiConfigurationDir, "itemBlacklist.cfg");
@@ -493,6 +514,8 @@ public final class Config {
 
 		values.maxRecipeGuiHeight = config.getInt("maxRecipeGuiHeight", CATEGORY_ADVANCED, defaultValues.maxRecipeGuiHeight, minRecipeGuiHeight, maxRecipeGuiHeight);
 
+		values.recipeBookmarkGroupColor = config.getInt("recipeBookmarkGroupColor", CATEGORY_ADVANCED, defaultValues.recipeBookmarkGroupColor, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
 		updateModNameFormat(config);
 
 		values.bufferIngredientRenders = config.getBoolean(CATEGORY_RENDERING, "bufferIngredientRenders", defaultValues.bufferIngredientRenders);
@@ -608,6 +631,16 @@ public final class Config {
 		property.setComment(Translator.translateToLocal("config.jei.interface.bookmarkOverlayEnabled.comment"));
 		property.setShowInGui(false);
 		values.bookmarkOverlayEnabled = property.getBoolean();
+
+		property = worldConfig.get(worldCategory, "autocraftingEnabled", defaultValues.recipeBookmarksEnabled);
+		property.setLanguageKey("config.jei.interface.autocraftingEnabled");
+		property.setComment(Translator.translateToLocal("config.jei.interface.autocraftingEnabled.comment"));
+		values.autocraftingEnabled = property.getBoolean();
+
+		property = worldConfig.get(worldCategory, "recipeBookmarksEnabled", defaultValues.autocraftingEnabled);
+		property.setLanguageKey("config.jei.interface.recipeBookmarksEnabled");
+		property.setComment(Translator.translateToLocal("config.jei.interface.autocraftingEnabled.comment"));
+		values.autocraftingEnabled = property.getBoolean();
 
 		property = worldConfig.get(worldCategory, "filterText", defaultValues.filterText);
 		property.setShowInGui(false);

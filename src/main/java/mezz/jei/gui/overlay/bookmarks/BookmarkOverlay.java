@@ -1,30 +1,27 @@
 package mezz.jei.gui.overlay.bookmarks;
 
-import javax.annotation.Nullable;
-import java.awt.Rectangle;
-import java.util.Set;
-
 import mezz.jei.api.IBookmarkOverlay;
-import mezz.jei.gui.ingredients.IIngredientListElement;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.item.ItemStack;
-
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.elements.GuiIconToggleButton;
+import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IngredientGrid;
-import mezz.jei.gui.overlay.IngredientGridWithNavigation;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.input.IClickedIngredient;
-import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.util.CommandUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.item.ItemStack;
 
-public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, IBookmarkOverlay {
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.Set;
+
+public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 	private static final int BUTTON_SIZE = 20;
 
 	// areas
@@ -32,7 +29,7 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 	private Rectangle displayArea = new Rectangle();
 
 	// display elements
-	private final IngredientGridWithNavigation contents;
+	private final BookmarkGridWithNavigation contents;
 	private final GuiIconToggleButton bookmarkButton;
 
 	// visibility
@@ -41,11 +38,14 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 	// data
 	private final BookmarkList bookmarkList;
 
+
+
 	public BookmarkOverlay(BookmarkList bookmarkList, GuiHelper guiHelper, GuiScreenHelper guiScreenHelper) {
 		this.bookmarkList = bookmarkList;
 		this.bookmarkButton = BookmarkButton.create(this, bookmarkList, guiHelper);
-		this.contents = new IngredientGridWithNavigation(bookmarkList, guiScreenHelper, GridAlignment.RIGHT);
+		this.contents = new BookmarkGridWithNavigation(bookmarkList, guiScreenHelper, GridAlignment.RIGHT);
 		bookmarkList.addListener(() -> contents.updateLayout(false));
+		bookmarkList.setGroupOrganizer(contents.getBookmarkGroupOrganizer());
 	}
 
 	public boolean isListDisplayed() {
@@ -175,6 +175,11 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 		return false;
 	}
 
+	@Override
+	public boolean onKeyPressed(char typedChar, int eventKey) {
+		return isListDisplayed() && this.contents.getBookmarkGroupOrganizer().onKeyPressed(typedChar, eventKey);
+	}
+
 	@Nullable
 	@Override
 	public Object getIngredientUnderMouse() {
@@ -183,6 +188,15 @@ public class BookmarkOverlay implements IShowsRecipeFocuses, ILeftAreaContent, I
 			if (elementUnderMouse != null) {
 				return elementUnderMouse.getIngredient();
 			}
+		}
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public IIngredientListElement getElementUnderMouse() {
+		if (isListDisplayed()) {
+			return this.contents.getElementUnderMouse();
 		}
 		return null;
 	}

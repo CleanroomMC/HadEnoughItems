@@ -1,22 +1,5 @@
 package mezz.jei.gui.recipes;
 
-import javax.annotation.Nullable;
-import java.awt.Color;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraftforge.fml.client.config.HoverChecker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-
 import mezz.jei.Internal;
 import mezz.jei.api.IRecipeRegistry;
 import mezz.jei.api.IRecipesGui;
@@ -43,7 +26,23 @@ import mezz.jei.transfer.RecipeTransferUtil;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.StringUtil;
 import mezz.jei.util.Translator;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraftforge.fml.client.config.HoverChecker;
 import org.lwjgl.input.Mouse;
+
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFocuses, IRecipeLogicStateListener {
 	private static final int borderPadding = 6;
@@ -295,7 +294,15 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		final int x = Mouse.getEventX() * width / mc.displayWidth;
 		final int y = height - Mouse.getEventY() * height / mc.displayHeight - 1;
 		if (isMouseOver(x, y)) {
+
 			int scrollDelta = Mouse.getEventDWheel();
+			if (scrollDelta != 0) {
+				for (RecipeLayout recipeLayout : recipeLayouts) {
+					if (recipeLayout.handleMouseScroll(x, y, scrollDelta)) {
+						return;
+					}
+				}
+			}
 			if (scrollDelta < 0) {
 				logic.nextPage();
 				return;
@@ -493,7 +500,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 		recipeLayouts.clear();
 		recipeLayouts.addAll(logic.getRecipeLayouts(recipeXOffset, guiTop + headerHeight + recipeSpacing, spacingY));
-		addRecipeTransferButtons(mc, recipeLayouts);
+		addRecipeSpecificButtons(mc, recipeLayouts);
 
 		nextPage.enabled = previousPage.enabled = logic.hasMultiplePages();
 		nextRecipeCategory.enabled = previousRecipeCategory.enabled = logic.hasMultipleCategories();
@@ -505,7 +512,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		recipeGuiTabs.initLayout(this);
 	}
 
-	private void addRecipeTransferButtons(Minecraft minecraft, List<RecipeLayout> recipeLayouts) {
+	private void addRecipeSpecificButtons(Minecraft minecraft, List<RecipeLayout> recipeLayouts) {
 		buttonList.clear();
 		addButtons();
 
@@ -518,6 +525,16 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 				if (button != null) {
 					button.init(container, player);
 					buttonList.add(button);
+				}
+				RecipeFavoriteButton favoriteButton = recipeLayout.getRecipeFavoriteButton();
+				if (favoriteButton != null) {
+					favoriteButton.init(recipeLayout);
+					buttonList.add(favoriteButton);
+				}
+				RecipeBookmarkButton bookmarkButton = recipeLayout.getRecipeBookmarkButton();
+				if (bookmarkButton != null) {
+					bookmarkButton.init(recipeLayout);
+					buttonList.add(bookmarkButton);
 				}
 			}
 		}

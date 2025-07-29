@@ -1,16 +1,5 @@
 package mezz.jei.gui.overlay;
 
-import javax.annotation.Nullable;
-import java.awt.Rectangle;
-import java.util.Collection;
-
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-
 import mezz.jei.Internal;
 import mezz.jei.JustEnoughItems;
 import mezz.jei.config.Config;
@@ -30,12 +19,24 @@ import mezz.jei.runtime.JeiRuntime;
 import mezz.jei.util.GiveMode;
 import mezz.jei.util.MathUtil;
 import mezz.jei.util.Translator;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.ItemHandlerHelper;
+
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * An ingredient grid displays a rectangular area of clickable recipe ingredients.
  */
 public class IngredientGrid implements IShowsRecipeFocuses {
-	private static final int INGREDIENT_PADDING = 1;
+	public static final int INGREDIENT_PADDING = 1;
 	public static final int INGREDIENT_WIDTH = GuiItemStackGroup.getWidth(INGREDIENT_PADDING);
 	public static final int INGREDIENT_HEIGHT = GuiItemStackGroup.getHeight(INGREDIENT_PADDING);
 	private final GridAlignment alignment;
@@ -43,9 +44,13 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 	private Rectangle area = new Rectangle();
 	protected final IngredientListBatchRenderer guiIngredientSlots;
 
-	public IngredientGrid(GridAlignment alignment) {
+	public IngredientGrid(IngredientListBatchRenderer guiIngredientSlots, GridAlignment alignment) {
 		this.alignment = alignment;
-		this.guiIngredientSlots = new IngredientListBatchRenderer();
+		this.guiIngredientSlots = guiIngredientSlots;
+	}
+
+	public IngredientGrid(GridAlignment alignment) { // Left in for compatibility with JEI Utilities
+		this(new IngredientListBatchRenderer(), alignment);
 	}
 
 	public int size() {
@@ -76,6 +81,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		}
 
 		for (int row = 0; row < rows; row++) {
+			List<IngredientListSlot> ingredientRow = new ArrayList<>();
 			int y1 = y + (row * INGREDIENT_HEIGHT);
 			for (int column = 0; column < columns; column++) {
 				int x1 = xOffset + (column * INGREDIENT_WIDTH);
@@ -83,8 +89,9 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 				Rectangle stackArea = ingredientListSlot.getArea();
 				final boolean blocked = MathUtil.intersects(exclusionAreas, stackArea);
 				ingredientListSlot.setBlocked(blocked);
-				this.guiIngredientSlots.add(ingredientListSlot);
+				ingredientRow.add(ingredientListSlot);
 			}
+			this.guiIngredientSlots.add(ingredientRow);
 		}
 		return true;
 	}
@@ -103,7 +110,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		guiIngredientSlots.render(minecraft);
 
 		if (!shouldDeleteItemOnClick(minecraft, mouseX, mouseY) && isMouseOver(mouseX, mouseY)) {
-			IngredientRenderer hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
+			IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
 			if (hovered != null) {
 				hovered.drawHighlight();
 			}
@@ -118,7 +125,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 				String deleteItem = Translator.translateToLocal("jei.tooltip.delete.item");
 				TooltipRenderer.drawHoveringText(minecraft, deleteItem, mouseX, mouseY);
 			} else {
-				IngredientRenderer hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
+				IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
 				if (hovered != null) {
 					hovered.drawTooltip(minecraft, mouseX, mouseY);
 				}
@@ -179,8 +186,8 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 	}
 
 	@Nullable
-	public IIngredientListElement getElementUnderMouse() {
-		IngredientRenderer hovered = guiIngredientSlots.getHovered(MouseHelper.getX(), MouseHelper.getY());
+	public IIngredientListElement<?> getElementUnderMouse() {
+		IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(MouseHelper.getX(), MouseHelper.getY());
 		if (hovered != null) {
 			return hovered.getElement();
 		}

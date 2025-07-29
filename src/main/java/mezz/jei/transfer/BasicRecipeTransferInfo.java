@@ -1,12 +1,11 @@
 package mezz.jei.transfer;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 
-import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BasicRecipeTransferInfo<C extends Container> implements IRecipeTransferInfo<C> {
 	private final Class<C> containerClass;
@@ -15,6 +14,7 @@ public class BasicRecipeTransferInfo<C extends Container> implements IRecipeTran
 	private final int recipeSlotCount;
 	private final int inventorySlotStart;
 	private final int inventorySlotCount;
+	private int craftingSlot = -1;
 
 	public BasicRecipeTransferInfo(Class<C> containerClass, String recipeCategoryUid, int recipeSlotStart, int recipeSlotCount, int inventorySlotStart, int inventorySlotCount) {
 		this.containerClass = containerClass;
@@ -23,6 +23,16 @@ public class BasicRecipeTransferInfo<C extends Container> implements IRecipeTran
 		this.recipeSlotCount = recipeSlotCount;
 		this.inventorySlotStart = inventorySlotStart;
 		this.inventorySlotCount = inventorySlotCount;
+	}
+
+	public BasicRecipeTransferInfo<C> setCraftingSlot(int craftingSlot) {
+		this.craftingSlot = craftingSlot;
+		return this;
+	}
+
+	@Override
+	public int getOutputSlot() {
+		return craftingSlot;
 	}
 
 	@Override
@@ -39,6 +49,7 @@ public class BasicRecipeTransferInfo<C extends Container> implements IRecipeTran
 	public boolean canHandle(C container) {
 		return true;
 	}
+
 
 	@Override
 	public List<Slot> getRecipeSlots(C container) {

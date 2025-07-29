@@ -1,13 +1,13 @@
 package mezz.jei.api.gui;
 
-import javax.annotation.Nullable;
-
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
+
+import javax.annotation.Nullable;
 
 /**
  * Represents the layout of one recipe on-screen.

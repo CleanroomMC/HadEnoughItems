@@ -46,7 +46,9 @@ key.jei.toggleEditMode=Toggle Hide/Edit Mode
 key.jei.previousPage=Show Previous Page
 key.jei.nextPage=Show Next Page
 key.jei.bookmark=Add/Remove a Bookmarked Ingredient
+key.hei.recipeBookmark=Add/Remove a Bookmarked Recipe
 key.jei.toggleBookmarkOverlay=Show/Hide Bookmarked Ingredients
+key.hei.crafting=Autocraft Selected Bookmarked Recipes
 
 # Config
 config.jei.default=Default
@@ -67,6 +69,10 @@ config.jei.interface.overlayEnabled=Show Ingredient List
 config.jei.interface.overlayEnabled.comment=Show the list of ingredients next to open GUIs.
 config.jei.interface.bookmarkOverlayEnabled=Show Bookmarks
 config.jei.interface.bookmarkOverlayEnabled.comment=Show the list of bookmarks next to open GUIs.
+config.jei.interface.recipeBookmarksEnabled=Enable Recipe Bookmarks
+config.jei.interface.recipeBookmarksEnabled.comment=Add and remove bookmark groups for recipes.
+config.jei.interface.autocraftingEnabled=Enable Autocraft
+config.jei.interface.autocraftingEnabled.comment=IF AND ONLY IF recipe bookmarks are enabled, allow autocrafting with them.
 
 config.jei.search=Search Options
 config.jei.search.comment=Options relating to the search bar.
@@ -105,6 +111,8 @@ config.jei.advanced.optimizeMemoryUsage=Optimize Memory Usage
 config.jei.advanced.optimizeMemoryUsage.comment=Enable HEI memory usage optimizations.
 config.jei.advanced.ultraLowMemoryUsage=Ultra Low Memory Usage Mode
 config.jei.advanced.ultraLowMemoryUsage.comment=Enable ultra low memory usage mode, can slow down searching by a lot however.
+config.jei.advanced.recipeBookmarkGroupColor=Color of Recipe Bookmark Group
+config.jei.advanced.recipeBookmarkGroupColor.comment=Color of the recipe bookmark group in RGBA format.
 
 # Hide Ingredients Mode
 gui.jei.editMode.description=HEI Hide Ingredients Mode:
@@ -178,3 +186,14 @@ hei.generic.ticks=%d Ticks
 
 hei.command.load_bookmarks.failure=Bookmark List not found, something went horribly wrong.
 hei.command.load_bookmarks.success=Loaded %d bookmarks.
+
+hei.tooltip.unfavorite=Remove this recipe from your favorites.
+hei.tooltip.favorite=Add this recipe to your favorites.
+hei.tooltip.favorite_scroll=Scroll: change favorited item.
+hei.tooltip.recipe_bookmark=Bookmark this recipe.
+
+hei.tooltip.press_alt=Press §fALT§r to see tooltips
+hei.tooltip.organizer.1=§fUP§r or §fDOWN§r: Move Group Up or Down
+hei.tooltip.organizer.2=§fCTRL + SCROLL§r: Change Crafting Final Output
+hei.tooltip.organizer.3=§f%s§r: Autocraft (by default)
+hei.tooltip.missing_ingredients=§cMissing ingredients:

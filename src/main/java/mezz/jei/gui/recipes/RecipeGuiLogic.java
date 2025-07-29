@@ -1,15 +1,5 @@
 package mezz.jei.gui.recipes;
 
-import javax.annotation.Nonnegative;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.inventory.Container;
-
 import com.google.common.collect.ImmutableList;
 import mezz.jei.api.IRecipeRegistry;
 import mezz.jei.api.ingredients.IIngredientHelper;
@@ -17,11 +7,21 @@ import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
+import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.gui.Focus;
 import mezz.jei.gui.ingredients.IngredientLookupState;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.MathUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerPlayer;
+
+import javax.annotation.Nonnegative;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 
 public class RecipeGuiLogic implements IRecipeGuiLogic {
 	private final IRecipeRegistry recipeRegistry;
@@ -60,22 +60,35 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 			history.push(this.state);
 		}
 
-		int recipeCategoryIndex = getRecipeCategoryIndexToShowFirst(recipeCategories);
-		IngredientLookupState state = new IngredientLookupState(translatedFocus, recipeCategories, recipeCategoryIndex, 0);
+		int recipeCategoryIndex = getRecipeCategoryIndexToShowFirst(recipeCategories, translatedFocus);
+		int recipeIndex = getRecipeIndexToShowFirst(recipeCategories, recipeCategoryIndex, translatedFocus);
+		IngredientLookupState state = new IngredientLookupState(translatedFocus, recipeCategories, recipeCategoryIndex, recipeIndex);
 		setState(state);
 
 		return true;
 	}
 
+	private int getRecipeIndexToShowFirst(List<IRecipeCategory> recipeCategories, int recipeCategoryIndex, IFocus<?> focus) {
+		if (focus.getMode() == IFocus.Mode.OUTPUT) {
+			IRecipeCategory<?> recipeCategory = recipeCategories.get(recipeCategoryIndex);
+			IRecipeWrapper favorite = FavoriteRecipes.getFavorite(focus.getValue());
+			if (favorite != null) {
+				int index = recipeRegistry.getRecipeWrappers(recipeCategory, focus).indexOf(favorite);
+				if (index >= 0) {
+					return index;
+				}
+			}
+		}
+		return 0;
+	}
+
 	@Nonnegative
-	private int getRecipeCategoryIndexToShowFirst(List<IRecipeCategory> recipeCategories) {
+	private int getRecipeCategoryIndexToShowFirst(List<IRecipeCategory> recipeCategories, IFocus<?> focus) {
 		Minecraft minecraft = Minecraft.getMinecraft();
 		EntityPlayerSP player = minecraft.player;
 		if (player != null) {
 			Container openContainer = player.openContainer;
-			if (openContainer != null) {
-				if (openContainer instanceof ContainerPlayer)
-					return 0;
+			if (openContainer != null && !(openContainer instanceof ContainerPlayer)) {
 				for (int i = 0; i < recipeCategories.size(); i++) {
 					IRecipeCategory recipeCategory = recipeCategories.get(i);
 					IRecipeTransferHandler recipeTransferHandler = recipeRegistry.getRecipeTransferHandler(openContainer, recipeCategory);
@@ -83,6 +96,12 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 						return i;
 					}
 				}
+			}
+		}
+		if (focus.getMode() == IFocus.Mode.OUTPUT) {
+			IRecipeCategory<?> favorite = FavoriteRecipes.getFavoriteCategory(focus.getValue());
+			if (favorite != null) {
+				return recipeCategories.indexOf(favorite);
 			}
 		}
 		return 0;

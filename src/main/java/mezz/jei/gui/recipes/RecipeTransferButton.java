@@ -10,7 +10,7 @@ import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.elements.GuiIconButtonSmall;
-import mezz.jei.transfer.RecipeTransferErrorInternal;
+import mezz.jei.api.recipe.transfer.RecipeTransferErrorInternal;
 import mezz.jei.transfer.RecipeTransferUtil;
 import mezz.jei.util.Translator;
 

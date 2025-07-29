@@ -1,18 +1,6 @@
 package mezz.jei.gui.recipes;
 
-import javax.annotation.Nullable;
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.item.ItemStack;
-
 import mezz.jei.Internal;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiFluidStackGroup;
@@ -36,11 +24,24 @@ import mezz.jei.ingredients.Ingredients;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.LegacyUtil;
 import mezz.jei.util.Log;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
+
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class RecipeLayout implements IRecipeLayoutDrawable {
 	private static final int RECIPE_BUTTON_SIZE = 13;
 	private static final int RECIPE_BORDER_PADDING = 4;
 	public static final int recipeTransferButtonIndex = 100;
+	public static final int favoriteButtonIndex = 80;
+	public static final int recipeBookmarkButtonIndex = 60; // There shouldn't be more than 20 recipes on a page.
+
 
 	private final int ingredientCycleOffset = (int) ((Math.random() * 10000) % Integer.MAX_VALUE);
 	private final IRecipeCategory recipeCategory;
@@ -49,6 +50,10 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	private final Map<IIngredientType, GuiIngredientGroup> guiIngredientGroups;
 	@Nullable
 	private final RecipeTransferButton recipeTransferButton;
+	@Nullable
+	private final RecipeFavoriteButton recipeFavoriteButton;
+	@Nullable
+	private final RecipeBookmarkButton recipeBookmarkButton;
 	private final IRecipeWrapper recipeWrapper;
 	@Nullable
 	private final IFocus<?> focus;
@@ -103,10 +108,19 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		this.guiIngredientGroups.put(VanillaTypes.FLUID, this.guiFluidStackGroup);
 
 		if (index >= 0) {
-			IDrawable icon = Internal.getHelpers().getGuiHelper().getRecipeTransfer();
-			this.recipeTransferButton = new RecipeTransferButton(recipeTransferButtonIndex + index, 0, 0, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, icon, this);
+			IDrawable transferIcon = Internal.getHelpers().getGuiHelper().getRecipeTransfer();
+			IDrawable bookmarkIcon = Internal.getHelpers().getGuiHelper().getRecipeBookmarkIcon();
+			this.recipeTransferButton = new RecipeTransferButton(recipeTransferButtonIndex + index, 0, 0, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, transferIcon, this);
+			IDrawable favoriteOff = Internal.getHelpers().getGuiHelper().getFavoriteDisabled();
+			IDrawable favoriteOn = Internal.getHelpers().getGuiHelper().getFavoriteEnabled();
+			this.recipeFavoriteButton = new RecipeFavoriteButton(favoriteButtonIndex + index, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE, favoriteOff, favoriteOn,
+					recipeWrapper, recipeCategory, this);
+			this.recipeBookmarkButton = new RecipeBookmarkButton(recipeBookmarkButtonIndex + index, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE,
+					bookmarkIcon, recipeCategory, recipeWrapper, this);
 		} else {
 			this.recipeTransferButton = null;
+			this.recipeFavoriteButton = null;
+			this.recipeBookmarkButton = null;
 		}
 
 		setPosition(posX, posY);
@@ -119,12 +133,20 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	public void setPosition(int posX, int posY) {
 		this.posX = posX;
 		this.posY = posY;
+		int width = recipeCategory.getBackground().getWidth();
+		int height = recipeCategory.getBackground().getHeight();
 
 		if (this.recipeTransferButton != null) {
-			int width = recipeCategory.getBackground().getWidth();
-			int height = recipeCategory.getBackground().getHeight();
 			this.recipeTransferButton.x = posX + width + RECIPE_BORDER_PADDING + 2;
 			this.recipeTransferButton.y = posY + height - RECIPE_BUTTON_SIZE;
+		}
+		if (this.recipeFavoriteButton != null) {
+			this.recipeFavoriteButton.x = posX + width + RECIPE_BORDER_PADDING + 2;
+			this.recipeFavoriteButton.y = posY + height - RECIPE_BUTTON_SIZE * 2 - 2;
+		}
+		if (this.recipeBookmarkButton != null) {
+			this.recipeBookmarkButton.x = posX + width + RECIPE_BORDER_PADDING + 2;
+			this.recipeBookmarkButton.y = posY + height - RECIPE_BUTTON_SIZE * 3 - 4;
 		}
 	}
 
@@ -171,6 +193,14 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			float partialTicks = minecraft.getRenderPartialTicks();
 			recipeTransferButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
 		}
+		if (recipeFavoriteButton != null) {
+			float partialTicks = minecraft.getRenderPartialTicks();
+			recipeFavoriteButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
+		}
+		if (recipeBookmarkButton != null) {
+			float partialTicks = minecraft.getRenderPartialTicks();
+			recipeBookmarkButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
+		}
 		GlStateManager.disableBlend();
 		GlStateManager.disableLighting();
 		GlStateManager.disableAlpha();
@@ -194,6 +224,12 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		}
 		if (recipeTransferButton != null) {
 			recipeTransferButton.drawToolTip(minecraft, mouseX, mouseY);
+		}
+		if (recipeFavoriteButton != null) {
+			recipeFavoriteButton.drawToolTip(minecraft, mouseX, mouseY);
+		}
+		if (recipeBookmarkButton != null) {
+			recipeBookmarkButton.drawToolTip(minecraft, mouseX, mouseY);
 		}
 		GlStateManager.disableBlend();
 		GlStateManager.disableLighting();
@@ -224,8 +260,9 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		final IDrawable background = recipeCategory.getBackground();
 		final Rectangle backgroundRect = new Rectangle(posX, posY, background.getWidth(), background.getHeight());
 		return backgroundRect.contains(mouseX, mouseY) ||
-			(recipeTransferButton != null && recipeTransferButton.isMouseOver());
-	}
+			(recipeTransferButton != null && recipeTransferButton.isMouseOver()) ||
+				(recipeFavoriteButton != null && recipeFavoriteButton.isMouseOver()) ||
+					(recipeBookmarkButton != null && recipeBookmarkButton.isMouseOver());	}
 
 	@Override
 	@Nullable
@@ -251,6 +288,13 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 
 	public boolean handleClick(Minecraft minecraft, int mouseX, int mouseY, int mouseButton) {
 		return recipeWrapper.handleClick(minecraft, mouseX - posX, mouseY - posY, mouseButton);
+	}
+
+	public boolean handleMouseScroll(int mouseX, int mouseY, int scrollAmount) {
+		if (recipeFavoriteButton == null) {
+			return false;
+		}
+		return recipeFavoriteButton.handleMouseScrolled(mouseX, mouseY, scrollAmount);
 	}
 
 	@Override
@@ -296,6 +340,14 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			recipeTransferButton.x = posX + this.posX;
 			recipeTransferButton.y = posY + this.posY;
 		}
+		if (recipeFavoriteButton != null) {
+			recipeFavoriteButton.x = posX + this.posX;
+			recipeFavoriteButton.y = posY + this.posY;
+		}
+		if (recipeBookmarkButton != null) {
+			recipeBookmarkButton.x = posX + this.posX;
+			recipeBookmarkButton.y = posY + this.posY;
+		}
 	}
 
 	@Override
@@ -314,6 +366,16 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		return recipeTransferButton;
 	}
 
+	@Nullable
+	public RecipeFavoriteButton getRecipeFavoriteButton() {
+		return recipeFavoriteButton;
+	}
+
+	@Nullable
+	public RecipeBookmarkButton getRecipeBookmarkButton() {
+		return recipeBookmarkButton;
+	}
+
 	@Override
 	public IRecipeCategory getRecipeCategory() {
 		return recipeCategory;
@@ -326,4 +388,6 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	public int getPosY() {
 		return posY;
 	}
+
+
 }

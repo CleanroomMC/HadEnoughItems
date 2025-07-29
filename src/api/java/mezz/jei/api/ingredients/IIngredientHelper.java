@@ -69,6 +69,15 @@ public interface IIngredientHelper<V> {
 	String getUniqueId(V ingredient);
 
 	/**
+	 * Entirely unique ID for use in comparing, blacklisting, and looking up ingredients by count, NBT, and any other possible variation.
+	 *
+	 * @since JEI 3.11.0
+	 */
+	default int getHash(V ingredient) {
+		return getUniqueId(ingredient).hashCode();
+	}
+
+	/**
 	 * Wildcard ID for use in comparing, blacklisting, and looking up ingredients.
 	 * For an example, ItemStack's wildcardId does not include NBT or meta.
 	 * For ingredients like FluidStacks which do not have a wildcardId, just return the uniqueId here.

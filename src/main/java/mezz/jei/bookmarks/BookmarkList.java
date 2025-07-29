@@ -1,251 +1,314 @@
 package mezz.jei.bookmarks;
 
+import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.ingredients.VanillaTypes;
+import mezz.jei.api.recipe.IIngredientType;
+import mezz.jei.autocrafting.IngredientUtil;
+import mezz.jei.autocrafting.RecipeBookmarkGroup;
+import mezz.jei.config.Config;
+import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.gui.overlay.IIngredientGridSource;
+import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
+import mezz.jei.ingredients.IngredientRegistry;
+import mezz.jei.util.Log;
+import org.apache.commons.io.IOUtils;
+
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
-import net.minecraft.nbt.NBTTagCompound;
-
-import mezz.jei.api.ingredients.IIngredientHelper;
-import mezz.jei.api.ingredients.VanillaTypes;
-import mezz.jei.api.recipe.IIngredientType;
-import mezz.jei.config.Config;
-import mezz.jei.gui.ingredients.IIngredientListElement;
-import mezz.jei.gui.overlay.IIngredientGridSource;
-import mezz.jei.ingredients.IngredientListElementFactory;
-import mezz.jei.ingredients.IngredientRegistry;
-import mezz.jei.startup.ForgeModIdHelper;
-import mezz.jei.util.LegacyUtil;
-import mezz.jei.util.Log;
-import org.apache.commons.io.IOUtils;
-
+@SuppressWarnings("rawtypes")
 public class BookmarkList implements IIngredientGridSource {
+    private static final String MARKER_GROUP = "B:";
+    private static final String MARKER_RECIPE_GROUP = "R:";
 
-	private static final String MARKER_OTHER = "O:";
-	private static final String MARKER_STACK = "T:";
+    private final List<BookmarkGroup> list = new LinkedList<>();
+    private final IngredientRegistry ingredientRegistry;
+    private final List<IIngredientGridSource.Listener> listeners = new ArrayList<>();
+    private int nextId = 0;
+    private BookmarkGroupOrganizer bookmarkGroupOrganizer;
 
-	private final List<Object> list = new LinkedList<>();
-	private final List<IIngredientListElement> ingredientListElements = new LinkedList<>();
-	private final IngredientRegistry ingredientRegistry;
-	private final List<IIngredientGridSource.Listener> listeners = new ArrayList<>();
+    public BookmarkList(IngredientRegistry ingredientRegistry) {
+        this.ingredientRegistry = ingredientRegistry;
+    }
 
-	public BookmarkList(IngredientRegistry ingredientRegistry) {
-		this.ingredientRegistry = ingredientRegistry;
-	}
+    public <T> boolean add(BookmarkItem<T> ingredient) {
+        return add(ingredient, false);
+    }
 
-	public <T> boolean add(T ingredient) {
-		return add(ingredient, false);
-	}
+    public boolean add(BookmarkGroup group) {
+        list.add(group);
+        notifyListenersOfChange();
+        saveBookmarks();
+        return true;
+    }
 
-	public <T> boolean add(T ingredient, boolean forceFront) {
-		Object normalized = normalize(ingredient);
-		if (!contains(normalized)) {
-			if (addToLists(normalized, forceFront || Config.isAddingBookmarksToFront())) {
-				notifyListenersOfChange();
-				saveBookmarks();
-				return true;
-			}
-		} else if (forceFront) {
-			// avoid boolean expression short-circuiting
-			boolean flag1 = remove(normalized, true);
-			boolean flag2 = addToLists(normalized, true);
-			if (flag1 || flag2) {
-				notifyListenersOfChange();
-				saveBookmarks();
-				return true;
-			}
-		}
-		return false;
-	}
+    public <T> boolean add(BookmarkItem<T> ingredient, boolean forceFront) {
+        BookmarkItem<T> normalized = IngredientUtil.normalizeBookmark(ingredient);
+        if (!contains(normalized)) {
+            if (addToLists(normalized, forceFront || Config.isAddingBookmarksToFront())) {
+                notifyListenersOfChange();
+                saveBookmarks();
+                return true;
+            }
+        } else if (forceFront) {
+            // avoid boolean expression short-circuiting
+            boolean flag1 = remove(normalized, true);
+            boolean flag2 = addToLists(normalized, true);
+            if (flag1 || flag2) {
+                notifyListenersOfChange();
+                saveBookmarks();
+                return true;
+            }
+        }
+        return false;
+    }
 
-	protected <T> T normalize(T ingredient) {
-		IIngredientHelper<T> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
-		T copy = LegacyUtil.getIngredientCopy(ingredient, ingredientHelper);
-		if (copy instanceof ItemStack) {
-			((ItemStack) copy).setCount(1);
-		} else if (copy instanceof FluidStack) {
-			((FluidStack) copy).amount = 1000;
-		}
-		return copy;
-	}
+    private boolean contains(Object ingredient) {
+        // We cannot assume that ingredients have a working equals() implementation. Even ItemStack doesn't have one...
+        IIngredientHelper<Object> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
 
-	private boolean contains(Object ingredient) {
-		// We cannot assume that ingredients have a working equals() implementation. Even ItemStack doesn't have one...
-		IIngredientHelper<Object> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
-		for (Object existing : list) {
-			if (ingredient == existing) {
-				return true;
-			}
-			if (existing != null && existing.getClass() == ingredient.getClass()) {
-				if (ingredientHelper.getUniqueId(existing).equals(ingredientHelper.getUniqueId(ingredient))) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+        for (BookmarkGroup group : list) {
+            for (BookmarkItem existing : group.getItems()) {
+                if (ingredient == existing) {
+                    return true;
+                }
+                if (existing != null && existing.getClass() == ingredient.getClass()) {
+                    if (ingredientHelper.getUniqueId(existing).equals(ingredientHelper.getUniqueId(ingredient))) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
-	public boolean remove(Object ingredient) {
-		return remove(ingredient, false);
-	}
+    public boolean remove(Object ingredient) {
+        return remove(ingredient, false);
+    }
 
-	public boolean remove(Object ingredient, boolean looseEqualCheck) {
-		int index = 0;
-		for (Object existing : list) {
-			if (looseEqualCheck) {
-				String id1 = ingredientRegistry.getIngredientHelper(ingredient).getUniqueId(ingredient);
-				String id2 = ingredientRegistry.getIngredientHelper(existing).getUniqueId(existing);
-				if (id1.equals(id2)) {
-					list.remove(index);
-					ingredientListElements.remove(index);
-					notifyListenersOfChange();
-					saveBookmarks();
-					return true;
-				}
-			}
-			if (ingredient == existing) {
-				list.remove(index);
-				ingredientListElements.remove(index);
-				notifyListenersOfChange();
-				saveBookmarks();
-				return true;
-			}
-			index++;
-		}
-		return false;
-	}
+    public boolean remove(Object ingredient, boolean looseEqualCheck) {
+        for (BookmarkGroup group : list) {
+            for (int i = 0; i < group.getItems().size(); i++) {
+                BookmarkItem existing = group.getItems().get(i);
+                if (looseEqualCheck) {
+                    String id1 = ingredientRegistry.getIngredientHelper(ingredient).getUniqueId(ingredient);
+                    String id2 = ingredientRegistry.getIngredientHelper(existing).getUniqueId(existing);
+                    if (id1.equals(id2)) {
+                        removeItemFromGroup(group, existing);
+                        return true;
+                    }
+                }
+                if (ingredient == existing) {
+                    removeItemFromGroup(group, existing);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-	public void saveBookmarks() {
-		List<String> strings = new ArrayList<>();
-		for (IIngredientListElement<?> element : ingredientListElements) {
-			Object object = element.getIngredient();
-			if (object instanceof ItemStack) {
-				strings.add(MARKER_STACK + ((ItemStack) object).writeToNBT(new NBTTagCompound()).toString());
-			} else {
-				strings.add(MARKER_OTHER + getUid(element));
-			}
-		}
-		File file = Config.getBookmarkFile();
-		if (file != null) {
-			try (FileWriter writer = new FileWriter(file)) {
-				IOUtils.writeLines(strings, "\n", writer);
-			} catch (IOException e) {
-				Log.get().error("Failed to save bookmarks list to file {}", file, e);
-			}
-		}
-	}
+    private void removeItemFromGroup(BookmarkGroup group, BookmarkItem<?> item) {
+        group.removeItem(item);
+        if (group.items.isEmpty() && !containsAnyAddableGroups()) {
+            list.remove(group);
+        }
+        notifyListenersOfChange();
+        saveBookmarks();
+    }
 
-	private static <T> String getUid(IIngredientListElement<T> element) {
-		IIngredientHelper<T> ingredientHelper = element.getIngredientHelper();
-		return ingredientHelper.getUniqueId(element.getIngredient());
-	}
+    private boolean containsAnyAddableGroups() {
+        return this.list.stream().anyMatch(BookmarkGroup::acceptsChanges);
+    }
 
-	public void loadBookmarks() {
-		File file = Config.getBookmarkFile();
-		if (file == null || !file.exists()) {
-			return;
-		}
-		List<String> ingredientJsonStrings;
-		try (FileReader reader = new FileReader(file)) {
-			ingredientJsonStrings = IOUtils.readLines(reader);
-		} catch (IOException e) {
-			Log.get().error("Failed to load bookmarks from file {}", file, e);
-			return;
-		}
+    public void saveBookmarks() {
+        List<String> strings = new ArrayList<>();
+        for (BookmarkGroup group : list) {
+            if (group instanceof RecipeBookmarkGroup) {
+                strings.add(MARKER_RECIPE_GROUP);
+            } else {
+                strings.add(MARKER_GROUP);
+            }
+            for (BookmarkItem<?> item : group.getItems()) {
+                String serialized = item.serialize();
+                if (serialized == null) {
+                    continue;
+                }
+                strings.add(serialized);
+            }
+        }
 
-		Collection<IIngredientType> otherIngredientTypes = new ArrayList<>(ingredientRegistry.getRegisteredIngredientTypes());
-		otherIngredientTypes.remove(VanillaTypes.ITEM);
+        File file = Config.getBookmarkFile();
+        if (file != null) {
+            try (FileWriter writer = new FileWriter(file)) {
+                IOUtils.writeLines(strings, "\n", writer);
+            } catch (IOException e) {
+                Log.get().error("Failed to save bookmarks list to file {}", file, e);
+            }
+        }
+    }
 
-		list.clear();
-		ingredientListElements.clear();
-		for (String ingredientJsonString : ingredientJsonStrings) {
-			if (ingredientJsonString.startsWith(MARKER_STACK)) {
-				String itemStackAsJson = ingredientJsonString.substring(MARKER_STACK.length());
-				try {
-					NBTTagCompound itemStackAsNbt = JsonToNBT.getTagFromJson(itemStackAsJson);
-					ItemStack itemStack = new ItemStack(itemStackAsNbt);
-					if (!itemStack.isEmpty()) {
-						ItemStack normalized = normalize(itemStack);
-						addToLists(normalized, false);
-					} else {
-						Log.get().warn("Failed to load bookmarked ItemStack from json string, the item no longer exists:\n{}", itemStackAsJson);
-					}
-				} catch (NBTException e) {
-					Log.get().error("Failed to load bookmarked ItemStack from json string:\n{}", itemStackAsJson, e);
-				}
-			} else if (ingredientJsonString.startsWith(MARKER_OTHER)) {
-				String uid = ingredientJsonString.substring(MARKER_OTHER.length());
-				Object ingredient = getUnknownIngredientByUid(otherIngredientTypes, uid);
-				if (ingredient != null) {
-					Object normalized = normalize(ingredient);
-					addToLists(normalized, false);
-				}
-			} else {
-				Log.get().error("Failed to load unknown bookmarked ingredient:\n{}", ingredientJsonString);
-			}
-		}
-		notifyListenersOfChange();
-	}
+    private static <T> String getUid(IIngredientListElement<T> element) {
+        IIngredientHelper<T> ingredientHelper = element.getIngredientHelper();
+        return ingredientHelper.getUniqueId(element.getIngredient());
+    }
 
-	@Nullable
-	private Object getUnknownIngredientByUid(Collection<IIngredientType> ingredientTypes, String uid) {
-		for (IIngredientType<?> ingredientType : ingredientTypes) {
-			Object ingredient = ingredientRegistry.getIngredientByUid(ingredientType, uid);
-			if (ingredient != null) {
-				return ingredient;
-			}
-		}
-		return null;
-	}
+    public void loadBookmarks() {
+        File file = Config.getBookmarkFile();
+        if (file == null || !file.exists()) {
+            return;
+        }
+        List<String> ingredientJsonStrings;
+        try (FileReader reader = new FileReader(file)) {
+            ingredientJsonStrings = IOUtils.readLines(reader);
+        } catch (IOException e) {
+            Log.get().error("Failed to load bookmarks from file {}", file, e);
+            return;
+        }
 
-	private <T> boolean addToLists(T ingredient, boolean addToFront) {
-		IIngredientType<T> ingredientType = ingredientRegistry.getIngredientType(ingredient);
-		IIngredientListElement<T> element = IngredientListElementFactory.createUnorderedElement(ingredientRegistry, ingredientType, ingredient, ForgeModIdHelper.getInstance());
-		if (element != null) {
-			if (addToFront) {
-				list.add(0, ingredient);
-				ingredientListElements.add(0, element);
-			} else {
-				list.add(ingredient);
-				ingredientListElements.add(element);
-			}
-			return true;
-		}
-		return false;
-	}
+        Collection<IIngredientType> otherIngredientTypes = new ArrayList<>(ingredientRegistry.getRegisteredIngredientTypes());
+        otherIngredientTypes.remove(VanillaTypes.ITEM);
 
-	@Override
-	public List<IIngredientListElement> getIngredientList() {
-		return ingredientListElements;
-	}
+        list.clear();
+        BookmarkGroup group = new BookmarkGroup(nextId++);
+        for (String ingredientJsonString : ingredientJsonStrings) {
+            BookmarkItem<?> item = BookmarkItem.deserialize(ingredientJsonString, otherIngredientTypes);
+            if (item != null) {
+                group.addItemInternal(item); // Don't cause recipe chains to update
+            } else if (ingredientJsonString.startsWith(MARKER_GROUP)) {
+                if (!group.items.isEmpty()) {
+                    list.add(group);
+                }
+                group = new BookmarkGroup(nextId++);
+            } else if (ingredientJsonString.startsWith(MARKER_RECIPE_GROUP)) {
+                if (!group.items.isEmpty()) {
+                    list.add(group);
+                }
+                group = new RecipeBookmarkGroup(nextId++);
+            } else {
+                Log.get().error("Failed to load unknown bookmarked ingredient:\n{}", ingredientJsonString);
+            }
+        }
+        if (!group.items.isEmpty()) {
+            list.add(group);
+        }
+        for (BookmarkGroup newGroup : list) {
+            newGroup.finishLoading();
+        }
+        //notifyListenersOfChange();
+    }
 
-	@Override
-	public int size() {
-		return ingredientListElements.size();
-	}
+    public BookmarkGroup getBookmarkGroup(int id) {
+        for (BookmarkGroup group : list) {
+            if (group.id == id) {
+                return group;
+            }
+        }
+        return null;
+    }
 
-	public boolean isEmpty() {
-		return ingredientListElements.isEmpty();
-	}
+    public boolean removeGroup(BookmarkGroup group) {
+        if (list.remove(group)) {
+            notifyListenersOfChange();
+            saveBookmarks();
+            return true;
+        }
+        return false;
+    }
 
-	@Override
-	public void addListener(IIngredientGridSource.Listener listener) {
-		listeners.add(listener);
-	}
 
-	private void notifyListenersOfChange() {
-		for (IIngredientGridSource.Listener listener : listeners) {
-			listener.onChange();
-		}
-	}
+    private boolean addToLists(BookmarkItem<?> ingredient, boolean addToFront) { // false = stackT ingredient, boolean addToFront) {
+        return getAddingGroup(addToFront).addItem(ingredient, addToFront);
+    }
+
+    private BookmarkGroup getAddingGroup(boolean front) {
+        if (list.isEmpty()) {
+            list.add(new BookmarkGroup(nextId++));
+        }
+        if (front) {
+            BookmarkGroup group = list.get(0);
+            if (group.acceptsChanges()) {
+                return group;
+            } else {
+                list.add(0, new BookmarkGroup(nextId++));
+                return list.get(0);
+            }
+        } else {
+            BookmarkGroup group = list.get(list.size() - 1);
+            if (group.acceptsChanges()) {
+                return group;
+            }
+            list.add(new BookmarkGroup(nextId++));
+            return list.get(list.size() - 1);
+        }
+    }
+
+    @Override
+    public List<IIngredientListElement> getIngredientList() {
+        return this.list.stream()
+                .flatMap(group -> group.getIngredientListElements().stream())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public int size() {
+        return getIngredientList().size();
+    }
+
+    public boolean isEmpty() {
+        return getIngredientList().isEmpty();
+    }
+
+    @Override
+    public void addListener(IIngredientGridSource.Listener listener) {
+        listeners.add(listener);
+    }
+
+    public void notifyListenersOfChange() {
+        for (IIngredientGridSource.Listener listener : listeners) {
+            listener.onChange();
+        }
+    }
+
+    public int nextId() {
+        return nextId++;
+    }
+
+    @Nullable
+    public BookmarkGroupOrganizer getGroupOrganizer() {
+        return bookmarkGroupOrganizer;
+    }
+
+    public void setGroupOrganizer(BookmarkGroupOrganizer bookmarkGroupOrganizer) {
+        this.bookmarkGroupOrganizer = bookmarkGroupOrganizer;
+    }
+
+    public int getBookmarkIndex(int id) {
+        for (int index = 0; index < list.size(); index++) {
+            if (list.get(index).id == id) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    public boolean moveGroup(BookmarkGroup group, boolean up) {
+        int groupIndex = getBookmarkIndex(group.id);
+        if (up && groupIndex > 0) {
+            Collections.swap(list, groupIndex, groupIndex - 1);
+            notifyListenersOfChange();
+            saveBookmarks();
+            return true;
+        } else if (!up && groupIndex < list.size() - 1) {
+            Collections.swap(list, groupIndex, groupIndex + 1);
+            notifyListenersOfChange();
+            saveBookmarks();
+            return true;
+        }
+        return false;
+    }
 }

@@ -1,34 +1,41 @@
 package mezz.jei.network.packets;
 
-import java.util.*;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.PacketBuffer;
-
 import mezz.jei.network.IPacketId;
 import mezz.jei.network.PacketIdServer;
 import mezz.jei.transfer.BasicRecipeTransferHandlerServer;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.PacketBuffer;
+
+import java.util.*;
 
 public class PacketRecipeTransfer extends PacketJei {
 	public final Map<Integer, Integer> recipeMap;
 	public final List<Integer> craftingSlots;
 	public final List<Integer> inventorySlots;
+	public int outputSlot = -1;
 	public final Map<Integer, Integer> itemCounts;
-	private final boolean maxTransfer;
+	private final int maxTransfer;
+	private final boolean performRecipe;
 	private final boolean requireCompleteSets;
 
-	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer, boolean requireCompleteSets) {
-		this(recipeMap, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets, Collections.emptyMap());
+	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, int maxTransfer, boolean performRecipe, boolean requireCompleteSets) {
+		this(recipeMap, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets, performRecipe, Collections.emptyMap());
 	}
 
-	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer, boolean requireCompleteSets,
-								Map<Integer, Integer> itemCounts) {
+	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, int maxTransfer, boolean performRecipe, boolean requireCompleteSets,
+                                Map<Integer, Integer> itemCounts) {
 		this.recipeMap = recipeMap;
 		this.craftingSlots = craftingSlots;
 		this.inventorySlots = inventorySlots;
-		this.maxTransfer = maxTransfer;
+        this.maxTransfer = maxTransfer;
+		this.performRecipe = performRecipe;
 		this.requireCompleteSets = requireCompleteSets;
 		this.itemCounts = itemCounts;
+	}
+
+	public PacketRecipeTransfer setOutputSlot(int outputSlot) {
+		this.outputSlot = outputSlot;
+		return this;
 	}
 
 	@Override
@@ -54,8 +61,10 @@ public class PacketRecipeTransfer extends PacketJei {
 			buf.writeVarInt(inventorySlot);
 		}
 
-		buf.writeBoolean(maxTransfer);
+		buf.writeVarInt(maxTransfer);
 		buf.writeBoolean(requireCompleteSets);
+		buf.writeBoolean(performRecipe);
+		buf.writeVarInt(outputSlot);
 
 		if (!itemCounts.isEmpty()) {
 			buf.writeBoolean(true);
@@ -91,8 +100,10 @@ public class PacketRecipeTransfer extends PacketJei {
 			int slotIndex = buf.readVarInt();
 			inventorySlots.add(slotIndex);
 		}
-		boolean maxTransfer = buf.readBoolean();
+		int maxTransfer = buf.readVarInt();
+		boolean performRecipe = buf.readBoolean();
 		boolean requireCompleteSets = buf.readBoolean();
+		int outputSlot = buf.readVarInt();
 
 		Map<Integer, Integer> itemCounts = null;
 		if (buf.readBoolean()) {
@@ -106,6 +117,9 @@ public class PacketRecipeTransfer extends PacketJei {
 		}
 
 		BasicRecipeTransferHandlerServer.setItems(player, recipeMap, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets, itemCounts);
+		if (performRecipe && outputSlot != -1) {
+			BasicRecipeTransferHandlerServer.performRecipe(player, outputSlot);
+		}
 	}
 
 }

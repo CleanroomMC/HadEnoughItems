@@ -1,26 +1,5 @@
 package mezz.jei.ingredients;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentData;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemEnchantedBook;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.potion.PotionHelper;
-import net.minecraft.tileentity.TileEntityFurnace;
-import net.minecraft.util.NonNullList;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import mezz.jei.Internal;
@@ -35,6 +14,20 @@ import mezz.jei.startup.IModIdHelper;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.IngredientSet;
 import mezz.jei.util.Log;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentData;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemEnchantedBook;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.potion.PotionHelper;
+import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.util.NonNullList;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 public class IngredientRegistry implements IIngredientRegistry {
 	private final IModIdHelper modIdHelper;
@@ -43,6 +36,7 @@ public class IngredientRegistry implements IIngredientRegistry {
 	private final ImmutableMap<IIngredientType, IIngredientHelper> ingredientHelperMap;
 	private final ImmutableMap<IIngredientType, IIngredientRenderer> ingredientRendererMap;
 	private final ImmutableMap<Class, IIngredientType> ingredientTypeMap;
+	private final ImmutableList<IIngredientType> craftableIngredientTypes;
 
 	private final NonNullList<ItemStack> fuels = NonNullList.create();
 	private final NonNullList<ItemStack> potionIngredients = NonNullList.create();
@@ -52,13 +46,15 @@ public class IngredientRegistry implements IIngredientRegistry {
 		IngredientBlacklistInternal blacklist,
 		Map<IIngredientType, IngredientSet> ingredientsMap,
 		ImmutableMap<IIngredientType, IIngredientHelper> ingredientHelperMap,
-		ImmutableMap<IIngredientType, IIngredientRenderer> ingredientRendererMap
+		ImmutableMap<IIngredientType, IIngredientRenderer> ingredientRendererMap,
+		ImmutableList<IIngredientType> craftableIngredientTypes
 	) {
 		this.modIdHelper = modIdHelper;
 		this.blacklist = blacklist;
 		this.ingredientsMap = ingredientsMap;
 		this.ingredientHelperMap = ingredientHelperMap;
 		this.ingredientRendererMap = ingredientRendererMap;
+		this.craftableIngredientTypes = craftableIngredientTypes;
 		ImmutableMap.Builder<Class, IIngredientType> ingredientTypeBuilder = ImmutableMap.builder();
 		for (IIngredientType ingredientType : ingredientsMap.keySet()) {
 			ingredientTypeBuilder.put(ingredientType.getIngredientClass(), ingredientType);
@@ -69,6 +65,12 @@ public class IngredientRegistry implements IIngredientRegistry {
 			getStackProperties(itemStack);
 		}
 	}
+
+	@Override
+	public ImmutableList<IIngredientType> getCraftableIngredientTypes() {
+		return craftableIngredientTypes;
+	}
+
 
 	private void getStackProperties(ItemStack itemStack) {
 		try {
@@ -442,5 +444,10 @@ public class IngredientRegistry implements IIngredientRegistry {
 			}
 		}
 		return bookEnchantment;
+	}
+
+
+	public String getUniqueId(Object ingredient) {
+		return getIngredientHelper(ingredient).getUniqueId(ingredient);
 	}
 }
