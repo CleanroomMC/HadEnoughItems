@@ -36,6 +36,7 @@ public class ConfigValues {
 	public boolean editModeEnabled = false;
 	public boolean bookmarkOverlayEnabled = true;
 	public boolean recipeBookmarksEnabled = true;
+	public boolean autocraftingEnabled = true;
 	public String filterText = "";
 	public ItemStack defaultFluidContainerItem = new ItemStack(Items.BUCKET);
 

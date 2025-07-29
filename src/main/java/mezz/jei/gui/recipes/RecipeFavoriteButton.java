@@ -15,8 +15,11 @@ import net.minecraft.client.gui.GuiScreen;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RecipeFavoriteButton extends GuiIconButton {
     private final IRecipeWrapper recipe;
@@ -44,10 +47,11 @@ public class RecipeFavoriteButton extends GuiIconButton {
     }
 
     private void setSupportedIngredients(RecipeLayout layout) {
+        Function<Map, Stream<IGuiIngredient<?>>> filter = (map) -> map.values().stream()
+                .filter(ing -> ing != null && ((IGuiIngredient<?>) ing).getDisplayedIngredient() != null && !((IGuiIngredient<?>) ing).isInput());
         supportedIngredients = Internal.getIngredientRegistry().getCraftableIngredientTypes().stream()
                 .map(t -> layout.getIngredientsGroup(t).getGuiIngredients())
-                .flatMap((map) -> map.values().stream()
-                        .filter((ing) -> ing.getDisplayedIngredient() != null && !ing.isInput()))
+                .flatMap(filter)
                 .collect(Collectors.toList());
         supportedIngredients.forEach(ing -> {
             if (FavoriteRecipes.isFavoriteFor(recipe, ing.getDisplayedIngredient())) {

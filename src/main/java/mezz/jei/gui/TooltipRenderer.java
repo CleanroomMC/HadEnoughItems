@@ -191,7 +191,7 @@ public final class TooltipRenderer {
         MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, lines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));
         int tooltipTop = tooltipY;
 
-        for (int lineNumber = 0; lineNumber < titleLinesCount; ++lineNumber) {
+        for (int lineNumber = 0; lineNumber < lines.size(); ++lineNumber) {
             font.drawStringWithShadow(lines.get(lineNumber), (float) tooltipX, (float) tooltipY, -1);
             tooltipY += 10;
 

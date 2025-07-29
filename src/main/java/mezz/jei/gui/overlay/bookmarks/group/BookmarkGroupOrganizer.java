@@ -130,11 +130,14 @@ public class BookmarkGroupOrganizer {
             }
             List<String> tooltips = new ArrayList<>();
             List<IngredientListBatchRenderer> slotRows = new ArrayList<>();
-            if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) { // Alt keys
+            // Detect if the user is holding either ALT key.
+            if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
                 tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.1"));
                 if (group.group instanceof RecipeBookmarkGroup) {
                     tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.2"));
-                    tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.3"));
+                    if (Config.isAutocraftingEnabled()) {
+                        tooltips.add(Translator.translateToLocalFormatted("hei.tooltip.organizer.3", KeyBindings.crafting.getDisplayName()));
+                    }
                 }
             } else {
                 hovered = true;
@@ -202,7 +205,7 @@ public class BookmarkGroupOrganizer {
                     return true;
                 }
             }
-            if (KeyBindings.crafting.isActiveAndMatches(eventKey)) {
+            if (KeyBindings.crafting.isActiveAndMatches(eventKey) && Config.isAutocraftingEnabled()) {
                 if (group.group instanceof RecipeBookmarkGroup) {
                     ((RecipeBookmarkGroup) group.group).autocraft();
                     return true;

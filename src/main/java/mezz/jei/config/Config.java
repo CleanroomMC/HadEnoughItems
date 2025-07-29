@@ -281,6 +281,10 @@ public final class Config {
 		return needToRebuildSearchTree;
 	}
 
+	public static boolean isAutocraftingEnabled() {
+		return values.autocraftingEnabled && values.bookmarkOverlayEnabled;
+	}
+
 	public enum SearchMode {
 		ENABLED, REQUIRE_PREFIX, DISABLED
 	}
@@ -510,7 +514,7 @@ public final class Config {
 
 		values.maxRecipeGuiHeight = config.getInt("maxRecipeGuiHeight", CATEGORY_ADVANCED, defaultValues.maxRecipeGuiHeight, minRecipeGuiHeight, maxRecipeGuiHeight);
 
-		values.recipeBookmarkGroupColor = config.getInt("recipeBookmarkGroupColor", CATEGORY_ADVANCED, defaultValues.recipeBookmarkGroupColor, 0, 0xFFFFFFFF);
+		values.recipeBookmarkGroupColor = config.getInt("recipeBookmarkGroupColor", CATEGORY_ADVANCED, defaultValues.recipeBookmarkGroupColor, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
 		updateModNameFormat(config);
 
@@ -628,10 +632,15 @@ public final class Config {
 		property.setShowInGui(false);
 		values.bookmarkOverlayEnabled = property.getBoolean();
 
-		property = worldConfig.get(worldCategory, "recipeBookmarksEnabled", defaultValues.recipeBookmarksEnabled);
+		property = worldConfig.get(worldCategory, "autocraftingEnabled", defaultValues.recipeBookmarksEnabled);
+		property.setLanguageKey("config.jei.interface.autocraftingEnabled");
+		property.setComment(Translator.translateToLocal("config.jei.interface.autocraftingEnabled.comment"));
+		values.autocraftingEnabled = property.getBoolean();
+
+		property = worldConfig.get(worldCategory, "recipeBookmarksEnabled", defaultValues.autocraftingEnabled);
 		property.setLanguageKey("config.jei.interface.recipeBookmarksEnabled");
-		property.setComment(Translator.translateToLocal("config.jei.interface.recipeBookmarksEnabled.comment"));
-		values.recipeBookmarksEnabled = property.getBoolean();
+		property.setComment(Translator.translateToLocal("config.jei.interface.autocraftingEnabled.comment"));
+		values.autocraftingEnabled = property.getBoolean();
 
 		property = worldConfig.get(worldCategory, "filterText", defaultValues.filterText);
 		property.setShowInGui(false);
