@@ -2,6 +2,7 @@ package mezz.jei.bookmarks;
 
 import net.minecraft.nbt.NBTTagCompound;
 
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 /**
@@ -13,7 +14,7 @@ import java.util.function.Supplier;
  */
 public class DummyBookmarkItem<I> extends BookmarkItem<I> {
     private final Supplier<Long> displayAmountSupplier;
-    public DummyBookmarkItem(I ingredient, BookmarkGroup group, Supplier<Long> displayAmountSupplier) {
+    public DummyBookmarkItem(I ingredient, @Nullable BookmarkGroup group, Supplier<Long> displayAmountSupplier) {
         super(ingredient);
         this.setGroup(group);
         this.displayAmountSupplier = displayAmountSupplier;

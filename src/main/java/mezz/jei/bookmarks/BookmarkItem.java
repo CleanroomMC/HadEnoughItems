@@ -184,7 +184,7 @@ public class BookmarkItem<I> {
         }
     }
 
-    public void setGroup(BookmarkGroup group) {
+    public void setGroup(@Nullable BookmarkGroup group) {
         this.group = group;
     }
 
