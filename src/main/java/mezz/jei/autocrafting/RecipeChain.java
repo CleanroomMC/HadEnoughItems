@@ -1,5 +1,6 @@
 package mezz.jei.autocrafting;
 
+import com.google.common.base.Preconditions;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RecipeChain {
+
     // noinspection
     public final MutableValueGraph<RecipeBookmarkItem<?>, Long> graphStorage = ValueGraphBuilder.directed()
             .allowsSelfLoops(false)
@@ -118,15 +120,16 @@ public class RecipeChain {
         IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
         List<String> aliasIds = output.aliases.stream().map(ingredientRegistry::getUniqueId).collect(Collectors.toList());
         for (String uniqueId : aliasIds) {
-            if (aliasToNode.containsKey(uniqueId)) {
-                if (!aliasToNode.get(uniqueId).foundAliases) {
-                    aliasToNode.get(uniqueId).foundAliases = true;
-                    aliasToNode.get(uniqueId).aliases = (List) new ObjectArrayList<>(output.aliases);
-                    aliasToNode.get(uniqueId).setIngredient(output.ingredient);
+            RecipeBookmarkItem<?> node = aliasToNode.get(uniqueId);
+            if (node != null) {
+                if (!node.foundAliases) {
+                    node.foundAliases = true;
+                    node.aliases = (List) new ObjectArrayList<>(output.aliases);
+                    node.setIngredient(output.ingredient);
                 }
                 // Take the intersection of the two lists.
-                aliasToNode.get(uniqueId).aliases.removeIf(a -> !aliasIds.contains(ingredientRegistry.getUniqueId(a)));
-                return aliasToNode.get(uniqueId);
+                node.aliases.removeIf(a -> !aliasIds.contains(ingredientRegistry.getUniqueId(a)));
+                return node;
             }
         }
         return null;
@@ -164,11 +167,21 @@ public class RecipeChain {
                 continue;
             }
             // Divide the amount of the item used in the recipe by how many of the requested item it produces (rounding up).
-            needed.amount += ((requester.amount + requester.outputAmount - 1) / requester.outputAmount) * graphStorage.edgeValue(requester, needed);
+            needed.amount += ((requester.amount + requester.outputAmount - 1) / requester.outputAmount) * edgeValue(requester, needed);
         }
         if (needed.secondaryTo != null) {
             needed.secondaryTo.amount = Math.max(needed.secondaryTo.amount, needed.amount);
         }
+    }
+
+    private Long edgeValue(RecipeBookmarkItem<?> nodeU, RecipeBookmarkItem<?> nodeV) {
+        Long value = graphStorage.edgeValueOrDefault(nodeU, nodeV, null);
+        if (value == null) {
+            Preconditions.checkArgument(graphStorage.nodes().contains(nodeU), "Node %s is not an element of this graph.", nodeU);
+            Preconditions.checkArgument(graphStorage.nodes().contains(nodeV), "Node %s is not an element of this graph.", nodeV);
+            throw new IllegalArgumentException(String.format("Edge connecting %s to %s is not present in this graph.", nodeU, nodeV));
+        }
+        return value;
     }
 
     public List<RecipeBookmarkItem<?>> getDisplayOutputs() {
