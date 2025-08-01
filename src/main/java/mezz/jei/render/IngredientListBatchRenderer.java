@@ -38,6 +38,7 @@ public class IngredientListBatchRenderer {
     private Framebuffer framebuffer = null;
     private boolean refreshBuffer = true;
     protected int size = 0;
+    protected int maxSize = 0;
     private int width;
     private int maxWidth;
     private int height;
@@ -49,6 +50,7 @@ public class IngredientListBatchRenderer {
         renderItems3d.clear();
         renderOther.clear();
         size = 0;
+        maxSize = 0;
 
         width = 0;
         maxWidth = 0;
@@ -71,6 +73,7 @@ public class IngredientListBatchRenderer {
         renderItems2d.clear();
         renderItems3d.clear();
         renderOther.clear();
+        maxSize = 0;
         size = 0;
 
         // We need to clear all of them anyway.
@@ -82,6 +85,7 @@ public class IngredientListBatchRenderer {
 
         int i = startIndex;
         for (List<IngredientListSlot> row : slots) {
+            maxSize += (int) row.stream().filter(IngredientListSlot::isFree).count();
             for (int column = 0; column < row.size(); column++) {
                 if (i >= ingredientList.size()) {
                     break;
@@ -98,6 +102,14 @@ public class IngredientListBatchRenderer {
         }
 
         invalidateBuffer();
+    }
+
+    /**
+     * Returns the maximum number of ingredients that can be displayed, if none of them ended rows early.
+     * @return the maximum number of ingredients.
+     */
+    public int getMaxSize() {
+        return maxSize;
     }
 
     public void invalidateBuffer() {
