@@ -53,7 +53,7 @@ public interface IRecipeTransferRegistry {
 	 *
 	 * @since JEI 3.12.4
 	 */
-	void addRecipeTransferHandlerWithOutput(IRecipeTransferHandler<?> recipeTransferHandler, String recipeCategoryUid);
+	void addRecipeTransferHandler(IRecipeTransferHandler<?> recipeTransferHandler, String recipeCategoryUid);
 
 	/**
 	 * Add a universal handler that can handle any category of recipe.

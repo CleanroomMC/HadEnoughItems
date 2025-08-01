@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
  * <p>
  * Useful functions for implementing a recipe transfer handler can be found in {@link IRecipeTransferHandlerHelper}.
  * <p>
- * To register your recipe transfer handler, use {@link IRecipeTransferRegistry#addRecipeTransferHandlerWithOutput(IRecipeTransferHandler, String)}.
+ * To register your recipe transfer handler, use {@link IRecipeTransferRegistry#addRecipeTransferHandler(IRecipeTransferHandler, String)}.
  */
 public interface IRecipeTransferHandler<C extends Container> {
     /**
