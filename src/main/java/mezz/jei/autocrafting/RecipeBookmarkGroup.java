@@ -26,17 +26,8 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
 
     public boolean addItem(BookmarkItem<?> item) {
         if (canAddItem(item)) {
-            BookmarkGroup originalGroup = item.getGroup();
             addItemInternal(item);
-            if (item instanceof RecipeBookmarkItem) {
-                if (chain.addOutput((RecipeBookmarkItem<?>) item)) {
-                    // It returned true since the item was actually already in the chain, so the item's reference was not added.
-                    if (originalGroup != null) {
-                        originalGroup.removeItem(item);
-                    }
-                }
-                update();
-            }
+            chain.addOutput((RecipeBookmarkItem<?>) item); // From canAddItem
             return true;
         }
         return false;

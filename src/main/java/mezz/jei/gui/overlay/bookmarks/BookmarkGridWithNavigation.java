@@ -134,7 +134,8 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
             BookmarkItem<?> item = (BookmarkItem<?>) element.getIngredient();
             if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
                 if (item.ingredient instanceof ItemStack) {
-                    item.changeAmount(scrollDelta < 0 ? -64 : 64);
+                    int stackSize = ((ItemStack) item.ingredient).getMaxStackSize();
+                    item.changeAmount(scrollDelta < 0 ? -stackSize : stackSize);
                 } else if (item.ingredient instanceof FluidStack) {
                     item.changeAmount(scrollDelta < 0 ? -1000 : 1000);
                 } else {

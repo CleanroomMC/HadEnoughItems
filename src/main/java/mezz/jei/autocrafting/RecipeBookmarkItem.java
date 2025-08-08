@@ -51,6 +51,19 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         this.amount = amount;
     }
 
+    public RecipeBookmarkItem(RecipeBookmarkItem<I> other) {
+        super(other.ingredient);
+        this.aliases = other.aliases;
+        this.foundAliases = other.foundAliases;
+        this.amount = other.amount;
+        this.outputAmount = other.outputAmount;
+        this.selfOutputAmount = other.selfOutputAmount;
+        this.recipe = other.recipe;
+        this.category = other.category;
+        this.inputs = other.inputs;
+        this.secondaryTo = other.secondaryTo;
+    }
+
     public void populateWithFavorite() {
         if (recipe != null) {
             return;
@@ -200,5 +213,10 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         if (this.inputDummyItems != null) {
             this.inputDummyItems.forEach(item -> item.setGroup(group));
         }
+    }
+
+    @Override
+    public RecipeBookmarkItem<I> copy() {
+        return new RecipeBookmarkItem<>(this);
     }
 }

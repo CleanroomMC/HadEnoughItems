@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RecipeChain {
-
     // noinspection
     public final MutableValueGraph<RecipeBookmarkItem<?>, Long> graphStorage = ValueGraphBuilder.directed()
             .allowsSelfLoops(false)
@@ -31,21 +30,10 @@ public class RecipeChain {
 
     public final Map<RecipeBookmarkItem<?>, List<RecipeBookmarkItem<?>>> secondaryOutputs = new Object2ObjectOpenHashMap<>();
 
-    private final List<RecipeBookmarkItem<?>> outputs = new ObjectArrayList<>();
-
     private final RecipeBookmarkGroup group;
 
     public RecipeChain(RecipeBookmarkGroup group) {
         this.group = group;
-    }
-
-    public void recheck() {
-        for (RecipeBookmarkItem<?> node : graphStorage.nodes()) {
-            if (!node.isPopulated()) {
-                node.populateWithFavorite();
-            }
-        }
-        this.outputs.forEach(this::expandNode);
     }
 
     public boolean addOutput(RecipeBookmarkItem<?> recipeOutput) {
@@ -59,13 +47,16 @@ public class RecipeChain {
                 return true;
             }
         }
-        outputs.add(recipeOutput);
         recipeOutput.selfOutputAmount = recipeOutput.outputAmount;
         expandNodeFirst(recipeOutput); // This also can look for matching inputs!
         return false;
     }
 
     private void expandNodeFirst(RecipeBookmarkItem<?> requester) {
+        expandNodeFirst(requester, true);
+    }
+
+    private void expandNodeFirst(RecipeBookmarkItem<?> requester, boolean recurse) {
         if (!requester.isPopulated()) {
             requester.populateWithFavorite();
             if (!requester.isPopulated()) {
@@ -79,8 +70,10 @@ public class RecipeChain {
             if (needed == null) {
                 needed = new RecipeBookmarkItem<>(input.aliases); // Make a copy of the input; don't modify the original amounts!
                 this.group.addItemInternal(needed); // Don't add it as an output (as would occur with the normal addItem method).
-                needed.populateWithFavorite();
-                expandNodeFirst(needed);
+                if (recurse) {
+                    needed.populateWithFavorite();
+                    expandNodeFirst(needed);
+                }
 
                 // Maybe this recipe is being used to make something else, so we should connect it to that.
                 RecipeBookmarkItem<?> possiblePrimaryOutput = findOutputWithSameRecipe(needed);
@@ -96,14 +89,6 @@ public class RecipeChain {
             } catch (IllegalArgumentException e) {
                 Log.get().error("Failed to add edge from {} to {}.", requester, needed, e);
             }
-        }
-    }
-
-    public void expandNode(RecipeBookmarkItem<?> recipeOutput) {
-        if (!graphStorage.nodes().contains(recipeOutput)) {
-            expandNodeFirst(recipeOutput);
-        } else for (RecipeBookmarkItem<?> node : graphStorage.successors(recipeOutput)) {
-            expandNode(node);
         }
     }
 
@@ -197,8 +182,12 @@ public class RecipeChain {
     }
 
     public void removeNode(RecipeBookmarkItem<?> node) {
+        if (!graphStorage.nodes().contains(node)) {
+            Log.get().warn("Tried to remove node that's not in the graph: {}", node);
+            return;
+        }
+        Set<RecipeBookmarkItem<?>> predecessors = graphStorage.predecessors(node);
         graphStorage.removeNode(node);
-        outputs.remove(node);
         List<RecipeBookmarkItem<?>> affectedSecondaries = secondaryOutputs.remove(node);
         if (affectedSecondaries != null && !affectedSecondaries.isEmpty()) {
             if (affectedSecondaries.size() == 1) {
@@ -213,6 +202,11 @@ public class RecipeChain {
         }
         // We do need to check for dead nodes now.
         removeDanglingNodes();
+        for (RecipeBookmarkItem<?> predecessor : predecessors) {
+            expandNodeFirst(predecessor, false);
+        }
+        // Update once more.
+        calculateCrafting();
     }
 
     public void removeDanglingNodes() {
@@ -256,9 +250,10 @@ public class RecipeChain {
         }).forEach(ingredient -> calculateMissingIngredients(ingredient, invCounts, recipeList, lookup));
         if (missing != null) {
             for (Map.Entry<String, BookmarkItem<?>> entry : lookup.entrySet()) {
-                missing.add(new DummyBookmarkItem(entry.getValue(), null, () -> entry.getValue().amount));
+                missing.add(entry.getValue());
             }
         }
+        calculateCrafting(); // Reset the displayed amounts.
     }
 
     public void calculateMissingIngredients(RecipeBookmarkItem<?> needed, Map<String, Long> invCounts,
@@ -276,14 +271,15 @@ public class RecipeChain {
         }
         if (recipeList != null && needed.amount > 0 && needed.category != null) {
             // If we're preparing for autocrafting and this can be crafted, add it.
-            recipeList.add(needed);
+            recipeList.add(needed.copy());
         } else if (lookup != null && needed.amount > 0 && graphStorage.successors(needed).isEmpty()) {
             IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
             String uniqueId = ingredientRegistry.getUniqueId(needed.ingredient);
             // If we're preparing just to show the missing items, we can add it.
             lookup.compute(uniqueId, (k, v) -> {
                 if (v == null) {
-                    return needed;
+                    final long staticAmount = (int) needed.amount;
+                    return new DummyBookmarkItem<>(needed, null, () -> staticAmount);
                 } else {
                     v.amount += needed.amount;
                 }
@@ -297,9 +293,6 @@ public class RecipeChain {
             if (node instanceof RecipeBookmarkItem) {
                 RecipeBookmarkItem<?> requester = (RecipeBookmarkItem<?>) node;
                 requester.populateSelf(this); // This looks for new inputs and sets input aliases.
-                if (((RecipeBookmarkItem<?>) node).selfOutputAmount > 0) {
-                    outputs.add(((RecipeBookmarkItem<?>) node));
-                }
                 for (RecipeBookmarkItem<?> input : requester.inputs) {
                     RecipeBookmarkItem<?> other = findOutputUsingAnAlias(input);
                     if (other == null && input.inputs != null) {
