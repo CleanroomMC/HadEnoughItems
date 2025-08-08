@@ -54,6 +54,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     public RecipeBookmarkItem(RecipeBookmarkItem<I> other) {
         super(other.ingredient);
         this.aliases = other.aliases;
+        this.foundAliases = other.foundAliases;
         this.amount = other.amount;
         this.outputAmount = other.outputAmount;
         this.selfOutputAmount = other.selfOutputAmount;
