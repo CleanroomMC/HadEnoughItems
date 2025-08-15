@@ -186,7 +186,9 @@ public class RecipeChain {
             Log.get().warn("Tried to remove node that's not in the graph: {}", node);
             return;
         }
-        Set<RecipeBookmarkItem<?>> predecessors = graphStorage.predecessors(node);
+        // The copy fixes an issue on CleanroomMC where iterating over the set after removing some of the nodes from the graph causes an
+        // IllegalStateException.
+        Set<RecipeBookmarkItem<?>> predecessors = new HashSet<>(graphStorage.predecessors(node));
         graphStorage.removeNode(node);
         List<RecipeBookmarkItem<?>> affectedSecondaries = secondaryOutputs.remove(node);
         if (affectedSecondaries != null && !affectedSecondaries.isEmpty()) {
