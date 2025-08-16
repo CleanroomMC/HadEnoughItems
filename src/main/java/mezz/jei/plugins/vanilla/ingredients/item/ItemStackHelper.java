@@ -6,6 +6,7 @@ import mezz.jei.api.recipe.IFocus;
 import mezz.jei.color.ColorGetter;
 import mezz.jei.startup.StackHelper;
 import mezz.jei.util.ErrorUtil;
+import mezz.jei.util.Log;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
@@ -81,7 +82,11 @@ public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 		int hash = ingredient.getCount();
 		hash = hash * 31 + ingredient.getItemDamage();
 		hash = hash * 31 + ingredient.getItem().getRegistryName().hashCode();
-		hash = hash * 31 + (ingredient.getTagCompound() == null ? 0 : ingredient.getTagCompound().hashCode());
+		try {
+			hash = hash * 31 + (ingredient.getTagCompound() == null ? 0 : ingredient.getTagCompound().hashCode());
+		} catch (StackOverflowError e) {
+			Log.get().error("Stack overflow while hashing ItemStack ingredient: {}", ingredient.getItem().getRegistryName(), e);
+		}
 		hashCache.put(ingredient, hash);
 		return hash;
 	}
