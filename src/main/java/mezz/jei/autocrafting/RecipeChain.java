@@ -186,9 +186,6 @@ public class RecipeChain {
             Log.get().warn("Tried to remove node that's not in the graph: {}", node);
             return;
         }
-        // The copy fixes an issue on CleanroomMC where iterating over the set after removing some of the nodes from the graph causes an
-        // IllegalStateException.
-        Set<RecipeBookmarkItem<?>> predecessors = new HashSet<>(graphStorage.predecessors(node));
         graphStorage.removeNode(node);
         List<RecipeBookmarkItem<?>> affectedSecondaries = secondaryOutputs.remove(node);
         if (affectedSecondaries != null && !affectedSecondaries.isEmpty()) {
@@ -204,7 +201,7 @@ public class RecipeChain {
         }
         // We do need to check for dead nodes now.
         removeDanglingNodes();
-        for (RecipeBookmarkItem<?> predecessor : predecessors) {
+        for (RecipeBookmarkItem<?> predecessor : graphStorage.nodes()) {
             expandNodeFirst(predecessor, false);
         }
         // Update once more.
