@@ -186,7 +186,6 @@ public class RecipeChain {
             Log.get().warn("Tried to remove node that's not in the graph: {}", node);
             return;
         }
-        Set<RecipeBookmarkItem<?>> predecessors = graphStorage.predecessors(node);
         graphStorage.removeNode(node);
         List<RecipeBookmarkItem<?>> affectedSecondaries = secondaryOutputs.remove(node);
         if (affectedSecondaries != null && !affectedSecondaries.isEmpty()) {
@@ -202,7 +201,7 @@ public class RecipeChain {
         }
         // We do need to check for dead nodes now.
         removeDanglingNodes();
-        for (RecipeBookmarkItem<?> predecessor : predecessors) {
+        for (RecipeBookmarkItem<?> predecessor : graphStorage.nodes()) {
             expandNodeFirst(predecessor, false);
         }
         // Update once more.
