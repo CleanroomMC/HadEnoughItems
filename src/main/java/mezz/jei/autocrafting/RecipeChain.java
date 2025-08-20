@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
-import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -230,15 +229,14 @@ public class RecipeChain {
 
         IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
         InventoryPlayer inv = Minecraft.getMinecraft().player.inventory;
-        Object2LongMap<String> invCounts = new Object2LongOpenHashMap<>(inv.getSizeInventory() * 2);
-        invCounts.defaultReturnValue(-1);
+        Map<String, Long> invCounts = new Object2LongOpenHashMap<>(inv.getSizeInventory() * 2);
         for (int i = 0; i < inv.getSizeInventory(); i++) {
             ItemStack stack = inv.getStackInSlot(i);
             if (stack.isEmpty()) {
                 continue;
             }
             String uniqueId = ingredientRegistry.getUniqueId(stack);
-            invCounts.computeIfPresent(uniqueId, (k, v) -> v + stack.getCount());
+            invCounts.compute(uniqueId, (k, v) -> v == null ? stack.getCount() : v + stack.getCount());
         }
 
         final Map<String, BookmarkItem<?>> lookup = missing == null ? null : new HashMap<>();
@@ -258,25 +256,27 @@ public class RecipeChain {
         calculateCrafting(); // Reset the displayed amounts.
     }
 
-    public void calculateMissingIngredients(RecipeBookmarkItem<?> needed, Object2LongMap<String> invCounts,
+    public void calculateMissingIngredients(RecipeBookmarkItem<?> needed, Map<String, Long> invCounts,
                                             Stack<RecipeBookmarkItem<?>> recipeList, Map<String, BookmarkItem<?>> lookup) {
         calculateCrafting(needed);
         if (needed.amount <= 0) {
             return;
         }
+        String uniqueId = null;
         if (needed.selfOutputAmount == 0) {
-            String uniqueId = Internal.getIngredientRegistry().getUniqueId(needed.ingredient);
-            if (invCounts.containsKey(uniqueId)) {
-                needed.amount = Math.max(0L, needed.amount - invCounts.get(uniqueId));
-                invCounts.put(uniqueId, Math.max(0L, invCounts.get(uniqueId) - needed.amount));
-            }
+            uniqueId = Internal.getIngredientRegistry().getUniqueId(needed.ingredient);
+            invCounts.computeIfPresent(uniqueId, (k, v) -> {
+                needed.amount = Math.max(0L, needed.amount - v);
+                return Math.max(0L, v - needed.amount);
+            });
         }
         if (recipeList != null && needed.amount > 0 && needed.category != null) {
             // If we're preparing for autocrafting and this can be crafted, add it.
             recipeList.add(needed.copy());
         } else if (lookup != null && needed.amount > 0 && graphStorage.successors(needed).isEmpty()) {
-            IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
-            String uniqueId = ingredientRegistry.getUniqueId(needed.ingredient);
+            if (uniqueId == null) {
+                uniqueId = Internal.getIngredientRegistry().getUniqueId(needed.ingredient);
+            }
             // If we're preparing just to show the missing items, we can add it.
             lookup.compute(uniqueId, (k, v) -> {
                 if (v == null) {

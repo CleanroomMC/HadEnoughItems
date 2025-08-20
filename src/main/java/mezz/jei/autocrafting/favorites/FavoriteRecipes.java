@@ -83,10 +83,7 @@ public class FavoriteRecipes {
         Map<IRecipeCategory<?>, Map<String, IRecipeWrapper>> categoryMap = ingredients.entrySet().stream().collect(Object2ObjectOpenHashMap::new,
                 (map, entry) -> {
                     IRecipeCategory<?> category = recipeCategories.get(entry.getValue());
-                    if (!map.containsKey(category)) {
-                        map.put(category, new Object2ObjectOpenHashMap<>());
-                    }
-                    map.get(category).put(entry.getKey(), entry.getValue());
+                    map.computeIfAbsent(category, k -> new Object2ObjectOpenHashMap<>()).put(entry.getKey(), entry.getValue());
                 }, Object2ObjectOpenHashMap::putAll);
         for (Map.Entry<IRecipeCategory<?>, Map<String, IRecipeWrapper>> categoryEntry : categoryMap.entrySet()) {
             strings.add("#" + categoryEntry.getKey().getUid());
@@ -109,9 +106,7 @@ public class FavoriteRecipes {
     }
 
     public static boolean isFavoriteFor(IRecipeWrapper recipe, Object ingredient) {
-        // The below throws an error if the object isn't a supported type. Hopefully I got that right!
-        String id = ingredientRegistry.getIngredientHelper(ingredient).getUniqueId(ingredient);
-        return ingredients.containsKey(id) && ingredients.get(id) == recipe;
+        return getFavorite(ingredient) == recipe;
     }
 
     public static void toggleFavorite(Object ingredient, IRecipeWrapper recipe, IRecipeCategory<?> category) {
