@@ -140,7 +140,6 @@ public class RecipeRegistry implements IRecipeRegistry {
             }
         }
         hash = category.getUid().hashCode() + hash * 31;
-        recipeIds.put(recipe, hash);
         return hash;
     }
 
