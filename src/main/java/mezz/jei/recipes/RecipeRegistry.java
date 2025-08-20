@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public class RecipeRegistry implements IRecipeRegistry {
-    private final Map<IRecipeWrapper, Long> recipeIds = new Object2LongOpenHashMap<>();
+    private final Object2LongMap<IRecipeWrapper> recipeIds = new Object2LongOpenHashMap<>();
     private final IngredientRegistry ingredientRegistry;
     @Deprecated
     private final ImmutableList<IRecipeHandler> unsortedRecipeHandlers;
@@ -763,7 +763,7 @@ public class RecipeRegistry implements IRecipeRegistry {
     }
 
     public long getRecipeId(IRecipeWrapper recipe) {
-        return recipeIds.get(recipe);
+        return recipeIds.getLong(recipe);
     }
 
     @Override

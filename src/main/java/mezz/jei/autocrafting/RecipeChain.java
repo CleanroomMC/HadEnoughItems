@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.Internal;
@@ -228,14 +230,15 @@ public class RecipeChain {
 
         IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
         InventoryPlayer inv = Minecraft.getMinecraft().player.inventory;
-        Map<String, Long> invCounts = new HashMap<>();
+        Object2LongMap<String> invCounts = new Object2LongOpenHashMap<>(inv.getSizeInventory() * 2);
+        invCounts.defaultReturnValue(-1);
         for (int i = 0; i < inv.getSizeInventory(); i++) {
             ItemStack stack = inv.getStackInSlot(i);
             if (stack.isEmpty()) {
                 continue;
             }
-            String uniqueId = ingredientRegistry.getUniqueId(inv.getStackInSlot(i));
-            invCounts.put(uniqueId, invCounts.getOrDefault(uniqueId, 0L) + inv.getStackInSlot(i).getCount());
+            String uniqueId = ingredientRegistry.getUniqueId(stack);
+            invCounts.computeIfPresent(uniqueId, (k, v) -> v + stack.getCount());
         }
 
         final Map<String, BookmarkItem<?>> lookup = missing == null ? null : new HashMap<>();
@@ -255,7 +258,7 @@ public class RecipeChain {
         calculateCrafting(); // Reset the displayed amounts.
     }
 
-    public void calculateMissingIngredients(RecipeBookmarkItem<?> needed, Map<String, Long> invCounts,
+    public void calculateMissingIngredients(RecipeBookmarkItem<?> needed, Object2LongMap<String> invCounts,
                                             Stack<RecipeBookmarkItem<?>> recipeList, Map<String, BookmarkItem<?>> lookup) {
         calculateCrafting(needed);
         if (needed.amount <= 0) {

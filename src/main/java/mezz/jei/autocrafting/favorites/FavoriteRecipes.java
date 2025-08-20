@@ -1,5 +1,6 @@
 package mezz.jei.autocrafting.favorites;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import mezz.jei.Internal;
@@ -24,7 +25,7 @@ public class FavoriteRecipes {
     private static final Map<String, IRecipeWrapper> ingredients = new Object2ObjectOpenHashMap<>();
     private static IngredientRegistry ingredientRegistry;
     private static RecipeRegistry recipeRegistry;
-    private static final Map<IRecipeWrapper, IRecipeCategory<?>> recipeCategories = new Object2ObjectOpenHashMap<>(8192);
+    private static final Object2ObjectOpenHashMap<IRecipeWrapper, IRecipeCategory<?>> recipeCategories = new Object2ObjectOpenHashMap<>(8192);
 
     public static void load() {
         ingredients.clear();
@@ -43,7 +44,7 @@ public class FavoriteRecipes {
             return;
         }
         // Break the strings apart into recipeId:ingredient (int to string)
-        Map<Long, String> rawRecipes = new Long2ObjectOpenHashMap<>(8192);
+        Long2ObjectMap<String> rawRecipes = new Long2ObjectOpenHashMap<>(8192);
         IRecipeCategory<?> currentCategory = null;
         RecipeRegistry recipeRegistry = Internal.getRuntime().getRecipeRegistry();
 
@@ -61,15 +62,15 @@ public class FavoriteRecipes {
         addRecipesForCategory(currentCategory, rawRecipes, recipeRegistry);
     }
 
-    public static void addRecipesForCategory(IRecipeCategory<?> category, Map<Long, String> rawRecipes, RecipeRegistry recipeRegistry) {
+    public static void addRecipesForCategory(IRecipeCategory<?> category, Long2ObjectMap<String> rawRecipes, RecipeRegistry recipeRegistry) {
         if (category != null && !rawRecipes.isEmpty()) {
-            for (Map.Entry<Long, String> entry : rawRecipes.entrySet()) {
-                IRecipeWrapper recipe = recipeRegistry.getRecipeById(entry.getKey(), category);
+            for (Long2ObjectMap.Entry<String> entry : rawRecipes.long2ObjectEntrySet()) {
+                IRecipeWrapper recipe = recipeRegistry.getRecipeById(entry.getLongKey(), category);
                 if (recipe != null) {
                     ingredients.put(entry.getValue(), recipe);
                     recipeCategories.put(recipe, category);
                 } else {
-                    Log.get().warn("Could not find recipe with id {} in category {}!", entry.getKey(), category.getUid());
+                    Log.get().warn("Could not find recipe with id {} in category {}!", entry.getLongKey(), category.getUid());
                 }
             }
         }
