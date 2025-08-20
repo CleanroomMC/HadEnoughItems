@@ -25,11 +25,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 	private final StackHelper stackHelper;
-	private final Map<ItemStack, Integer> hashCache = new Object2IntOpenHashMap<>();
+	private final Object2IntMap<ItemStack> hashCache = new Object2IntOpenHashMap<>();
 
 	public ItemStackHelper(StackHelper stackHelper) {
 		this.stackHelper = stackHelper;
@@ -76,8 +75,9 @@ public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 
 	@Override
 	public int getHash(ItemStack ingredient) {
-		if (hashCache.containsKey(ingredient)) {
-			return hashCache.get(ingredient);
+		Integer cachedHash = hashCache.get(ingredient);
+		if (cachedHash != null) {
+			return cachedHash;
 		}
 		int hash = ingredient.getCount();
 		hash = hash * 31 + ingredient.getItemDamage();
