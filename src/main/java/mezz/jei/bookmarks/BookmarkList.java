@@ -68,6 +68,19 @@ public class BookmarkList implements IIngredientGridSource {
         return false;
     }
 
+    @Deprecated
+    public <T> boolean add(T ingredient) {
+        return add(ingredient, false);
+    }
+
+    @Deprecated
+    public <T> boolean add(T ingredient, boolean forceFront) {
+        StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
+        Log.get().error("Deprecated BookmarkList#add method called. Use BookmarkList#add(BookmarkItem<T>) instead. Caller: {}#{}", caller.getClassName(), caller.getMethodName());
+        return add(new BookmarkItem<>(ingredient), forceFront);
+    }
+
+
     private boolean contains(Object ingredient) {
         // We cannot assume that ingredients have a working equals() implementation. Even ItemStack doesn't have one...
         IIngredientHelper<Object> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
