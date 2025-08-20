@@ -1,5 +1,6 @@
 package mezz.jei.plugins.vanilla.ingredients.item;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.recipe.IFocus;
@@ -13,6 +14,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -79,13 +81,15 @@ public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 		if (cachedHash != null) {
 			return cachedHash;
 		}
-		int hash = ingredient.getCount();
-		hash = hash * 31 + ingredient.getItemDamage();
+		int hash = ingredient.getCount() * 31 + ingredient.getItemDamage();
 		hash = hash * 31 + ingredient.getItem().getRegistryName().hashCode();
-		try {
-			hash = hash * 31 + (ingredient.getTagCompound() == null ? 0 : ingredient.getTagCompound().hashCode());
-		} catch (StackOverflowError e) {
-			Log.get().error("Stack overflow while hashing ItemStack ingredient: {}", ingredient.getItem().getRegistryName(), e);
+		NBTTagCompound tag = ingredient.getTagCompound();
+		if (tag != null) {
+			try {
+				hash = hash * 31 + tag.hashCode();
+			} catch (StackOverflowError e) {
+				Log.get().error("Stack overflow while hashing ItemStack ingredient: {}", ingredient.getItem().getRegistryName(), e);
+			}
 		}
 		hashCache.put(ingredient, hash);
 		return hash;
