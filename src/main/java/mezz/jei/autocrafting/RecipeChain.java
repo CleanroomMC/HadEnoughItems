@@ -7,6 +7,7 @@ import com.google.common.graph.ValueGraphBuilder;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mezz.jei.Internal;
 import mezz.jei.autocrafting.toposort.TopologicalSort;
 import mezz.jei.bookmarks.BookmarkItem;
@@ -202,7 +203,7 @@ public class RecipeChain {
         }
         // We do need to check for dead nodes now.
         removeDanglingNodes();
-        for (RecipeBookmarkItem<?> predecessor : graphStorage.nodes()) {
+        for (RecipeBookmarkItem<?> predecessor : new ObjectOpenHashSet<>(graphStorage.nodes())) {
             expandNodeFirst(predecessor, false);
         }
         // Update once more.
