@@ -158,6 +158,9 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     }
 
     public long getMultiplier() {
+        if (outputAmount == 0) {
+            return 0;
+        }
         return (amount + outputAmount - 1) / outputAmount;
     }
 
