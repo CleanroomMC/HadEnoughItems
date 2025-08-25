@@ -145,6 +145,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
                 item.changeAmount(scrollDelta < 0 ? -1 : 1);
             }
             Internal.getBookmarkList().saveBookmarks();
+            bookmarkGrid.getGuiIngredientSlots().invalidateBuffer();
             return true;
         } else {
             if (scrollDelta < 0) {

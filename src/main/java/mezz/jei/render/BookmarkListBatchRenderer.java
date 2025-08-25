@@ -30,43 +30,42 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                 slot.clear();
             }
         }
-        if (ingredientList.isEmpty()) {
-            return;
-        }
-
-        int i = startIndex;
-        int currentGroup = ingredientList.get(i).getGroupIndex();
-        List<Integer> groupIndices = new IntArrayList();
-        for (List<IngredientListSlot> row : slots) {
-            for (int column = 0; column < row.size(); column++) {
-                IngredientListSlot ingredientListSlot = row.get(column);
-                if (ingredientListSlot.isBlocked()) {
-                    if (column == 0) {
-                        groupIndices.add(-1);
+        if (!ingredientList.isEmpty()) {
+            int i = startIndex;
+            int currentGroup = ingredientList.get(i).getGroupIndex();
+            List<Integer> groupIndices = new IntArrayList();
+            for (List<IngredientListSlot> row : slots) {
+                for (int column = 0; column < row.size(); column++) {
+                    IngredientListSlot ingredientListSlot = row.get(column);
+                    if (ingredientListSlot.isBlocked()) {
+                        if (column == 0) {
+                            groupIndices.add(-1);
+                        }
+                        continue;
                     }
-                    continue;
-                }
-                if (i >= ingredientList.size()) {
-                    break;
-                }
-                IIngredientListElement<?> element = ingredientList.get(i);
-                if (element.getGroupIndex() != currentGroup || element.startsNewRow()) {
-                    currentGroup = element.getGroupIndex();
-                    if (column > 0) {
+                    if (i >= ingredientList.size()) {
                         break;
                     }
-                }
-                if (column == 0) {
-                    groupIndices.add(currentGroup);
-                }
+                    IIngredientListElement<?> element = ingredientList.get(i);
+                    if (element.getGroupIndex() != currentGroup || element.startsNewRow()) {
+                        currentGroup = element.getGroupIndex();
+                        if (column > 0) {
+                            break;
+                        }
+                    }
+                    if (column == 0) {
+                        groupIndices.add(currentGroup);
+                    }
 
-                set(ingredientListSlot, element);
-                size++;
-                i++;
+                    set(ingredientListSlot, element);
+                    size++;
+                    i++;
+                }
             }
+
+            groupOrganizer.setBookmarkGroupIds(groupIndices);
         }
 
-        groupOrganizer.setBookmarkGroupIds(groupIndices);
         invalidateBuffer();
     }
 
