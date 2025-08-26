@@ -336,31 +336,28 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 
 	@Override
 	public void setRecipeTransferButton(int posX, int posY) {
+		setRecipeTransferButton(posX, posY, true);
+	}
+
+	@Override
+	public void setRecipeTransferButton(int posX, int posY, boolean moveAll) {
 		if (recipeTransferButton != null) {
 			recipeTransferButton.x = posX + this.posX;
 			recipeTransferButton.y = posY + this.posY;
 		}
-		if (recipeFavoriteButton != null) {
-			recipeFavoriteButton.x = posX + this.posX + RECIPE_BUTTON_SIZE * 2 - 6;
-			recipeFavoriteButton.y = posY + this.posY;
-		}
-		if (recipeBookmarkButton != null) {
-			recipeBookmarkButton.x = posX + this.posX + RECIPE_BUTTON_SIZE * 3 - 12;
-			recipeBookmarkButton.y = posY + this.posY;
+		if (moveAll) {
+			if (recipeFavoriteButton != null) {
+				recipeFavoriteButton.x = posX + this.posX + RECIPE_BUTTON_SIZE * 2 - 6;
+				recipeFavoriteButton.y = posY + this.posY;
+			}
+			if (recipeBookmarkButton != null) {
+				recipeBookmarkButton.x = posX + this.posX + RECIPE_BUTTON_SIZE * 3 - 12;
+				recipeBookmarkButton.y = posY + this.posY;
+			}
 		}
 	}
 
-    public void setRecipeTransferButton(int posX, int posY, boolean moveAll) {
-        if (moveAll) {
-            setRecipeTransferButton(posX, posY);
-        } else {
-            if (recipeTransferButton != null) {
-                recipeTransferButton.x = posX + this.posX;
-                recipeTransferButton.y = posY + this.posY;
-            }
-        }
-    }
-
+	@Override
     public void setRecipeFavoriteButton(int posX, int posY) {
         if (recipeFavoriteButton != null) {
             recipeFavoriteButton.x = posX + this.posX;
@@ -368,6 +365,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
         }
     }
 
+	@Override
     public void setRecipeBookmarkButton(int posX, int posY) {
         if (recipeBookmarkButton != null) {
             recipeBookmarkButton.x = posX + this.posX;

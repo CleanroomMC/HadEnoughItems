@@ -58,19 +58,32 @@ public interface IRecipeLayout {
 
 	/**
 	 * Moves the recipe transfer button's position relative to the recipe layout.
-	 * By default the recipe transfer button is at the bottom, to the right of the recipe.
+	 * By default, the recipe transfer button is at the bottom, to the right of the recipe.
 	 * If it doesn't fit there, you can use this to move it when you init the recipe layout.
-     * Since HEI 4.29.5, this also sets the recipe favorite button and recipe bookmark button to be to the right of the recipe transfer button.
+	 * This calls {@link IRecipeLayout#setRecipeTransferButton(int, int, boolean)} with moveAll = true.
 	 */
 	void setRecipeTransferButton(int posX, int posY);
 
     /**
      * Moves the recipe transfer button's position relative to the recipe layout.
      * If moveAll is true, it also moves the recipe favorite button and recipe bookmark button to be to the right of the recipe transfer button.
+	 *
+	 * @since HEI 4.29.5
      */
     void setRecipeTransferButton(int posX, int posY, boolean moveAll);
 
+	/**
+	 * Sets the recipe favourite button's position
+	 *
+	 * @since HEI 4.29.5
+	 */
     void setRecipeFavoriteButton(int posX, int posY);
+
+	/**
+	 * Sets the recipe bookmark button's position
+	 *
+	 * @since HEI 4.29.5
+	 */
     void setRecipeBookmarkButton(int posX, int posY);
 
 	/**
