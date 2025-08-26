@@ -180,7 +180,7 @@ config.jei.misc.hideBottomRightCornerConfigButton=Hide Bottom-Right Corner Confi
 config.jei.misc.hideBottomRightCornerConfigButton.comment=Whether to hide the bottom-right corner config button
 
 config.jei.category.categoryUidOrder=Category UID Order
-config.jei.category.categoryUidOrder.comment=Determines the display order of recipe categories in JEI. Categories listed earlier appear first in the JEI interface.
+config.jei.category.categoryUidOrder.comment=Determines the display order of recipe categories in HEI. Categories listed earlier appear first in the HEI interface.
 
 hei.generic.ticks=%d Ticks
 

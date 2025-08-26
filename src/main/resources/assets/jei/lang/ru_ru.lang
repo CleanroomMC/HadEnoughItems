@@ -145,7 +145,7 @@ config.jei.search.searchStrippedDiacritics=Поиск удаленных диа�
 config.jei.search.searchStrippedDiacritics.comment=Включает версию строк с удаленными диакритическими знаками в деревьях поиска [БУДЕТ ПЕРЕЗАГРУЖЕНО ДЕРЕВА ПОИСКА]
 
 config.jei.advanced.asyncSearchTreeBuilding=Асинхронное построение дерева поиска
-config.jei.advanced.asyncSearchTreeBuilding.comment=Построение деревьев поиска в нескольких потоках одновременно, отключите эту функцию, если вы испытываете чрезвычайно высокую нагрузку на свой процессор при загрузке JEI
+config.jei.advanced.asyncSearchTreeBuilding.comment=Построение деревьев поиска в нескольких потоках одновременно, отключите эту функцию, если вы испытываете чрезвычайно высокую нагрузку на свой процессор при загрузке HEI
 
 config.jei.advanced.addBookmarksToFront=Добавлять новые закладки в начало
 config.jei.advanced.addBookmarksToFront.comment=Если включено, новые закладки добавляются в начало списка закладок
