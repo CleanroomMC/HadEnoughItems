@@ -36,12 +36,22 @@ public class IngredientListBatchRenderer {
 
     @Nullable
     private Framebuffer framebuffer = null;
+    private boolean allowBuffering;
     private boolean refreshBuffer = true;
     protected int size = 0;
     protected int maxSize = 0;
     private int width;
     private int maxWidth;
     private int height;
+
+
+    public IngredientListBatchRenderer() {
+        this(true);
+    }
+
+    public IngredientListBatchRenderer(boolean allowBuffering) {
+        this.allowBuffering = allowBuffering;
+    }
 
     public void clear() {
         slots.clear();
@@ -199,7 +209,7 @@ public class IngredientListBatchRenderer {
     }
 
     public void render(Minecraft minecraft) {
-        if (!Config.isEditModeEnabled() && Config.bufferIngredientRenders() && OpenGlHelper.isFramebufferEnabled()) {
+        if (allowBuffering && !Config.isEditModeEnabled() && Config.bufferIngredientRenders() && OpenGlHelper.isFramebufferEnabled()) {
             if (framebuffer == null) {
                 framebuffer = new Framebuffer(minecraft.displayWidth, minecraft.displayHeight, true);
                 framebuffer.framebufferColor[0] = 0.0F;
@@ -235,7 +245,7 @@ public class IngredientListBatchRenderer {
 
         renderImpl(minecraft);
 
-        if (!Config.isEditModeEnabled() && Config.bufferIngredientRenders() && refreshBuffer && OpenGlHelper.framebufferSupported) {
+        if (allowBuffering && refreshBuffer && !Config.isEditModeEnabled() && Config.bufferIngredientRenders() && OpenGlHelper.isFramebufferEnabled()) {
             refreshBuffer = false;
             minecraft.getFramebuffer().bindFramebuffer(false);
             // ensure that we actually render the new items

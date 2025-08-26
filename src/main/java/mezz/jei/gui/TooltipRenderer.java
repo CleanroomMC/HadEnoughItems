@@ -201,7 +201,7 @@ public final class TooltipRenderer {
         }
         for (IngredientListBatchRenderer line : itemLines) {
             GlStateManager.pushMatrix();
-            GlStateManager.translate((float) tooltipX / 2, (float) tooltipY / 2, 300.0F);
+            GlStateManager.translate(tooltipX, tooltipY, 300.0F);
             line.render(minecraft);
             GlStateManager.popMatrix();
             tooltipY += line.getHeight();

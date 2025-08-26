@@ -28,13 +28,14 @@ import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_HEIGHT;
 import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_PADDING;
 
 public class BookmarkGroupOrganizer {
-    private Rectangle area = new Rectangle();
-    private final List<BookmarkGroupDisplay> groups = new ArrayList<>();
-    private IngredientListBatchRenderer missingIngredientRenderer = new IngredientListBatchRenderer();
-    private int hoveredGroupId = -1;
-    private int missingIngredients = 0;
     public final int GROUP_PADDING_Y = INGREDIENT_HEIGHT / 2 - 5;
     public final int GROUP_PADDING_X = BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH / 2 - 1;
+    private final List<BookmarkGroupDisplay> groups = new ArrayList<>();
+    private final IngredientListBatchRenderer missingIngredientRenderer = new IngredientListBatchRenderer(false);
+
+    private Rectangle area = new Rectangle();
+    private int hoveredGroupId = -1;
+    private int missingIngredients = 0;
 
     public BookmarkGroupOrganizer() {
     }
