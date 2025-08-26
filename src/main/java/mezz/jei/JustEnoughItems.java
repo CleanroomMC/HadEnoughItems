@@ -1,8 +1,9 @@
 package mezz.jei;
 
-import java.util.Map;
-
 import mezz.jei.command.CommandTreeHEI;
+import mezz.jei.config.Constants;
+import mezz.jei.config.ServerInfo;
+import mezz.jei.startup.ProxyCommon;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -14,9 +15,7 @@ import net.minecraftforge.fml.common.network.NetworkCheckHandler;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
-import mezz.jei.config.Constants;
-import mezz.jei.config.ServerInfo;
-import mezz.jei.startup.ProxyCommon;
+import java.util.Map;
 
 @Mod(modid = Constants.MOD_ID,
 	name = Constants.NAME,

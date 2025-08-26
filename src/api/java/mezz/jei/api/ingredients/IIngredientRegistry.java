@@ -97,9 +97,16 @@ public interface IIngredientRegistry {
 	/**
 	 * Returns a list of all the craftable ingredient types.
 	 *
-	 * @since JEI 4.12.0
+	 * @since HEI 4.29.0
 	 */
 	ImmutableList<IIngredientType> getCraftableIngredientTypes();
+
+    /**
+     * A helper method that returns true if the ingredient is craftable.
+     *
+     * @since HEI 4.29.5
+     */
+    boolean isIngredientCraftable(Object ingredient);
 
 	/**
 	 * Returns an unmodifiable collection of all the ingredients known to JEI, of the specified class.
