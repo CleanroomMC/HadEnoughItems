@@ -80,6 +80,9 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
     }
 
     public void populateWith(IRecipeWrapper recipe, IRecipeCategory<?> category) {
+        if (!Internal.getIngredientRegistry().isIngredientCraftable(this.ingredient)) {
+            return;
+        }
         this.recipe = recipe;
         this.category = category;
         Ingredients ingredients = new Ingredients();
