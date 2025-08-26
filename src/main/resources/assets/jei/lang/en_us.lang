@@ -187,13 +187,13 @@ hei.generic.ticks=%d Ticks
 hei.command.load_bookmarks.failure=Bookmark List not found, something went horribly wrong.
 hei.command.load_bookmarks.success=Loaded %d bookmarks.
 
-hei.tooltip.unfavorite=Remove this recipe from your favorites.
-hei.tooltip.favorite=Add this recipe to your favorites.
-hei.tooltip.favorite_scroll=Scroll: change favorited item.
-hei.tooltip.recipe_bookmark=Bookmark this recipe.
+hei.tooltip.unfavorite=Remove Favorite Recipe
+hei.tooltip.favorite=Add Favorite Recipe
+hei.tooltip.favorite_scroll=Scroll to Change Favorited Item
+hei.tooltip.recipe_bookmark=Bookmark Recipe
 
-hei.tooltip.press_alt=Press §fALT§r to see tooltips
+hei.tooltip.press_alt=Press §fALT§r to see Tooltips
 hei.tooltip.organizer.1=§fUP§r or §fDOWN§r: Move Group Up or Down
-hei.tooltip.organizer.2=§fCTRL + SCROLL§r: Change Crafting Final Output
-hei.tooltip.organizer.3=§f%s§r: Autocraft (by default)
-hei.tooltip.missing_ingredients=§cMissing ingredients:
+hei.tooltip.organizer.2=§fCTRL + SCROLL§r: Change Final Output
+hei.tooltip.organizer.3=§f%s§r: Autocraft (By Default)
+hei.tooltip.missing_ingredients=§cMissing Ingredients:
