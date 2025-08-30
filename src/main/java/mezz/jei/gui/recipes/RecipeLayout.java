@@ -347,11 +347,11 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		}
 		if (moveAll) {
 			if (recipeFavoriteButton != null) {
-				recipeFavoriteButton.x = posX + this.posX + RECIPE_BUTTON_SIZE * 2 - 6;
+				recipeFavoriteButton.x = posX + this.posX + RECIPE_BUTTON_SIZE + 2;
 				recipeFavoriteButton.y = posY + this.posY;
 			}
 			if (recipeBookmarkButton != null) {
-				recipeBookmarkButton.x = posX + this.posX + RECIPE_BUTTON_SIZE * 3 - 12;
+				recipeBookmarkButton.x = posX + this.posX + RECIPE_BUTTON_SIZE * 2 + 4;
 				recipeBookmarkButton.y = posY + this.posY;
 			}
 		}
