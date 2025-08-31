@@ -46,7 +46,7 @@ key.jei.toggleEditMode=Włącz/wyłącz tryb ukrywania
 key.jei.previousPage=Pokaż poprzednią stronę
 key.jei.nextPage=Pokaż następną stronę
 key.jei.bookmark=Dodaj/usuń składnik dodany do zakładek
-key.jei.toggleBookmarkOverlay=Pokaż/ukryj składniki dodane do zakładek
+key.hei.toggleBookmarkOverlay=Pokaż/ukryj składniki dodane do zakładek
 
 # Config
 config.jei.default=Domyślne

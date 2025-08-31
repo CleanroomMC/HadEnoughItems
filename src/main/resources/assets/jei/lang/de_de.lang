@@ -46,7 +46,7 @@ key.jei.toggleEditMode=Listeneditiermodus umschalten
 key.jei.previousPage=Vorherige Seite anzeigen
 key.jei.nextPage=Nächste Seite anzeigen
 key.jei.bookmark=Lesezeichen-Item hinzufügen/entfernen
-key.jei.toggleBookmarkOverlay=Lesezeichen-Item anzeigen/verstecken
+key.hei.toggleBookmarkOverlay=Lesezeichen-Item anzeigen/verstecken
 
 # Config
 config.jei.default=Standard

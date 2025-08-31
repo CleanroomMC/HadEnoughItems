@@ -45,7 +45,7 @@ key.jei.toggleCheatMode=開關作弊模式
 key.jei.previousPage=顯示下一頁
 key.jei.nextPage=顯示上一頁
 key.jei.bookmark=增加／刪除書籤物品
-key.jei.toggleBookmarkOverlay=開關書籤物品列表疊層
+key.hei.toggleBookmarkOverlay=開關書籤物品列表疊層
 
 # Config
 config.jei.default=預設
