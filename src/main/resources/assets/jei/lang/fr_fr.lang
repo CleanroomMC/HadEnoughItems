@@ -45,7 +45,7 @@ key.jei.toggleCheatMode=Activer/désactiver le Mode triche
 key.jei.previousPage=Afficher la page précédente
 key.jei.nextPage=Afficher la page suivante
 key.jei.bookmark=Ajouter/supprimer un objet épinglé
-key.jei.toggleBookmarkOverlay=Afficher/cacher les objets épinglés
+key.hei.toggleBookmarkOverlay=Afficher/cacher les objets épinglés
 
 # Config
 config.jei.default=Défaut

@@ -47,7 +47,7 @@ key.jei.previousPage=Show Previous Page
 key.jei.nextPage=Show Next Page
 key.jei.bookmark=Add/Remove a Bookmarked Ingredient
 key.hei.recipeBookmark=Add/Remove a Bookmarked Recipe
-key.jei.toggleBookmarkOverlay=Show/Hide Bookmarked Ingredients
+key.hei.toggleBookmarkOverlay=Show/Hide Bookmarked Ingredients
 key.hei.crafting=Autocraft Selected Bookmarked Recipes
 
 # Config

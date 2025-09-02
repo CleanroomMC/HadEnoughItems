@@ -150,7 +150,7 @@ jei.tooltip.bookmarks.not.enough.space=북마크를 표시하기에는 공간이
 
 key.jei.toggleEditMode=숨김/편집 모드 활성/비활성화
 key.jei.bookmark=북마크된 재료를 추가/제거합니다.
-key.jei.toggleBookmarkOverlay=북마크된 재료를 숨김/표시합니다.
+key.hei.toggleBookmarkOverlay=북마크된 재료를 숨김/표시합니다.
 config.jei.interface.bookmarkOverlayEnabled=북마크 보이기
 config.jei.interface.bookmarkOverlayEnabled.comment=열린 GUI 옆에 북마크 목록을 표시합니다.
 config.jei.advanced.maxRecipeGuiHeight=최대 조합법 창 높이

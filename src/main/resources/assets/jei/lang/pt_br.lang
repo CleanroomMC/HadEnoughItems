@@ -45,7 +45,7 @@ key.jei.toggleCheatMode=Ativar/desativar modo trapaça
 key.jei.previousPage=Voltar
 key.jei.nextPage=Avançar
 key.jei.bookmark=Adic./remov. ingrediente favorito
-key.jei.toggleBookmarkOverlay=Exibir/ocultar ingredientes favoritos
+key.hei.toggleBookmarkOverlay=Exibir/ocultar ingredientes favoritos
 
 # Config
 config.jei.default=Padrão

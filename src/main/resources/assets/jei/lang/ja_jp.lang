@@ -45,7 +45,7 @@ key.jei.toggleCheatMode=チートモードのオン/オフ
 key.jei.previousPage=前のページに戻る
 key.jei.nextPage=次のページに進む
 key.jei.bookmark=ブックマークの追加/削除
-key.jei.toggleBookmarkOverlay=ブックマーク欄の表示/非表示
+key.hei.toggleBookmarkOverlay=ブックマーク欄の表示/非表示
 
 # Config
 config.jei.default=デフォルト

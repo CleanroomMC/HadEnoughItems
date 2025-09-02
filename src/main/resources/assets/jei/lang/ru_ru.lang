@@ -46,7 +46,7 @@ key.jei.toggleEditMode=Переключить режим скрытия/реда
 key.jei.previousPage=Предыдущая
 key.jei.nextPage=Следующая
 key.jei.bookmark=Управление закладками
-key.jei.toggleBookmarkOverlay=Переключить оверлей закладок
+key.hei.toggleBookmarkOverlay=Переключить оверлей закладок
 
 # Config
 config.jei.default=По-умолчанию
