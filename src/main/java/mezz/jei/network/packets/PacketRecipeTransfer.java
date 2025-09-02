@@ -20,19 +20,19 @@ public class PacketRecipeTransfer extends PacketJei {
 	private final boolean performRecipe;
 	private final boolean requireCompleteSets;
 
-	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, int maxTransfer, boolean performRecipe, boolean requireCompleteSets) {
-		this(recipeMap, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets, performRecipe, Collections.emptyMap());
-	}
-
 	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, int maxTransfer, boolean performRecipe, boolean requireCompleteSets,
-                                Map<Integer, Integer> itemCounts) {
+								Map<Integer, Integer> itemCounts) {
 		this.recipeMap = recipeMap;
 		this.craftingSlots = craftingSlots;
 		this.inventorySlots = inventorySlots;
-        this.maxTransfer = maxTransfer;
+		this.maxTransfer = maxTransfer;
 		this.performRecipe = performRecipe;
 		this.requireCompleteSets = requireCompleteSets;
 		this.itemCounts = itemCounts;
+	}
+
+	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, int maxTransfer, boolean performRecipe, boolean requireCompleteSets) {
+		this(recipeMap, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets, performRecipe, Collections.emptyMap());
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class PacketRecipeTransfer extends PacketJei {
 		this(recipeMap, craftingSlots, inventorySlots, maxTransfer ? Integer.MAX_VALUE : 1, false, requireCompleteSets, itemCounts);
 	}
 
-		public PacketRecipeTransfer setOutputSlot(int outputSlot) {
+	public PacketRecipeTransfer setOutputSlot(int outputSlot) {
 		this.outputSlot = outputSlot;
 		return this;
 	}
