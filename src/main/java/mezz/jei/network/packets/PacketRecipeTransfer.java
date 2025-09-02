@@ -1,9 +1,11 @@
 package mezz.jei.network.packets;
 
+import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.network.IPacketId;
 import mezz.jei.network.PacketIdServer;
 import mezz.jei.transfer.BasicRecipeTransferHandlerServer;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.network.PacketBuffer;
 
 import java.util.*;
@@ -33,7 +35,26 @@ public class PacketRecipeTransfer extends PacketJei {
 		this.itemCounts = itemCounts;
 	}
 
-	public PacketRecipeTransfer setOutputSlot(int outputSlot) {
+	/**
+	 * @deprecated kept for backwards compatibility, behaviour corresponds to
+	 * {@link mezz.jei.transfer.BasicRecipeTransferHandler#transferRecipe(Container, IRecipeLayout, EntityPlayer, boolean, boolean)}
+	 */
+	@Deprecated
+	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer, boolean requireCompleteSets) {
+		this(recipeMap, craftingSlots, inventorySlots, maxTransfer ? Integer.MAX_VALUE : 1, false, requireCompleteSets);
+	}
+
+	/**
+	 * @deprecated kept for backwards compatibility, behaviour corresponds to
+	 * {@link mezz.jei.transfer.BasicRecipeTransferHandler#transferRecipe(Container, IRecipeLayout, EntityPlayer, boolean, boolean)}
+	 */
+	@Deprecated
+	public PacketRecipeTransfer(Map<Integer, Integer> recipeMap, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer, boolean requireCompleteSets,
+								Map<Integer, Integer> itemCounts) {
+		this(recipeMap, craftingSlots, inventorySlots, maxTransfer ? Integer.MAX_VALUE : 1, false, requireCompleteSets, itemCounts);
+	}
+
+		public PacketRecipeTransfer setOutputSlot(int outputSlot) {
 		this.outputSlot = outputSlot;
 		return this;
 	}
