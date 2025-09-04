@@ -4,7 +4,7 @@
 [HadEnoughItems](https://discord.gg/f2K4aSpG4F) is an Item and Recipe viewing mod for Minecraft with a focus on stability, performance, and ease of use.
 
 This means (same as JEI of course):
- * Just items and recipes
+ * Just ingredients and recipes
  * Clean API for developers
  * Not a coremod – no dependencies other than Forge.
  
@@ -12,6 +12,8 @@ This means (same as JEI of course):
  * Memory optimizations
  * Load time optimizations
  * Render optimizations
+ * Autocrafting
+ * Bookmark and Favoriting of Recipes
  * Able to change default fluid containers for when you pick up fluids from the ingredient menu
  * Able to fill fluid containers by clicking on fluids in the ingredient menu
  * Able to order bookmarks differently
@@ -19,6 +21,8 @@ This means (same as JEI of course):
  * Removable "Recipe By" tooltip in recipe menu
  * More information available in recipe tabs
  * Better ordering of recipes in certain contexts
+ * Better rendering of ingredient amounts to improve clarity
+ * Bookmark Groups
 
 ### For Devs:
 Add CleanroomMC's repository and depend on HEI's maven entry:
@@ -30,5 +34,5 @@ repositories {
 }
 
 dependencies {
-    implementation 'mezz:jei:4.28.1'
+    implementation 'mezz:jei:4.29.7'
 }
