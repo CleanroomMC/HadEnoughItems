@@ -2,7 +2,6 @@ package mezz.jei.transfer;
 
 import javax.annotation.Nullable;
 
-import mezz.jei.api.recipe.transfer.RecipeTransferErrorInternal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 

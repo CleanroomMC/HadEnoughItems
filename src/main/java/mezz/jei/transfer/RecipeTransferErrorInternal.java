@@ -1,5 +1,6 @@
-package mezz.jei.api.recipe.transfer;
+package mezz.jei.transfer;
 
+import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import net.minecraft.client.Minecraft;
 
 import mezz.jei.api.gui.IRecipeLayout;
