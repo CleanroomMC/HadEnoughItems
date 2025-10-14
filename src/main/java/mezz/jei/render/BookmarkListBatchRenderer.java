@@ -86,9 +86,6 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                     if (ingredientListSlot.isBlocked()) {
                         continue;
                     }
-                    if (ingredientIndex >= ingredientList.size()) {
-                        return pages;
-                    }
                     IIngredientListElement<?> element = ingredientList.get(ingredientIndex);
                     if (element.getGroupIndex() != currentGroup || element.startsNewRow()) {
                         currentGroup = element.getGroupIndex();
@@ -96,7 +93,9 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                             break;
                         }
                     }
-                    ingredientIndex++;
+                    if (ingredientList.size() <= ++ingredientIndex) {
+                        return pages;
+                    }
                 }
             }
             pages.add(ingredientIndex);
