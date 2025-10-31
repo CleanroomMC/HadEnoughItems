@@ -117,7 +117,7 @@ config.jei.advanced.recipeBookmarkGroupColor.comment=配方书签组的颜色，
 # Hide Ingredients Mode
 gui.jei.editMode.description=HEI隐藏原料模式：
 gui.jei.editMode.description.hide=%CTRL-左击以隐藏
-gui.jei.editMode.description.hide.wild=%CTRL-右击以隐藏物品的所有变种
+gui.jei.editMode.description.hide.wild=%CTRL-右击以隐藏所有变种
 
 # PC/Linux Control Key
 key.jei.ctrl=CTRL
