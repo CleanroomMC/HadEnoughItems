@@ -77,17 +77,17 @@ config.jei.interface.autocraftingEnabled.comment=当且仅当启用配方书签�
 config.jei.search=搜索选项
 config.jei.search.comment=与搜索框相关的选项。
 config.jei.search.modNameSearchMode=@模组名称
-config.jei.search.modNameSearchMode.comment=模组名称的搜索模式（前缀：@）。
+config.jei.search.modNameSearchMode.comment=模组名称的搜索模式（前缀：@）
 config.jei.search.tooltipSearchMode=#提示框
-config.jei.search.tooltipSearchMode.comment=提示框的搜索模式（前缀：#）。
+config.jei.search.tooltipSearchMode.comment=提示框的搜索模式（前缀：#）
 config.jei.search.oreDictSearchMode=$矿物词典
-config.jei.search.oreDictSearchMode.comment=矿物词典的搜索模式（前缀：$）。
+config.jei.search.oreDictSearchMode.comment=矿物词典的搜索模式（前缀：$）
 config.jei.search.creativeTabSearchMode=%%创造标签页
-config.jei.search.creativeTabSearchMode.comment=创造标签页名称的搜索模式（前缀：%）。
+config.jei.search.creativeTabSearchMode.comment=创造标签页名称的搜索模式（前缀：%）
 config.jei.search.colorSearchMode=^颜色
-config.jei.search.colorSearchMode.comment=颜色的搜索模式（前缀：^）。
+config.jei.search.colorSearchMode.comment=颜色的搜索模式（前缀：^）
 config.jei.search.resourceIdSearchMode=&资源ID
-config.jei.search.resourceIdSearchMode.comment=资源ID的搜索模式（前缀：&）。
+config.jei.search.resourceIdSearchMode.comment=资源ID的搜索模式（前缀：&）
 
 config.jei.advanced=高级
 config.jei.advanced.comment=用于更改HEI功能方式的高级配置选项。
@@ -116,8 +116,8 @@ config.jei.advanced.recipeBookmarkGroupColor.comment=配方书签组的颜色，
 
 # Hide Ingredients Mode
 gui.jei.editMode.description=HEI隐藏原料模式：
-gui.jei.editMode.description.hide=%CTRL-左击以隐藏。
-gui.jei.editMode.description.hide.wild=%CTRL-右击以使用通配符隐藏。
+gui.jei.editMode.description.hide=%CTRL-左击以隐藏
+gui.jei.editMode.description.hide.wild=%CTRL-右击以隐藏物品的所有变种
 
 # PC/Linux Control Key
 key.jei.ctrl=CTRL
