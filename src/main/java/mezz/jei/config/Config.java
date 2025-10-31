@@ -487,9 +487,8 @@ public final class Config {
 
 		if (searchCategory.hasChanged()) {
 			needsReload = true;
+			needToRebuildSearchTree = true;
 		}
-
-		needToRebuildSearchTree = searchCategory.get("searchAdvancedTooltips").hasChanged() || searchCategory.get("searchStrippedDiacritics").hasChanged();
 
 		ConfigCategory categoryAdvanced = config.getCategory(CATEGORY_ADVANCED);
 		categoryAdvanced.remove("nbtKeyIgnoreList");
