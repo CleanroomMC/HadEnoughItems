@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import mezz.jei.bookmarks.BookmarkItem;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -109,10 +110,21 @@ public class ForgeModIdHelper extends AbstractModIdHelper {
 			tooltip.add(TextFormatting.GRAY + "info: " + ingredientHelper.getErrorInfo(ingredient));
 			tooltip.add(TextFormatting.GRAY + "uid: " + ingredientHelper.getUniqueId(ingredient));
 		}
-		if (Config.isModNameFormatOverrideActive() && (ingredient instanceof ItemStack || ingredient instanceof EnchantmentData)) {
+		if (Config.isModNameFormatOverrideActive() && this.skipAddingModName(ingredient)) {
 			// we detected that another mod is adding the mod name already
 			return tooltip;
 		}
 		return super.addModNameToIngredientTooltip(tooltip, ingredient, ingredientHelper);
 	}
+
+	private <T> boolean skipAddingModName(T ingredient) {
+		if (ingredient instanceof ItemStack || ingredient instanceof EnchantmentData) {
+			return true;
+		}
+		if (ingredient instanceof BookmarkItem) {
+			return this.skipAddingModName(((BookmarkItem<?>) ingredient).ingredient);
+		}
+		return false;
+	}
+
 }
