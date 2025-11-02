@@ -154,8 +154,11 @@ public class GhostIngredientDragManager {
 
     public boolean handleKeyDown(int eventKey) {
         if (KeyBindings.isInventoryCloseKey(eventKey) || KeyBindings.isEnterKey(eventKey)) {
-            stopDrag();
-            return true;
+            // Only cancel other handling of inputs if we are currently dragging
+            if (this.ghostIngredientDrag != null) {
+                stopDrag();
+                return true;
+            }
         }
         return false;
     }
