@@ -103,7 +103,9 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 
     public void draw(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
         this.bookmarkGrid.draw(minecraft, mouseX, mouseY);
-        this.navigation.draw(minecraft, mouseX, mouseY, partialTicks);
+        if (this.pageDelegate.getPageCount() > 1) {
+            this.navigation.draw(minecraft, mouseX, mouseY, partialTicks);
+        }
         this.groupOrganizer.draw(minecraft, mouseX, mouseY);
     }
 
@@ -122,9 +124,11 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 
     @Override
     public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
-        return !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY) &&
-                (this.bookmarkGrid.handleMouseClicked(mouseX, mouseY) ||
-                        this.navigation.handleMouseClickedButtons(mouseX, mouseY));
+        boolean clickedGrid = !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY) &&
+                this.bookmarkGrid.handleMouseClicked(mouseX, mouseY);
+        boolean clickedNavigation = this.pageDelegate.getPageCount() > 1 &&
+                this.navigation.handleMouseClickedButtons(mouseX, mouseY);
+        return clickedGrid || clickedNavigation;
     }
 
     @Override
