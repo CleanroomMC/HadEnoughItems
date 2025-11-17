@@ -158,3 +158,6 @@ config.jei.rendering.bufferIngredientRenders.comment=使用渲染缓存来避免
 
 config.jei.interface.defaultFluidContainerItem=默认流体容器
 config.jei.interface.defaultFluidContainerItem.comment=当点击 HEI 界面中的流体时，用来填充流体的默认物品（格式： item_name@meta）
+
+config.jei.misc.hideBottomLeftCornerBookmarkButton=隐藏左下角书签按钮
+config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=是否隐藏左下角书签按钮

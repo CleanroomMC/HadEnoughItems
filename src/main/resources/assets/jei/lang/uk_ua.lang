@@ -118,3 +118,6 @@ gui.jei.category.itemInformation=Опис
 description.jei.wooden.door.1=Wooden Doors allow you to block monsters from entering your building.\nTesting sentences.
 description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and visa versa.
 description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits.
+
+config.jei.misc.hideBottomLeftCornerBookmarkButton=Приховати кнопку закладки в лівому нижньому куті
+config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Чи приховувати кнопку закладки в лівому нижньому куті
