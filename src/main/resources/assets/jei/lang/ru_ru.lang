@@ -161,3 +161,6 @@ config.jei.rendering.bufferIngredientRenders.comment=Остановка чрез
 
 config.jei.interface.defaultFluidContainerItem=Контейнер жидкости по умолчанию
 config.jei.interface.defaultFluidContainerItem.comment=Предмет по умолчанию, используемый для заполнения жидкостей при нажатии на жидкий ингредиент в меню (формат: item_name@meta)
+
+config.jei.misc.hideBottomLeftCornerBookmarkButton=Скрыть кнопку закладки в левом нижнем углу
+config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Скрывать ли кнопку закладки в левом нижнем углу

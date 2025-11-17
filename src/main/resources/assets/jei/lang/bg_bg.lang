@@ -117,3 +117,6 @@ description.jei.wooden.door.1=Wooden Doors allow you to block monsters from ente
 description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and visa versa.
 description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits.
 
+config.jei.misc.hideBottomLeftCornerBookmarkButton=Скрий бутона за отметка в долния ляв ъгъл
+config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Дали да се скрие бутона за отметка в долния ляв ъгъл
+
