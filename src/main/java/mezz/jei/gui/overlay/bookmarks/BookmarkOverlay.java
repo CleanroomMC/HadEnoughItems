@@ -66,9 +66,9 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 	public void drawScreen(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
 		if (this.isListDisplayed()) {
 			this.contents.draw(minecraft, mouseX, mouseY, partialTicks);
-			if (!Config.hideBottomLeftCornerBookmarkButton()) {
-				this.bookmarkButton.draw(minecraft, mouseX, mouseY, partialTicks);
-			}
+		}
+		if (!bookmarkList.isEmpty() && !Config.hideBottomLeftCornerBookmarkButton()) {
+			this.bookmarkButton.draw(minecraft, mouseX, mouseY, partialTicks);
 		}
 	}
 
@@ -80,9 +80,9 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 	public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
 		if (isListDisplayed()) {
 			this.contents.drawTooltips(minecraft, mouseX, mouseY);
-			if (!Config.hideBottomLeftCornerBookmarkButton()) {
-				this.bookmarkButton.drawTooltips(minecraft, mouseX, mouseY);
-			}
+		}
+		if (!bookmarkList.isEmpty() && !Config.hideBottomLeftCornerBookmarkButton()) {
+			this.bookmarkButton.drawTooltips(minecraft, mouseX, mouseY);
 		}
 	}
 
