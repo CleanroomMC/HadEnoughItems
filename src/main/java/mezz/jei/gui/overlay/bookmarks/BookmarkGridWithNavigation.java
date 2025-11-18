@@ -4,6 +4,7 @@ import mezz.jei.Internal;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiScreenHelper;
+import mezz.jei.gui.PageNavigation;
 import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.GridAlignment;
@@ -33,7 +34,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
     private int firstItemIndex = 0;
     private final IPaged pageDelegate;
     private List<Integer> pageBoundaries;
-    private final BookmarkPageNavigation navigation;
+    private final PageNavigation navigation;
 
     private BookmarkGroupOrganizer groupOrganizer;
     private final GuiScreenHelper guiScreenHelper;
@@ -47,7 +48,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         this.ingredientSource = ingredientSource;
         this.guiScreenHelper = guiScreenHelper;
         this.pageDelegate = new BookmarkGridPaged();
-        this.navigation = new BookmarkPageNavigation(this.pageDelegate, false);
+        this.navigation = new PageNavigation(this.pageDelegate, true);
     }
 
     public void updateLayout(boolean resetToFirstPage) {
@@ -103,9 +104,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 
     public void draw(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
         this.bookmarkGrid.draw(minecraft, mouseX, mouseY);
-        if (this.pageDelegate.getPageCount() > 1) {
-            this.navigation.draw(minecraft, mouseX, mouseY, partialTicks);
-        }
+        this.navigation.draw(minecraft, mouseX, mouseY, partialTicks);
         this.groupOrganizer.draw(minecraft, mouseX, mouseY);
     }
 
@@ -118,17 +117,14 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 
     @Override
     public boolean isMouseOver(int mouseX, int mouseY) {
-        return this.area.contains(mouseX, mouseY) &&
-                !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY);
+        return this.area.contains(mouseX, mouseY) && !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY);
     }
 
     @Override
     public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
-        boolean clickedGrid = !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY) &&
-                this.bookmarkGrid.handleMouseClicked(mouseX, mouseY);
-        boolean clickedNavigation = this.pageDelegate.getPageCount() > 1 &&
-                this.navigation.handleMouseClickedButtons(mouseX, mouseY);
-        return clickedGrid || clickedNavigation;
+        return !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY) &&
+                (this.bookmarkGrid.handleMouseClicked(mouseX, mouseY) || this.navigation.handleMouseClickedButtons(mouseX, mouseY));
+
     }
 
     @Override
