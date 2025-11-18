@@ -179,6 +179,9 @@ config.jei.interface.defaultFluidContainerItem.comment=Default item to use to fi
 config.jei.misc.hideBottomRightCornerConfigButton=Hide Bottom-Right Corner Config Button
 config.jei.misc.hideBottomRightCornerConfigButton.comment=Whether to hide the bottom-right corner config button
 
+config.jei.misc.hideBottomLeftCornerBookmarkButton=Hide Bottom-Left Corner Bookmark Button
+config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Whether to hide the bottom-left corner bookmark button
+
 config.jei.category.categoryUidOrder=Category UID Order
 config.jei.category.categoryUidOrder.comment=Determines the display order of recipe categories in HEI. Categories listed earlier appear first in the HEI interface.
 

@@ -163,3 +163,6 @@ config.jei.advanced.ultraLowMemoryUsage.comment=메모리 최대 절약모드를
 config.jei.misc.tooltipShowRecipeBy=툴팁에 '레시피 제공자'를 표시합니다.
 config.jei.misc.tooltipShowRecipeBy.comment=툴팁에 레시피가 언제 변경되었는지 표시합니다.
 config.jei.interface.defaultFluidContainerItem.comment=메뉴에서 유체 재료를 클릭할 시 표시할 기본 유체 보관 아이템을 지정합니다, (형식: 아이템 이름@메타데이터)
+
+config.jei.misc.hideBottomLeftCornerBookmarkButton=왼쪽 하단 모서리 북마크 버튼 숨기기
+config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=왼쪽 하단 모서리 북마크 버튼을 숨길지 여부

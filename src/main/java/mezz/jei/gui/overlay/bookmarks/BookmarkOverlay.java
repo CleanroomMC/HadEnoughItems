@@ -67,7 +67,9 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 		if (this.isListDisplayed()) {
 			this.contents.draw(minecraft, mouseX, mouseY, partialTicks);
 		}
-		this.bookmarkButton.draw(minecraft, mouseX, mouseY, partialTicks);
+        if (!Config.hideBottomLeftCornerBookmarkButton()) {
+            this.bookmarkButton.draw(minecraft, mouseX, mouseY, partialTicks);
+        }
 	}
 
 	@Override
@@ -79,7 +81,9 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 		if (isListDisplayed()) {
 			this.contents.drawTooltips(minecraft, mouseX, mouseY);
 		}
-		bookmarkButton.drawTooltips(minecraft, mouseX, mouseY);
+        if (!Config.hideBottomLeftCornerBookmarkButton()) {
+            bookmarkButton.drawTooltips(minecraft, mouseX, mouseY);
+        }
 	}
 
 	private static int getMinWidth() {
@@ -107,12 +111,16 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 		displayArea.x = contentsArea.x;
 		displayArea.width = contentsArea.width;
 
-		this.bookmarkButton.updateBounds(new Rectangle(
-			displayArea.x,
-			(int) Math.floor(displayArea.getMaxY()) - BUTTON_SIZE - 2,
-			BUTTON_SIZE,
-			BUTTON_SIZE
-		));
+        if (Config.hideBottomLeftCornerBookmarkButton()) {
+            this.bookmarkButton.updateBounds(new Rectangle(0, 0, 0, 0));
+        } else {
+            this.bookmarkButton.updateBounds(new Rectangle(
+                    displayArea.x,
+                    (int) Math.floor(displayArea.getMaxY()) - BUTTON_SIZE - 2,
+                    BUTTON_SIZE,
+                    BUTTON_SIZE
+            ));
+        }
 
 		this.contents.updateLayout(false);
 
@@ -169,9 +177,11 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 				this.contents.handleMouseClicked(mouseX, mouseY, mouseButton);
 			}
 		}
-		if (bookmarkButton.isMouseOver(mouseX, mouseY)) {
-			return bookmarkButton.handleMouseClick(mouseX, mouseY);
-		}
+        if (!Config.hideBottomLeftCornerBookmarkButton()) {
+            if (bookmarkButton.isMouseOver(mouseX, mouseY)) {
+                return bookmarkButton.handleMouseClick(mouseX, mouseY);
+            }
+        }
 		return false;
 	}
 

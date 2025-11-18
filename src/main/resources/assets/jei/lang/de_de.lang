@@ -149,3 +149,6 @@ config.jei.rendering.bufferIngredientRenders.comment=Unterbindet extrem häufige
 
 config.jei.interface.defaultFluidContainerItem=Standard-Flüssigkeitsbehälter
 config.jei.interface.defaultFluidContainerItem.comment=Voreingestelltes Item, der zum Auffüllen von Flüssigkeiten verwendet wird, wenn im Menü auf eine Flüssigkeitszutat geklickt wird.
+
+config.jei.misc.hideBottomLeftCornerBookmarkButton=Lesezeichen-Button in der unteren linken Ecke ausblenden
+config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Ob der Lesezeichen-Button in der unteren linken Ecke ausgeblendet werden soll
