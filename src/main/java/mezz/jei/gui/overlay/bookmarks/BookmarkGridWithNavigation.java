@@ -91,7 +91,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
             return false;
         }
         Rectangle displayArea = this.bookmarkGrid.getArea();
-        Rectangle navigationArea = new Rectangle(displayArea.x, movedNavigationArea.y, displayArea.width, NAVIGATION_HEIGHT);
+        Rectangle navigationArea = new Rectangle(2, movedNavigationArea.y, displayArea.width, NAVIGATION_HEIGHT);
         this.navigation.updateBounds(navigationArea);
         this.groupOrganizer.updateBounds(groupOrganizerBounds);
         this.area = displayArea.union(navigationArea);

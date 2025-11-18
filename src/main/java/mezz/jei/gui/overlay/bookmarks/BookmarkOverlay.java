@@ -115,7 +115,7 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
             this.bookmarkButton.updateBounds(new Rectangle(0, 0, 0, 0));
         } else {
             this.bookmarkButton.updateBounds(new Rectangle(
-                    displayArea.x,
+                    2,
                     (int) Math.floor(displayArea.getMaxY()) - BUTTON_SIZE - 2,
                     BUTTON_SIZE,
                     BUTTON_SIZE

@@ -153,21 +153,21 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 						));
 				}
 
-				if (Config.hideBottomRightCornerConfigButton())
+				if (Config.hideBottomRightCornerConfigButton()) {
 					this.configButton.updateBounds(new Rectangle(
-						searchField.x + searchField.width - 1,
-						searchField.y,
-						0,
-						0
+							searchField.x + searchField.width - 1,
+							searchField.y,
+							0,
+							0
 					));
-				else
+				} else {
 					this.configButton.updateBounds(new Rectangle(
-						searchField.x + searchField.width - 1,
-						searchField.y,
-						BUTTON_SIZE,
-						BUTTON_SIZE
+							searchField.x + searchField.width - 1,
+							searchField.y,
+							BUTTON_SIZE,
+							BUTTON_SIZE
 					));
-
+				}
 				updateLayout(false);
 			}
 		}
