@@ -48,7 +48,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         this.ingredientSource = ingredientSource;
         this.guiScreenHelper = guiScreenHelper;
         this.pageDelegate = new BookmarkGridPaged();
-        this.navigation = new PageNavigation(this.pageDelegate, true);
+        this.navigation = new PageNavigation(this.pageDelegate, false);
     }
 
     public void updateLayout(boolean resetToFirstPage) {

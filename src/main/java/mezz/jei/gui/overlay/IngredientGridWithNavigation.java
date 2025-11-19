@@ -44,7 +44,7 @@ public class IngredientGridWithNavigation implements IShowsRecipeFocuses, IMouse
 		this.ingredientSource = ingredientSource;
 		this.guiScreenHelper = guiScreenHelper;
 		this.pageDelegate = new IngredientGridPaged();
-		this.navigation = new PageNavigation(this.pageDelegate, true);
+		this.navigation = new PageNavigation(this.pageDelegate, false);
 	}
 
 	public void updateLayout(boolean resetToFirstPage) {

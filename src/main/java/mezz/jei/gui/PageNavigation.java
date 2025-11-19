@@ -49,11 +49,13 @@ public class PageNavigation {
 	}
 
 	public void draw(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
-		if (!hideOnSinglePage || this.paged.hasNext() || this.paged.hasPrevious()) {
-			nextButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
-			backButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
+		if (!hideOnSinglePage) {
+			if (this.paged.hasNext() || this.paged.hasPrevious()) {
+				nextButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
+				backButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
+			}
+			minecraft.fontRenderer.drawString(pageNumDisplayString, pageNumDisplayX, pageNumDisplayY, Color.white.getRGB(), true);
 		}
-		minecraft.fontRenderer.drawString(pageNumDisplayString, pageNumDisplayX, pageNumDisplayY, Color.white.getRGB(), true);
 	}
 
 	public boolean isMouseOver() {
