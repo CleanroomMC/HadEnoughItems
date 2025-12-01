@@ -182,12 +182,13 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
     }
 
     private class BookmarkGridPaged implements IPaged {
+
         @Override
         public boolean nextPage() {
             int pageNum = getPageNumber();
             if (pageNum == getPageCount() - 1) {
-                updateLayout(false);
-                return false;
+                updateLayout(true);
+                return true;
             }
             firstItemIndex = pageBoundaries.get(pageNum + 1);
             updateLayout(false);
@@ -197,25 +198,19 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         @Override
         public boolean previousPage() {
             int pageNum = getPageNumber();
-            if (pageNum == 0) {
-                updateLayout(true);
-                return false;
-            }
-            firstItemIndex = pageBoundaries.get(pageNum - 1);
+            firstItemIndex = pageBoundaries.get(pageNum == 0 ? pageBoundaries.size() - 1 : pageNum - 1);
             updateLayout(false);
             return true;
         }
 
         @Override
         public boolean hasNext() {
-            // true if there is more than one page because this wraps around
-            return getPageNumber() < getPageCount() - 1;
+            return true;
         }
 
         @Override
         public boolean hasPrevious() {
-            // true if there is more than one page because this wraps around
-            return getPageNumber() > 0;
+            return true;
         }
 
         @Override
