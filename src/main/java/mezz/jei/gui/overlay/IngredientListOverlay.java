@@ -153,21 +153,21 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 						));
 				}
 
-				if (Config.hideBottomRightCornerConfigButton())
+				if (Config.hideBottomRightCornerConfigButton()) {
 					this.configButton.updateBounds(new Rectangle(
-						searchField.x + searchField.width - 1,
-						searchField.y,
-						0,
-						0
+							searchField.x + searchField.width - 1,
+							searchField.y,
+							0,
+							0
 					));
-				else
+				} else {
 					this.configButton.updateBounds(new Rectangle(
-						searchField.x + searchField.width - 1,
-						searchField.y,
-						BUTTON_SIZE,
-						BUTTON_SIZE
+							searchField.x + searchField.width - 1,
+							searchField.y,
+							BUTTON_SIZE,
+							BUTTON_SIZE
 					));
-
+				}
 				updateLayout(false);
 			}
 		}
@@ -187,16 +187,20 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 				GlStateManager.disableLighting();
 				this.searchField.drawTextBox();
 				this.contents.draw(minecraft, mouseX, mouseY, partialTicks);
-				this.configButton.draw(minecraft, mouseX, mouseY, partialTicks);
-			} else {
-				this.configButton.draw(minecraft, mouseX, mouseY, partialTicks);
-			}
+                if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
+                    this.configButton.draw(minecraft, mouseX, mouseY, partialTicks);
+                }
+            } else if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
+                this.configButton.draw(minecraft, mouseX, mouseY, partialTicks);
+            }
 		}
 	}
 
 	public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
 		if (isListDisplayed()) {
-			this.configButton.drawTooltips(minecraft, mouseX, mouseY);
+            if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
+                this.configButton.drawTooltips(minecraft, mouseX, mouseY);
+            }
 			this.contents.drawTooltips(minecraft, mouseX, mouseY);
 		} else if (this.guiProperties != null) {
 			this.configButton.drawTooltips(minecraft, mouseX, mouseY);
@@ -247,9 +251,11 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	@Override
 	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
 		if (isListDisplayed()) {
-			if (this.configButton.handleMouseClick(mouseX, mouseY)) {
-				return true;
-			}
+            if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
+                if (this.configButton.handleMouseClick(mouseX, mouseY)) {
+                    return true;
+                }
+            }
 
 			if (!isMouseOver(mouseX, mouseY)) {
 				setKeyboardFocus(false);
@@ -291,9 +297,10 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 					}
 				}
 			}
-		} else if (this.guiProperties != null) {
-			return this.configButton.handleMouseClick(mouseX, mouseY);
-		}
+        } else if (this.guiProperties != null
+                && (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled())) {
+            return this.configButton.handleMouseClick(mouseX, mouseY);
+        }
 		return false;
 	}
 

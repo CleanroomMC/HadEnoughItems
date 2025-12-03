@@ -44,18 +44,6 @@ public class BookmarkItemRender implements IIngredientRenderer<BookmarkItem> {
         return getIngredientRenderer(ingredient.ingredient).getFontRenderer(minecraft, ingredient.ingredient);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public List<String> getTooltip(Minecraft minecraft, BookmarkItem ingredient, boolean advanced) {
-        return getIngredientRenderer(ingredient.ingredient).getTooltip(minecraft, ingredient.ingredient, advanced);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public List<String> getTooltip(Minecraft minecraft, BookmarkItem ingredient) {
-        return getIngredientRenderer(ingredient.ingredient).getTooltip(minecraft, ingredient.ingredient);
-    }
-
     private static <E> IIngredientRenderer<E> getIngredientRenderer(E ingredient) {
         return Internal.getIngredientRegistry().getIngredientRenderer(ingredient);
     }

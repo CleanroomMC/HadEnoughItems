@@ -1,5 +1,6 @@
 package mezz.jei.gui;
 
+import com.google.common.collect.Lists;
 import mezz.jei.render.IngredientListBatchRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -12,7 +13,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public final class TooltipRenderer {
@@ -20,7 +20,7 @@ public final class TooltipRenderer {
     }
 
     public static void drawHoveringText(Minecraft minecraft, String textLine, int x, int y) {
-        drawHoveringText(ItemStack.EMPTY, minecraft, Collections.singletonList(textLine), x, y, -1, minecraft.fontRenderer);
+        drawHoveringText(ItemStack.EMPTY, minecraft, Lists.newArrayList(textLine), x, y, -1, minecraft.fontRenderer);
     }
 
     public static void drawHoveringText(Minecraft minecraft, List<String> textLines, int x, int y) {

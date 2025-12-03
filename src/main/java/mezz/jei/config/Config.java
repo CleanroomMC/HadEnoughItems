@@ -343,7 +343,11 @@ public final class Config {
 		return values.hideBottomRightCornerConfigButton;
 	}
 
-	public static int getRecipeBookmarkGroupColor() {
+    public static boolean hideBottomLeftCornerBookmarkButton() {
+        return values.hideBottomLeftCornerBookmarkButton;
+    }
+
+    public static int getRecipeBookmarkGroupColor() {
 		return values.recipeBookmarkGroupColor;
 	}
 
@@ -487,9 +491,8 @@ public final class Config {
 
 		if (searchCategory.hasChanged()) {
 			needsReload = true;
+			needToRebuildSearchTree = true;
 		}
-
-		needToRebuildSearchTree = searchCategory.get("searchAdvancedTooltips").hasChanged() || searchCategory.get("searchStrippedDiacritics").hasChanged();
 
 		ConfigCategory categoryAdvanced = config.getCategory(CATEGORY_ADVANCED);
 		categoryAdvanced.remove("nbtKeyIgnoreList");
@@ -529,6 +532,8 @@ public final class Config {
 		values.skipShowingProgressBar = config.getBoolean(CATEGORY_MISC, "skipShowingProgressBar", defaultValues.skipShowingProgressBar);
 
 		values.hideBottomRightCornerConfigButton = config.getBoolean(CATEGORY_MISC, "hideBottomRightCornerConfigButton", defaultValues.hideBottomRightCornerConfigButton);
+
+        values.hideBottomLeftCornerBookmarkButton = config.getBoolean(CATEGORY_MISC, "hideBottomLeftCornerBookmarkButton", defaultValues.hideBottomLeftCornerBookmarkButton);
 
 		{
 			Property property = config.get(CATEGORY_ADVANCED, "debugModeEnabled", defaultValues.debugModeEnabled);

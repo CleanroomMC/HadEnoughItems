@@ -177,7 +177,10 @@ config.jei.interface.defaultFluidContainerItem=默认流体容器
 config.jei.interface.defaultFluidContainerItem.comment=在界面中点击流体原料时，用于填充流体的默认物品（格式：item_name@meta）
 
 config.jei.misc.hideBottomRightCornerConfigButton=隐藏右下角配置按钮
-config.jei.misc.hideBottomRightCornerConfigButton.comment=是否隐藏界面右下角的配置按钮
+config.jei.misc.hideBottomRightCornerConfigButton.comment=是否隐藏右下角的配置按钮
+
+config.jei.misc.hideBottomLeftCornerBookmarkButton=隐藏左下角书签按钮
+config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=是否隐藏左下角书签按钮
 
 config.jei.category.categoryUidOrder=分类UID排序
 config.jei.category.categoryUidOrder.comment=决定HEI中配方分类的显示顺序。列在前面的分类将优先在HEI界面中显示。

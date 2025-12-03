@@ -102,20 +102,31 @@ public class BookmarkItem<I> {
     @Nullable
     public static BookmarkItem<?> deserialize(String ingredientJsonString, Collection<IIngredientType> otherIngredientTypes) {
         Object ingredient = parseIngredient(ingredientJsonString.substring(1), otherIngredientTypes);
-        if (ingredient == null) {
-            return null;
-        }
         BookmarkItem<?> item;
-        switch (ingredientJsonString.charAt(0)) {
-            case MARKER_NORMAL:
-                item = new BookmarkItem<>(ingredient);
-                break;
-            case MARKER_RECIPE:
-                item = new RecipeBookmarkItem<>(ingredient);
-                break;
-            default:
+
+        if (ingredient == null) {
+            // Old format; deserialize whole string as ingredient and add as bookmark item
+            ingredient = parseIngredientOld(ingredientJsonString, otherIngredientTypes);
+            if (ingredient == null) {
                 return null;
+            }
+            item = new BookmarkItem<>(ingredient);
+
+            // Don't try and deserialize; old format has no amount, and may not be nbt
+            return item;
+        } else {
+            switch (ingredientJsonString.charAt(0)) {
+                case MARKER_NORMAL:
+                    item = new BookmarkItem<>(ingredient);
+                    break;
+                case MARKER_RECIPE:
+                    item = new RecipeBookmarkItem<>(ingredient);
+                    break;
+                default:
+                    return null;
+            }
         }
+
         if (item.deserialize(getNBT(ingredientJsonString))) {
             return item;
         }
@@ -145,6 +156,23 @@ public class BookmarkItem<I> {
                 } else {
                     Log.get().warn("Failed to load bookmarked unknown ingredient, the ingredient no longer exists:\n{}", parsed);
                 }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    protected static Object parseIngredientOld(String ingredientJsonString, Collection<IIngredientType> otherIngredientTypes) {
+        if (ingredientJsonString.startsWith(MARKER_STACK)) {
+            // Use normal parsing
+            return parseIngredient(ingredientJsonString, otherIngredientTypes);
+        } if (ingredientJsonString.startsWith(MARKER_OTHER)) {
+            Object ingredient = getUnknownIngredientByUid(otherIngredientTypes, ingredientJsonString.substring(2));
+            if (ingredient != null) {
+                IngredientUtil.normalize(ingredient);
+                return ingredient;
+            } else {
+                Log.get().warn("Failed to load bookmarked unknown ingredient, the ingredient no longer exists:\n{}", ingredientJsonString.substring(2));
             }
         }
         return null;
