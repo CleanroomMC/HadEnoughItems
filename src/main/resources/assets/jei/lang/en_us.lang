@@ -197,7 +197,7 @@ hei.tooltip.recipe_bookmark=Bookmark Recipe
 
 hei.tooltip.item_group=§7Item Group
 hei.tooltip.recipe_group=§7Recipe Group
-hei.tooltip.press_alt=§7Press §fALT§7 to see Tooltips
+hei.tooltip.press_alt=§7Press §fALT§7 to see Actions
 hei.tooltip.organizer.1=§fCTRL + LEFT CLICK:§7 Move Bookmarks Between Groups
 hei.tooltip.organizer.2=§fUP§r or §fDOWN:§7 Move Group Up or Down
 hei.tooltip.organizer.3=§fCTRL + SCROLL:§7 Change Final Output
