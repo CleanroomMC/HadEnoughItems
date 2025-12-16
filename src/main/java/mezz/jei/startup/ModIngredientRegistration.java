@@ -19,9 +19,9 @@ import java.util.Map;
 
 public class ModIngredientRegistration implements IModIngredientRegistration {
 	private final Map<IIngredientType, Collection> allIngredientsMap = new Reference2ObjectOpenHashMap<>();
-	private final List<IIngredientType> craftableIngredientsMap = new ObjectArrayList<>();
 	private final Map<IIngredientType, IIngredientHelper> ingredientHelperMap = new Reference2ObjectOpenHashMap<>();
 	private final Map<IIngredientType, IIngredientRenderer> ingredientRendererMap = new Reference2ObjectOpenHashMap<>();
+	private final List<IIngredientType> craftableIngredientsMap = new ObjectArrayList<>();
 
 	@Override
 	public <V> void register(IIngredientType<V> ingredientType, Collection<V> allIngredients, IIngredientHelper<V> ingredientHelper, IIngredientRenderer<V> ingredientRenderer) {
