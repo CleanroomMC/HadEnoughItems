@@ -195,8 +195,11 @@ hei.tooltip.favorite=Add Favorite Recipe
 hei.tooltip.favorite_scroll=Scroll to Change Favorited Item
 hei.tooltip.recipe_bookmark=Bookmark Recipe
 
-hei.tooltip.press_alt=Press §fALT§r to see Tooltips
-hei.tooltip.organizer.1=§fUP§r or §fDOWN§r: Move Group Up or Down
-hei.tooltip.organizer.2=§fCTRL + SCROLL§r: Change Final Output
-hei.tooltip.organizer.3=§f%s§r: Autocraft (By Default)
+hei.tooltip.item_group=§7Item Group
+hei.tooltip.recipe_group=§7Recipe Group
+hei.tooltip.press_alt=§7Press §fALT§7 to see Actions
+hei.tooltip.organizer.1=§6CTRL + LEFT CLICK§7: Move Bookmarks Between Groups
+hei.tooltip.organizer.2=§6UP§r or §6DOWN§7: Move Group Up or Down
+hei.tooltip.organizer.3=§6CTRL + SCROLL§7: Change Final Output
+hei.tooltip.organizer.4=§6%s§7: Autocraft
 hei.tooltip.missing_ingredients=§cMissing Ingredients:
