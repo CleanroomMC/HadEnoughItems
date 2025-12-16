@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class ModIngredientRegistration implements IModIngredientRegistration {
 	private final Map<IIngredientType, Collection> allIngredientsMap = new Reference2ObjectOpenHashMap<>();
-	public static final List<IIngredientType> CRAFTABLE_INGREDIENTS = new ObjectArrayList<>();
+	private final List<IIngredientType> craftableIngredientsMap = new ObjectArrayList<>();
 	private final Map<IIngredientType, IIngredientHelper> ingredientHelperMap = new Reference2ObjectOpenHashMap<>();
 	private final Map<IIngredientType, IIngredientRenderer> ingredientRendererMap = new Reference2ObjectOpenHashMap<>();
 
@@ -37,7 +37,7 @@ public class ModIngredientRegistration implements IModIngredientRegistration {
 
 	@Override
 	public <V> void markAsCraftable(IIngredientType<V> ingredientType) {
-		CRAFTABLE_INGREDIENTS.add(ingredientType);
+		craftableIngredientsMap.add(ingredientType);
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class ModIngredientRegistration implements IModIngredientRegistration {
 			ingredientsMap,
 			ImmutableMap.copyOf(ingredientHelperMap),
 			ImmutableMap.copyOf(ingredientRendererMap),
-			ImmutableList.copyOf(CRAFTABLE_INGREDIENTS)
+			ImmutableList.copyOf(craftableIngredientsMap)
 		);
 	}
 
