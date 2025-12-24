@@ -59,9 +59,6 @@ public class FluidStackRenderer implements IIngredientRenderer<FluidStack> {
 	public void render(Minecraft minecraft, final int xPosition, final int yPosition, @Nullable FluidStack fluidStack) {
 		GlStateManager.enableBlend();
 		GlStateManager.enableAlpha();
-		GlStateManager.disableLighting();
-
-		GlStateManager.color(1, 1, 1, 1);
 
 		drawFluid(minecraft, xPosition, yPosition, fluidStack);
 
@@ -74,7 +71,6 @@ public class FluidStackRenderer implements IIngredientRenderer<FluidStack> {
 			GlStateManager.popMatrix();
 		}
 
-		GlStateManager.enableLighting();
 		GlStateManager.disableAlpha();
 		GlStateManager.disableBlend();
 	}
