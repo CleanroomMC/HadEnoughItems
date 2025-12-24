@@ -18,6 +18,7 @@ import mezz.jei.render.IngredientListSlot;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
@@ -113,6 +114,8 @@ public class BookmarkGroupOrganizer {
         GuiScreen.drawRect(left, top - 2, groupArea.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH, top, color);
         // Rectangle 3: a rectangle pointing right from the bottom edge of the group area
         GuiScreen.drawRect(left, bottom, groupArea.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH, bottom + 2, color);
+
+        GlStateManager.color(1, 1, 1, 1);
     }
 
     public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
