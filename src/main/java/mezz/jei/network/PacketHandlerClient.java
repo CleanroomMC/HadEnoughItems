@@ -45,15 +45,15 @@ public class PacketHandlerClient extends PacketHandler {
 	private static void checkThreadAndEnqueue(final IPacketJeiHandler packetHandler, final PacketBuffer packetBuffer, @Nullable IThreadListener threadListener) {
 		if (threadListener != null && !threadListener.isCallingFromMinecraftThread()) {
 			threadListener.addScheduledTask(() -> {
-				EntityPlayer player = Minecraft.getMinecraft().player;
-				if (player != null) {
-					try {
+				try {
+					EntityPlayer player = Minecraft.getMinecraft().player;
+					if (player != null) {
 						packetHandler.readPacketData(packetBuffer, player);
-					} catch (IOException e) {
-						Log.get().error("Network Error", e);
-					} finally {
-						packetBuffer.release();
 					}
+				} catch (IOException e) {
+					Log.get().error("Network Error", e);
+				} finally {
+					packetBuffer.release();
 				}
 			});
 		}
