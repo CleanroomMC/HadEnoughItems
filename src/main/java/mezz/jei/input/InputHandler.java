@@ -289,6 +289,14 @@ public class InputHandler {
         }
 
         if (!isContainerTextFieldFocused()) {
+            if (KeyBindings.toggleOverlay.isActiveAndMatches(eventKey)) {
+                Config.toggleOverlayEnabled();
+                return true;
+            }
+            if (KeyBindings.toggleBookmarkOverlay.isActiveAndMatches(eventKey)) {
+                Config.toggleBookmarkEnabled();
+                return true;
+            }
             if (handleFocusKeybinds(eventKey)) {
                 return true;
             }
@@ -299,14 +307,6 @@ public class InputHandler {
     }
 
     private boolean handleGlobalKeybinds(int eventKey) {
-        if (KeyBindings.toggleOverlay.isActiveAndMatches(eventKey)) {
-            Config.toggleOverlayEnabled();
-            return false;
-        }
-        if (KeyBindings.toggleBookmarkOverlay.isActiveAndMatches(eventKey)) {
-            Config.toggleBookmarkEnabled();
-            return false;
-        }
         return ingredientListOverlay.onGlobalKeyPressed(eventKey);
     }
 
