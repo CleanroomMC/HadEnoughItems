@@ -2,9 +2,13 @@ package mezz.jei.startup;
 
 import javax.annotation.Nullable;
 
+import mezz.jei.transfer.BasicRecipeTransferHandlerServer;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -21,6 +25,8 @@ public class ProxyCommon {
 		PacketHandler packetHandler = new PacketHandler();
 		channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(PacketHandler.CHANNEL_ID);
 		channel.register(packetHandler);
+
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	public void init(FMLInitializationEvent event) {
@@ -40,4 +46,10 @@ public class ProxyCommon {
 			channel.sendTo(packet.getPacket(), player);
 		}
 	}
+
+	@SubscribeEvent
+	public void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
+		BasicRecipeTransferHandlerServer.itemsCrafted += event.crafting.getCount();
+	}
+
 }
