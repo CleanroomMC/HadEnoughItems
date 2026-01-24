@@ -465,17 +465,15 @@ public final class Config {
 		}
 
 		ConfigCategory searchCategory = config.getCategory(CATEGORY_SEARCH);
-		searchCategory.remove("atPrefixRequiredForModName");
-		searchCategory.remove("prefixRequiredForTooltipSearch");
-		searchCategory.remove("prefixRequiredForOreDictSearch");
-		searchCategory.remove("prefixRequiredForCreativeTabSearch");
-		searchCategory.remove("prefixRequiredForColorSearch");
-
 		SearchMode[] searchModes = SearchMode.values();
-
 		String loadedConfigVersion = config.getLoadedConfigVersion();
-		// set new defaults moving to config version 0.3.0
+		// set new defaults, remove old entries when moving to config version 0.3.0
 		if (loadedConfigVersion != null && versionCompare(loadedConfigVersion, "0.3.0") < 0) {
+			searchCategory.remove("atPrefixRequiredForModName");
+			searchCategory.remove("prefixRequiredForTooltipSearch");
+			searchCategory.remove("prefixRequiredForOreDictSearch");
+			searchCategory.remove("prefixRequiredForCreativeTabSearch");
+			searchCategory.remove("prefixRequiredForColorSearch");
 			config.setEnum("creativeTabSearchMode", CATEGORY_SEARCH, defaultValues.creativeTabSearchMode, searchModes);
 			config.setEnum("oreDictSearchMode", CATEGORY_SEARCH, defaultValues.oreDictSearchMode, searchModes);
 		}
