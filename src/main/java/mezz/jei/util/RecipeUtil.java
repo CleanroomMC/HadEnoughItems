@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * @since 4.30.0
+ */
 public final class RecipeUtil {
     private RecipeUtil() {
 
