@@ -1,115 +1,153 @@
 package mezz.jei.util;
 
+import com.google.common.base.Preconditions;
 import mezz.jei.Internal;
 import mezz.jei.api.IRecipeRegistry;
-import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.api.recipe.wrapper.ICraftingRecipeWrapper;
 import mezz.jei.gui.Focus;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
+ * Utilities to query recipes in vanilla or any mod that supports HEI's recipe framework.
+ * This way is consistently faster than querying via {@link ForgeRegistries#RECIPES}.
+ *
  * @since 4.30.0
  */
 public final class RecipeUtil {
+
+    private static final IRecipeRegistry recipeRegistry = Internal.getRuntime().getRecipeRegistry();
+
     private RecipeUtil() {
-
     }
 
-    /**
-     * Gets all crafting recipes with HEI's internal recipes cache, with the matching output
-     *
-     * @param  output                       output ingredient of the crafting recipes
-     * @return                              crafting recipes that matches and has the output ingredient
-     * @throws IllegalArgumentException     when the ingredient is not supported by HEI
-     */
-    public static <V> List<IRecipeWrapper> getCraftingRecipesWithOutput(V output) throws IllegalArgumentException {
-        return getRecipesWithOutput(output, ICraftingRecipeWrapper.class::isInstance);
+    public static Query query() {
+        return new Query();
     }
 
-    /**
-     * Gets all  recipes with HEI's internal recipes cache, with the matching output
-     *
-     * @param  output                       output ingredient of the crafting recipes
-     * @param  predicate                    filter for what type of recipe wrapper to match
-     * @return                              crafting recipes that matches and has the output ingredient
-     * @throws IllegalArgumentException     when the ingredient is not supported by HEI
-     */
-    public static <V> List<IRecipeWrapper> getRecipesWithOutput(V output, Predicate<IRecipeWrapper> predicate) throws IllegalArgumentException {
-        return getRecipesWithOutput(output).stream().filter(predicate).collect(Collectors.toList());
+    public static List<IRecipeWrapper> query(Consumer<Query> consumer) throws IllegalArgumentException {
+        Query query = new Query();
+        consumer.accept(query);
+        return query.result();
     }
 
-    /**
-     * Gets all recipes with HEI's internal recipes cache, with the matching output
-     *
-     * @param  output                       output ingredient of the recipes
-     * @return                              recipes that matches and has the output ingredient
-     * @throws IllegalArgumentException     when the ingredient is not supported by HEI
-     */
-    public static <V> List<IRecipeWrapper> getRecipesWithOutput(V output) throws IllegalArgumentException {
-        return getRecipesWithFocus(output, IFocus.Mode.OUTPUT);
-    }
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static class Query {
 
-    /**
-     * Gets all recipes with HEI's internal recipes cache, with the matching input
-     * Beware: this can be multiple times slower than {@link RecipeUtil#getRecipesWithOutput} variants
-     *
-     * @param  input                        input ingredient of the recipes
-     * @return                              crafting recipes that matches and has the input ingredient
-     * @throws IllegalArgumentException     when the ingredient is not supported by HEI
-     */
-    public static <V> List<IRecipeWrapper> getCraftingRecipesWithInput(V input) throws IllegalArgumentException {
-        return getRecipesWithInput(input, ICraftingRecipeWrapper.class::isInstance);
-    }
+        private final List inputs = new ArrayList<>();
+        private final List outputs = new ArrayList<>();
 
-    /**
-     * Gets all recipes with HEI's internal recipes cache, with the matching input
-     * Beware: this can be multiple times slower than {@link RecipeUtil#getRecipesWithOutput} variants
-     *
-     * @param  input                        input ingredient of the recipes
-     * @param  predicate                    filter for what type of recipe wrapper to match
-     * @return                              recipes that matches and has the input ingredient
-     * @throws IllegalArgumentException     when the ingredient is not supported by HEI
-     */
-    public static <V> List<IRecipeWrapper> getRecipesWithInput(V input, Predicate<IRecipeWrapper> predicate) throws IllegalArgumentException {
-        return getRecipesWithInput(input).stream().filter(predicate).collect(Collectors.toList());
-    }
+        @Nullable
+        private Predicate<IRecipeWrapper> recipeConditions;
 
-    /**
-     * Gets all recipes with HEI's internal recipes cache, with the matching input
-     * Beware: this can be multiple times slower than {@link RecipeUtil#getRecipesWithOutput} variants
-     *
-     * @param  input                        input ingredient of the recipes
-     * @return                              recipes that matches and has the input ingredient
-     * @throws IllegalArgumentException     when the ingredient is not supported by HEI
-     */
-    public static <V> List<IRecipeWrapper> getRecipesWithInput(V input) throws IllegalArgumentException {
-        return getRecipesWithFocus(input, IFocus.Mode.INPUT);
-    }
-
-    private static <V> List<IRecipeWrapper> getRecipesWithFocus(V ingredient, IFocus.Mode focusMode) throws IllegalArgumentException {
-        IIngredientHelper<V> helper = Internal.getIngredientRegistry().getIngredientHelper(ingredient);
-        IFocus<?> focus = helper.translateFocus(new Focus<>(focusMode, ingredient), Focus::new);
-
-        IRecipeRegistry recipeRegistry = Internal.getRuntime().getRecipeRegistry();
-        List<IRecipeCategory> recipeCategories = recipeRegistry.getRecipeCategories(focus);
-        if (recipeCategories.isEmpty()) {
-            return Collections.emptyList();
+        public Query input(Object input) {
+            this.inputs.add(input);
+            return this;
         }
 
-        List<IRecipeWrapper> recipes = new ArrayList<>();
-        for (IRecipeCategory<?> category : recipeCategories) {
-            recipes.addAll(recipeRegistry.getRecipeWrappers(category, focus));
+        public Query inputs(Object... inputs) {
+            Collections.addAll(this.inputs, inputs);
+            return this;
         }
 
-        return recipes;
+        public Query inputs(Iterable inputs) {
+            this.inputs.addAll((Collection) inputs);
+            return this;
+        }
+
+        public Query output(Object output) {
+            this.outputs.add(output);
+            return this;
+        }
+
+        public Query outputs(Object... outputs) {
+            Collections.addAll(this.outputs, outputs);
+            return this;
+        }
+
+        public Query outputs(Iterable outputs) {
+            this.outputs.addAll((Collection) outputs);
+            return this;
+        }
+
+        public Query vanillaCraftingOnly() {
+            return condition(recipe -> recipe instanceof ICraftingRecipeWrapper);
+        }
+
+        public Query condition(Predicate<IRecipeWrapper> condition) {
+            if (this.recipeConditions == null) {
+                this.recipeConditions = condition;
+            } else {
+                this.recipeConditions = this.recipeConditions.and(condition);
+            }
+            return this;
+        }
+
+        public List<IRecipeWrapper> result() throws IllegalArgumentException {
+            Preconditions.checkArgument(!this.inputs.isEmpty() || !this.outputs.isEmpty(),
+                    "Both inputs and outputs were empty when querying for recipes, that is not allowed");
+
+            Set<IRecipeWrapper> recipes = new HashSet<>();
+            MutableFocus focus = new MutableFocus();
+
+            focus.setMode(IFocus.Mode.INPUT);
+            for (Object input : this.inputs) {
+                focus.setValue(input);
+                for (IRecipeCategory category : recipeRegistry.getRecipeCategories(focus)) {
+                    recipes.addAll(recipeRegistry.getRecipeWrappers(category, focus));
+                }
+            }
+
+            focus.setMode(IFocus.Mode.OUTPUT);
+            for (Object output : this.outputs) {
+                focus.setValue(output);
+                for (IRecipeCategory category : recipeRegistry.getRecipeCategories(focus)) {
+                    recipes.addAll(recipeRegistry.getRecipeWrappers(category, focus));
+                }
+            }
+
+            if (this.recipeConditions != null) {
+                recipes.removeIf(wrapper -> !this.recipeConditions.test(wrapper));
+            }
+            return new ArrayList<>(recipes);
+        }
+
+    }
+
+    private static class MutableFocus extends Focus<Object> {
+
+        private Mode mode;
+        private Object value;
+
+        private MutableFocus() {
+            super();
+        }
+
+        public void setMode(Mode mode) {
+            this.mode = mode;
+        }
+
+        public void setValue(Object value) {
+            this.value = Internal.getIngredientRegistry().getIngredientHelper(value).copyIngredient(value);
+        }
+
+        @Override
+        public Mode getMode() {
+            return mode;
+        }
+
+        @Override
+        public Object getValue() {
+            return value;
+        }
+
     }
 
 }
