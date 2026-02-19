@@ -324,4 +324,12 @@ public class BookmarkList implements IIngredientGridSource {
         }
         return false;
     }
+
+    public void swapGroups(int first, int second) {
+        int firstIndex = getBookmarkIndex(first);
+        int secondIndex = getBookmarkIndex(second);
+        Collections.swap(list, firstIndex, secondIndex);
+        notifyListenersOfChange();
+        saveBookmarks();
+    }
 }

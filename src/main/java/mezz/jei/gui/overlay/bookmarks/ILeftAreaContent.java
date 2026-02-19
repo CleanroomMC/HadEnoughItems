@@ -22,5 +22,7 @@ public interface ILeftAreaContent extends IShowsRecipeFocuses, IGhostIngredientD
 
 	boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton);
 
+	boolean handleMouseReleased(int mouseX, int mouseY, int mouseButton);
+
     boolean onKeyPressed(char typedChar, int eventKey);
 }

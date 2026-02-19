@@ -133,14 +133,22 @@ public class InputHandler {
                         clickHandled.add(eventButton);
                     }
                 }
-            } else if (clickHandled.contains(eventButton)) {
-                clickHandled.remove(eventButton);
-                cancelEvent = true;
+            } else {
+                cancelEvent = handleMouseRelease(guiScreen, mouseX, mouseY) && clickHandled.remove(eventButton);
             }
         } else if (Mouse.getEventDWheel() != 0) {
             cancelEvent = handleMouseScroll(Mouse.getEventDWheel(), mouseX, mouseY);
         }
         return cancelEvent;
+    }
+
+    private boolean handleMouseRelease(GuiScreen guiScreen, int mouseX, int mouseY) {
+        final int eventButton = Mouse.getEventButton();
+        if (leftAreaDispatcher.handleMouseReleased(mouseX, mouseY, eventButton)) {
+            return true;
+        }
+
+        return false;
     }
 
     private boolean handleMouseScroll(int dWheel, int mouseX, int mouseY) {
@@ -322,6 +330,7 @@ public class InputHandler {
         for (KeyBind keyBind : KeyBind.values()) {
             if (keyBind.tryMatch(eventKey)) {
                 pressedKey = keyBind;
+                break;
             }
         }
 
@@ -346,7 +355,6 @@ public class InputHandler {
             return false;
         }
 
-        // TODO: Remove for bookmars with ingredients?
         if (bookmarkList.remove(clicked.getValue())) {
             if (bookmarkList.isEmpty() && Config.isBookmarkOverlayEnabled()) {
                 Config.toggleBookmarkEnabled();
