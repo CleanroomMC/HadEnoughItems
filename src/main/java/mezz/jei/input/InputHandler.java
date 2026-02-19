@@ -134,7 +134,7 @@ public class InputHandler {
                     }
                 }
             } else {
-                cancelEvent = handleMouseRelease(guiScreen, mouseX, mouseY) && clickHandled.remove(eventButton);
+                cancelEvent = handleMouseRelease(guiScreen, mouseX, mouseY) || clickHandled.remove(eventButton);
             }
         } else if (Mouse.getEventDWheel() != 0) {
             cancelEvent = handleMouseScroll(Mouse.getEventDWheel(), mouseX, mouseY);
@@ -381,6 +381,10 @@ public class InputHandler {
 
     private boolean showRecipeOrUses(IFocus.Mode mode) {
         IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(MouseHelper.getX(), MouseHelper.getY());
+        if (clicked == null) {
+            return false;
+        }
+
         Object value = clicked.getValue();
         recipesGui.show(new Focus<>(
             mode,

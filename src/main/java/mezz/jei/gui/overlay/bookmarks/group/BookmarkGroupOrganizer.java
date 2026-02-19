@@ -6,6 +6,7 @@ import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.autocrafting.RecipeBookmarkGroup;
 import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.bookmarks.BookmarkGroup;
+import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.config.KeyBindings;
@@ -279,15 +280,52 @@ public class BookmarkGroupOrganizer {
     private void handleGroupDrag(int mouseX, int mouseY) {
         if (dragWholeGroup) {
             int currentGroupId = getGroupForSwap(mouseX, mouseY);
-            if (currentGroupId != -1 && currentGroupId != draggedGroupId) {
-                BookmarkGroupDisplay currentGroup = groups.get(currentGroupId);
-                BookmarkGroupDisplay draggedGroup = groups.get(draggedGroupId);
-                Internal.getBookmarkList().swapGroups(currentGroup.group.id, draggedGroup.group.id);
-
-                draggedGroupId = currentGroupId;
+            if (currentGroupId == -1 || currentGroupId == draggedGroupId) {
+                return;
             }
+
+            BookmarkGroupDisplay currentGroup = groups.get(currentGroupId);
+            BookmarkGroupDisplay draggedGroup = groups.get(draggedGroupId);
+            Internal.getBookmarkList().swapGroups(currentGroup.group.id, draggedGroup.group.id);
+
+            draggedGroupId = currentGroupId;
         } else {
-            // TODO: Expand group by dragging
+            if (groups.size() < 2) {
+                return;
+            }
+
+            int currentGroupId = getGroupIndexAt(mouseX, mouseY);
+            if (currentGroupId == -1 || currentGroupId == draggedGroupId) {
+                return;
+            }
+
+            // only allow groups next to each other to be merged
+            int groupDiff = currentGroupId - draggedGroupId;
+            if (groupDiff > 1 || groupDiff < -1) {
+                return;
+            }
+
+            int deltaY = mouseY - prevMouseY;
+            if (deltaY == 0) {
+                return;
+            }
+ 
+            int sig = Integer.signum(deltaY);
+            BookmarkGroupDisplay currentGroup = groups.get(currentGroupId);                
+            List<BookmarkItem<?>> bookmarks = currentGroup.group.getItems();
+            BookmarkItem<?> itemToMerge = null;
+            for (int idx = sig > 0 ? 0 : bookmarks.size() - 1; idx != -1 && idx < bookmarks.size(); idx += sig) {
+                BookmarkItem<?> candidate = bookmarks.get(idx);
+                if (candidate instanceof RecipeBookmarkItem<?>) {
+                    itemToMerge = candidate;
+                    break;
+                }
+            }
+
+            if (itemToMerge != null) {
+                BookmarkGroupDisplay draggedGroup = groups.get(draggedGroupId);
+                draggedGroup.accept(itemToMerge, sig < 0);
+            }            
         }
     }
 
