@@ -290,42 +290,8 @@ public class BookmarkGroupOrganizer {
 
             draggedGroupId = currentGroupId;
         } else {
-            if (groups.size() < 2) {
-                return;
-            }
-
-            int currentGroupId = getGroupIndexAt(mouseX, mouseY);
-            if (currentGroupId == -1 || currentGroupId == draggedGroupId) {
-                return;
-            }
-
-            // only allow groups next to each other to be merged
-            int groupDiff = currentGroupId - draggedGroupId;
-            if (groupDiff > 1 || groupDiff < -1) {
-                return;
-            }
-
-            int deltaY = mouseY - prevMouseY;
-            if (deltaY == 0) {
-                return;
-            }
- 
-            int sig = Integer.signum(deltaY);
-            BookmarkGroupDisplay currentGroup = groups.get(currentGroupId);                
-            List<BookmarkItem<?>> bookmarks = currentGroup.group.getItems();
-            BookmarkItem<?> itemToMerge = null;
-            for (int idx = sig > 0 ? 0 : bookmarks.size() - 1; idx != -1 && idx < bookmarks.size(); idx += sig) {
-                BookmarkItem<?> candidate = bookmarks.get(idx);
-                if (candidate instanceof RecipeBookmarkItem<?>) {
-                    itemToMerge = candidate;
-                    break;
-                }
-            }
-
-            if (itemToMerge != null) {
-                BookmarkGroupDisplay draggedGroup = groups.get(draggedGroupId);
-                draggedGroup.accept(itemToMerge, sig < 0);
-            }            
+            // TODO: Handle group extension by dragging. 
+            // For partial/broken implementation refer to commit 529ee9599efd1f2e964106ec32da364b88b7e13f
         }
     }
 
