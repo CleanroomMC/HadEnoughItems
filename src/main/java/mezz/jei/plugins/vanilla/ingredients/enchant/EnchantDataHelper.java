@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.awt.Color;
 
 import net.minecraft.enchantment.EnchantmentData;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -41,7 +42,10 @@ public class EnchantDataHelper implements IIngredientHelper<EnchantmentData> {
 
 	@Override
 	public String getDisplayName(EnchantmentData ingredient) {
-		return ingredient.enchantment.getTranslatedName(ingredient.enchantmentLevel);
+		// Prefix with the item's localized name so that searching "enchanted" (or "book")
+		// finds all enchanted-book entries via the NO_PREFIX search tree.
+		String itemName = new ItemStack(Items.ENCHANTED_BOOK).getDisplayName();
+		return itemName + " - " + ingredient.enchantment.getTranslatedName(ingredient.enchantmentLevel);
 	}
 
 	@Override
