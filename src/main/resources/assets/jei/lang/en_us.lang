@@ -186,6 +186,11 @@ config.jei.misc.hideBottomRightCornerConfigButton.comment=Whether to hide the bo
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Hide Bottom-Left Corner Bookmark Button
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Whether to hide the bottom-left corner bookmark button
 
+config.jei.collapsible=Collapsible Groups
+config.jei.collapsible.comment=Options for collapsing groups of ingredients into a single slot in the ingredient list.
+config.jei.collapsible.collapsibleGroupsEnabled=Enable Collapsible Groups
+config.jei.collapsible.collapsibleGroupsEnabled.comment=When enabled, groups of related ingredients (potions, enchanted books, etc.) are collapsed into a single slot. Alt+Click a group to expand or collapse it.
+
 config.jei.category.categoryUidOrder=Category UID Order
 config.jei.category.categoryUidOrder.comment=Determines the display order of recipe categories in HEI. Categories listed earlier appear first in the HEI interface.
 

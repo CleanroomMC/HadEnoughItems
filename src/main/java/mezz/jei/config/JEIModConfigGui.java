@@ -52,16 +52,31 @@ public class JEIModConfigGui extends GuiConfig {
 	private static List<IConfigElement> getConfigElements() {
 		List<IConfigElement> configElements = new ArrayList<>();
 
+		LocalizedConfiguration config = Config.getConfig();
+
 		if (Minecraft.getMinecraft().world != null) {
 			Configuration worldConfig = Config.getWorldConfig();
 			if (worldConfig != null) {
 				NetworkManager networkManager = FMLClientHandler.instance().getClientToServerNetworkManager();
 				ConfigCategory categoryWorldConfig = worldConfig.getCategory(ServerInfo.getWorldUid(networkManager));
-				configElements.addAll(new ConfigElement(categoryWorldConfig).getChildElements());
+				List<IConfigElement> worldElements = new ConfigElement(categoryWorldConfig).getChildElements();
+
+				// Find the "Hide Ingredients Mode" entry and insert Collapsible Groups submenu immediately after it
+				int insertAt = worldElements.size();
+				for (int i = 0; i < worldElements.size(); i++) {
+					if ("config.jei.mode.editEnabled".equals(worldElements.get(i).getLanguageKey())) {
+						insertAt = i + 1;
+						break;
+					}
+				}
+				configElements.addAll(worldElements.subList(0, insertAt));
+				if (config != null) {
+					configElements.add(new ConfigElement(config.getCategory(Config.CATEGORY_COLLAPSIBLE)));
+				}
+				configElements.addAll(worldElements.subList(insertAt, worldElements.size()));
 			}
 		}
 
-		LocalizedConfiguration config = Config.getConfig();
 		if (config != null) {
 			ConfigCategory categoryAdvanced = config.getCategory(Config.CATEGORY_ADVANCED);
 			configElements.addAll(new ConfigElement(categoryAdvanced).getChildElements());
@@ -71,6 +86,11 @@ public class JEIModConfigGui extends GuiConfig {
 
 			ConfigCategory categoryMisc = config.getCategory(Config.CATEGORY_MISC);
 			configElements.addAll(new ConfigElement(categoryMisc).getChildElements());
+
+			// If we never had a world config section (world == null), show Collapsible Groups here instead
+			if (Minecraft.getMinecraft().world == null) {
+				configElements.add(new ConfigElement(config.getCategory(Config.CATEGORY_COLLAPSIBLE)));
+			}
 
 			ConfigCategory categorySearch = config.getCategory(Config.CATEGORY_SEARCH);
 			configElements.add(new ConfigElement(categorySearch));
