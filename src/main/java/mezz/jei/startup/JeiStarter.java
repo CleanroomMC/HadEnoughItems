@@ -35,7 +35,6 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.LoggedTimer;
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraftforge.fml.common.ProgressManager;
 
@@ -350,8 +349,11 @@ public class JeiStarter {
 
 	private static void registerDefaultCollapsibleGroups() {
 		CollapsibleEntryRegistry registry = Internal.getCollapsibleEntryRegistry();
-		registry.group("enchanted_books", "Enchanted Books",
-			stack -> stack.getItem() instanceof ItemEnchantedBook);
+		// Enchanted books in JEI are stored as EnchantmentData (VanillaTypes.ENCHANT),
+		// not as ItemStacks — IngredientRegistry strips them from the ItemStack list.
+		// Match all EnchantmentData directly; every EnchantmentData IS an enchanted book.
+		registry.groupForType("enchanted_books", "Enchanted Books",
+			ingredient -> ingredient instanceof net.minecraft.enchantment.EnchantmentData);
 		registry.group("potions", "Potions",
 			stack -> stack.getItem() == Items.POTIONITEM);
 		registry.group("splash_potions", "Splash Potions",

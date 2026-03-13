@@ -36,12 +36,27 @@ public class CollapsibleEntryRegistry {
 	}
 
 	/**
-	 * Register a collapsible group with a predicate matcher.
-	 * @param id unique identifier for the group
+	 * Register a collapsible group whose membership is determined by an ItemStack predicate.
+	 * Non-ItemStack ingredients are automatically excluded.
+	 *
+	 * @param id          unique identifier for the group
 	 * @param displayName localized display name
-	 * @param matcher predicate that returns true for ItemStacks belonging to this group
+	 * @param matcher     predicate that returns true for ItemStacks belonging to this group
 	 */
 	public void group(String id, String displayName, Predicate<ItemStack> matcher) {
+		entries.put(id, CollapsibleEntry.ofItemStack(id, displayName, matcher));
+	}
+
+	/**
+	 * Register a collapsible group whose membership is determined by a predicate on the
+	 * raw ingredient object. Use this when the ingredients are not ItemStacks
+	 * (e.g. EnchantmentData for enchanted books).
+	 *
+	 * @param id          unique identifier for the group
+	 * @param displayName localized display name
+	 * @param matcher     predicate on the raw ingredient object
+	 */
+	public void groupForType(String id, String displayName, Predicate<Object> matcher) {
 		entries.put(id, new CollapsibleEntry(id, displayName, matcher));
 	}
 
@@ -90,7 +105,9 @@ public class CollapsibleEntryRegistry {
 				continue;
 			}
 			Set<String> uidSet = new HashSet<>(group.itemUids);
-			Predicate<ItemStack> matcher = stack -> {
+			String displayName = group.displayName != null ? group.displayName : group.id;
+			// Custom groups only ever contain ItemStacks identified by UID.
+			customEntries.add(CollapsibleEntry.ofItemStack(group.id, displayName, stack -> {
 				try {
 					StackHelper stackHelper = Internal.getStackHelper();
 					String uid = stackHelper.getUniqueIdentifierForStack(stack);
@@ -98,9 +115,7 @@ public class CollapsibleEntryRegistry {
 				} catch (Exception e) {
 					return false;
 				}
-			};
-			String displayName = group.displayName != null ? group.displayName : group.id;
-			customEntries.add(new CollapsibleEntry(group.id, displayName, matcher));
+			}));
 		}
 		Log.get().debug("Loaded {} custom collapsible groups", customEntries.size());
 	}
