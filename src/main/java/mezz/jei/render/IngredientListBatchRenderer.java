@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.api.ingredients.ISlowRenderItem;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.ingredients.CollapsedStack;
 import mezz.jei.input.ClickedIngredient;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
@@ -19,9 +20,15 @@ import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 
+import net.minecraft.client.gui.Gui;
+
 import javax.annotation.Nullable;
+import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_HEIGHT;
@@ -33,6 +40,11 @@ public class IngredientListBatchRenderer {
     protected final List<ItemStackFastRenderer> renderItems2d = new ArrayList<>();
     protected final List<ItemStackFastRenderer> renderItems3d = new ArrayList<>();
     protected final List<IngredientRenderer> renderOther = new ArrayList<>();
+    protected final List<CollapsedStackRenderer> renderCollapsed = new ArrayList<>();
+    protected final Map<Integer, CollapsedStack> collapsedStackIndexed = new HashMap<>();
+    protected final Map<IIngredientListElement<?>, CollapsedStack> expandedElementToGroup = new HashMap<>();
+    // Per-group list of individual slot rectangles (used for per-slot fill + edge-detection border).
+    protected final Map<CollapsedStack, List<Rectangle>> expandedGroupSlots = new HashMap<>();
 
     @Nullable
     private Framebuffer framebuffer = null;
@@ -59,6 +71,10 @@ public class IngredientListBatchRenderer {
         renderItems2d.clear();
         renderItems3d.clear();
         renderOther.clear();
+        renderCollapsed.clear();
+        collapsedStackIndexed.clear();
+        expandedElementToGroup.clear();
+        expandedGroupSlots.clear();
         size = 0;
         maxSize = 0;
 
@@ -83,6 +99,10 @@ public class IngredientListBatchRenderer {
         renderItems2d.clear();
         renderItems3d.clear();
         renderOther.clear();
+        renderCollapsed.clear();
+        collapsedStackIndexed.clear();
+        expandedElementToGroup.clear();
+        expandedGroupSlots.clear();
         maxSize = 0;
         size = 0;
 
@@ -108,6 +128,91 @@ public class IngredientListBatchRenderer {
                 set(ingredientListSlot, element);
                 size++;
                 i++;
+            }
+        }
+
+        invalidateBuffer();
+    }
+
+    /**
+     * Sets the grid contents from a collapsed ingredient list (mixed IIngredientListElement and CollapsedStack objects).
+     * Collapsed groups are rendered as a single slot; expanded groups have their items rendered individually.
+     */
+    public void setCollapsed(final int startIndex, List<Object> collapsedList) {
+        renderItems2d.clear();
+        renderItems3d.clear();
+        renderOther.clear();
+        renderCollapsed.clear();
+        collapsedStackIndexed.clear();
+        expandedElementToGroup.clear();
+        expandedGroupSlots.clear();
+        maxSize = 0;
+        size = 0;
+
+        for (List<IngredientListSlot> row : slots) {
+            for (IngredientListSlot slot : row) {
+                slot.clear();
+            }
+        }
+
+        // Flatten the ENTIRE collapsed list into display items first, then slice at startIndex.
+        // This ensures expanded groups don't break pagination — firstItemIndex is an index into
+        // the flattened view, which matches what collapsedSize() now returns.
+        List<Object> displayItems = new ArrayList<>();
+        Map<Object, CollapsedStack> itemToCollapsed = new HashMap<>();
+        for (Object obj : collapsedList) {
+            if (obj instanceof CollapsedStack) {
+                CollapsedStack collapsed = (CollapsedStack) obj;
+                if (collapsed.isExpanded()) {
+                    // Expanded: add each ingredient individually, track which belong to this group
+                    for (IIngredientListElement<?> element : collapsed.getIngredients()) {
+                        displayItems.add(element);
+                        itemToCollapsed.put(element, collapsed);
+                    }
+                } else {
+                    // Collapsed: add the CollapsedStack itself as a single display item
+                    displayItems.add(collapsed);
+                }
+            } else {
+                displayItems.add(obj);
+            }
+        }
+
+        int i = startIndex;
+        int slotIndex = 0;
+        for (List<IngredientListSlot> row : slots) {
+            maxSize += (int) row.stream().filter(IngredientListSlot::isFree).count();
+            for (int column = 0; column < row.size(); column++) {
+                if (i >= displayItems.size()) {
+                    break;
+                }
+                IngredientListSlot ingredientListSlot = row.get(column);
+                if (ingredientListSlot.isBlocked()) {
+                    slotIndex++;
+                    continue;
+                }
+                Object displayItem = displayItems.get(i);
+                if (displayItem instanceof CollapsedStack) {
+                    CollapsedStack collapsed = (CollapsedStack) displayItem;
+                    CollapsedStackRenderer renderer = new CollapsedStackRenderer(collapsed);
+                    renderer.setArea(ingredientListSlot.getArea());
+                    renderer.setPadding(1);
+                    renderCollapsed.add(renderer);
+                    collapsedStackIndexed.put(slotIndex, collapsed);
+                } else if (displayItem instanceof IIngredientListElement) {
+                    IIngredientListElement<?> element = (IIngredientListElement<?>) displayItem;
+                    set(ingredientListSlot, element);
+                    CollapsedStack parentCollapsed = itemToCollapsed.get(element);
+                    if (parentCollapsed != null) {
+                        collapsedStackIndexed.put(slotIndex, parentCollapsed);
+                        expandedElementToGroup.put(element, parentCollapsed);
+                        expandedGroupSlots.computeIfAbsent(parentCollapsed, k -> new ArrayList<>())
+                            .add(new Rectangle(ingredientListSlot.getArea()));
+                    }
+                }
+                size++;
+                i++;
+                slotIndex++;
             }
         }
 
@@ -191,6 +296,11 @@ public class IngredientListBatchRenderer {
 
     @Nullable
     public ClickedIngredient<?> getIngredientUnderMouse(int mouseX, int mouseY) {
+        // Check collapsed renderers first
+        CollapsedStackRenderer collapsedHovered = getHoveredCollapsed(mouseX, mouseY);
+        if (collapsedHovered != null) {
+            return collapsedHovered.getClickedIngredient();
+        }
         IngredientRenderer hovered = getHovered(mouseX, mouseY);
         if (hovered != null) {
             IIngredientListElement element = hovered.getElement();
@@ -206,6 +316,64 @@ public class IngredientListBatchRenderer {
                 if (slot.isMouseOver(mouseX, mouseY))
                     return slot.getIngredientRenderer();
         return null;
+    }
+
+    @Nullable
+    public CollapsedStack getExpandedCollapsedGroupAt(int mouseX, int mouseY) {
+        IngredientRenderer hovered = getHovered(mouseX, mouseY);
+        if (hovered == null) return null;
+        return expandedElementToGroup.get(hovered.getElement());
+    }
+
+    public void renderExpandedGroupOutlines() {
+        if (expandedGroupSlots.isEmpty()) return;
+        GlStateManager.disableLighting();
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(
+            GlStateManager.SourceFactor.SRC_ALPHA,
+            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+            GlStateManager.SourceFactor.ONE,
+            GlStateManager.DestFactor.ZERO
+        );
+        int bgColor = 0x33555555;     // subtle smoke background
+        int borderColor = 0xCC888888; // medium smoke border
+        for (List<Rectangle> slots : expandedGroupSlots.values()) {
+            // Build a fast lookup set keyed by "x,y" to detect adjacent group slots.
+            java.util.Set<String> keys = new java.util.HashSet<>();
+            for (Rectangle r : slots) keys.add(r.x + "," + r.y);
+            for (Rectangle r : slots) {
+                // Subtle background fill over each slot
+                Gui.drawRect(r.x, r.y, r.x + r.width, r.y + r.height, bgColor);
+                // Draw only the edges that are NOT shared with another group slot
+                if (!keys.contains(r.x + "," + (r.y - INGREDIENT_HEIGHT))) {
+                    Gui.drawRect(r.x, r.y, r.x + r.width, r.y + 1, borderColor); // top
+                }
+                if (!keys.contains(r.x + "," + (r.y + INGREDIENT_HEIGHT))) {
+                    Gui.drawRect(r.x, r.y + r.height - 1, r.x + r.width, r.y + r.height, borderColor); // bottom
+                }
+                if (!keys.contains((r.x - INGREDIENT_WIDTH) + "," + r.y)) {
+                    Gui.drawRect(r.x, r.y, r.x + 1, r.y + r.height, borderColor); // left
+                }
+                if (!keys.contains((r.x + INGREDIENT_WIDTH) + "," + r.y)) {
+                    Gui.drawRect(r.x + r.width - 1, r.y, r.x + r.width, r.y + r.height, borderColor); // right
+                }
+            }
+        }
+        GlStateManager.disableBlend();
+    }
+
+    @Nullable
+    public CollapsedStackRenderer getHoveredCollapsed(int mouseX, int mouseY) {
+        for (CollapsedStackRenderer renderer : renderCollapsed) {
+            if (renderer.isMouseOver(mouseX, mouseY)) {
+                return renderer;
+            }
+        }
+        return null;
+    }
+
+    public Map<Integer, CollapsedStack> getCollapsedStackIndexed() {
+        return collapsedStackIndexed;
     }
 
     public void render(Minecraft minecraft) {
@@ -308,6 +476,11 @@ public class IngredientListBatchRenderer {
         // other rendering
         for (IngredientRenderer slot : renderOther) {
             slot.renderSlow();
+        }
+
+        // collapsed group rendering
+        for (CollapsedStackRenderer collapsed : renderCollapsed) {
+            collapsed.render(minecraft);
         }
 
         RenderHelper.disableStandardItemLighting();

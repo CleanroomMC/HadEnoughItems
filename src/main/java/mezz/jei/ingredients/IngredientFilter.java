@@ -31,10 +31,12 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public static boolean rebuild = false;
 
 	private final List<IIngredientGridSource.Listener> listeners = new ArrayList<>();
+	private final List<Runnable> collapsedStateListeners = new ArrayList<>();
 
 	private IngredientBlacklistInternal blacklist;
 	private IElementSearch elementSearch;
 	private List<IIngredientListElement> ingredientListCached = Collections.emptyList();
+	private List<Object> collapsedListCached = Collections.emptyList();
 	@Nullable private String filterCached;
 
 	private boolean afterBlock = false;
@@ -170,9 +172,31 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		if (!filterText.equals(filterCached)) {
 			List<IIngredientListElement<?>> ingredientList = getIngredientListUncached(filterText);
 			ingredientListCached = Collections.unmodifiableList(ingredientList);
+			collapsedListCached = collapse(ingredientListCached);
 			filterCached = filterText;
 		}
 		return ingredientListCached;
+	}
+
+	@Override
+	public List<Object> getCollapsedIngredientList() {
+		getIngredientList(); // ensure cache is populated
+		return collapsedListCached;
+	}
+
+	@Override
+	public int collapsedSize() {
+		List<Object> collapsed = getCollapsedIngredientList();
+		int count = 0;
+		for (Object obj : collapsed) {
+			if (obj instanceof CollapsedStack) {
+				CollapsedStack cs = (CollapsedStack) obj;
+				count += cs.isExpanded() ? cs.size() : 1;
+			} else {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	@Override
@@ -226,6 +250,62 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 				.filter(IIngredientListElement::isVisible)
 				.sorted(IngredientListElementComparator.INSTANCE)
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Converts a flat filtered ingredient list into a mixed list containing
+	 * both individual IIngredientListElement objects and CollapsedStack groups.
+	 * Each ingredient is assigned to the first matching CollapsibleEntry (first match wins).
+	 * If collapsible groups are disabled, returns the original list cast to List&lt;Object&gt;.
+	 */
+	private List<Object> collapse(List<IIngredientListElement> ingredientList) {
+		if (!Config.isCollapsibleGroupsEnabled()) {
+			return new ArrayList<>(ingredientList);
+		}
+		CollapsibleEntryRegistry registry = CollapsibleEntryRegistry.getInstance();
+		Collection<CollapsibleEntry> entries = registry.getEntries();
+		if (entries.isEmpty()) {
+			return new ArrayList<>(ingredientList);
+		}
+
+		// Build the list of active entries (not disabled)
+		List<CollapsibleEntry> activeEntries = new ArrayList<>();
+		for (CollapsibleEntry entry : entries) {
+			if (registry.isGroupEnabled(entry.getId())) {
+				activeEntries.add(entry);
+			}
+		}
+		if (activeEntries.isEmpty()) {
+			return new ArrayList<>(ingredientList);
+		}
+
+		// Map from entry -> CollapsedStack (created on first match)
+		Map<CollapsibleEntry, CollapsedStack> collapsedMap = new LinkedHashMap<>();
+		List<Object> result = new ArrayList<>(ingredientList.size());
+
+		for (IIngredientListElement<?> element : ingredientList) {
+			boolean matched = false;
+			for (CollapsibleEntry entry : activeEntries) {
+				if (entry.matches(element)) {
+					CollapsedStack collapsed = collapsedMap.get(entry);
+					if (collapsed == null) {
+						collapsed = new CollapsedStack(entry);
+						collapsedMap.put(entry, collapsed);
+						result.add(collapsed);
+					}
+					collapsed.addIngredient(element);
+					matched = true;
+					break; // first match wins
+				}
+			}
+			if (!matched) {
+				result.add(element);
+			}
+		}
+
+		// Remove empty collapsed stacks (shouldn't happen, but be safe)
+		result.removeIf(obj -> obj instanceof CollapsedStack && ((CollapsedStack) obj).isEmpty());
+		return result;
 	}
 
 	/**
@@ -284,11 +364,26 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		listeners.add(listener);
 	}
 
+	public void addCollapsedStateListener(Runnable listener) {
+		collapsedStateListeners.add(listener);
+	}
+
+	/**
+	 * Called when a group is expanded or collapsed. Invalidates the cached collapsed list
+	 * and notifies only collapsed-state listeners (preserves the current page position).
+	 */
+	public void notifyCollapsedStateChanged() {
+		this.filterCached = null;
+		for (Runnable listener : collapsedStateListeners) {
+			listener.run();
+		}
+	}
+
 	public void replaceBlacklist(IngredientBlacklistInternal blacklist) {
 		this.blacklist = blacklist;
 	}
 
-	private void notifyListenersOfChange() {
+	public void notifyListenersOfChange() {
 		for (IIngredientGridSource.Listener listener : listeners) {
 			listener.onChange();
 		}

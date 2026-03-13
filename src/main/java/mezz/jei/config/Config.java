@@ -49,6 +49,7 @@ public final class Config {
 	public static final String CATEGORY_RENDERING = "rendering";
 	public static final String CATEGORY_MISC = "misc";
 	public static final String CATEGORY_CATEGORY = "category";
+	public static final String CATEGORY_COLLAPSIBLE = "collapsible";
 
 	public static final String defaultModNameFormatFriendly = "blue italic";
 	public static final int smallestNumColumns = 4;
@@ -87,6 +88,10 @@ public final class Config {
 	public static boolean isOverlayEnabled() {
 		return values.overlayEnabled ||
 			KeyBindings.toggleOverlay.getKeyCode() == 0; // if there is no key binding to enable it, don't allow the overlay to be disabled
+	}
+
+	public static boolean isCollapsibleGroupsEnabled() {
+		return values.collapsibleGroupsEnabled;
 	}
 
 	public static void toggleOverlayEnabled() {
@@ -448,6 +453,7 @@ public final class Config {
 		config.addCategory(CATEGORY_SEARCH);
 		config.addCategory(CATEGORY_ADVANCED);
 		config.addCategory(CATEGORY_MISC);
+		config.addCategory(CATEGORY_COLLAPSIBLE);
 
 		ConfigCategory modeCategory = config.getCategory("mode");
 		if (modeCategory != null) {
@@ -532,6 +538,8 @@ public final class Config {
 		values.hideBottomRightCornerConfigButton = config.getBoolean(CATEGORY_MISC, "hideBottomRightCornerConfigButton", defaultValues.hideBottomRightCornerConfigButton);
 
         values.hideBottomLeftCornerBookmarkButton = config.getBoolean(CATEGORY_MISC, "hideBottomLeftCornerBookmarkButton", defaultValues.hideBottomLeftCornerBookmarkButton);
+
+		values.collapsibleGroupsEnabled = config.getBoolean(CATEGORY_COLLAPSIBLE, "collapsibleGroupsEnabled", defaultValues.collapsibleGroupsEnabled);
 
 		{
 			Property property = config.get(CATEGORY_ADVANCED, "debugModeEnabled", defaultValues.debugModeEnabled);

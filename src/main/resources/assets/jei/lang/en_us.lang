@@ -22,6 +22,10 @@ jei.tooltip.bookmarks.usage.nokey=Add a key binding for HEI bookmarks in your Co
 jei.tooltip.bookmarks.usage.key=Hover over an ingredient and press "%s" to bookmark it.
 jei.tooltip.bookmarks.not.enough.space=There is not enough space to display bookmarks here.
 
+# Collapsible Groups
+jei.tooltip.collapsed.expand=Alt+Click to expand
+jei.tooltip.collapsed.collapse=Alt+Click to collapse
+
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Missing Items
 jei.tooltip.error.recipe.transfer.inventory.full=Inventory is too full

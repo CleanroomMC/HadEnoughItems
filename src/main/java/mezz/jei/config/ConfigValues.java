@@ -53,4 +53,7 @@ public class ConfigValues {
 
     // category
 	public List<String> categoryUidOrder = new ArrayList<>();
+
+	// collapsible groups
+	public boolean collapsibleGroupsEnabled = true;
 }

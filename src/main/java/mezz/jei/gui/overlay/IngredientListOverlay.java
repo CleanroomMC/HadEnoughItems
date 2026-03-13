@@ -59,6 +59,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 
 		this.contents = new IngredientGridWithNavigation(ingredientFilter, guiScreenHelper, GridAlignment.LEFT);
 		ingredientFilter.addListener(() -> onSetFilterText(Config.getFilterText()));
+		ingredientFilter.addCollapsedStateListener(() -> this.contents.updateLayout(false));
 		this.searchField = new GuiTextFieldFilter(0, ingredientFilter);
 		this.configButton = ConfigButton.create(this);
 		this.ghostIngredientDragManager = dragManager;

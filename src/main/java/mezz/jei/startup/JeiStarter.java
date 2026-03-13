@@ -12,6 +12,7 @@ import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiEventHandler;
+import mezz.jei.ingredients.CollapsibleEntryRegistry;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.ghost.GhostIngredientDragManager;
@@ -33,6 +34,9 @@ import mezz.jei.runtime.SubtypeRegistry;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.LoggedTimer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemEnchantedBook;
+import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraftforge.fml.common.ProgressManager;
 
 import java.util.Iterator;
@@ -96,6 +100,8 @@ public class JeiStarter {
 			Internal.setIngredientFilter(ingredientFilter);
 			timer.stop();
 		}
+
+		registerDefaultCollapsibleGroups();
 
 		BookmarkList bookmarkList = new BookmarkList(ingredientRegistry);
 		Internal.setBookmarkList(bookmarkList);
@@ -334,6 +340,22 @@ public class JeiStarter {
 			}
 			ProgressManager.pop(progressBar);
 		}
+	}
+
+	private static void registerDefaultCollapsibleGroups() {
+		CollapsibleEntryRegistry registry = Internal.getCollapsibleEntryRegistry();
+		registry.group("enchanted_books", "Enchanted Books",
+			stack -> stack.getItem() instanceof ItemEnchantedBook);
+		registry.group("potions", "Potions",
+			stack -> stack.getItem() == Items.POTIONITEM);
+		registry.group("splash_potions", "Splash Potions",
+			stack -> stack.getItem() == Items.SPLASH_POTION);
+		registry.group("lingering_potions", "Lingering Potions",
+			stack -> stack.getItem() == Items.LINGERING_POTION);
+		registry.group("tipped_arrows", "Tipped Arrows",
+			stack -> stack.getItem() == Items.TIPPED_ARROW);
+		registry.group("spawn_eggs", "Spawn Eggs",
+			stack -> stack.getItem() instanceof ItemMonsterPlacer);
 	}
 
 }
