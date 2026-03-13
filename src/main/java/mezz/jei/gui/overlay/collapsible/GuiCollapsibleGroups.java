@@ -63,7 +63,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 
 		// New Group button
 		this.buttonList.add(new GuiButton(BTN_NEW, this.width - 64, 4, 60, 20,
-			"+ " + Translator.translateToLocal("jei.gui.collapsible.newGroup")));
+			Translator.translateToLocal("jei.gui.collapsible.newGroup")));
 
 		rebuildCards();
 		rebuildPageButtons();
@@ -124,14 +124,14 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			String toggleLabel = card.enabled
 				? Translator.translateToLocal("jei.gui.collapsible.enabled")
 				: Translator.translateToLocal("jei.gui.collapsible.disabled");
-			this.buttonList.add(new GuiButton(BTN_TOGGLE_BASE + i, btnX, btnY, 52, 14, toggleLabel));
+			this.buttonList.add(new GuiButton(BTN_TOGGLE_BASE + i, btnX, btnY, 52, 16, toggleLabel));
 
 			if (card.isCustom) {
 				// Configure button
-				this.buttonList.add(new GuiButton(BTN_CONFIGURE_BASE + i, btnX, btnY + 16, 24, 14,
+				this.buttonList.add(new GuiButton(BTN_CONFIGURE_BASE + i, btnX, btnY + 18, 24, 16,
 					"\u270E")); // pencil unicode
 				// Delete button
-				this.buttonList.add(new GuiButton(BTN_DELETE_BASE + i, btnX + 26, btnY + 16, 26, 14,
+				this.buttonList.add(new GuiButton(BTN_DELETE_BASE + i, btnX + 26, btnY + 18, 26, 16,
 					"\u2716")); // cross unicode
 			}
 		}

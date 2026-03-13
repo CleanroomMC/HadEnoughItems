@@ -215,6 +215,7 @@ hei.tooltip.organizer.4=§6%s§7: Autocraft
 jei.gui.collapsible.title=Manage Groups
 jei.gui.collapsible.back=Back
 jei.gui.collapsible.newGroup=New Group
+jei.gui.collapsible.title.tooltip=Enable/Disable built in groups and create user defined groups.
 jei.gui.collapsible.enabled=Enabled
 jei.gui.collapsible.disabled=Disabled
 jei.gui.collapsible.customGroup=Custom

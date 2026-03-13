@@ -19,7 +19,9 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.network.NetworkManager;
+import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 import mezz.jei.JustEnoughItems;
 import mezz.jei.gui.overlay.collapsible.GuiCollapsibleGroups;
@@ -143,15 +145,24 @@ public class JEIModConfigGui extends GuiConfig {
 	 * A CategoryEntry that opens GuiCollapsibleGroups instead of a standard GuiConfig subcategory.
 	 * Constructor signature must match (GuiConfig, GuiConfigEntries, IConfigElement).
 	 */
-	public static class ManageGroupsEntry extends GuiConfigEntries.CategoryEntry {
+	public static class ManageGroupsEntry extends GuiConfigEntries.ButtonEntry {
 		public ManageGroupsEntry(GuiConfig owningScreen, GuiConfigEntries owningEntryList, IConfigElement configElement) {
-			super(owningScreen, owningEntryList, configElement);
+			super(owningScreen, owningEntryList, configElement,
+					new GuiButtonExt(0, owningEntryList.controlX, 0, owningEntryList.controlWidth, 18,
+							I18n.format("jei.gui.collapsible.title")));
 		}
 
-		@Override
-		protected GuiScreen buildChildScreen() {
-			return new GuiCollapsibleGroups(owningScreen);
+		@Override public void    updateValueButtonText() {}
+		@Override public void    valueButtonPressed(int slotIndex) {
+			this.mc.displayGuiScreen(new GuiCollapsibleGroups(this.owningScreen));
 		}
+		@Override public boolean isDefault()        { return true; }
+		@Override public void    setToDefault()      {}
+		@Override public boolean isChanged()         { return false; }
+		@Override public void    undoChanges()        {}
+		@Override public boolean saveConfigElement() { return false; }
+		@Override public Object  getCurrentValue()   { return ""; }
+		@Override public Object[] getCurrentValues() { return new Object[]{ "" }; }
 	}
 
 	/**
