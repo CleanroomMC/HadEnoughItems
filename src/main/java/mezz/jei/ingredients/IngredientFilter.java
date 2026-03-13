@@ -142,6 +142,19 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public void onEditModeToggleEvent(EditModeToggleEvent event) {
 		this.filterCached = null;
 		updateHidden();
+
+		// In Hide Ingredients Mode the user cannot Alt+Click to expand/collapse groups,
+		// so expand all groups when entering edit mode and collapse them on exit.
+		boolean editMode = event.isEditModeEnabled();
+		CollapsibleEntryRegistry registry = mezz.jei.Internal.getCollapsibleEntryRegistry();
+		for (CollapsibleEntry entry : registry.getEntries()) {
+			entry.setExpanded(editMode);
+		}
+		for (CollapsibleEntry entry : registry.getCustomEntries()) {
+			entry.setExpanded(editMode);
+		}
+		this.collapsedListCached = Collections.emptyList();
+		notifyCollapsedStateChanged();
 	}
 
 	public void updateHidden() {
