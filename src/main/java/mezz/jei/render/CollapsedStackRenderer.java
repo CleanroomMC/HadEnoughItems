@@ -9,6 +9,7 @@ import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
@@ -129,26 +130,94 @@ public class CollapsedStackRenderer {
 	}
 
 	public void drawTooltip(Minecraft minecraft, int mouseX, int mouseY) {
-		List<String> tooltip = new ArrayList<>();
-
-		// Group name and count
-		tooltip.add(TextFormatting.GOLD + collapsedStack.getDisplayName() + TextFormatting.GRAY + " (" + collapsedStack.size() + " items)");
-
-		// Show first few item names
 		List<IIngredientListElement<?>> ingredients = collapsedStack.getIngredients();
-		int previewCount = Math.min(ingredients.size(), 5);
-		for (int i = 0; i < previewCount; i++) {
-			tooltip.add(TextFormatting.GRAY + "  " + ingredients.get(i).getDisplayName());
-		}
-		if (ingredients.size() > previewCount) {
-			tooltip.add(TextFormatting.DARK_GRAY + "  ..." + (ingredients.size() - previewCount) + " more");
-		}
+		if (ingredients.isEmpty()) return;
 
-		tooltip.add("");
-		tooltip.add(TextFormatting.YELLOW + Translator.translateToLocal("jei.tooltip.collapsed.expand"));
+		FontRenderer font = minecraft.fontRenderer;
+		final int COLS = 8;
+		final int SLOT = 18; // 16px icon + 1px padding each side
+		final int MAX_VISIBLE = COLS * 2 + 7; // 23 = rows of 8, 8, 7
 
-		FontRenderer fontRenderer = minecraft.fontRenderer;
-		TooltipRenderer.drawHoveringText(minecraft, tooltip, mouseX, mouseY, fontRenderer);
+		int total = ingredients.size();
+		int shown = Math.min(total, MAX_VISIBLE);
+		int overflow = total - shown;
+		int numRows = shown <= COLS ? 1 : shown <= COLS * 2 ? 2 : 3;
+		int gridCols = numRows > 1 ? COLS : shown;
+		int gridW = gridCols * SLOT;
+		int gridH = numRows * SLOT;
+
+		String header = TextFormatting.GOLD + collapsedStack.getDisplayName()
+			+ TextFormatting.GRAY + " (" + total + " items)";
+		String hint = TextFormatting.YELLOW + Translator.translateToLocal("jei.tooltip.collapsed.expand");
+
+		int tw = Math.max(font.getStringWidth(header), gridW);
+		int th = 12 + gridH + 10;
+
+		ScaledResolution sr = new ScaledResolution(minecraft);
+		int tx = mouseX + 12;
+		if (tx + tw + 6 > sr.getScaledWidth()) tx = mouseX - 16 - tw;
+		int ty = mouseY - 12;
+		if (ty + th + 4 > sr.getScaledHeight()) ty = sr.getScaledHeight() - th - 4;
+		if (ty < 4) ty = 4;
+
+		GlStateManager.disableRescaleNormal();
+		RenderHelper.disableStandardItemLighting();
+		GlStateManager.disableLighting();
+		GlStateManager.disableDepth();
+
+		// Draw tooltip background (MC-style dark purple box with gradient border)
+		final int z = 300;
+		int bg = 0xF0100010, bs = 0x505000FF, be = (bs & 0xFEFEFE) >> 1 | (bs & 0xFF000000);
+		GuiUtils.drawGradientRect(z, tx-3, ty-4, tx+tw+3, ty-3, bg, bg);
+		GuiUtils.drawGradientRect(z, tx-3, ty+th+3, tx+tw+3, ty+th+4, bg, bg);
+		GuiUtils.drawGradientRect(z, tx-3, ty-3, tx+tw+3, ty+th+3, bg, bg);
+		GuiUtils.drawGradientRect(z, tx-4, ty-3, tx-3, ty+th+3, bg, bg);
+		GuiUtils.drawGradientRect(z, tx+tw+3, ty-3, tx+tw+4, ty+th+3, bg, bg);
+		GuiUtils.drawGradientRect(z, tx-3, ty-2, tx-2, ty+th+2, bs, be);
+		GuiUtils.drawGradientRect(z, tx+tw+2, ty-2, tx+tw+3, ty+th+2, bs, be);
+		GuiUtils.drawGradientRect(z, tx-3, ty-3, tx+tw+3, ty-2, bs, bs);
+		GuiUtils.drawGradientRect(z, tx-3, ty+th+2, tx+tw+3, ty+th+3, be, be);
+
+		// Title
+		font.drawStringWithShadow(header, tx, ty, -1);
+
+		// Item icon grid
+		int itemsY = ty + 12;
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0.0f, 0.0f, 300.0f);
+		RenderHelper.enableGUIStandardItemLighting();
+		GlStateManager.enableDepth();
+		RenderItem renderItem = minecraft.getRenderItem();
+		for (int i = 0; i < shown; i++) {
+			IIngredientListElement<?> element = ingredients.get(i);
+			int ix = tx + (i % COLS) * SLOT + 1;
+			int iy = itemsY + (i / COLS) * SLOT + 1;
+			Object ing = element.getIngredient();
+			if (ing instanceof ItemStack) {
+				renderItem.renderItemAndEffectIntoGUI((ItemStack) ing, ix, iy);
+			} else {
+				try { renderIngredient(minecraft, ix, iy, element); }
+				catch (RuntimeException | LinkageError ignored) {}
+			}
+		}
+		RenderHelper.disableStandardItemLighting();
+		GlStateManager.popMatrix();
+
+		// "+N" overflow indicator in 8th slot of row 3 (only when there are hidden items)
+		GlStateManager.disableDepth();
+		GlStateManager.disableLighting();
+		if (overflow > 0) {
+			String overStr = "+" + overflow;
+			int ox = tx + 7 * SLOT + 2;
+			int oy = itemsY + 2 * SLOT + (SLOT - 8) / 2 + 1;
+			font.drawStringWithShadow(overStr, ox, oy, 0xAAAAAA);
+		}
+		font.drawStringWithShadow(hint, tx, itemsY + gridH + 2, -1);
+
+		GlStateManager.enableLighting();
+		GlStateManager.enableDepth();
+		RenderHelper.enableStandardItemLighting();
+		GlStateManager.enableRescaleNormal();
 	}
 
 	/**
