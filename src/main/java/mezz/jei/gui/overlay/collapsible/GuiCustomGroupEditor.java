@@ -71,6 +71,11 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	// Cached selected stacks for the right panel
 	private List<ItemStack> selectedStacks = new ArrayList<>();
 
+	// Drag-select state
+	private boolean isDragging = false;
+	private boolean dragAdding = false;
+	@Nullable private String lastDraggedUid = null;
+
 	public GuiCustomGroupEditor(GuiCollapsibleGroups parentScreen, CustomGroupsConfig.CustomGroup group) {
 		this.parentScreen = parentScreen;
 		this.group = group;
@@ -437,7 +442,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			}
 		}
 
-		// Left grid click: toggle item selection
+		// Left grid click: toggle item selection and start drag
 		if (mouseButton == 0 && !filteredItems.isEmpty()) {
 			int startIdx = leftPage * leftItemsPerPage;
 			for (int i = 0; i < leftItemsPerPage && (startIdx + i) < filteredItems.size(); i++) {
@@ -449,7 +454,14 @@ public class GuiCustomGroupEditor extends GuiScreen {
 					IIngredientListElement<?> element = filteredItems.get(startIdx + i);
 					Object ingredient = element.getIngredient();
 					if (ingredient instanceof ItemStack) {
-						toggleSelection((ItemStack) ingredient);
+						ItemStack stack = (ItemStack) ingredient;
+						try {
+							String uid = Internal.getStackHelper().getUniqueIdentifierForStack(stack);
+							dragAdding = !selectedUids.contains(uid);
+							isDragging = true;
+							lastDraggedUid = uid;
+						} catch (Exception ignored) {}
+						toggleSelection(stack);
 					}
 					return;
 				}
@@ -473,6 +485,43 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		}
 
 		super.mouseClicked(mouseX, mouseY, mouseButton);
+	}
+
+	@Override
+	protected void mouseReleased(int mouseX, int mouseY, int state) {
+		super.mouseReleased(mouseX, mouseY, state);
+		isDragging = false;
+		lastDraggedUid = null;
+	}
+
+	@Override
+	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+		if (!isDragging || clickedMouseButton != 0 || filteredItems.isEmpty()) return;
+		int startIdx = leftPage * leftItemsPerPage;
+		for (int i = 0; i < leftItemsPerPage && (startIdx + i) < filteredItems.size(); i++) {
+			int col = i % leftCols;
+			int row = i / leftCols;
+			int x = leftGridX + col * ITEM_SIZE;
+			int y = leftGridY + row * ITEM_SIZE;
+			if (mouseX >= x && mouseX < x + ITEM_SIZE && mouseY >= y && mouseY < y + ITEM_SIZE) {
+				Object ingredient = filteredItems.get(startIdx + i).getIngredient();
+				if (ingredient instanceof ItemStack) {
+					try {
+						String uid = Internal.getStackHelper().getUniqueIdentifierForStack((ItemStack) ingredient);
+						if (!uid.equals(lastDraggedUid)) {
+							lastDraggedUid = uid;
+							if (dragAdding) {
+								if (selectedUids.add(uid)) updateSelectedStacks();
+							} else {
+								if (selectedUids.remove(uid)) updateSelectedStacks();
+							}
+						}
+					} catch (Exception ignored) {}
+				}
+				return;
+			}
+		}
 	}
 
 	private void toggleSelection(ItemStack stack) {

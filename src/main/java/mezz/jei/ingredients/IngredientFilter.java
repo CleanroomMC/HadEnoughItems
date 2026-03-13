@@ -314,7 +314,6 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 					}
 					collapsed.addIngredient(element);
 					matched = true;
-					break; // first match wins
 				}
 			}
 			if (!matched) {
