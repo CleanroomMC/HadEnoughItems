@@ -82,7 +82,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		computeLayout();
 
 		// Back button
-		this.buttonList.add(new GuiButton(BTN_BACK, 4, 4, 60, 20,
+		this.buttonList.add(new GuiButton(BTN_BACK, layoutContentLeft, 4, 60, 20,
 			Translator.translateToLocal("jei.gui.collapsible.back")));
 
 		// New Group button
