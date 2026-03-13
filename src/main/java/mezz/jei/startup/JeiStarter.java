@@ -103,6 +103,12 @@ public class JeiStarter {
 
 		registerDefaultCollapsibleGroups();
 
+		{
+			CollapsibleEntryRegistry registry = Internal.getCollapsibleEntryRegistry();
+			registry.loadCustomGroups();
+			registry.syncDisabledGroups();
+		}
+
 		BookmarkList bookmarkList = new BookmarkList(ingredientRegistry);
 		Internal.setBookmarkList(bookmarkList);
 

@@ -5,7 +5,9 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ConfigValues {
 	// advanced
@@ -56,4 +58,5 @@ public class ConfigValues {
 
 	// collapsible groups
 	public boolean collapsibleGroupsEnabled = true;
+	public Set<String> disabledGroups = new HashSet<>();
 }

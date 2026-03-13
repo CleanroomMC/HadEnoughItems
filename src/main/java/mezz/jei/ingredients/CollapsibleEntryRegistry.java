@@ -1,5 +1,11 @@
 package mezz.jei.ingredients;
 
+import mezz.jei.Internal;
+import mezz.jei.config.Config;
+import mezz.jei.config.CustomGroupsConfig;
+import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.startup.StackHelper;
+import mezz.jei.util.Log;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -15,6 +21,7 @@ public class CollapsibleEntryRegistry {
 	private static CollapsibleEntryRegistry instance;
 
 	private final LinkedHashMap<String, CollapsibleEntry> entries = new LinkedHashMap<>();
+	private final List<CollapsibleEntry> customEntries = new ArrayList<>();
 	private final Set<String> disabledGroups = new HashSet<>();
 
 	public static CollapsibleEntryRegistry getInstance() {
@@ -62,5 +69,54 @@ public class CollapsibleEntryRegistry {
 
 	public boolean isGroupEnabled(String id) {
 		return !disabledGroups.contains(id);
+	}
+
+	public List<CollapsibleEntry> getCustomEntries() {
+		return customEntries;
+	}
+
+	/**
+	 * Load custom collapsible groups from the JSON config.
+	 * Creates CollapsibleEntry objects that match items by their unique identifier.
+	 */
+	public void loadCustomGroups() {
+		customEntries.clear();
+		CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
+		if (customGroupsConfig == null) {
+			return;
+		}
+		for (CustomGroupsConfig.CustomGroup group : customGroupsConfig.getCustomGroups()) {
+			if (group.id == null || group.id.isEmpty() || group.itemUids == null) {
+				continue;
+			}
+			Set<String> uidSet = new HashSet<>(group.itemUids);
+			Predicate<ItemStack> matcher = stack -> {
+				try {
+					StackHelper stackHelper = Internal.getStackHelper();
+					String uid = stackHelper.getUniqueIdentifierForStack(stack);
+					return uidSet.contains(uid);
+				} catch (Exception e) {
+					return false;
+				}
+			};
+			String displayName = group.displayName != null ? group.displayName : group.id;
+			customEntries.add(new CollapsibleEntry(group.id, displayName, matcher));
+		}
+		Log.get().debug("Loaded {} custom collapsible groups", customEntries.size());
+	}
+
+	/**
+	 * Reload custom entries from config. Called after saving changes.
+	 */
+	public void recollectCustomEntries() {
+		loadCustomGroups();
+	}
+
+	/**
+	 * Sync disabled group state from Config values.
+	 */
+	public void syncDisabledGroups() {
+		this.disabledGroups.clear();
+		this.disabledGroups.addAll(Config.getDisabledGroups());
 	}
 }

@@ -66,6 +66,8 @@ public final class Config {
 	@Nullable
 	private static LocalizedConfiguration searchColorsConfig;
 	@Nullable
+	private static CustomGroupsConfig customGroupsConfig;
+	@Nullable
 	private static File bookmarkFile;
 	@Nullable
 	private static File favoriteFile;
@@ -92,6 +94,27 @@ public final class Config {
 
 	public static boolean isCollapsibleGroupsEnabled() {
 		return values.collapsibleGroupsEnabled;
+	}
+
+	@Nullable
+	public static CustomGroupsConfig getCustomGroupsConfig() {
+		return customGroupsConfig;
+	}
+
+	public static Set<String> getDisabledGroups() {
+		return values.disabledGroups;
+	}
+
+	public static void saveDisabledGroups(Set<String> disabledGroups) {
+		values.disabledGroups.clear();
+		values.disabledGroups.addAll(disabledGroups);
+		if (config != null) {
+			Property property = config.get(CATEGORY_COLLAPSIBLE, "disabledGroups", new String[]{});
+			property.set(disabledGroups.toArray(new String[0]));
+			if (config.hasChanged()) {
+				config.save();
+			}
+		}
 	}
 
 	public static void toggleOverlayEnabled() {
@@ -417,6 +440,9 @@ public final class Config {
 		itemBlacklistConfig = new LocalizedConfiguration(configKeyPrefix, itemBlacklistConfigFile, "0.1.0");
 		searchColorsConfig = new LocalizedConfiguration(configKeyPrefix, searchColorsConfigFile, "0.1.0");
 
+		customGroupsConfig = new CustomGroupsConfig(jeiConfigurationDir);
+		customGroupsConfig.load();
+
 		syncConfig();
 		syncItemBlacklistConfig();
 		syncSearchColorsConfig();
@@ -539,7 +565,21 @@ public final class Config {
 
         values.hideBottomLeftCornerBookmarkButton = config.getBoolean(CATEGORY_MISC, "hideBottomLeftCornerBookmarkButton", defaultValues.hideBottomLeftCornerBookmarkButton);
 
-		values.collapsibleGroupsEnabled = config.getBoolean(CATEGORY_COLLAPSIBLE, "collapsibleGroupsEnabled", defaultValues.collapsibleGroupsEnabled);
+		{
+			boolean prev = values.collapsibleGroupsEnabled;
+			values.collapsibleGroupsEnabled = config.getBoolean(CATEGORY_COLLAPSIBLE, "collapsibleGroupsEnabled", defaultValues.collapsibleGroupsEnabled);
+			if (prev != values.collapsibleGroupsEnabled) {
+				needsReload = true;
+			}
+		}
+
+		{
+			String[] disabledGroupsArray = config.getStringList("disabledGroups", CATEGORY_COLLAPSIBLE, new String[]{});
+			Property disabledProp = config.get(CATEGORY_COLLAPSIBLE, "disabledGroups", new String[]{});
+			disabledProp.setShowInGui(false);
+			values.disabledGroups.clear();
+			Collections.addAll(values.disabledGroups, disabledGroupsArray);
+		}
 
 		{
 			Property property = config.get(CATEGORY_ADVANCED, "debugModeEnabled", defaultValues.debugModeEnabled);

@@ -211,4 +211,17 @@ hei.tooltip.organizer.1=§6CTRL + LEFT CLICK§7: Move Bookmarks Between Groups
 hei.tooltip.organizer.2=§6UP§r or §6DOWN§7: Move Group Up or Down
 hei.tooltip.organizer.3=§6CTRL + SCROLL§7: Change Final Output
 hei.tooltip.organizer.4=§6%s§7: Autocraft
+
+jei.gui.collapsible.title=Manage Groups
+jei.gui.collapsible.back=Back
+jei.gui.collapsible.newGroup=New Group
+jei.gui.collapsible.enabled=Enabled
+jei.gui.collapsible.disabled=Disabled
+jei.gui.collapsible.customGroup=Custom
+jei.gui.collapsible.defaultGroup=Default
+jei.gui.collapsible.itemCount=%d items
+jei.gui.collapsible.editor.title=Selected Items
+jei.gui.collapsible.editor.name=Name
+jei.gui.collapsible.editor.save=Save
+jei.gui.collapsible.editor.selected=%d selected
 hei.tooltip.missing_ingredients=§cMissing Ingredients:

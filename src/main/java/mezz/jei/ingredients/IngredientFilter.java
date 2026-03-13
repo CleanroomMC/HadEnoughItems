@@ -264,13 +264,19 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		}
 		CollapsibleEntryRegistry registry = CollapsibleEntryRegistry.getInstance();
 		Collection<CollapsibleEntry> entries = registry.getEntries();
-		if (entries.isEmpty()) {
+		List<CollapsibleEntry> customEntries = registry.getCustomEntries();
+		if (entries.isEmpty() && customEntries.isEmpty()) {
 			return new ArrayList<>(ingredientList);
 		}
 
 		// Build the list of active entries (not disabled)
 		List<CollapsibleEntry> activeEntries = new ArrayList<>();
 		for (CollapsibleEntry entry : entries) {
+			if (registry.isGroupEnabled(entry.getId())) {
+				activeEntries.add(entry);
+			}
+		}
+		for (CollapsibleEntry entry : customEntries) {
 			if (registry.isGroupEnabled(entry.getId())) {
 				activeEntries.add(entry);
 			}
