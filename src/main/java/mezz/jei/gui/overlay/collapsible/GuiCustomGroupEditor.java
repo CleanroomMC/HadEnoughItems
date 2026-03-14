@@ -14,6 +14,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import org.lwjgl.input.Keyboard;
@@ -68,8 +69,8 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	private int rightTotalPages = 1;
 	private int rightItemsPerPage;
 
-	// Cached selected stacks for the right panel
-	private List<ItemStack> selectedStacks = new ArrayList<>();
+	// Cached selected elements for the right panel (any ingredient type)
+	private List<IIngredientListElement<?>> selectedStacks = new ArrayList<>();
 
 	// Drag-select state
 	private boolean isDragging = false;
@@ -144,8 +145,55 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		Keyboard.enableRepeatEvents(false);
 	}
 
-	private void updateFilteredItems() {
-		if (!Internal.hasIngredientFilter()) {
+	/**
+	 * Returns a unique string identifier for any ingredient type, or null if unavailable.
+	 * Uses StackHelper for ItemStacks, and the generic IngredientRegistry helper for everything else
+	 * (e.g. FluidStack via FluidStackHelper.getUniqueId).
+	 */
+	@Nullable
+	private static String getIngredientUid(Object ingredient) {
+		if (ingredient instanceof ItemStack) {
+			ItemStack stack = (ItemStack) ingredient;
+			if (stack.isEmpty()) return null;
+			try {
+				return Internal.getStackHelper().getUniqueIdentifierForStack(stack);
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		try {
+			@SuppressWarnings("unchecked")
+			mezz.jei.api.ingredients.IIngredientHelper<Object> helper =
+					(mezz.jei.api.ingredients.IIngredientHelper<Object>)
+					Internal.getIngredientRegistry().getIngredientHelper(ingredient);
+			return helper.getUniqueId(ingredient);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/** Renders a tooltip for any ingredient type, falling back to ItemStack rendering for items. */
+	@SuppressWarnings("unchecked")
+	private <T> void renderIngredientTooltip(IIngredientListElement<T> element, int mouseX, int mouseY) {
+		try {
+			T ingredient = element.getIngredient();
+			if (ingredient instanceof ItemStack) {
+				renderToolTip((ItemStack) ingredient, mouseX, mouseY);
+				return;
+			}
+			IIngredientRenderer<T> renderer = element.getIngredientRenderer();
+			List<String> tooltip = renderer.getTooltip(this.mc, ingredient,
+					this.mc.gameSettings.advancedItemTooltips
+							? ITooltipFlag.TooltipFlags.ADVANCED
+							: ITooltipFlag.TooltipFlags.NORMAL);
+			if (!tooltip.isEmpty()) {
+				drawHoveringText(tooltip, mouseX, mouseY, renderer.getFontRenderer(this.mc, ingredient));
+			}
+		} catch (Exception ignored) {
+		}
+	}
+
+	private void updateFilteredItems() {		if (!Internal.hasIngredientFilter()) {
 			filteredItems = Collections.emptyList();
 			return;
 		}
@@ -163,23 +211,13 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		if (!Internal.hasIngredientFilter()) {
 			return;
 		}
-		StackHelper stackHelper = Internal.getStackHelper();
 		IngredientFilter filter = Internal.getIngredientFilter();
-		// Get the full ingredient list and find items matching selectedUids
+		// Get the full ingredient list and find elements matching selectedUids (any ingredient type)
 		List<IIngredientListElement> all = filter.getIngredientList("");
 		for (IIngredientListElement<?> element : all) {
-			Object ingredient = element.getIngredient();
-			if (ingredient instanceof ItemStack) {
-				ItemStack stack = (ItemStack) ingredient;
-				if (!stack.isEmpty()) {
-					try {
-						String uid = stackHelper.getUniqueIdentifierForStack(stack);
-						if (selectedUids.contains(uid)) {
-							selectedStacks.add(stack);
-						}
-					} catch (Exception ignored) {
-					}
-				}
+			String uid = getIngredientUid(element.getIngredient());
+			if (uid != null && selectedUids.contains(uid)) {
+				selectedStacks.add(element);
 			}
 		}
 		rightTotalPages = Math.max(1, (selectedStacks.size() + rightItemsPerPage - 1) / rightItemsPerPage);
@@ -296,7 +334,6 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		if (filteredItems.isEmpty()) {
 			return;
 		}
-		StackHelper stackHelper = Internal.getStackHelper();
 		int startIdx = leftPage * leftItemsPerPage;
 
 		RenderHelper.enableGUIStandardItemLighting();
@@ -313,20 +350,15 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			renderIngredient(element, x + 1, y + 1);
 
 			// Green overlay if selected
-			if (ingredient instanceof ItemStack) {
-				try {
-					String uid = stackHelper.getUniqueIdentifierForStack((ItemStack) ingredient);
-					if (selectedUids.contains(uid)) {
-						RenderHelper.disableStandardItemLighting();
-						GlStateManager.disableDepth();
-						GlStateManager.colorMask(true, true, true, false);
-						GuiUtils.drawGradientRect(0, x, y, x + ITEM_SIZE, y + ITEM_SIZE, 0x4000FF00, 0x4000FF00);
-						GlStateManager.colorMask(true, true, true, true);
-						GlStateManager.enableDepth();
-						RenderHelper.enableGUIStandardItemLighting();
-					}
-				} catch (Exception ignored) {
-				}
+			String uid = getIngredientUid(ingredient);
+			if (uid != null && selectedUids.contains(uid)) {
+				RenderHelper.disableStandardItemLighting();
+				GlStateManager.disableDepth();
+				GlStateManager.colorMask(true, true, true, false);
+				GuiUtils.drawGradientRect(0, x, y, x + ITEM_SIZE, y + ITEM_SIZE, 0x4000FF00, 0x4000FF00);
+				GlStateManager.colorMask(true, true, true, true);
+				GlStateManager.enableDepth();
+				RenderHelper.enableGUIStandardItemLighting();
 			}
 
 			// Highlight on hover
@@ -355,13 +387,13 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		GlStateManager.enableDepth();
 
 		for (int i = 0; i < rightItemsPerPage && (startIdx + i) < selectedStacks.size(); i++) {
-			ItemStack stack = selectedStacks.get(startIdx + i);
+			IIngredientListElement<?> element = selectedStacks.get(startIdx + i);
 			int col = i % rightCols;
 			int row = i / rightCols;
 			int x = rightGridX + col * ITEM_SIZE;
 			int y = rightGridY + row * ITEM_SIZE;
 
-			this.mc.getRenderItem().renderItemAndEffectIntoGUI(stack, x + 1, y + 1);
+			renderIngredient(element, x + 1, y + 1);
 
 			// Highlight on hover
 			if (mouseX >= x && mouseX < x + ITEM_SIZE && mouseY >= y && mouseY < y + ITEM_SIZE) {
@@ -400,11 +432,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			int x = leftGridX + col * ITEM_SIZE;
 			int y = leftGridY + row * ITEM_SIZE;
 			if (mouseX >= x && mouseX < x + ITEM_SIZE && mouseY >= y && mouseY < y + ITEM_SIZE) {
-				IIngredientListElement<?> element = filteredItems.get(startIdx + i);
-				Object ingredient = element.getIngredient();
-				if (ingredient instanceof ItemStack) {
-					renderToolTip((ItemStack) ingredient, mouseX, mouseY);
-				}
+				renderIngredientTooltip(filteredItems.get(startIdx + i), mouseX, mouseY);
 				return;
 			}
 		}
@@ -421,7 +449,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			int x = rightGridX + col * ITEM_SIZE;
 			int y = rightGridY + row * ITEM_SIZE;
 			if (mouseX >= x && mouseX < x + ITEM_SIZE && mouseY >= y && mouseY < y + ITEM_SIZE) {
-				renderToolTip(selectedStacks.get(startIdx + i), mouseX, mouseY);
+				renderIngredientTooltip(selectedStacks.get(startIdx + i), mouseX, mouseY);
 				return;
 			}
 		}
@@ -452,16 +480,12 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				int y = leftGridY + row * ITEM_SIZE;
 				if (mouseX >= x && mouseX < x + ITEM_SIZE && mouseY >= y && mouseY < y + ITEM_SIZE) {
 					IIngredientListElement<?> element = filteredItems.get(startIdx + i);
-					Object ingredient = element.getIngredient();
-					if (ingredient instanceof ItemStack) {
-						ItemStack stack = (ItemStack) ingredient;
-						try {
-							String uid = Internal.getStackHelper().getUniqueIdentifierForStack(stack);
-							dragAdding = !selectedUids.contains(uid);
-							isDragging = true;
-							lastDraggedUid = uid;
-						} catch (Exception ignored) {}
-						toggleSelection(stack);
+					String uid = getIngredientUid(element.getIngredient());
+					if (uid != null) {
+						dragAdding = !selectedUids.contains(uid);
+						isDragging = true;
+						lastDraggedUid = uid;
+						toggleSelectionByUid(uid);
 					}
 					return;
 				}
@@ -477,8 +501,9 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				int x = rightGridX + col * ITEM_SIZE;
 				int y = rightGridY + row * ITEM_SIZE;
 				if (mouseX >= x && mouseX < x + ITEM_SIZE && mouseY >= y && mouseY < y + ITEM_SIZE) {
-					ItemStack stack = selectedStacks.get(startIdx + i);
-					removeSelection(stack);
+					IIngredientListElement<?> element = selectedStacks.get(startIdx + i);
+					String uid = getIngredientUid(element.getIngredient());
+					if (uid != null) removeSelectionByUid(uid);
 					return;
 				}
 			}
@@ -505,47 +530,32 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			int x = leftGridX + col * ITEM_SIZE;
 			int y = leftGridY + row * ITEM_SIZE;
 			if (mouseX >= x && mouseX < x + ITEM_SIZE && mouseY >= y && mouseY < y + ITEM_SIZE) {
-				Object ingredient = filteredItems.get(startIdx + i).getIngredient();
-				if (ingredient instanceof ItemStack) {
-					try {
-						String uid = Internal.getStackHelper().getUniqueIdentifierForStack((ItemStack) ingredient);
-						if (!uid.equals(lastDraggedUid)) {
-							lastDraggedUid = uid;
-							if (dragAdding) {
-								if (selectedUids.add(uid)) updateSelectedStacks();
-							} else {
-								if (selectedUids.remove(uid)) updateSelectedStacks();
-							}
-						}
-					} catch (Exception ignored) {}
+				String uid = getIngredientUid(filteredItems.get(startIdx + i).getIngredient());
+				if (uid != null && !uid.equals(lastDraggedUid)) {
+					lastDraggedUid = uid;
+					if (dragAdding) {
+						if (selectedUids.add(uid)) updateSelectedStacks();
+					} else {
+						if (selectedUids.remove(uid)) updateSelectedStacks();
+					}
 				}
 				return;
 			}
 		}
 	}
 
-	private void toggleSelection(ItemStack stack) {
-		try {
-			StackHelper stackHelper = Internal.getStackHelper();
-			String uid = stackHelper.getUniqueIdentifierForStack(stack);
-			if (selectedUids.contains(uid)) {
-				selectedUids.remove(uid);
-			} else {
-				selectedUids.add(uid);
-			}
-			updateSelectedStacks();
-		} catch (Exception ignored) {
+	private void toggleSelectionByUid(String uid) {
+		if (selectedUids.contains(uid)) {
+			selectedUids.remove(uid);
+		} else {
+			selectedUids.add(uid);
 		}
+		updateSelectedStacks();
 	}
 
-	private void removeSelection(ItemStack stack) {
-		try {
-			StackHelper stackHelper = Internal.getStackHelper();
-			String uid = stackHelper.getUniqueIdentifierForStack(stack);
-			selectedUids.remove(uid);
-			updateSelectedStacks();
-		} catch (Exception ignored) {
-		}
+	private void removeSelectionByUid(String uid) {
+		selectedUids.remove(uid);
+		updateSelectedStacks();
 	}
 
 	@Override

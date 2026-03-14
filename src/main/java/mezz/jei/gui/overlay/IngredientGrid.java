@@ -198,7 +198,9 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 			boolean expandKeyDown = firstItemMode ? altDown : !altDown;
 			if (expandKeyDown) {
 				CollapsedStackRenderer collapsedHovered = guiIngredientSlots.getHoveredCollapsed(mouseX, mouseY);
-				if (collapsedHovered != null) {
+				// A group with only 1 visible item should act as a plain ingredient click,
+				// not expand/collapse — the single item is already trivially "shown".
+				if (collapsedHovered != null && collapsedHovered.getCollapsedStack().size() > 1) {
 					collapsedHovered.getCollapsedStack().toggleExpanded();
 					Internal.getIngredientFilter().notifyCollapsedStateChanged();
 					return true;

@@ -7,7 +7,6 @@ import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.startup.StackHelper;
 import mezz.jei.util.Log;
 import net.minecraft.item.ItemStack;
-
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
@@ -106,11 +105,22 @@ public class CollapsibleEntryRegistry {
 			}
 			Set<String> uidSet = new HashSet<>(group.itemUids);
 			String displayName = group.displayName != null ? group.displayName : group.id;
-			// Custom groups only ever contain ItemStacks identified by UID.
-			customEntries.add(CollapsibleEntry.ofItemStack(group.id, displayName, stack -> {
+			// Matcher works for both ItemStack and non-ItemStack ingredients (e.g. FluidStack):
+			// for ItemStacks use StackHelper, for everything else use the generic IngredientRegistry helper.
+			customEntries.add(new CollapsibleEntry(group.id, displayName, ingredient -> {
 				try {
-					StackHelper stackHelper = Internal.getStackHelper();
-					String uid = stackHelper.getUniqueIdentifierForStack(stack);
+					String uid;
+					if (ingredient instanceof ItemStack) {
+						ItemStack stack = (ItemStack) ingredient;
+						if (stack.isEmpty()) return false;
+						uid = Internal.getStackHelper().getUniqueIdentifierForStack(stack);
+					} else {
+						@SuppressWarnings("unchecked")
+						mezz.jei.api.ingredients.IIngredientHelper<Object> helper =
+								(mezz.jei.api.ingredients.IIngredientHelper<Object>)
+								Internal.getIngredientRegistry().getIngredientHelper(ingredient);
+						uid = helper.getUniqueId(ingredient);
+					}
 					return uidSet.contains(uid);
 				} catch (Exception e) {
 					return false;

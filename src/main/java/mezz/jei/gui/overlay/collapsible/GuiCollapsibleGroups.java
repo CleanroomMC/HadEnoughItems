@@ -1,11 +1,10 @@
 package mezz.jei.gui.overlay.collapsible;
 
 import mezz.jei.Internal;
-import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.config.Config;
 import mezz.jei.config.CustomGroupsConfig;
 import mezz.jei.gui.ingredients.IIngredientListElement;
-import mezz.jei.ingredients.CollapsedStack;
 import mezz.jei.ingredients.CollapsibleEntry;
 import mezz.jei.ingredients.CollapsibleEntryRegistry;
 import mezz.jei.ingredients.IngredientFilter;
@@ -15,6 +14,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import org.lwjgl.input.Mouse;
@@ -58,7 +58,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	private final List<GroupCardEntry> cardEntries = new ArrayList<>();
 	private int currentPage = 0;
 	private int totalPages = 1;
-	@Nullable private ItemStack tooltipStack = null;
+	@Nullable private IIngredientListElement<?> tooltipElement = null;
 
 	// Drag-to-scroll state for card preview boxes
 	private int dragCardAbsIdx = -1;
@@ -107,7 +107,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 
 		// Custom groups come first (like REI)
 		for (CollapsibleEntry entry : registry.getCustomEntries()) {
-			List<ItemStack> previewItems = getPreviewItems(entry);
+			List<IIngredientListElement<?>> previewItems = getPreviewItems(entry);
 			int itemCount = getMatchedItemCount(entry);
 			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), true,
 				!registry.getDisabledGroups().contains(entry.getId()), previewItems, itemCount));
@@ -115,7 +115,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 
 		// Default groups
 		for (CollapsibleEntry entry : registry.getEntries()) {
-			List<ItemStack> previewItems = getPreviewItems(entry);
+			List<IIngredientListElement<?>> previewItems = getPreviewItems(entry);
 			int itemCount = getMatchedItemCount(entry);
 			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), false,
 				!registry.getDisabledGroups().contains(entry.getId()), previewItems, itemCount));
@@ -281,7 +281,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		int startIdx = currentPage * cardsPerPage;
 		int endIdx = Math.min(startIdx + cardsPerPage, cardEntries.size());
 
-		tooltipStack = null;
+		tooltipElement = null;
 		for (int i = startIdx; i < endIdx; i++) {
 			int localIdx = i - startIdx;
 			int col = localIdx / cardsPerCol;
@@ -306,8 +306,8 @@ public class GuiCollapsibleGroups extends GuiScreen {
 
 		super.drawScreen(mouseX, mouseY, partialTicks);
 
-		if (tooltipStack != null) {
-			renderToolTip(tooltipStack, mouseX, mouseY);
+		if (tooltipElement != null) {
+			renderIngredientTooltip(tooltipElement, mouseX, mouseY);
 		}
 	}
 
@@ -348,15 +348,15 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		RenderHelper.enableGUIStandardItemLighting();
 		GlStateManager.enableDepth();
 		for (int i = firstItem; i < lastItem; i++) {
-			ItemStack stack = card.previewItems.get(i);
+			IIngredientListElement<?> element = card.previewItems.get(i);
 			int visibleRow = (i / PREVIEW_COLS) - scrollRow;
 			int col = i % PREVIEW_COLS;
 			int itemX = previewX + col * slotSize;
 			int itemY = previewY + visibleRow * slotSize;
-			this.mc.getRenderItem().renderItemAndEffectIntoGUI(stack, itemX, itemY);
+			renderIngredient(element, itemX + 1, itemY + 1);
 			if (mouseX >= itemX && mouseX < itemX + PREVIEW_SIZE
 					&& mouseY >= itemY && mouseY < itemY + PREVIEW_SIZE) {
-				tooltipStack = stack;
+				tooltipElement = element;
 			}
 		}
 		RenderHelper.disableStandardItemLighting();
@@ -487,44 +487,53 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	}
 
 	/**
-	 * Get up to PREVIEW_COLS * PREVIEW_ROWS preview ItemStacks for a collapsible entry.
-	 * Non-ItemStack ingredients (e.g. EnchantmentData) are converted via the ingredient
-	 * helper's getCheatItemStack so enchanted books render correctly.
+	 * Get up to PREVIEW_FETCH_MAX preview elements for a collapsible entry,
+	 * returning the raw IIngredientListElement so each type renders via its own renderer.
 	 */
-	private List<ItemStack> getPreviewItems(CollapsibleEntry entry) {
-		List<ItemStack> items = new ArrayList<>();
+	private List<IIngredientListElement<?>> getPreviewItems(CollapsibleEntry entry) {
+		List<IIngredientListElement<?>> items = new ArrayList<>();
 		if (!Internal.hasIngredientFilter()) {
 			return items;
 		}
 		IngredientFilter filter = Internal.getIngredientFilter();
 		List<IIngredientListElement> ingredientList = filter.getIngredientList("");
-		int maxItems = PREVIEW_FETCH_MAX;
 		for (IIngredientListElement<?> element : ingredientList) {
 			if (entry.matches(element)) {
-				ItemStack preview = toPreviewStack(element);
-				if (preview != null && !preview.isEmpty()) {
-					items.add(preview);
-					if (items.size() >= maxItems) {
-						break;
-					}
+				items.add(element);
+				if (items.size() >= PREVIEW_FETCH_MAX) {
+					break;
 				}
 			}
 		}
 		return items;
 	}
 
-	/** Converts any ingredient to a renderable ItemStack. Returns null if not possible. */
-	@Nullable
-	private static <V> ItemStack toPreviewStack(IIngredientListElement<V> element) {
-		V ingredient = element.getIngredient();
-		if (ingredient instanceof ItemStack) {
-			return (ItemStack) ingredient;
-		}
+	@SuppressWarnings("unchecked")
+	private <T> void renderIngredient(IIngredientListElement<T> element, int x, int y) {
 		try {
-			IIngredientHelper<V> helper = Internal.getIngredientRegistry().getIngredientHelper(ingredient);
-			return helper.getCheatItemStack(ingredient);
-		} catch (Exception e) {
-			return null;
+			IIngredientRenderer<T> renderer = element.getIngredientRenderer();
+			renderer.render(this.mc, x, y, element.getIngredient());
+		} catch (Exception ignored) {
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> void renderIngredientTooltip(IIngredientListElement<T> element, int mouseX, int mouseY) {
+		try {
+			T ingredient = element.getIngredient();
+			if (ingredient instanceof ItemStack) {
+				renderToolTip((ItemStack) ingredient, mouseX, mouseY);
+				return;
+			}
+			IIngredientRenderer<T> renderer = element.getIngredientRenderer();
+			List<String> tooltip = renderer.getTooltip(this.mc, ingredient,
+					this.mc.gameSettings.advancedItemTooltips
+							? ITooltipFlag.TooltipFlags.ADVANCED
+							: ITooltipFlag.TooltipFlags.NORMAL);
+			if (!tooltip.isEmpty()) {
+				drawHoveringText(tooltip, mouseX, mouseY, renderer.getFontRenderer(this.mc, ingredient));
+			}
+		} catch (Exception ignored) {
 		}
 	}
 
@@ -559,11 +568,11 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		final String displayName;
 		final boolean isCustom;
 		boolean enabled;
-		final List<ItemStack> previewItems;
+		final List<IIngredientListElement<?>> previewItems;
 		final int itemCount;
 		int previewScrollRow = 0;
 
-		GroupCardEntry(String id, String displayName, boolean isCustom, boolean enabled, List<ItemStack> previewItems, int itemCount) {
+		GroupCardEntry(String id, String displayName, boolean isCustom, boolean enabled, List<IIngredientListElement<?>> previewItems, int itemCount) {
 			this.id = id;
 			this.displayName = displayName;
 			this.isCustom = isCustom;
