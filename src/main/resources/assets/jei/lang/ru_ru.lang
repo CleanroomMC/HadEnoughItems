@@ -169,6 +169,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Скрывать ли
 jei.tooltip.collapsed.expand=Alt+Клик для раскрытия
 jei.tooltip.collapsed.expand.firstItem=Alt+Клик для первого предмета
 jei.tooltip.collapsed.collapse=Alt+Клик для сворачивания
+jei.tooltip.config.expandCollapseAll=Alt+Клик переключить группы
 
 config.jei.collapsible=Сворачиваемые группы
 config.jei.collapsible.comment=Настройки сворачивания групп ингредиентов в один слот в списке ингредиентов.

@@ -124,6 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=ما إذا كان س
 jei.tooltip.collapsed.expand=Alt+انقر للتوسيع
 jei.tooltip.collapsed.expand.firstItem=Alt+انقر للعنصر الأول
 jei.tooltip.collapsed.collapse=Alt+انقر للطي
+jei.tooltip.config.expandCollapseAll=Alt+النقر لتبديل المجموعات
 
 config.jei.collapsible=المجموعات القابلة للطي
 config.jei.collapsible.comment=خيارات لطي مجموعات المكونات في خانة واحدة في قائمة المكونات.

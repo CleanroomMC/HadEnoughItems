@@ -157,6 +157,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Ob der Lesezeichen-Bu
 jei.tooltip.collapsed.expand=Alt+Klick zum Aufklappen
 jei.tooltip.collapsed.expand.firstItem=Alt+Klick für erstes Element
 jei.tooltip.collapsed.collapse=Alt+Klick zum Zuklappen
+jei.tooltip.config.expandCollapseAll=Alt+Klick zum Gruppen umschalten
 
 config.jei.collapsible=Einklappbare Gruppen
 config.jei.collapsible.comment=Optionen zum Einklappen von Zutatengruppen in einen einzelnen Slot in der Zutatenliste.

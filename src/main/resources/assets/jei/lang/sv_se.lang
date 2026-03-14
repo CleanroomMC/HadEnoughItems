@@ -137,6 +137,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Om bokmärkesknappen 
 jei.tooltip.collapsed.expand=Alt+Klicka för att expandera
 jei.tooltip.collapsed.expand.firstItem=Alt+Klicka för första föremålet
 jei.tooltip.collapsed.collapse=Alt+Klicka för att fälla ihop
+jei.tooltip.config.expandCollapseAll=Alt+Klicka för att växla grupper
 
 config.jei.collapsible=Ihopfällbara grupper
 config.jei.collapsible.comment=Alternativ för att fälla ihop grupper av ingredienser till en enda plats i ingredienslistan.

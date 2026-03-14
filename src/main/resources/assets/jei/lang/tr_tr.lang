@@ -124,6 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Sol alt köşedeki ye
 jei.tooltip.collapsed.expand=Alt+Tıkla genişletmek için
 jei.tooltip.collapsed.expand.firstItem=Alt+Tıkla ilk öğe için
 jei.tooltip.collapsed.collapse=Alt+Tıkla daraltmak için
+jei.tooltip.config.expandCollapseAll=Alt+Tıkla Grupları Dönüştür
 
 config.jei.collapsible=Daraltılabilir Gruplar
 config.jei.collapsible.comment=Malzeme listesinde malzeme gruplarını tek bir yuvaya daraltma seçenekleri.

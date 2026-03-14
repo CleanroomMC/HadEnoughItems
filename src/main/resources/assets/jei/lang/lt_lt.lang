@@ -124,6 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Ar paslėpti žymės 
 jei.tooltip.collapsed.expand=Alt+spustelėkite, kad išskleistumėte
 jei.tooltip.collapsed.expand.firstItem=Alt+spustelėkite pirmam daiktui
 jei.tooltip.collapsed.collapse=Alt+spustelėkite, kad sutrauktumėte
+jei.tooltip.config.expandCollapseAll=Alt+Spustelėkite perjungti grupes
 
 config.jei.collapsible=Sutraukiamos grupės
 config.jei.collapsible.comment=Parinktys ingredientų grupių sutraukimui į vieną vietą ingredientų sąraše.

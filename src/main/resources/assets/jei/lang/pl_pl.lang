@@ -137,6 +137,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Czy ukryć przycisk z
 jei.tooltip.collapsed.expand=Alt+Klik aby rozwinąć
 jei.tooltip.collapsed.expand.firstItem=Alt+Klik dla pierwszego przedmiotu
 jei.tooltip.collapsed.collapse=Alt+Klik aby zwinąć
+jei.tooltip.config.expandCollapseAll=Alt+Klik aby przełączyć grupy
 
 config.jei.collapsible=Zwijane grupy
 config.jei.collapsible.comment=Opcje zwijania grup składników do jednego slotu na liście składników.

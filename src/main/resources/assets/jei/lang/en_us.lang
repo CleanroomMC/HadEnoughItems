@@ -26,6 +26,7 @@ jei.tooltip.bookmarks.not.enough.space=There is not enough space to display book
 jei.tooltip.collapsed.expand=Alt+Click to Expand
 jei.tooltip.collapsed.expand.firstItem=Alt+Click for First Item
 jei.tooltip.collapsed.collapse=Alt+Click to Collapse
+jei.tooltip.config.expandCollapseAll=Alt+Click Toggle Groups
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Missing Items

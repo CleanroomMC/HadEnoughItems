@@ -125,6 +125,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Whether to hide the b
 jei.tooltip.collapsed.expand=Alt+Click to expand
 jei.tooltip.collapsed.expand.firstItem=Alt+Click for first item
 jei.tooltip.collapsed.collapse=Alt+Click to collapse
+jei.tooltip.config.expandCollapseAll=Alt+Click Toggle Groups
 
 config.jei.collapsible=Collapsible Groups
 config.jei.collapsible.comment=Options for collapsing groups of ingredients into a single slot in the ingredient list.

@@ -126,6 +126,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Чи приховув
 jei.tooltip.collapsed.expand=Alt+Клік для розгортання
 jei.tooltip.collapsed.expand.firstItem=Alt+Клік для першого предмета
 jei.tooltip.collapsed.collapse=Alt+Клік для згортання
+jei.tooltip.config.expandCollapseAll=Alt+Клік перемкнути групи
 
 config.jei.collapsible=Згортувані групи
 config.jei.collapsible.comment=Налаштування згортання груп інгредієнтів в один слот у списку інгредієнтів.

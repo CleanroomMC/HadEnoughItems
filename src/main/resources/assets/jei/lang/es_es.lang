@@ -124,6 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Si se debe ocultar el
 jei.tooltip.collapsed.expand=Alt+Clic para expandir
 jei.tooltip.collapsed.expand.firstItem=Alt+Clic para primer objeto
 jei.tooltip.collapsed.collapse=Alt+Clic para colapsar
+jei.tooltip.config.expandCollapseAll=Alt+Clic alternar grupos
 
 config.jei.collapsible=Grupos colapsables
 config.jei.collapsible.comment=Opciones para colapsar grupos de ingredientes en una sola ranura en la lista de ingredientes.

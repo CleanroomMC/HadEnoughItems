@@ -134,6 +134,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Si le bouton de marqu
 jei.tooltip.collapsed.expand=Alt+Clic pour développer
 jei.tooltip.collapsed.expand.firstItem=Alt+Clic pour le premier objet
 jei.tooltip.collapsed.collapse=Alt+Clic pour réduire
+jei.tooltip.config.expandCollapseAll=Alt+Clic basculer les groupes
 
 config.jei.collapsible=Groupes réductibles
 config.jei.collapsible.comment=Options pour réduire les groupes d'ingrédients en un seul emplacement dans la liste des ingrédients.

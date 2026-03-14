@@ -124,6 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Zda skrýt tlačítko
 jei.tooltip.collapsed.expand=Alt+Klik pro rozbalení
 jei.tooltip.collapsed.expand.firstItem=Alt+Klik pro první předmět
 jei.tooltip.collapsed.collapse=Alt+Klik pro sbalení
+jei.tooltip.config.expandCollapseAll=Alt+Klik pro přepínat skupiny
 
 config.jei.collapsible=Sbalitelné skupiny
 config.jei.collapsible.comment=Možnosti pro sbalení skupin ingrediencí do jednoho slotu v seznamu ingrediencí.

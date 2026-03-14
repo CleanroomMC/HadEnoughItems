@@ -134,6 +134,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=左下隅のブック
 jei.tooltip.collapsed.expand=Alt+クリックで展開
 jei.tooltip.collapsed.expand.firstItem=Alt+クリックで最初のアイテム
 jei.tooltip.collapsed.collapse=Alt+クリックで折りたたむ
+jei.tooltip.config.expandCollapseAll=Alt+クリックでグループ展開切替
 
 config.jei.collapsible=折りたたみグループ
 config.jei.collapsible.comment=アイテムリスト内でアイテムグループをひとつのスロットに折りたたむオプション。

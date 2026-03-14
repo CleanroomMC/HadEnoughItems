@@ -124,6 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Se nascondere il puls
 jei.tooltip.collapsed.expand=Alt+Clic per espandere
 jei.tooltip.collapsed.expand.firstItem=Alt+Clic per il primo oggetto
 jei.tooltip.collapsed.collapse=Alt+Clic per comprimere
+jei.tooltip.config.expandCollapseAll=Alt+Clic attiva/disattiva gruppi
 
 config.jei.collapsible=Gruppi comprimibili
 config.jei.collapsible.comment=Opzioni per comprimere gruppi di ingredienti in un singolo slot nell'elenco degli ingredienti.

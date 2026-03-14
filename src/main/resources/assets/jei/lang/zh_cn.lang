@@ -166,6 +166,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=是否隐藏左下角
 jei.tooltip.collapsed.expand=Alt+点击展开
 jei.tooltip.collapsed.expand.firstItem=Alt+点击查看第一个物品
 jei.tooltip.collapsed.collapse=Alt+点击收起
+jei.tooltip.config.expandCollapseAll=Alt+点击切换分组
 
 config.jei.collapsible=可折叠分组
 config.jei.collapsible.comment=将配料分组折叠为配料列表中的单个格子的相关选项。

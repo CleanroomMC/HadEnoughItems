@@ -124,6 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Om bokmerke-knappen i
 jei.tooltip.collapsed.expand=Alt+Klikk for å utvide
 jei.tooltip.collapsed.expand.firstItem=Alt+Klikk for første gjenstand
 jei.tooltip.collapsed.collapse=Alt+Klikk for å skjule
+jei.tooltip.config.expandCollapseAll=Alt+Klikk for å bytte grupper
 
 config.jei.collapsible=Sammenleggbare grupper
 config.jei.collapsible.comment=Alternativer for å slå sammen grupper av ingredienser til én plass i ingredienslisten.

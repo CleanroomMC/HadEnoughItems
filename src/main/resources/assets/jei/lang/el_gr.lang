@@ -124,6 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Αν θα αποκρ�
 jei.tooltip.collapsed.expand=Alt+Κλικ για ανάπτυξη
 jei.tooltip.collapsed.expand.firstItem=Alt+Κλικ για πρώτο αντικείμενο
 jei.tooltip.collapsed.collapse=Alt+Κλικ για σύμπτυξη
+jei.tooltip.config.expandCollapseAll=Alt+Κλικ Εναλλαγή Ομάδων
 
 config.jei.collapsible=Πτυσσόμενες Ομάδες
 config.jei.collapsible.comment=Επιλογές για σύμπτυξη ομάδων συστατικών σε μία θέση στη λίστα συστατικών.

@@ -134,6 +134,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Se o botão de favori
 jei.tooltip.collapsed.expand=Alt+Clique para expandir
 jei.tooltip.collapsed.expand.firstItem=Alt+Clique para o primeiro item
 jei.tooltip.collapsed.collapse=Alt+Clique para recolher
+jei.tooltip.config.expandCollapseAll=Alt+Clique para alternar grupos
 
 config.jei.collapsible=Grupos recolhíveis
 config.jei.collapsible.comment=Opções para recolher grupos de ingredientes em um único slot na lista de ingredientes.

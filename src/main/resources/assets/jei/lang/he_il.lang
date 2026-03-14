@@ -124,6 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=האם להסתיר �
 jei.tooltip.collapsed.expand=Alt+לחיצה כדי להרחיב
 jei.tooltip.collapsed.expand.firstItem=Alt+לחיצה לפריט הראשון
 jei.tooltip.collapsed.collapse=Alt+לחיצה כדי לכווץ
+jei.tooltip.config.expandCollapseAll=Alt+לחיצה להחלפת קבוצות
 
 config.jei.collapsible=קבוצות מתכווצות
 config.jei.collapsible.comment=אפשרויות לכיווץ קבוצות רכיבים לתא יחיד ברשימת הרכיבים.

@@ -124,6 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Дали да се с
 jei.tooltip.collapsed.expand=Alt+Клик за разгъване
 jei.tooltip.collapsed.expand.firstItem=Alt+Клик за първия предмет
 jei.tooltip.collapsed.collapse=Alt+Клик за свиване
+jei.tooltip.config.expandCollapseAll=Alt+Клик за превключване на групи
 
 config.jei.collapsible=Свиваеми групи
 config.jei.collapsible.comment=Опции за свиване на групи от съставки в един слот в списъка със съставки.

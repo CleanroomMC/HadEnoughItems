@@ -124,7 +124,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Piilotetaanko vasemma
 jei.tooltip.collapsed.expand=Alt+Klikkaa laajentaaksesi
 jei.tooltip.collapsed.expand.firstItem=Alt+Klikkaa ensimmäiselle esineelle
 jei.tooltip.collapsed.collapse=Alt+Klikkaa tiivistääksesi
-
+jei.tooltip.config.expandCollapseAll=Alt+Klikkaa vaihda ryhmiä
 config.jei.collapsible=Tiivistetyt ryhmät
 config.jei.collapsible.comment=Asetukset ainesosaryhmien tiivistämiseen yhdeksi paikaksi ainesosaluettelossa.
 config.jei.collapsible.collapsibleGroupsEnabled=Ota tiivistetyt ryhmät käyttöön

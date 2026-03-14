@@ -171,6 +171,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=왼쪽 하단 모서�
 jei.tooltip.collapsed.expand=Alt+클릭하여 펼치기
 jei.tooltip.collapsed.expand.firstItem=Alt+클릭하여 첫 번째 아이템
 jei.tooltip.collapsed.collapse=Alt+클릭하여 접기
+jei.tooltip.config.expandCollapseAll=Alt+클릭으로 그룹 전환
 
 config.jei.collapsible=접을 수 있는 그룹
 config.jei.collapsible.comment=재료 목록에서 재료 그룹을 하나의 슬롯으로 접는 옵션입니다.
