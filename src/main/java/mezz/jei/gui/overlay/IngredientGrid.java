@@ -20,6 +20,7 @@ import mezz.jei.render.IngredientListSlot;
 import mezz.jei.render.IngredientRenderer;
 import mezz.jei.runtime.JeiRuntime;
 import mezz.jei.util.GiveMode;
+import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.MathUtil;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
@@ -141,7 +142,14 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 				} else {
 					IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
 					if (hovered != null) {
-						hovered.drawTooltip(minecraft, mouseX, mouseY);
+						CollapsedStack expandedGroup = guiIngredientSlots.getExpandedCollapsedGroupAt(mouseX, mouseY);
+						if (expandedGroup != null) {
+							String hint = net.minecraft.util.text.TextFormatting.YELLOW
+								+ mezz.jei.util.Translator.translateToLocal("jei.tooltip.collapsed.collapse");
+							hovered.drawTooltip(minecraft, mouseX, mouseY, java.util.Collections.singletonList(hint));
+						} else {
+							hovered.drawTooltip(minecraft, mouseX, mouseY);
+						}
 					}
 				}
 			}
@@ -183,14 +191,21 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 
 	public boolean handleMouseClicked(int mouseX, int mouseY) {
 		if (isMouseOver(mouseX, mouseY)) {
-			// Alt+Click toggles collapsible groups
-			if (GuiScreen.isAltKeyDown()) {
+			boolean firstItemMode = Config.getCollapsedClickAction() == CollapsedClickAction.FIRST_ITEM;
+			boolean altDown = GuiScreen.isAltKeyDown();
+			// OPEN_GROUP: plain click expands a collapsed icon; alt+click falls through (first item).
+			// FIRST_ITEM: alt+click expands a collapsed icon; plain click falls through (first item).
+			boolean expandKeyDown = firstItemMode ? altDown : !altDown;
+			if (expandKeyDown) {
 				CollapsedStackRenderer collapsedHovered = guiIngredientSlots.getHoveredCollapsed(mouseX, mouseY);
 				if (collapsedHovered != null) {
 					collapsedHovered.getCollapsedStack().toggleExpanded();
 					Internal.getIngredientFilter().notifyCollapsedStateChanged();
 					return true;
 				}
+			}
+			// Alt+Click on any item inside an expanded group always collapses it.
+			if (altDown) {
 				CollapsedStack expandedHovered = guiIngredientSlots.getExpandedCollapsedGroupAt(mouseX, mouseY);
 				if (expandedHovered != null) {
 					expandedHovered.toggleExpanded();

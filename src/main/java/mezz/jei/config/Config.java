@@ -16,6 +16,7 @@ import mezz.jei.network.packets.PacketRequestCheatPermission;
 import mezz.jei.startup.ForgeModIdHelper;
 import mezz.jei.startup.IModIdHelper;
 import mezz.jei.util.GiveMode;
+import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
 import net.minecraft.init.Items;
@@ -94,6 +95,14 @@ public final class Config {
 
 	public static boolean isCollapsibleGroupsEnabled() {
 		return values.collapsibleGroupsEnabled;
+	}
+
+	public static boolean isCollapseOnClose() {
+		return values.collapseOnClose;
+	}
+
+	public static CollapsedClickAction getCollapsedClickAction() {
+		return values.collapsedClickAction;
 	}
 
 	@Nullable
@@ -572,6 +581,17 @@ public final class Config {
 				needsReload = true;
 			}
 		}
+
+		values.collapseOnClose = config.getBoolean(CATEGORY_COLLAPSIBLE, "collapseOnClose", defaultValues.collapseOnClose);
+
+		values.collapsedClickAction = config.getEnum("collapsedClickAction", CATEGORY_COLLAPSIBLE, defaultValues.collapsedClickAction, CollapsedClickAction.values());
+
+		// Explicit property order so the GUI shows collapsibleGroupsEnabled first, then collapseOnClose.
+		java.util.List<String> collapsibleOrder = new java.util.ArrayList<>();
+		collapsibleOrder.add("collapsibleGroupsEnabled");
+		collapsibleOrder.add("collapseOnClose");
+		collapsibleOrder.add("collapsedClickAction");
+		config.setCategoryPropertyOrder(CATEGORY_COLLAPSIBLE, collapsibleOrder);
 
 		{
 			String[] disabledGroupsArray = config.getStringList("disabledGroups", CATEGORY_COLLAPSIBLE, new String[]{});

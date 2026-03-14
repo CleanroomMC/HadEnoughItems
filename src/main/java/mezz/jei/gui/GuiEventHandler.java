@@ -1,7 +1,9 @@
 package mezz.jei.gui;
 
+import mezz.jei.Internal;
 import mezz.jei.config.Config;
 import mezz.jei.config.OverlayToggleEvent;
+import mezz.jei.ingredients.CollapsibleEntryRegistry;
 import mezz.jei.gui.ghost.GhostIngredientDragManager;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
@@ -56,10 +58,18 @@ public class GuiEventHandler {
 
 	@SubscribeEvent
 	public void onGuiOpen(GuiOpenEvent event) {
+		boolean wasDisplayed = ingredientListOverlay.isListDisplayed();
 		GuiScreen gui = event.getGui();
 		ingredientListOverlay.updateScreen(gui, false);
 		leftAreaDispatcher.updateScreen(gui, false);
 		ghostIngredientDragManager.updateScreen(gui, false);
+		if (wasDisplayed && !ingredientListOverlay.isListDisplayed() && Config.isCollapseOnClose()
+				&& Internal.hasIngredientFilter()) {
+			CollapsibleEntryRegistry registry = Internal.getCollapsibleEntryRegistry();
+			registry.getEntries().forEach(e -> e.setExpanded(false));
+			registry.getCustomEntries().forEach(e -> e.setExpanded(false));
+			Internal.getIngredientFilter().notifyCollapsedStateChanged();
+		}
 	}
 
 	@SubscribeEvent

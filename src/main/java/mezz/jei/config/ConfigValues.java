@@ -58,5 +58,7 @@ public class ConfigValues {
 
 	// collapsible groups
 	public boolean collapsibleGroupsEnabled = true;
+	public boolean collapseOnClose = false;
+	public mezz.jei.util.CollapsedClickAction collapsedClickAction = mezz.jei.util.CollapsedClickAction.OPEN_GROUP;
 	public Set<String> disabledGroups = new HashSet<>();
 }

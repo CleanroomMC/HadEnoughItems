@@ -176,7 +176,12 @@ public class CollapsedStackRenderer {
 
 		String header = TextFormatting.GOLD + collapsedStack.getDisplayName()
 			+ TextFormatting.GRAY + " (" + total + " items)";
-		String hint = TextFormatting.YELLOW + Translator.translateToLocal("jei.tooltip.collapsed.expand");
+		// In OPEN_GROUP mode, alt+click uses first item; show that as the hint.
+		// In FIRST_ITEM mode, alt+click expands; show that instead.
+		String hint = TextFormatting.YELLOW + Translator.translateToLocal(
+			mezz.jei.config.Config.getCollapsedClickAction() == mezz.jei.util.CollapsedClickAction.OPEN_GROUP
+				? "jei.tooltip.collapsed.expand.firstItem"
+				: "jei.tooltip.collapsed.expand");
 
 		int tw = Math.max(Math.max(font.getStringWidth(header), font.getStringWidth(hint)), gridW);
 		int th = 12 + gridH + 10;
