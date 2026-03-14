@@ -180,8 +180,6 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
 			if (customGroupsConfig != null) {
 				CustomGroupsConfig.CustomGroup newGroup = new CustomGroupsConfig.CustomGroup(newId, "New Group", new ArrayList<>());
-				customGroupsConfig.addGroup(newGroup);
-				Internal.getCollapsibleEntryRegistry().recollectCustomEntries();
 				this.mc.displayGuiScreen(new GuiCustomGroupEditor(this, newGroup));
 			}
 			return;
