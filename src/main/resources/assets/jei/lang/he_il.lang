@@ -119,3 +119,34 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=הסתר כפתור סימנייה בפינה השמאלית התחתונה
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=האם להסתיר את כפתור הסימנייה בפינה השמאלית התחתונה
+
+# Collapsible Groups
+jei.tooltip.collapsed.expand=Alt+לחיצה כדי להרחיב
+jei.tooltip.collapsed.expand.firstItem=Alt+לחיצה לפריט הראשון
+jei.tooltip.collapsed.collapse=Alt+לחיצה כדי לכווץ
+
+config.jei.collapsible=קבוצות מתכווצות
+config.jei.collapsible.comment=אפשרויות לכיווץ קבוצות רכיבים לתא יחיד ברשימת הרכיבים.
+config.jei.collapsible.collapsibleGroupsEnabled=הפעל קבוצות מתכווצות
+config.jei.collapsible.collapsibleGroupsEnabled.comment=כאשר מופעל, קבוצות של רכיבים קשורים (שיקויים, ספרים מכושפים וכו') מכווצות לתא יחיד. Alt+לחיצה על קבוצה כדי להרחיב או לכווץ אותה.
+config.jei.collapsible.collapseOnClose=כיווץ בסגירה
+config.jei.collapsible.collapseOnClose.comment=כיווץ קבוצות פתוחות כאשר HEI נסגר.
+config.jei.collapsible.collapsedClickAction=פעולת לחיצה ברירת מחדל
+config.jei.collapsible.collapsedClickAction.comment=מחליף את פעולת הלחיצה הבודדת, האפשרות השנייה הופכת לפעולת Alt+לחיצה. פתח קבוצה פותח את הקבוצה. פריט ראשון מחיל את הפעולה על הפריט הראשון בקבוצה.
+config.jei.collapsible.collapsedClickAction.OPEN_GROUP=פתח קבוצה
+config.jei.collapsible.collapsedClickAction.FIRST_ITEM=פריט ראשון
+
+# Group Management GUI
+jei.gui.collapsible.title=ניהול קבוצות
+jei.gui.collapsible.back=חזרה
+jei.gui.collapsible.newGroup=קבוצה חדשה
+jei.gui.collapsible.title.tooltip=הפעלה/השבתה של קבוצות מובנות ויצירת קבוצות מותאמות אישית.
+jei.gui.collapsible.enabled=מופעל
+jei.gui.collapsible.disabled=מושבת
+jei.gui.collapsible.customGroup=מותאם אישית
+jei.gui.collapsible.defaultGroup=ברירת מחדל
+jei.gui.collapsible.itemCount=%d פריטים
+jei.gui.collapsible.editor.title=פריטים נבחרים
+jei.gui.collapsible.editor.name=שם
+jei.gui.collapsible.editor.save=שמירה
+jei.gui.collapsible.editor.selected=%d נבחרו

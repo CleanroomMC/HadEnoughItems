@@ -119,3 +119,34 @@ description.jei.wooden.door.3=Dřevěné dveře mohou být otevřeny/zavřeny po
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Skrýt tlačítko záložky v levém dolním rohu
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Zda skrýt tlačítko záložky v levém dolním rohu
+
+# Collapsible Groups
+jei.tooltip.collapsed.expand=Alt+Klik pro rozbalení
+jei.tooltip.collapsed.expand.firstItem=Alt+Klik pro první předmět
+jei.tooltip.collapsed.collapse=Alt+Klik pro sbalení
+
+config.jei.collapsible=Sbalitelné skupiny
+config.jei.collapsible.comment=Možnosti pro sbalení skupin ingrediencí do jednoho slotu v seznamu ingrediencí.
+config.jei.collapsible.collapsibleGroupsEnabled=Povolit sbalitelné skupiny
+config.jei.collapsible.collapsibleGroupsEnabled.comment=Pokud je povoleno, skupiny souvisejících ingrediencí (lektvary, očarované knihy atd.) jsou sbaleny do jednoho slotu. Alt+Klik na skupinu pro rozbalení nebo sbalení.
+config.jei.collapsible.collapseOnClose=Sbalit při zavření
+config.jei.collapsible.collapseOnClose.comment=Sbalí aktuálně otevřené skupiny při zavření HEI.
+config.jei.collapsible.collapsedClickAction=Výchozí akce kliknutí
+config.jei.collapsible.collapsedClickAction.comment=Zamění akci jednoduchého kliknutí, druhá možnost se stane akcí Alt+Klik. Otevřít skupinu otevře skupinu. První předmět aplikuje akci na první předmět ve skupině.
+config.jei.collapsible.collapsedClickAction.OPEN_GROUP=Otevřít skupinu
+config.jei.collapsible.collapsedClickAction.FIRST_ITEM=První předmět
+
+# Group Management GUI
+jei.gui.collapsible.title=Správa skupin
+jei.gui.collapsible.back=Zpět
+jei.gui.collapsible.newGroup=Nová skupina
+jei.gui.collapsible.title.tooltip=Povolení/zakázání vestavěných skupin a vytváření uživatelských skupin.
+jei.gui.collapsible.enabled=Povoleno
+jei.gui.collapsible.disabled=Zakázáno
+jei.gui.collapsible.customGroup=Vlastní
+jei.gui.collapsible.defaultGroup=Výchozí
+jei.gui.collapsible.itemCount=%d předmětů
+jei.gui.collapsible.editor.title=Vybrané předměty
+jei.gui.collapsible.editor.name=Název
+jei.gui.collapsible.editor.save=Uložit
+jei.gui.collapsible.editor.selected=%d vybráno

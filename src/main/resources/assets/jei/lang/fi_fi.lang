@@ -119,3 +119,34 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Piilota vasemman alan kulman kirjanmerkkipainike
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Piilotetaanko vasemman alan kulman kirjanmerkkipainike
+
+# Collapsible Groups
+jei.tooltip.collapsed.expand=Alt+Klikkaa laajentaaksesi
+jei.tooltip.collapsed.expand.firstItem=Alt+Klikkaa ensimmäiselle esineelle
+jei.tooltip.collapsed.collapse=Alt+Klikkaa tiivistääksesi
+
+config.jei.collapsible=Tiivistetyt ryhmät
+config.jei.collapsible.comment=Asetukset ainesosaryhmien tiivistämiseen yhdeksi paikaksi ainesosaluettelossa.
+config.jei.collapsible.collapsibleGroupsEnabled=Ota tiivistetyt ryhmät käyttöön
+config.jei.collapsible.collapsibleGroupsEnabled.comment=Kun käytössä, toisiinsa liittyvien ainesosien ryhmät (juomat, lumotut kirjat jne.) tiivistetään yhteen paikkaan. Alt+Klikkaa ryhmää laajentaaksesi tai tiivistääksesi sen.
+config.jei.collapsible.collapseOnClose=Tiivistä suljettaessa
+config.jei.collapsible.collapseOnClose.comment=Tiivistetään avoinna olevat ryhmät kun HEI suljetaan.
+config.jei.collapsible.collapsedClickAction=Oletusklikkitoiminto
+config.jei.collapsible.collapsedClickAction.comment=Vaihtaa yksittäisklikkauksen toiminnon, toinen vaihtoehto tulee Alt+Klikkaus-toiminnoksi. Avaa ryhmä avaa ryhmän. Ensimmäinen esine soveltaa toiminnon ryhmän ensimmäiseen esineeseen.
+config.jei.collapsible.collapsedClickAction.OPEN_GROUP=Avaa ryhmä
+config.jei.collapsible.collapsedClickAction.FIRST_ITEM=Ensimmäinen esine
+
+# Group Management GUI
+jei.gui.collapsible.title=Hallitse ryhmiä
+jei.gui.collapsible.back=Takaisin
+jei.gui.collapsible.newGroup=Uusi ryhmä
+jei.gui.collapsible.title.tooltip=Sisäänrakennettujen ryhmien käyttöönotto/poistaminen käytöstä ja käyttäjän määrittämien ryhmien luominen.
+jei.gui.collapsible.enabled=Käytössä
+jei.gui.collapsible.disabled=Ei käytössä
+jei.gui.collapsible.customGroup=Mukautettu
+jei.gui.collapsible.defaultGroup=Oletus
+jei.gui.collapsible.itemCount=%d esinettä
+jei.gui.collapsible.editor.title=Valitut esineet
+jei.gui.collapsible.editor.name=Nimi
+jei.gui.collapsible.editor.save=Tallenna
+jei.gui.collapsible.editor.selected=%d valittu

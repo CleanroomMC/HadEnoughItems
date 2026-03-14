@@ -129,3 +129,34 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=左下隅のブックマークボタンを非表示にする
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=左下隅のブックマークボタンを非表示にするかどうか
+
+# Collapsible Groups
+jei.tooltip.collapsed.expand=Alt+クリックで展開
+jei.tooltip.collapsed.expand.firstItem=Alt+クリックで最初のアイテム
+jei.tooltip.collapsed.collapse=Alt+クリックで折りたたむ
+
+config.jei.collapsible=折りたたみグループ
+config.jei.collapsible.comment=アイテムリスト内でアイテムグループをひとつのスロットに折りたたむオプション。
+config.jei.collapsible.collapsibleGroupsEnabled=折りたたみグループを有効にする
+config.jei.collapsible.collapsibleGroupsEnabled.comment=有効にすると、関連するアイテムのグループ（ポーション、エンチャント本など）がひとつのスロットに折りたたまれます。Alt+クリックでグループを展開または折りたたみます。
+config.jei.collapsible.collapseOnClose=閉じる時に折りたたむ
+config.jei.collapsible.collapseOnClose.comment=HEIを閉じた時に現在開いているグループを折りたたみます。
+config.jei.collapsible.collapsedClickAction=デフォルトのクリック動作
+config.jei.collapsible.collapsedClickAction.comment=シングルクリックの動作を切り替えます。もう一方のオプションがAlt+クリックの動作になります。グループを開くはグループを開きます。最初のアイテムはグループの最初のアイテムにアクションを適用します。
+config.jei.collapsible.collapsedClickAction.OPEN_GROUP=グループを開く
+config.jei.collapsible.collapsedClickAction.FIRST_ITEM=最初のアイテム
+
+# Group Management GUI
+jei.gui.collapsible.title=グループ管理
+jei.gui.collapsible.back=戻る
+jei.gui.collapsible.newGroup=新しいグループ
+jei.gui.collapsible.title.tooltip=組み込みグループを有効/無効にし、ユーザー定義グループを作成します。
+jei.gui.collapsible.enabled=有効
+jei.gui.collapsible.disabled=無効
+jei.gui.collapsible.customGroup=カスタム
+jei.gui.collapsible.defaultGroup=デフォルト
+jei.gui.collapsible.itemCount=%d アイテム
+jei.gui.collapsible.editor.title=選択されたアイテム
+jei.gui.collapsible.editor.name=名前
+jei.gui.collapsible.editor.save=保存
+jei.gui.collapsible.editor.selected=%d 選択中

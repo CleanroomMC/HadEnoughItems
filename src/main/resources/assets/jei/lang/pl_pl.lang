@@ -132,3 +132,34 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Ukryj przycisk zakładki w lewym dolnym rogu
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Czy ukryć przycisk zakładki w lewym dolnym rogu
+
+# Collapsible Groups
+jei.tooltip.collapsed.expand=Alt+Klik aby rozwinąć
+jei.tooltip.collapsed.expand.firstItem=Alt+Klik dla pierwszego przedmiotu
+jei.tooltip.collapsed.collapse=Alt+Klik aby zwinąć
+
+config.jei.collapsible=Zwijane grupy
+config.jei.collapsible.comment=Opcje zwijania grup składników do jednego slotu na liście składników.
+config.jei.collapsible.collapsibleGroupsEnabled=Włącz zwijane grupy
+config.jei.collapsible.collapsibleGroupsEnabled.comment=Po włączeniu grupy powiązanych składników (mikstury, zaklęte księgi itp.) są zwijane do jednego slotu. Alt+Klik na grupę, aby ją rozwinąć lub zwinąć.
+config.jei.collapsible.collapseOnClose=Zwiń przy zamknięciu
+config.jei.collapsible.collapseOnClose.comment=Zwija aktualnie otwarte grupy po zamknięciu HEI.
+config.jei.collapsible.collapsedClickAction=Domyślna akcja kliknięcia
+config.jei.collapsible.collapsedClickAction.comment=Zamienia akcję pojedynczego kliknięcia, druga opcja staje się akcją Alt+Klik. Otwórz grupę otwiera grupę. Pierwszy przedmiot stosuje akcję do pierwszego przedmiotu w grupie.
+config.jei.collapsible.collapsedClickAction.OPEN_GROUP=Otwórz grupę
+config.jei.collapsible.collapsedClickAction.FIRST_ITEM=Pierwszy przedmiot
+
+# Group Management GUI
+jei.gui.collapsible.title=Zarządzaj grupami
+jei.gui.collapsible.back=Wstecz
+jei.gui.collapsible.newGroup=Nowa grupa
+jei.gui.collapsible.title.tooltip=Włącz/wyłącz wbudowane grupy i twórz grupy zdefiniowane przez użytkownika.
+jei.gui.collapsible.enabled=Włączone
+jei.gui.collapsible.disabled=Wyłączone
+jei.gui.collapsible.customGroup=Niestandardowe
+jei.gui.collapsible.defaultGroup=Domyślne
+jei.gui.collapsible.itemCount=%d przedmiotów
+jei.gui.collapsible.editor.title=Wybrane przedmioty
+jei.gui.collapsible.editor.name=Nazwa
+jei.gui.collapsible.editor.save=Zapisz
+jei.gui.collapsible.editor.selected=%d wybranych

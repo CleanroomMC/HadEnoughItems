@@ -119,3 +119,34 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Sol alt köşedeki yer imi düğmesini gizle
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Sol alt köşedeki yer imi düğmesinin gizlenip gizlenmeyeceği
+
+# Collapsible Groups
+jei.tooltip.collapsed.expand=Alt+Tıkla genişletmek için
+jei.tooltip.collapsed.expand.firstItem=Alt+Tıkla ilk öğe için
+jei.tooltip.collapsed.collapse=Alt+Tıkla daraltmak için
+
+config.jei.collapsible=Daraltılabilir Gruplar
+config.jei.collapsible.comment=Malzeme listesinde malzeme gruplarını tek bir yuvaya daraltma seçenekleri.
+config.jei.collapsible.collapsibleGroupsEnabled=Daraltılabilir Grupları Etkinleştir
+config.jei.collapsible.collapsibleGroupsEnabled.comment=Etkinleştirildiğinde, ilgili malzeme grupları (iksirler, büyülü kitaplar vb.) tek bir yuvaya daraltılır. Alt+Tıkla ile bir grubu genişletin veya daraltın.
+config.jei.collapsible.collapseOnClose=Kapatırken Daralt
+config.jei.collapsible.collapseOnClose.comment=HEI kapatıldığında açık olan grupları daraltır.
+config.jei.collapsible.collapsedClickAction=Varsayılan Tıklama Eylemi
+config.jei.collapsible.collapsedClickAction.comment=Tek tıklama eylemini değiştirir, diğer seçenek Alt+Tıklama eylemi olur. Grubu Aç grubu açar. İlk Öğe eylemi gruptaki ilk öğeye uygular.
+config.jei.collapsible.collapsedClickAction.OPEN_GROUP=Grubu Aç
+config.jei.collapsible.collapsedClickAction.FIRST_ITEM=İlk Öğe
+
+# Group Management GUI
+jei.gui.collapsible.title=Grupları Yönet
+jei.gui.collapsible.back=Geri
+jei.gui.collapsible.newGroup=Yeni Grup
+jei.gui.collapsible.title.tooltip=Yerleşik grupları etkinleştirin/devre dışı bırakın ve kullanıcı tanımlı gruplar oluşturun.
+jei.gui.collapsible.enabled=Etkin
+jei.gui.collapsible.disabled=Devre dışı
+jei.gui.collapsible.customGroup=Özel
+jei.gui.collapsible.defaultGroup=Varsayılan
+jei.gui.collapsible.itemCount=%d öğe
+jei.gui.collapsible.editor.title=Seçili Öğeler
+jei.gui.collapsible.editor.name=Ad
+jei.gui.collapsible.editor.save=Kaydet
+jei.gui.collapsible.editor.selected=%d seçildi

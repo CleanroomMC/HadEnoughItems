@@ -132,3 +132,34 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Dölj bokmärkesknapp i nedre vänstra hörnet
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Om bokmärkesknappen i nedre vänstra hörnet ska döljas
+
+# Collapsible Groups
+jei.tooltip.collapsed.expand=Alt+Klicka för att expandera
+jei.tooltip.collapsed.expand.firstItem=Alt+Klicka för första föremålet
+jei.tooltip.collapsed.collapse=Alt+Klicka för att fälla ihop
+
+config.jei.collapsible=Ihopfällbara grupper
+config.jei.collapsible.comment=Alternativ för att fälla ihop grupper av ingredienser till en enda plats i ingredienslistan.
+config.jei.collapsible.collapsibleGroupsEnabled=Aktivera ihopfällbara grupper
+config.jei.collapsible.collapsibleGroupsEnabled.comment=När aktiverat fälls grupper av relaterade ingredienser (bryggdrycker, förtrollade böcker osv.) ihop till en enda plats. Alt+Klicka på en grupp för att expandera eller fälla ihop den.
+config.jei.collapsible.collapseOnClose=Fäll ihop vid stängning
+config.jei.collapsible.collapseOnClose.comment=Fäller ihop öppna grupper när HEI stängs.
+config.jei.collapsible.collapsedClickAction=Standardklickåtgärd
+config.jei.collapsible.collapsedClickAction.comment=Byter enkelklicksåtgärden, det andra alternativet blir Alt+Klick-åtgärden. Öppna grupp öppnar gruppen. Första föremålet tillämpar åtgärden på gruppens första föremål.
+config.jei.collapsible.collapsedClickAction.OPEN_GROUP=Öppna grupp
+config.jei.collapsible.collapsedClickAction.FIRST_ITEM=Första föremålet
+
+# Group Management GUI
+jei.gui.collapsible.title=Hantera grupper
+jei.gui.collapsible.back=Tillbaka
+jei.gui.collapsible.newGroup=Ny grupp
+jei.gui.collapsible.title.tooltip=Aktivera/inaktivera inbyggda grupper och skapa användardefinierade grupper.
+jei.gui.collapsible.enabled=Aktiverad
+jei.gui.collapsible.disabled=Inaktiverad
+jei.gui.collapsible.customGroup=Anpassad
+jei.gui.collapsible.defaultGroup=Standard
+jei.gui.collapsible.itemCount=%d föremål
+jei.gui.collapsible.editor.title=Valda föremål
+jei.gui.collapsible.editor.name=Namn
+jei.gui.collapsible.editor.save=Spara
+jei.gui.collapsible.editor.selected=%d valda

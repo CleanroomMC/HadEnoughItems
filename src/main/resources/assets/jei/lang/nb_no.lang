@@ -119,3 +119,34 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Skjul bokmerke-knapp i nedre venstre hjørne
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Om bokmerke-knappen i nedre venstre hjørne skal skjules
+
+# Collapsible Groups
+jei.tooltip.collapsed.expand=Alt+Klikk for å utvide
+jei.tooltip.collapsed.expand.firstItem=Alt+Klikk for første gjenstand
+jei.tooltip.collapsed.collapse=Alt+Klikk for å skjule
+
+config.jei.collapsible=Sammenleggbare grupper
+config.jei.collapsible.comment=Alternativer for å slå sammen grupper av ingredienser til én plass i ingredienslisten.
+config.jei.collapsible.collapsibleGroupsEnabled=Aktiver sammenleggbare grupper
+config.jei.collapsible.collapsibleGroupsEnabled.comment=Når aktivert, blir grupper av relaterte ingredienser (drikkevarer, forheksede bøker osv.) slått sammen til én plass. Alt+Klikk på en gruppe for å utvide eller skjule den.
+config.jei.collapsible.collapseOnClose=Legg sammen ved lukking
+config.jei.collapsible.collapseOnClose.comment=Legger sammen åpne grupper når HEI lukkes.
+config.jei.collapsible.collapsedClickAction=Standard klikkhandling
+config.jei.collapsible.collapsedClickAction.comment=Bytter enkeltklikkhandlingen, det andre alternativet blir Alt+Klikk-handlingen. Åpne gruppe åpner gruppen. Første gjenstand bruker handlingen på den første gjenstanden i gruppen.
+config.jei.collapsible.collapsedClickAction.OPEN_GROUP=Åpne gruppe
+config.jei.collapsible.collapsedClickAction.FIRST_ITEM=Første gjenstand
+
+# Group Management GUI
+jei.gui.collapsible.title=Administrer grupper
+jei.gui.collapsible.back=Tilbake
+jei.gui.collapsible.newGroup=Ny gruppe
+jei.gui.collapsible.title.tooltip=Aktiver/deaktiver innebygde grupper og opprett brukerdefinerte grupper.
+jei.gui.collapsible.enabled=Aktivert
+jei.gui.collapsible.disabled=Deaktivert
+jei.gui.collapsible.customGroup=Egendefinert
+jei.gui.collapsible.defaultGroup=Standard
+jei.gui.collapsible.itemCount=%d gjenstander
+jei.gui.collapsible.editor.title=Valgte gjenstander
+jei.gui.collapsible.editor.name=Navn
+jei.gui.collapsible.editor.save=Lagre
+jei.gui.collapsible.editor.selected=%d valgt

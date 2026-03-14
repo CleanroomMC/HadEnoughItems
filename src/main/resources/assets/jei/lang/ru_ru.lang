@@ -164,3 +164,34 @@ config.jei.interface.defaultFluidContainerItem.comment=Предмет по ум�
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Скрыть кнопку закладки в левом нижнем углу
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Скрывать ли кнопку закладки в левом нижнем углу
+
+# Collapsible Groups
+jei.tooltip.collapsed.expand=Alt+Клик для раскрытия
+jei.tooltip.collapsed.expand.firstItem=Alt+Клик для первого предмета
+jei.tooltip.collapsed.collapse=Alt+Клик для сворачивания
+
+config.jei.collapsible=Сворачиваемые группы
+config.jei.collapsible.comment=Настройки сворачивания групп ингредиентов в один слот в списке ингредиентов.
+config.jei.collapsible.collapsibleGroupsEnabled=Включить сворачиваемые группы
+config.jei.collapsible.collapsibleGroupsEnabled.comment=При включении группы связанных ингредиентов (зелья, зачарованные книги и т.д.) сворачиваются в один слот. Alt+Клик по группе для раскрытия или сворачивания.
+config.jei.collapsible.collapseOnClose=Сворачивать при закрытии
+config.jei.collapsible.collapseOnClose.comment=Сворачивать открытые группы при закрытии HEI.
+config.jei.collapsible.collapsedClickAction=Действие клика по умолчанию
+config.jei.collapsible.collapsedClickAction.comment=Меняет действие одиночного клика, другой вариант становится действием Alt+Клик. Открыть группу открывает группу. Первый предмет применяет действие к первому предмету в группе.
+config.jei.collapsible.collapsedClickAction.OPEN_GROUP=Открыть группу
+config.jei.collapsible.collapsedClickAction.FIRST_ITEM=Первый предмет
+
+# Group Management GUI
+jei.gui.collapsible.title=Управление группами
+jei.gui.collapsible.back=Назад
+jei.gui.collapsible.newGroup=Новая группа
+jei.gui.collapsible.title.tooltip=Включение/отключение встроенных групп и создание пользовательских групп.
+jei.gui.collapsible.enabled=Включено
+jei.gui.collapsible.disabled=Отключено
+jei.gui.collapsible.customGroup=Пользовательская
+jei.gui.collapsible.defaultGroup=По умолчанию
+jei.gui.collapsible.itemCount=%d предметов
+jei.gui.collapsible.editor.title=Выбранные предметы
+jei.gui.collapsible.editor.name=Название
+jei.gui.collapsible.editor.save=Сохранить
+jei.gui.collapsible.editor.selected=%d выбрано

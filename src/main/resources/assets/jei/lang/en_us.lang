@@ -23,8 +23,9 @@ jei.tooltip.bookmarks.usage.key=Hover over an ingredient and press "%s" to bookm
 jei.tooltip.bookmarks.not.enough.space=There is not enough space to display bookmarks here.
 
 # Collapsible Groups
-jei.tooltip.collapsed.expand=Alt+Click to expand
-jei.tooltip.collapsed.collapse=Alt+Click to collapse
+jei.tooltip.collapsed.expand=Alt+Click to Expand
+jei.tooltip.collapsed.expand.firstItem=Alt+Click for First Item
+jei.tooltip.collapsed.collapse=Alt+Click to Collapse
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Missing Items
@@ -190,6 +191,12 @@ config.jei.collapsible=Collapsible Groups
 config.jei.collapsible.comment=Options for collapsing groups of ingredients into a single slot in the ingredient list.
 config.jei.collapsible.collapsibleGroupsEnabled=Enable Collapsible Groups
 config.jei.collapsible.collapsibleGroupsEnabled.comment=When enabled, groups of related ingredients (potions, enchanted books, etc.) are collapsed into a single slot. Alt+Click a group to expand or collapse it.
+config.jei.collapsible.collapseOnClose=Collapse on Close
+config.jei.collapsible.collapseOnClose.comment=Collapse currently opened groups when HEI is closed.
+config.jei.collapsible.collapsedClickAction=Default Collapsed Action
+config.jei.collapsible.collapsedClickAction.comment=Swaps the single click action, The other option becomes the Alt+Click action. Open Group opens the group. First Item applies the action to the first item in the group.
+config.jei.collapsible.collapsedClickAction.OPEN_GROUP=Open Group
+config.jei.collapsible.collapsedClickAction.FIRST_ITEM=First Item
 
 config.jei.category.categoryUidOrder=Category UID Order
 config.jei.category.categoryUidOrder.comment=Determines the display order of recipe categories in HEI. Categories listed earlier appear first in the HEI interface.
