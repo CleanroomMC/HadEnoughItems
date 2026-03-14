@@ -57,7 +57,11 @@ public class CollapsedStackRenderer {
 
 	/**
 	 * Renders the collapsed group as a single slot.
-	 * Draws a tinted background, the first item, and a count badge.
+	 * For groups with 2+ items, mimics REI's stacked-card icon: each item is rendered at
+	 * 0.75× scale (12 px), offset 4 px so both stay entirely within the 16×16 slot area.
+	 *   Back  item (upper-right): screen origin (x+4, y+0), occupies (x+4..x+16, y..y+12)
+	 *   Front item (lower-left) : screen origin (x+0, y+4), occupies (x..x+12, y+4..y+16)
+	 * Count badge is drawn at 0.75× scale in orange in the bottom-right corner.
 	 */
 	public void render(Minecraft minecraft) {
 		List<IIngredientListElement<?>> ingredients = collapsedStack.getIngredients();
@@ -71,44 +75,68 @@ public class CollapsedStackRenderer {
 		// Draw background tint to visually distinguish collapsed groups
 		GuiScreen.drawRect(x, y, x + 16, y + 16, COLLAPSED_BG_COLOR);
 
-		// Render the first item as the representative
-		IIngredientListElement<?> firstElement = ingredients.get(0);
-		Object ingredient = firstElement.getIngredient();
-		if (ingredient instanceof ItemStack) {
-			ItemStack itemStack = (ItemStack) ingredient;
-			RenderHelper.enableGUIStandardItemLighting();
-			RenderItem renderItem = minecraft.getRenderItem();
-			renderItem.renderItemAndEffectIntoGUI(itemStack, x, y);
-			RenderHelper.disableStandardItemLighting();
+		if (ingredients.size() == 1) {
+			// Single item: render at full size
+			renderElementAt(minecraft, ingredients.get(0), x, y, 1.0f);
 		} else {
-			try {
-				renderIngredient(minecraft, x, y, firstElement);
-			} catch (RuntimeException | LinkageError e) {
-				// Silently ignore render errors for collapsed preview
-			}
+			// 0.75 scale → 12 px icon.
+			// Back  (upper-right): origin at (x+4, y+0) → occupies x+4..x+16, y..y+12
+			// Front (lower-left) : origin at (x+0, y+4) → occupies x..x+12,   y+4..y+16
+			RenderItem renderItem = minecraft.getRenderItem();
+			renderElementAt(minecraft, ingredients.get(1), x + 4, y + 0, 0.75f); // back
+			// Elevate zLevel so the front item's depth values are naturally in front of the
+			// back item's geometry. Using GL_LEQUAL (normal) keeps the front item's own
+			// internal face culling intact — GL_ALWAYS would break tile-entity models.
+			float prevZLevel = renderItem.zLevel;
+			renderItem.zLevel += 100;
+			renderElementAt(minecraft, ingredients.get(0), x + 0, y + 4, 0.75f); // front
+			renderItem.zLevel = prevZLevel;
 		}
 
-		// Draw count badge in bottom-right
+		// Count badge: 0.75× scale, orange, right-aligned at the bottom of the slot
 		int count = collapsedStack.size();
 		if (count > 1) {
-			String countStr = String.valueOf(count);
 			FontRenderer fontRenderer = minecraft.fontRenderer;
+			String countStr = String.valueOf(count);
 			GlStateManager.disableLighting();
 			GlStateManager.disableDepth();
 			GlStateManager.disableBlend();
-
-			// Draw count text with shadow, right-aligned in the slot
+			final float badgeScale = 0.75f;
+			// Convert desired screen position to scaled-coordinate space.
+			// Screen right edge: x+16 → scaled coord (x+16)/badgeScale
+			// Screen top of text: y+10 → scaled coord (y+10)/badgeScale
 			int textWidth = fontRenderer.getStringWidth(countStr);
-			int textX = x + 17 - textWidth;
-			int textY = y + 9;
-
-			fontRenderer.drawStringWithShadow(countStr, textX, textY, 0xFFFFFF);
-
+			int scaledRight = (int) ((x + 16) / badgeScale);
+			int scaledTop  = (int) ((y + 10) / badgeScale);
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(badgeScale, badgeScale, 1.0f);
+			fontRenderer.drawStringWithShadow(countStr, scaledRight - textWidth, scaledTop, 0xFFAA00);
+			GlStateManager.popMatrix();
 			GlStateManager.enableDepth();
 		}
 
-		// Draw a subtle border to indicate this is a collapsible group
 		drawCollapsedBorder(x, y);
+	}
+
+	/**
+	 * Renders one ingredient at (x, y) at the given scale using the GL matrix stack.
+	 * Delegates to renderItemAndEffectIntoGUI so all item types (2D, 3D, built-in) render correctly.
+	 */
+	private void renderElementAt(Minecraft minecraft, IIngredientListElement<?> element, int x, int y, float scale) {
+		Object ingredient = element.getIngredient();
+		try {
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x, y, 0);
+			GlStateManager.scale(scale, scale, scale);
+			if (ingredient instanceof ItemStack) {
+				minecraft.getRenderItem().renderItemAndEffectIntoGUI((ItemStack) ingredient, 0, 0);
+			} else {
+				renderIngredient(minecraft, 0, 0, element);
+			}
+			GlStateManager.popMatrix();
+		} catch (RuntimeException | LinkageError ignored) {
+			GlStateManager.popMatrix();
+		}
 	}
 
 	private void drawCollapsedBorder(int x, int y) {
