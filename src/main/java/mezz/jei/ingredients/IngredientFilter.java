@@ -184,6 +184,9 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		filterText = Translator.toLowercaseWithLocale(filterText);
 		if (!filterText.equals(filterCached)) {
 			List<IIngredientListElement<?>> ingredientList = getIngredientListUncached(filterText);
+			if (!filterText.isEmpty() && Config.isCollapsibleGroupsEnabled()) {
+				ingredientList = withGroupNameMatches(ingredientList, filterText);
+			}
 			ingredientListCached = Collections.unmodifiableList(ingredientList);
 			collapsedListCached = collapse(ingredientListCached);
 			filterCached = filterText;
@@ -263,6 +266,49 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 				.filter(IIngredientListElement::isVisible)
 				.sorted(IngredientListElementComparator.INSTANCE)
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Augments a filtered ingredient list with any ingredients that belong to a group whose
+	 * display name contains the filter text, but that weren't returned by the normal token
+	 * search. This lets users find groups by name in the main search bar.
+	 */
+	@SuppressWarnings("unchecked")
+	private List<IIngredientListElement<?>> withGroupNameMatches(
+			List<IIngredientListElement<?>> baseList, String filterText) {
+		CollapsibleEntryRegistry registry = CollapsibleEntryRegistry.getInstance();
+		List<CollapsibleEntry> matchingGroups = new ArrayList<>();
+		for (CollapsibleEntry entry : registry.getEntries()) {
+			if (Translator.toLowercaseWithLocale(entry.getDisplayName()).contains(filterText)) {
+				matchingGroups.add(entry);
+			}
+		}
+		for (CollapsibleEntry entry : registry.getCustomEntries()) {
+			if (Translator.toLowercaseWithLocale(entry.getDisplayName()).contains(filterText)) {
+				matchingGroups.add(entry);
+			}
+		}
+		if (matchingGroups.isEmpty()) {
+			return baseList;
+		}
+		// Use identity comparison so dedup works regardless of equals() implementation.
+		Set<IIngredientListElement<?>> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+		seen.addAll(baseList);
+		List<IIngredientListElement<?>> result = new ArrayList<>(baseList);
+		for (IIngredientListElement<?> element : this.elementSearch.getAllIngredients()) {
+			if (!element.isVisible() || seen.contains(element)) {
+				continue;
+			}
+			for (CollapsibleEntry entry : matchingGroups) {
+				if (entry.matches(element)) {
+					result.add(element);
+					seen.add(element);
+					break;
+				}
+			}
+		}
+		result.sort(IngredientListElementComparator.INSTANCE);
+		return result;
 	}
 
 	/**
