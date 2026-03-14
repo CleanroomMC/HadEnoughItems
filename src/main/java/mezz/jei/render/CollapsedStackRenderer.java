@@ -178,7 +178,7 @@ public class CollapsedStackRenderer {
 			+ TextFormatting.GRAY + " (" + total + " items)";
 		String hint = TextFormatting.YELLOW + Translator.translateToLocal("jei.tooltip.collapsed.expand");
 
-		int tw = Math.max(font.getStringWidth(header), gridW);
+		int tw = Math.max(Math.max(font.getStringWidth(header), font.getStringWidth(hint)), gridW);
 		int th = 12 + gridH + 10;
 
 		ScaledResolution sr = new ScaledResolution(minecraft);
