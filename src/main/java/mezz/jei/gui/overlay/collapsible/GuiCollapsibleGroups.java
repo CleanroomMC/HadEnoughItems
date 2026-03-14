@@ -34,6 +34,8 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	private static final int PREVIEW_SIZE = 16;
 	private static final int PREVIEW_COLS = 8;
 	private static final int PREVIEW_ROWS = 3;
+	// Maximum items fetched per card for the scrollable preview (20 scrollable rows)
+	private static final int PREVIEW_FETCH_MAX = PREVIEW_COLS * 20;
 
 	// Dynamic layout — recomputed on each initGui() call so the screen adapts to GUI scale
 	private int cardsPerCol;
@@ -57,6 +59,11 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	private int currentPage = 0;
 	private int totalPages = 1;
 	@Nullable private ItemStack tooltipStack = null;
+
+	// Drag-to-scroll state for card preview boxes
+	private int dragCardAbsIdx = -1;
+	private int dragStartMouseY;
+	private int dragStartRow;
 
 	public GuiCollapsibleGroups(GuiScreen parentScreen) {
 		this.parentScreen = parentScreen;
@@ -328,19 +335,26 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		String countText = String.format(Translator.translateToLocal("jei.gui.collapsible.itemCount"), card.itemCount);
 		this.fontRenderer.drawStringWithShadow(countText, x + 4, y + 16, 0xAAAAAA);
 
-		// Preview items — up to PREVIEW_ROWS rows of PREVIEW_COLS items each
-		int previewY = y + 28;
-		int previewX = x + 4;
+		// Scrollable preview grid
 		int slotSize = PREVIEW_SIZE + 2;
-		int maxPreview = PREVIEW_COLS * PREVIEW_ROWS;
+		int previewX = x + 4;
+		int previewY = y + 28;
+		int totalRows = (card.previewItems.size() + PREVIEW_COLS - 1) / PREVIEW_COLS;
+		int maxScrollRow = Math.max(0, totalRows - PREVIEW_ROWS);
+		card.previewScrollRow = Math.max(0, Math.min(card.previewScrollRow, maxScrollRow));
+		int scrollRow = card.previewScrollRow;
+
+		int firstItem = scrollRow * PREVIEW_COLS;
+		int lastItem = Math.min(card.previewItems.size(), (scrollRow + PREVIEW_ROWS) * PREVIEW_COLS);
 
 		RenderHelper.enableGUIStandardItemLighting();
 		GlStateManager.enableDepth();
-		int count = Math.min(card.previewItems.size(), maxPreview);
-		for (int i = 0; i < count; i++) {
+		for (int i = firstItem; i < lastItem; i++) {
 			ItemStack stack = card.previewItems.get(i);
-			int itemX = previewX + (i % PREVIEW_COLS) * slotSize;
-			int itemY = previewY + (i / PREVIEW_COLS) * slotSize;
+			int visibleRow = (i / PREVIEW_COLS) - scrollRow;
+			int col = i % PREVIEW_COLS;
+			int itemX = previewX + col * slotSize;
+			int itemY = previewY + visibleRow * slotSize;
 			this.mc.getRenderItem().renderItemAndEffectIntoGUI(stack, itemX, itemY);
 			if (mouseX >= itemX && mouseX < itemX + PREVIEW_SIZE
 					&& mouseY >= itemY && mouseY < itemY + PREVIEW_SIZE) {
@@ -350,11 +364,15 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableDepth();
 
-		if (card.itemCount > maxPreview) {
-			String moreText = "+" + (card.itemCount - maxPreview);
-			int moreX = previewX + PREVIEW_COLS * slotSize + 2;
-			int moreY = previewY + (PREVIEW_ROWS - 1) * slotSize + 4;
-			this.fontRenderer.drawStringWithShadow(moreText, moreX, moreY, 0x888888);
+		// Scrollbar indicator
+		if (maxScrollRow > 0) {
+			int sbX = previewX + PREVIEW_COLS * slotSize + 2;
+			int sbY = previewY;
+			int sbH = PREVIEW_ROWS * slotSize;
+			drawRect(sbX, sbY, sbX + 3, sbY + sbH, 0x55FFFFFF);
+			int thumbH = Math.max(4, sbH * PREVIEW_ROWS / totalRows);
+			int thumbY = sbY + (sbH - thumbH) * scrollRow / maxScrollRow;
+			drawRect(sbX, thumbY, sbX + 3, thumbY + thumbH, 0xCCFFFFFF);
 		}
 	}
 
@@ -363,13 +381,101 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		super.handleMouseInput();
 		int scrollDelta = Mouse.getEventDWheel();
 		if (scrollDelta != 0) {
-			if (scrollDelta < 0 && currentPage < totalPages - 1) {
-				currentPage++;
-				rebuildPageButtons();
-			} else if (scrollDelta > 0 && currentPage > 0) {
-				currentPage--;
-				rebuildPageButtons();
+			int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
+			int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+
+			// Check if the cursor is inside any visible card's preview box
+			boolean handledByCard = false;
+			int slotSize = PREVIEW_SIZE + 2;
+			int startIdx = currentPage * cardsPerPage;
+			int endIdx = Math.min(startIdx + cardsPerPage, cardEntries.size());
+			for (int i = startIdx; i < endIdx; i++) {
+				int localIdx = i - startIdx;
+				int col = localIdx / cardsPerCol;
+				int row = localIdx % cardsPerCol;
+				int cardX = layoutContentLeft + col * (layoutColWidth + layoutColGap);
+				int cardY = layoutContentTop + row * (CARD_HEIGHT + CARD_PADDING);
+				int previewX = cardX + 4;
+				int previewY = cardY + 28;
+				int previewW = PREVIEW_COLS * slotSize;
+				int previewH = PREVIEW_ROWS * slotSize;
+				if (mouseX >= previewX && mouseX < previewX + previewW
+						&& mouseY >= previewY && mouseY < previewY + previewH) {
+					GroupCardEntry card = cardEntries.get(i);
+					int totalRows = (card.previewItems.size() + PREVIEW_COLS - 1) / PREVIEW_COLS;
+					int maxScrollRow = Math.max(0, totalRows - PREVIEW_ROWS);
+					if (maxScrollRow > 0) {
+						if (scrollDelta < 0) {
+							card.previewScrollRow = Math.min(card.previewScrollRow + 1, maxScrollRow);
+						} else {
+							card.previewScrollRow = Math.max(card.previewScrollRow - 1, 0);
+						}
+						handledByCard = true;
+					}
+					break;
+				}
 			}
+
+			if (!handledByCard) {
+				if (scrollDelta < 0 && currentPage < totalPages - 1) {
+					currentPage++;
+					rebuildPageButtons();
+				} else if (scrollDelta > 0 && currentPage > 0) {
+					currentPage--;
+					rebuildPageButtons();
+				}
+			}
+		}
+	}
+
+	@Override
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+		super.mouseClicked(mouseX, mouseY, mouseButton);
+		if (mouseButton == 0) {
+			dragCardAbsIdx = -1;
+			int slotSize = PREVIEW_SIZE + 2;
+			int startIdx = currentPage * cardsPerPage;
+			int endIdx = Math.min(startIdx + cardsPerPage, cardEntries.size());
+			for (int i = startIdx; i < endIdx; i++) {
+				int localIdx = i - startIdx;
+				int col = localIdx / cardsPerCol;
+				int row = localIdx % cardsPerCol;
+				int cardX = layoutContentLeft + col * (layoutColWidth + layoutColGap);
+				int cardY = layoutContentTop + row * (CARD_HEIGHT + CARD_PADDING);
+				int previewX = cardX + 4;
+				int previewY = cardY + 28;
+				int previewW = PREVIEW_COLS * slotSize;
+				int previewH = PREVIEW_ROWS * slotSize;
+				if (mouseX >= previewX && mouseX < previewX + previewW
+						&& mouseY >= previewY && mouseY < previewY + previewH) {
+					dragCardAbsIdx = i;
+					dragStartMouseY = mouseY;
+					dragStartRow = cardEntries.get(i).previewScrollRow;
+					break;
+				}
+			}
+		}
+	}
+
+	@Override
+	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+		if (clickedMouseButton == 0 && dragCardAbsIdx >= 0 && dragCardAbsIdx < cardEntries.size()) {
+			int slotSize = PREVIEW_SIZE + 2;
+			GroupCardEntry card = cardEntries.get(dragCardAbsIdx);
+			int totalRows = (card.previewItems.size() + PREVIEW_COLS - 1) / PREVIEW_COLS;
+			int maxScrollRow = Math.max(0, totalRows - PREVIEW_ROWS);
+			// Dragging up (negative deltaY) scrolls down through items
+			int rowDelta = (dragStartMouseY - mouseY) / slotSize;
+			card.previewScrollRow = Math.max(0, Math.min(dragStartRow + rowDelta, maxScrollRow));
+		}
+	}
+
+	@Override
+	protected void mouseReleased(int mouseX, int mouseY, int state) {
+		super.mouseReleased(mouseX, mouseY, state);
+		if (state == 0) {
+			dragCardAbsIdx = -1;
 		}
 	}
 
@@ -394,7 +500,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		}
 		IngredientFilter filter = Internal.getIngredientFilter();
 		List<IIngredientListElement> ingredientList = filter.getIngredientList("");
-		int maxItems = PREVIEW_COLS * PREVIEW_ROWS;
+		int maxItems = PREVIEW_FETCH_MAX;
 		for (IIngredientListElement<?> element : ingredientList) {
 			if (entry.matches(element)) {
 				ItemStack preview = toPreviewStack(element);
@@ -457,6 +563,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		boolean enabled;
 		final List<ItemStack> previewItems;
 		final int itemCount;
+		int previewScrollRow = 0;
 
 		GroupCardEntry(String id, String displayName, boolean isCustom, boolean enabled, List<ItemStack> previewItems, int itemCount) {
 			this.id = id;
