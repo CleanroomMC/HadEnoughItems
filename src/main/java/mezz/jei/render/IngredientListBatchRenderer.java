@@ -478,7 +478,10 @@ public class IngredientListBatchRenderer {
             slot.renderSlow();
         }
 
-        // collapsed group rendering
+        // collapsed group rendering — lighting enabled once for all groups; each renderer
+        // assumes it is on and does not toggle it per item.
+        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.enableDepth();
         for (CollapsedStackRenderer collapsed : renderCollapsed) {
             collapsed.render(minecraft);
         }
