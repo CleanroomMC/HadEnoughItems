@@ -13,7 +13,7 @@ jei.tooltip.cheat.mode.button.enabled=作弊模式已启用
 jei.tooltip.cheat.mode.how.to.disable.hotkey=按 %s 以切换。
 jei.tooltip.cheat.mode.how.to.disable.no.hotkey=按住 %s 并点击此处以切换。
 jei.tooltip.recipe.by=配方源：%s
-jei.tooltip.recipe.id=配方ID：%s
+jei.tooltip.recipe.id=配方 ID：%s
 jei.tooltip.not.enough.space=屏幕右侧区域空间不足，无法显示 HEI 原料列表叠加层。
 jei.tooltip.ingredient.list.disabled=HEI 叠加层已隐藏。
 jei.tooltip.ingredient.list.disabled.how.to.fix=按 %s 以启用。
@@ -33,7 +33,7 @@ jei.tooltip.error.crash=提示框错误，请查看日志
 # Error Messages
 jei.chat.error.command.too.long=必须于服务器上安装 HEI 才能处理，这条命令对 Minecraft 来说太长了。
 jei.chat.error.no.cheat.permission.1=你没有使用 HEI 作弊模式的权限。
-jei.chat.error.no.cheat.permission.2=可以使用 /give 命令，或处在创造模式下的玩家拥有此权限。
+jei.chat.error.no.cheat.permission.2=能够使用 /give 命令，或处在创造模式下的玩家拥有此权限。
 
 # Key Bindings
 key.jei.toggleOverlay=显示/隐藏 HEI 叠加层
