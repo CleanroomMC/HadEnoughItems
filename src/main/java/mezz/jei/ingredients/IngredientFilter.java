@@ -146,11 +146,11 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		// In Hide Ingredients Mode the user cannot Alt+Click to expand/collapse groups,
 		// so expand all groups when entering edit mode and collapse them on exit.
 		boolean editMode = event.isEditModeEnabled();
-		CollapsibleEntryRegistry registry = mezz.jei.Internal.getCollapsibleEntryRegistry();
-		for (CollapsibleEntry entry : registry.getEntries()) {
+		CollapsedStackRegistry registry = mezz.jei.Internal.getCollapsedStackRegistry();
+		for (CollapsedStack entry : registry.getEntries()) {
 			entry.setExpanded(editMode);
 		}
-		for (CollapsibleEntry entry : registry.getCustomEntries()) {
+		for (CollapsedStack entry : registry.getCustomEntries()) {
 			entry.setExpanded(editMode);
 		}
 		this.collapsedListCached = Collections.emptyList();
@@ -276,14 +276,14 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	@SuppressWarnings("unchecked")
 	private List<IIngredientListElement<?>> withGroupNameMatches(
 			List<IIngredientListElement<?>> baseList, String filterText) {
-		CollapsibleEntryRegistry registry = CollapsibleEntryRegistry.getInstance();
-		List<CollapsibleEntry> matchingGroups = new ArrayList<>();
-		for (CollapsibleEntry entry : registry.getEntries()) {
+		CollapsedStackRegistry registry = CollapsedStackRegistry.getInstance();
+		List<CollapsedStack> matchingGroups = new ArrayList<>();
+		for (CollapsedStack entry : registry.getEntries()) {
 			if (Translator.toLowercaseWithLocale(entry.getDisplayName()).contains(filterText)) {
 				matchingGroups.add(entry);
 			}
 		}
-		for (CollapsibleEntry entry : registry.getCustomEntries()) {
+		for (CollapsedStack entry : registry.getCustomEntries()) {
 			if (Translator.toLowercaseWithLocale(entry.getDisplayName()).contains(filterText)) {
 				matchingGroups.add(entry);
 			}
@@ -299,7 +299,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			if (!element.isVisible() || seen.contains(element)) {
 				continue;
 			}
-			for (CollapsibleEntry entry : matchingGroups) {
+			for (CollapsedStack entry : matchingGroups) {
 				if (entry.matches(element)) {
 					result.add(element);
 					seen.add(element);
@@ -314,28 +314,28 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	/**
 	 * Converts a flat filtered ingredient list into a mixed list containing
 	 * both individual IIngredientListElement objects and CollapsedStack groups.
-	 * Each ingredient is assigned to the first matching CollapsibleEntry (first match wins).
+	 * Each ingredient is assigned to the first matching CollapsedStack group (first match wins).
 	 * If collapsible groups are disabled, returns the original list cast to List&lt;Object&gt;.
 	 */
 	private List<Object> collapse(List<IIngredientListElement> ingredientList) {
 		if (!Config.isCollapsibleGroupsEnabled()) {
 			return new ArrayList<>(ingredientList);
 		}
-		CollapsibleEntryRegistry registry = CollapsibleEntryRegistry.getInstance();
-		Collection<CollapsibleEntry> entries = registry.getEntries();
-		List<CollapsibleEntry> customEntries = registry.getCustomEntries();
+		CollapsedStackRegistry registry = CollapsedStackRegistry.getInstance();
+		Collection<CollapsedStack> entries = registry.getEntries();
+		List<CollapsedStack> customEntries = registry.getCustomEntries();
 		if (entries.isEmpty() && customEntries.isEmpty()) {
 			return new ArrayList<>(ingredientList);
 		}
 
 		// Build the list of active entries (not disabled)
-		List<CollapsibleEntry> activeEntries = new ArrayList<>();
-		for (CollapsibleEntry entry : entries) {
+		List<CollapsedStack> activeEntries = new ArrayList<>();
+		for (CollapsedStack entry : entries) {
 			if (registry.isGroupEnabled(entry.getId())) {
 				activeEntries.add(entry);
 			}
 		}
-		for (CollapsibleEntry entry : customEntries) {
+		for (CollapsedStack entry : customEntries) {
 			if (registry.isGroupEnabled(entry.getId())) {
 				activeEntries.add(entry);
 			}
@@ -344,21 +344,23 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			return new ArrayList<>(ingredientList);
 		}
 
-		// Map from entry -> CollapsedStack (created on first match)
-		Map<CollapsibleEntry, CollapsedStack> collapsedMap = new LinkedHashMap<>();
+		// CollapsedStack serves as both group definition and runtime container;
+		// clear transient ingredients before repopulating from the current filter.
+		for (CollapsedStack entry : activeEntries) {
+			entry.clearIngredients();
+		}
 		List<Object> result = new ArrayList<>(ingredientList.size());
+		// Track which entries have already been added to the result list
+		Set<CollapsedStack> addedToResult = Collections.newSetFromMap(new IdentityHashMap<>());
 
 		for (IIngredientListElement<?> element : ingredientList) {
 			boolean matched = false;
-			for (CollapsibleEntry entry : activeEntries) {
+			for (CollapsedStack entry : activeEntries) {
 				if (entry.matches(element)) {
-					CollapsedStack collapsed = collapsedMap.get(entry);
-					if (collapsed == null) {
-						collapsed = new CollapsedStack(entry);
-						collapsedMap.put(entry, collapsed);
-						result.add(collapsed);
+					if (addedToResult.add(entry)) {
+						result.add(entry);
 					}
-					collapsed.addIngredient(element);
+					entry.addIngredient(element);
 					matched = true;
 				}
 			}

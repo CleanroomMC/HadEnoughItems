@@ -15,8 +15,8 @@ import mezz.jei.config.JEIModConfigGui;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.elements.GuiIconToggleButton;
-import mezz.jei.ingredients.CollapsibleEntry;
-import mezz.jei.ingredients.CollapsibleEntryRegistry;
+import mezz.jei.ingredients.CollapsedStack;
+import mezz.jei.ingredients.CollapsedStackRegistry;
 import mezz.jei.util.Translator;
 import org.lwjgl.input.Keyboard;
 
@@ -67,11 +67,11 @@ public class ConfigButton extends GuiIconToggleButton {
 		if (Config.isOverlayEnabled()) {
 			if (GuiScreen.isAltKeyDown() && Config.isCollapsibleGroupsEnabled()
 					&& Internal.hasIngredientFilter()) {
-				CollapsibleEntryRegistry registry = Internal.getCollapsibleEntryRegistry();
-				Collection<CollapsibleEntry> entries = registry.getEntries();
-				List<CollapsibleEntry> customEntries = registry.getCustomEntries();
-				boolean allExpanded = entries.stream().allMatch(CollapsibleEntry::isExpanded)
-						&& customEntries.stream().allMatch(CollapsibleEntry::isExpanded);
+				CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
+				Collection<CollapsedStack> entries = registry.getEntries();
+				List<CollapsedStack> customEntries = registry.getCustomEntries();
+				boolean allExpanded = entries.stream().allMatch(CollapsedStack::isExpanded)
+						&& customEntries.stream().allMatch(CollapsedStack::isExpanded);
 				boolean targetExpanded = !allExpanded;
 				entries.forEach(e -> e.setExpanded(targetExpanded));
 				customEntries.forEach(e -> e.setExpanded(targetExpanded));

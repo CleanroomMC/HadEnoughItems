@@ -12,7 +12,7 @@ import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiEventHandler;
-import mezz.jei.ingredients.CollapsibleEntryRegistry;
+import mezz.jei.ingredients.CollapsedStackRegistry;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.ghost.GhostIngredientDragManager;
@@ -103,7 +103,7 @@ public class JeiStarter {
 		registerDefaultCollapsibleGroups();
 
 		{
-			CollapsibleEntryRegistry registry = Internal.getCollapsibleEntryRegistry();
+			CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
 			registry.loadCustomGroups();
 			registry.syncDisabledGroups();
 		}
@@ -348,7 +348,7 @@ public class JeiStarter {
 	}
 
 	private static void registerDefaultCollapsibleGroups() {
-		CollapsibleEntryRegistry registry = Internal.getCollapsibleEntryRegistry();
+		CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
 		// Enchanted books in JEI are stored as EnchantmentData (VanillaTypes.ENCHANT),
 		// not as ItemStacks — IngredientRegistry strips them from the ItemStack list.
 		// Match all EnchantmentData directly; every EnchantmentData IS an enchanted book.

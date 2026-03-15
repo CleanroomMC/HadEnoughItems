@@ -12,25 +12,25 @@ import java.util.*;
 import java.util.function.Predicate;
 
 /**
- * Registry holding all collapsible entry group definitions.
+ * Registry for CollapsedStack group definitions.
  * Groups are checked in registration order; first match wins.
  */
-public class CollapsibleEntryRegistry {
+public class CollapsedStackRegistry {
 	@Nullable
-	private static CollapsibleEntryRegistry instance;
+	private static CollapsedStackRegistry instance;
 
-	private final LinkedHashMap<String, CollapsibleEntry> entries = new LinkedHashMap<>();
-	private final List<CollapsibleEntry> customEntries = new ArrayList<>();
+	private final LinkedHashMap<String, CollapsedStack> entries = new LinkedHashMap<>();
+	private final List<CollapsedStack> customEntries = new ArrayList<>();
 	private final Set<String> disabledGroups = new HashSet<>();
 
-	public static CollapsibleEntryRegistry getInstance() {
+	public static CollapsedStackRegistry getInstance() {
 		if (instance == null) {
-			instance = new CollapsibleEntryRegistry();
+			instance = new CollapsedStackRegistry();
 		}
 		return instance;
 	}
 
-	public static void setInstance(@Nullable CollapsibleEntryRegistry registry) {
+	public static void setInstance(@Nullable CollapsedStackRegistry registry) {
 		instance = registry;
 	}
 
@@ -43,7 +43,7 @@ public class CollapsibleEntryRegistry {
 	 * @param matcher     predicate that returns true for ItemStacks belonging to this group
 	 */
 	public void group(String id, String displayName, Predicate<ItemStack> matcher) {
-		entries.put(id, CollapsibleEntry.ofItemStack(id, displayName, matcher));
+		entries.put(id, CollapsedStack.ofItemStack(id, displayName, matcher));
 	}
 
 	/**
@@ -56,15 +56,15 @@ public class CollapsibleEntryRegistry {
 	 * @param matcher     predicate on the raw ingredient object
 	 */
 	public void groupForType(String id, String displayName, Predicate<Object> matcher) {
-		entries.put(id, new CollapsibleEntry(id, displayName, matcher));
+		entries.put(id, new CollapsedStack(id, displayName, matcher));
 	}
 
-	public Collection<CollapsibleEntry> getEntries() {
+	public Collection<CollapsedStack> getEntries() {
 		return entries.values();
 	}
 
 	@Nullable
-	public CollapsibleEntry getEntry(String id) {
+	public CollapsedStack getEntry(String id) {
 		return entries.get(id);
 	}
 
@@ -85,13 +85,13 @@ public class CollapsibleEntryRegistry {
 		return !disabledGroups.contains(id);
 	}
 
-	public List<CollapsibleEntry> getCustomEntries() {
+	public List<CollapsedStack> getCustomEntries() {
 		return customEntries;
 	}
 
 	/**
 	 * Load custom collapsible groups from the JSON config.
-	 * Creates CollapsibleEntry objects that match items by their unique identifier.
+	 * Creates CollapsedStack objects that match items by their unique identifier.
 	 */
 	public void loadCustomGroups() {
 		customEntries.clear();
@@ -107,7 +107,7 @@ public class CollapsibleEntryRegistry {
 			String displayName = group.displayName != null ? group.displayName : group.id;
 			// Matcher works for both ItemStack and non-ItemStack ingredients (e.g. FluidStack):
 			// for ItemStacks use StackHelper, for everything else use the generic IngredientRegistry helper.
-			customEntries.add(new CollapsibleEntry(group.id, displayName, ingredient -> {
+			customEntries.add(new CollapsedStack(group.id, displayName, ingredient -> {
 				try {
 					String uid;
 					if (ingredient instanceof ItemStack) {

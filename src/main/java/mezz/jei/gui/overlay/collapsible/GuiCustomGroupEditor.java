@@ -259,7 +259,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
 		if (customGroupsConfig != null) {
 			customGroupsConfig.updateGroup(group);
-			Internal.getCollapsibleEntryRegistry().recollectCustomEntries();
+			Internal.getCollapsedStackRegistry().recollectCustomEntries();
 			if (Internal.hasIngredientFilter()) {
 				IngredientFilter filter = Internal.getIngredientFilter();
 				// Invalidate the filter cache so the next call to getIngredientList

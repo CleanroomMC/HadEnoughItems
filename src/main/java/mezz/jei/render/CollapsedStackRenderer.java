@@ -1,10 +1,11 @@
 package mezz.jei.render;
 
 import mezz.jei.api.ingredients.IIngredientRenderer;
-import mezz.jei.gui.TooltipRenderer;
+import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.CollapsedStack;
 import mezz.jei.input.ClickedIngredient;
+import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -179,7 +180,7 @@ public class CollapsedStackRenderer {
 		// In OPEN_GROUP mode, alt+click uses first item; show that as the hint.
 		// In FIRST_ITEM mode, alt+click expands; show that instead.
 		String hint = TextFormatting.YELLOW + Translator.translateToLocal(
-			mezz.jei.config.Config.getCollapsedClickAction() == mezz.jei.util.CollapsedClickAction.OPEN_GROUP
+			Config.getCollapsedClickAction() == CollapsedClickAction.OPEN_GROUP
 				? "jei.tooltip.collapsed.expand.firstItem"
 				: "jei.tooltip.collapsed.expand");
 
@@ -254,8 +255,8 @@ public class CollapsedStackRenderer {
 	}
 
 	/**
-	 * Gets a ClickedIngredient for the first item in the group,
-	 * so that recipe lookups still work for the representative item.
+	 * Returns the CollapsedStack as the clicked ingredient — registered as IIngredientType
+	 * for addon compatibility. Recipe lookups are delegated via translateFocus on the helper.
 	 */
 	@Nullable
 	public ClickedIngredient<?> getClickedIngredient() {
@@ -263,8 +264,8 @@ public class CollapsedStackRenderer {
 		if (ingredients.isEmpty()) {
 			return null;
 		}
-		IIngredientListElement<?> first = ingredients.get(0);
-		return ClickedIngredient.create(first.getIngredient(), area);
+		// Return CollapsedStack directly — it is a registered IIngredientType
+		return ClickedIngredient.create(collapsedStack, area);
 	}
 
 	public boolean isMouseOver(int mouseX, int mouseY) {

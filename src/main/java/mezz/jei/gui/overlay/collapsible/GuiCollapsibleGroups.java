@@ -5,8 +5,8 @@ import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.config.Config;
 import mezz.jei.config.CustomGroupsConfig;
 import mezz.jei.gui.ingredients.IIngredientListElement;
-import mezz.jei.ingredients.CollapsibleEntry;
-import mezz.jei.ingredients.CollapsibleEntryRegistry;
+import mezz.jei.ingredients.CollapsedStack;
+import mezz.jei.ingredients.CollapsedStackRegistry;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
@@ -103,10 +103,10 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	private void rebuildCards() {
 		cardEntries.clear();
 
-		CollapsibleEntryRegistry registry = Internal.getCollapsibleEntryRegistry();
+		CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
 
 		// Custom groups come first (like REI)
-		for (CollapsibleEntry entry : registry.getCustomEntries()) {
+		for (CollapsedStack entry : registry.getCustomEntries()) {
 			List<IIngredientListElement<?>> previewItems = getPreviewItems(entry);
 			int itemCount = getMatchedItemCount(entry);
 			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), true,
@@ -114,7 +114,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		}
 
 		// Default groups
-		for (CollapsibleEntry entry : registry.getEntries()) {
+		for (CollapsedStack entry : registry.getEntries()) {
 			List<IIngredientListElement<?>> previewItems = getPreviewItems(entry);
 			int itemCount = getMatchedItemCount(entry);
 			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), false,
@@ -202,7 +202,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 				GroupCardEntry card = cardEntries.get(idx);
 				card.enabled = !card.enabled;
 
-				CollapsibleEntryRegistry registry = Internal.getCollapsibleEntryRegistry();
+				CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
 				Set<String> disabled = new HashSet<>(registry.getDisabledGroups());
 				if (card.enabled) {
 					disabled.remove(card.id);
@@ -253,7 +253,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 					CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
 					if (customGroupsConfig != null) {
 						customGroupsConfig.removeGroup(card.id);
-						Internal.getCollapsibleEntryRegistry().recollectCustomEntries();
+						Internal.getCollapsedStackRegistry().recollectCustomEntries();
 
 						if (Internal.hasIngredientFilter()) {
 							IngredientFilter filter = Internal.getIngredientFilter();
@@ -490,7 +490,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	 * Get up to PREVIEW_FETCH_MAX preview elements for a collapsible entry,
 	 * returning the raw IIngredientListElement so each type renders via its own renderer.
 	 */
-	private List<IIngredientListElement<?>> getPreviewItems(CollapsibleEntry entry) {
+	private List<IIngredientListElement<?>> getPreviewItems(CollapsedStack entry) {
 		List<IIngredientListElement<?>> items = new ArrayList<>();
 		if (!Internal.hasIngredientFilter()) {
 			return items;
@@ -540,7 +540,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	/**
 	 * Count matched items for display.
 	 */
-	private int getMatchedItemCount(CollapsibleEntry entry) {
+	private int getMatchedItemCount(CollapsedStack entry) {
 		if (!Internal.hasIngredientFilter()) {
 			return 0;
 		}
