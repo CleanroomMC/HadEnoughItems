@@ -14,6 +14,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -28,9 +29,12 @@ import java.util.List;
  * Shows the first item with a count badge indicating total group size,
  * plus a semi-transparent background to distinguish it from normal items.
  */
-public class CollapsedStackRenderer {
+public class CollapsedStackRenderer implements IIngredientRenderer<CollapsedStack> {
 	private static final int COLLAPSED_BG_COLOR = 0x33FFFFFF;
 	private static final int COLLAPSED_BORDER_COLOR = 0x55AAAAFF;
+
+	/** Singleton registered with the ingredient type system — {@code collapsedStack} is null. */
+	public static final CollapsedStackRenderer INSTANCE = new CollapsedStackRenderer(null);
 
 	private final CollapsedStack collapsedStack;
 	private Rectangle area = new Rectangle(0, 0, 16, 16);
@@ -56,22 +60,28 @@ public class CollapsedStackRenderer {
 		return area;
 	}
 
+	/** Grid overlay render — uses this instance's stack and area+padding. */
+	public void render(Minecraft minecraft) {
+		if (collapsedStack == null || collapsedStack.isEmpty()) {
+			return;
+		}
+		renderAt(minecraft, collapsedStack, area.x + padding, area.y + padding);
+	}
+
 	/**
-	 * Renders the collapsed group as a single slot.
+	 * Stateless render at an arbitrary position — shared by the instance render and
+	 * the {@link IIngredientRenderer} contract.
 	 * For groups with 2+ items, mimics REI's stacked-card icon: each item is rendered at
 	 * 0.75× scale (12 px), offset 4 px so both stay entirely within the 16×16 slot area.
 	 *   Back  item (upper-right): screen origin (x+4, y+0), occupies (x+4..x+16, y..y+12)
 	 *   Front item (lower-left) : screen origin (x+0, y+4), occupies (x..x+12, y+4..y+16)
 	 * Count badge is drawn at 0.75× scale in orange in the bottom-right corner.
 	 */
-	public void render(Minecraft minecraft) {
-		List<IIngredientListElement<?>> ingredients = collapsedStack.getIngredients();
+	private static void renderAt(Minecraft minecraft, CollapsedStack ingredient, int x, int y) {
+		List<IIngredientListElement<?>> ingredients = ingredient.getIngredients();
 		if (ingredients.isEmpty()) {
 			return;
 		}
-
-		int x = area.x + padding;
-		int y = area.y + padding;
 
 		// Draw background tint to visually distinguish collapsed groups
 		GuiScreen.drawRect(x, y, x + 16, y + 16, COLLAPSED_BG_COLOR);
@@ -95,7 +105,7 @@ public class CollapsedStackRenderer {
 		}
 
 		// Count badge: 0.75× scale, orange, right-aligned at the bottom of the slot
-		int count = collapsedStack.size();
+		int count = ingredient.size();
 		if (count > 1) {
 			FontRenderer fontRenderer = minecraft.fontRenderer;
 			String countStr = String.valueOf(count);
@@ -123,7 +133,7 @@ public class CollapsedStackRenderer {
 	 * Renders one ingredient at (x, y) at the given scale using the GL matrix stack.
 	 * Delegates to renderItemAndEffectIntoGUI so all item types (2D, 3D, built-in) render correctly.
 	 */
-	private void renderElementAt(Minecraft minecraft, IIngredientListElement<?> element, int x, int y, float scale) {
+	private static void renderElementAt(Minecraft minecraft, IIngredientListElement<?> element, int x, int y, float scale) {
 		Object ingredient = element.getIngredient();
 		try {
 			GlStateManager.pushMatrix();
@@ -140,13 +150,32 @@ public class CollapsedStackRenderer {
 		}
 	}
 
-	private void drawCollapsedBorder(int x, int y) {
+	private static void drawCollapsedBorder(int x, int y) {
 		// Small triangle indicator in the top-left corner to show it's collapsible
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		GuiScreen.drawRect(x, y, x + 4, y + 1, COLLAPSED_BORDER_COLOR);
 		GuiScreen.drawRect(x, y, x + 1, y + 4, COLLAPSED_BORDER_COLOR);
 		GlStateManager.enableDepth();
+	}
+
+	// --- IIngredientRenderer<CollapsedStack> implementation ---
+	// INSTANCE (null stack) is registered with the ingredient type system.
+
+	@Override
+	public void render(Minecraft minecraft, int xPosition, int yPosition, @Nullable CollapsedStack ingredient) {
+		if (ingredient == null || ingredient.isEmpty()) {
+			return;
+		}
+		renderAt(minecraft, ingredient, xPosition, yPosition);
+	}
+
+	@Override
+	public List<String> getTooltip(Minecraft minecraft, CollapsedStack ingredient, ITooltipFlag tooltipFlag) {
+		List<String> tooltip = new ArrayList<>();
+		tooltip.add(TextFormatting.GOLD + ingredient.getDisplayName()
+				+ TextFormatting.GRAY + " (" + ingredient.size() + " items)");
+		return tooltip;
 	}
 
 	public void drawHighlight() {
