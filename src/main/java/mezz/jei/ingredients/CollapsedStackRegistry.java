@@ -103,7 +103,16 @@ public class CollapsedStackRegistry {
 			if (group.id == null || group.id.isEmpty() || group.itemUids == null) {
 				continue;
 			}
-			Set<String> uidSet = new HashSet<>(group.itemUids);
+			// Split stored UIDs into exact matches and wildcard prefixes (stored as "prefix:*")
+			Set<String> exactUids = new HashSet<>();
+			Set<String> wildcardPrefixes = new HashSet<>();
+			for (String uid : group.itemUids) {
+				if (uid.endsWith(":*")) {
+					wildcardPrefixes.add(uid.substring(0, uid.length() - 2));
+				} else {
+					exactUids.add(uid);
+				}
+			}
 			String displayName = group.displayName != null ? group.displayName : group.id;
 			// Matcher works for both ItemStack and non-ItemStack ingredients (e.g. FluidStack):
 			// for ItemStacks use StackHelper, for everything else use the generic IngredientRegistry helper.
@@ -121,7 +130,12 @@ public class CollapsedStackRegistry {
 								Internal.getIngredientRegistry().getIngredientHelper(ingredient);
 						uid = helper.getUniqueId(ingredient);
 					}
-					return uidSet.contains(uid);
+					if (exactUids.contains(uid)) return true;
+					// Check wildcard prefix: "minecraft:iron_pickaxe" matches "minecraft:iron_pickaxe:5" etc.
+					for (String prefix : wildcardPrefixes) {
+						if (uid.equals(prefix) || uid.startsWith(prefix + ":")) return true;
+					}
+					return false;
 				} catch (Exception e) {
 					return false;
 				}
