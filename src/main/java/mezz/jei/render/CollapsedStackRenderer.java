@@ -191,6 +191,12 @@ public class CollapsedStackRenderer implements IIngredientRenderer<CollapsedStac
 		List<IIngredientListElement<?>> ingredients = collapsedStack.getIngredients();
 		if (ingredients.isEmpty()) return;
 
+		// Single-item group (e.g. search filtered to one result): show the item's native tooltip
+		if (ingredients.size() == 1) {
+			new IngredientRenderer<>(ingredients.get(0)).drawTooltip(minecraft, mouseX, mouseY);
+			return;
+		}
+
 		FontRenderer font = minecraft.fontRenderer;
 		final int COLS = 8;
 		final int SLOT = 18; // 16px icon + 1px padding each side
