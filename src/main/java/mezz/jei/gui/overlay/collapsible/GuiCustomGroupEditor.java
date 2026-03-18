@@ -259,6 +259,59 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		return null;
 	}
 
+	/**
+	 * Collects all exact UIDs from the full ingredient list that share the given wildcard prefix.
+	 * Used for auto-promote checks and wildcard decomposition.
+	 * Mirrors the sibling-lookup from the legacy blacklist's areAllBlacklisted / getMatches logic.
+	 */
+	private List<String> getSiblingUids(String wildcardUid) {
+		if (!wildcardUid.endsWith(":*") || !Internal.hasIngredientFilter()) return Collections.emptyList();
+		String prefix = wildcardUid.substring(0, wildcardUid.length() - 2);
+		List<IIngredientListElement> all = Internal.getIngredientFilter().getIngredientList("");
+		List<String> result = new ArrayList<>();
+		for (IIngredientListElement<?> elem : all) {
+			String uid = getIngredientUid(elem.getIngredient());
+			if (uid != null && (uid.equals(prefix) || uid.startsWith(prefix + ":"))) {
+				result.add(uid);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Decomposes a wildcard entry into individual exact entries, excluding one item
+	 * (the one the user just clicked to remove).
+	 * Mirrors removeIngredientFromConfigBlacklist's wildcard-decompose behaviour.
+	 */
+	private void decomposeWildcard(String wildcardUid, @Nullable String excludeUid) {
+		selectedUids.remove(wildcardUid);
+		for (String sibling : getSiblingUids(wildcardUid)) {
+			if (!sibling.equals(excludeUid)) {
+				selectedUids.add(sibling);
+			}
+		}
+		updateSelectedStacks();
+	}
+
+	/**
+	 * After adding an exact UID, checks if every meta variant of that item is now individually
+	 * selected. If so, replaces them all with a single wildcard entry.
+	 * Mirrors addIngredientToConfigBlacklist's auto-promote (areAllBlacklisted) behaviour.
+	 */
+	private void maybePromoteToWildcard(Object ingredient, String addedUid) {
+		String wildcardUid = getIngredientWildcardUid(ingredient);
+		if (wildcardUid == null || !wildcardUid.endsWith(":*")) return;
+		List<String> siblings = getSiblingUids(wildcardUid);
+		if (siblings.isEmpty()) return;
+		for (String sibling : siblings) {
+			if (!selectedUids.contains(sibling)) return;
+		}
+		// All variants are individually selected — promote to a single wildcard entry
+		selectedUids.removeAll(siblings);
+		selectedUids.add(wildcardUid);
+		updateSelectedStacks();
+	}
+
 	/** Returns a mutable list of tooltip lines for any ingredient element. */
 	@SuppressWarnings("unchecked")
 	private <T> List<String> getIngredientTooltipLines(IIngredientListElement<T> element) {
@@ -576,7 +629,13 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				IIngredientListElement<?> element = filteredItems.get(startIdx + i);
 				List<String> lines = getIngredientTooltipLines(element);
 				if (element.getIngredient() instanceof ItemStack) {
-					lines.add(TextFormatting.GOLD + "Ctrl+Click: Wildcard (*)");
+					String uid3 = getIngredientUid(element.getIngredient());
+					boolean alreadySelected = uid3 != null && isUidSelected(uid3);
+					if (alreadySelected) {
+						lines.add(TextFormatting.GOLD + "Ctrl+Click: Remove all variants");
+					} else {
+						lines.add(TextFormatting.GOLD + "Ctrl+Click: Select all variants (Wildcard)");
+					}
 				}
 				String uid2 = getIngredientUid(element.getIngredient());
 				if (uid2 != null) {
@@ -635,7 +694,8 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		}
 
 		// Left grid click: toggle item selection and start drag
-		// Ctrl+Click stores a wildcard UID (matches all metadata variants)
+		// Ctrl+Click: adds a wildcard UID, or removes entire family if item is already selected
+		// Normal click: adds/removes exact UID, with auto-promote and wildcard-decompose support
 		if (mouseButton == 0 && !filteredItems.isEmpty()) {
 			int startIdx = leftPage * leftItemsPerPage;
 			for (int i = 0; i < leftItemsPerPage && (startIdx + i) < filteredItems.size(); i++) {
@@ -646,37 +706,76 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				if (mouseX >= x && mouseX < x + ITEM_SIZE && mouseY >= y && mouseY < y + ITEM_SIZE) {
 					IIngredientListElement<?> element = filteredItems.get(startIdx + i);
 					boolean ctrl = isCtrlKeyDown();
-					String uid = ctrl
-							? getIngredientWildcardUid(element.getIngredient())
-							: getIngredientUid(element.getIngredient());
-					if (uid != null) {
-						// Normal click on an item already covered by a wildcard → deselect the wildcard
-						if (!ctrl && !selectedUids.contains(uid)) {
-							String wildcardUid = findCoveringWildcard(uid);
-							if (wildcardUid != null) {
-								removeSelectionByUid(wildcardUid);
+					String exactUid = getIngredientUid(element.getIngredient());
+					if (exactUid == null) return;
+
+					if (ctrl) {
+						if (isUidSelected(exactUid)) {
+							// Ctrl+Click on a selected item → remove the entire family (all meta variants)
+							String familyWildcard = getIngredientWildcardUid(element.getIngredient());
+							if (familyWildcard != null && familyWildcard.endsWith(":*")) {
+								String prefix = familyWildcard.substring(0, familyWildcard.length() - 2);
+								selectedUids.remove(familyWildcard);
+								selectedUids.removeIf(existing ->
+										existing.equals(prefix) || existing.startsWith(prefix + ":"));
+							} else {
+								selectedUids.remove(exactUid);
+							}
+							dragAdding = false;
+							dragWildcard = true;
+							isDragging = true;
+							lastDraggedUid = exactUid;
+							updateSelectedStacks();
+						} else {
+							// Ctrl+Click on unselected item → add wildcard, remove any exact UIDs it already covers
+							String wildcardUid = getIngredientWildcardUid(element.getIngredient());
+							if (wildcardUid == null) wildcardUid = exactUid;
+							if (wildcardUid.endsWith(":*")) {
+								String prefix = wildcardUid.substring(0, wildcardUid.length() - 2);
+								selectedUids.removeIf(existing ->
+										existing.equals(prefix) || existing.startsWith(prefix + ":"));
+							}
+							dragAdding = true;
+							dragWildcard = true;
+							isDragging = true;
+							lastDraggedUid = wildcardUid;
+							selectedUids.add(wildcardUid);
+							updateSelectedStacks();
+						}
+					} else {
+						// Normal click
+						if (!selectedUids.contains(exactUid)) {
+							// Item is covered by a wildcard → decompose to exact entries minus the clicked one
+							String coveringWildcard = findCoveringWildcard(exactUid);
+							if (coveringWildcard != null) {
+								decomposeWildcard(coveringWildcard, exactUid);
+								dragAdding = false;
+								dragWildcard = false;
+								isDragging = true;
+								lastDraggedUid = exactUid;
 								return;
 							}
 						}
-						// Ctrl+Click adding a wildcard → remove any exact UIDs it already covers
-						if (ctrl && !selectedUids.contains(uid)) {
-							String prefix = uid.substring(0, uid.length() - 2); // strip ":*"
-							selectedUids.removeIf(existing ->
-									existing.equals(prefix) || existing.startsWith(prefix + ":"));
-						}
-						dragAdding = !selectedUids.contains(uid);
-						dragWildcard = ctrl;
+						boolean adding = !selectedUids.contains(exactUid);
+						dragAdding = adding;
+						dragWildcard = false;
 						isDragging = true;
-						lastDraggedUid = uid;
-						toggleSelectionByUid(uid);
+						lastDraggedUid = exactUid;
+						toggleSelectionByUid(exactUid);
+						// Auto-promote: if all meta variants are now individually selected, consolidate to a wildcard
+						if (adding) {
+							maybePromoteToWildcard(element.getIngredient(), exactUid);
+						}
 					}
 					return;
 				}
 			}
 		}
 
-		// Right grid click: remove from selection
-		// Uses selectedStackToStoredUid so wildcard entries are removed by their stored ":*" uid
+		// Right grid click: remove from selection.
+		// Ctrl+Click: wildcard removal — removes the entire family (wildcard entry + all exact siblings).
+		// Normal click on a wildcard entry: decomposes it, removing only the clicked item.
+		// Normal click on an exact entry: removes just that item.
 		if (mouseButton == 0 && !selectedStacks.isEmpty()) {
 			int startIdx = rightPage * rightItemsPerPage;
 			for (int i = 0; i < rightItemsPerPage && (startIdx + i) < selectedStacks.size(); i++) {
@@ -687,7 +786,28 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				if (mouseX >= x && mouseX < x + ITEM_SIZE && mouseY >= y && mouseY < y + ITEM_SIZE) {
 					IIngredientListElement<?> element = selectedStacks.get(startIdx + i);
 					String storedUid = selectedStackToStoredUid.get(element);
-					if (storedUid != null) removeSelectionByUid(storedUid);
+					if (storedUid != null) {
+						boolean ctrl = isCtrlKeyDown();
+						if (ctrl) {
+							// Ctrl+Click — remove all variants regardless of exact/wildcard storage
+							String familyWildcard = getIngredientWildcardUid(element.getIngredient());
+							if (familyWildcard != null && familyWildcard.endsWith(":*")) {
+								String prefix = familyWildcard.substring(0, familyWildcard.length() - 2);
+								selectedUids.remove(familyWildcard);
+								selectedUids.removeIf(existing ->
+										existing.equals(prefix) || existing.startsWith(prefix + ":"));
+								updateSelectedStacks();
+							} else {
+								removeSelectionByUid(storedUid);
+							}
+						} else if (storedUid.endsWith(":*")) {
+							// Normal click on a wildcard entry — decompose, removing only this item
+							String exactUid = getIngredientUid(element.getIngredient());
+							decomposeWildcard(storedUid, exactUid);
+						} else {
+							removeSelectionByUid(storedUid);
+						}
+					}
 					return;
 				}
 			}
@@ -716,12 +836,17 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			int x = leftGridX + col * ITEM_SIZE;
 			int y = leftGridY + row * ITEM_SIZE;
 			if (mouseX >= x && mouseX < x + ITEM_SIZE && mouseY >= y && mouseY < y + ITEM_SIZE) {
-				String uid = getIngredientUid(filteredItems.get(startIdx + i).getIngredient());
+				IIngredientListElement<?> elem = filteredItems.get(startIdx + i);
+				String uid = getIngredientUid(elem.getIngredient());
 				if (uid != null && !uid.equals(lastDraggedUid)) {
 					lastDraggedUid = uid;
 					if (dragAdding) {
 						// Skip items already covered by an exact or wildcard selection
-						if (!isUidSelected(uid) && selectedUids.add(uid)) updateSelectedStacks();
+						if (!isUidSelected(uid) && selectedUids.add(uid)) {
+							updateSelectedStacks();
+							// Auto-promote: if all variants of this item are selected, consolidate to a wildcard
+							maybePromoteToWildcard(elem.getIngredient(), uid);
+						}
 					} else {
 						if (selectedUids.remove(uid)) updateSelectedStacks();
 					}
