@@ -149,14 +149,14 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			String toggleLabel = card.enabled
 				? Translator.translateToLocal("jei.gui.collapsible.enabled")
 				: Translator.translateToLocal("jei.gui.collapsible.disabled");
-			this.buttonList.add(new GuiButton(BTN_TOGGLE_BASE + i, btnX, btnY, 52, 16, toggleLabel));
+			this.buttonList.add(new GuiButton(BTN_TOGGLE_BASE + i, btnX, btnY, 52, 20, toggleLabel));
 
 			if (card.isCustom) {
 				// Configure button
-				this.buttonList.add(new GuiButton(BTN_CONFIGURE_BASE + i, btnX, btnY + 18, 24, 16,
+				this.buttonList.add(new GuiButton(BTN_CONFIGURE_BASE + i, btnX, btnY + 22, 24, 20,
 					"\u270E")); // pencil unicode
 				// Delete button
-				this.buttonList.add(new GuiButton(BTN_DELETE_BASE + i, btnX + 26, btnY + 18, 26, 16,
+				this.buttonList.add(new GuiButton(BTN_DELETE_BASE + i, btnX + 26, btnY + 22, 26, 20,
 					"\u2716")); // cross unicode
 			}
 		}

@@ -104,7 +104,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		int panelDivider = (int) (this.width * 0.65);
 
 		// Name field
-		nameField = new GuiTextField(10, this.fontRenderer, 60, 6, panelDivider - 70, 16);
+		nameField = new GuiTextField(10, this.fontRenderer, 62, 6, panelDivider - 70, 16);
 		nameField.setMaxStringLength(40);
 		nameField.setText(group.displayName != null ? group.displayName : "");
 
@@ -114,9 +114,9 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		searchField.setText("");
 
 		// Save & Cancel buttons
-		this.buttonList.add(new GuiButton(BTN_SAVE, panelDivider + 4, 4, 50, 18,
+		this.buttonList.add(new GuiButton(BTN_SAVE, panelDivider + 4, 4, 50, 20,
 			Translator.translateToLocal("jei.gui.collapsible.editor.save")));
-		this.buttonList.add(new GuiButton(BTN_CANCEL, panelDivider + 58, 4, 50, 18,
+		this.buttonList.add(new GuiButton(BTN_CANCEL, panelDivider + 58, 4, 50, 20,
 			Translator.translateToLocal("jei.gui.collapsible.back")));
 
 		// Calculate left grid layout
@@ -124,7 +124,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		int leftHeight = this.height - topBarHeight - 26; // room for page nav
 		leftCols = Math.max(1, leftWidth / ITEM_SIZE);
 		leftRows = Math.max(1, leftHeight / ITEM_SIZE);
-		leftGridX = 4;
+		leftGridX = (panelDivider - 4 - leftCols * ITEM_SIZE) / 2;
 		leftGridY = topBarHeight;
 		leftItemsPerPage = leftCols * leftRows;
 
@@ -139,12 +139,12 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 		// Page nav buttons for left grid
 		int leftNavY = this.height - 22;
-		this.buttonList.add(new GuiButton(BTN_PREV_PAGE, 4, leftNavY, 30, 18, "<"));
-		this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, panelDivider - 34, leftNavY, 30, 18, ">"));
+		this.buttonList.add(new GuiButton(BTN_PREV_PAGE, 4, leftNavY, 30, 20, "<"));
+		this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, panelDivider - 34, leftNavY, 30, 20, ">"));
 
 		// Page nav buttons for right grid
-		this.buttonList.add(new GuiButton(BTN_PREV_SEL_PAGE, panelDivider + 4, leftNavY, 30, 18, "<"));
-		this.buttonList.add(new GuiButton(BTN_NEXT_SEL_PAGE, this.width - 34, leftNavY, 30, 18, ">"));
+		this.buttonList.add(new GuiButton(BTN_PREV_SEL_PAGE, panelDivider + 4, leftNavY, 30, 20, "<"));
+		this.buttonList.add(new GuiButton(BTN_NEXT_SEL_PAGE, this.width - 34, leftNavY, 30, 20, ">"));
 
 		updateFilteredItems();
 		updateSelectedStacks();
