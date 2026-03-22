@@ -1,6 +1,5 @@
 package mezz.jei.ingredients;
 
-import mezz.jei.Internal;
 import mezz.jei.config.Config;
 import mezz.jei.config.CustomGroupsConfig;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -114,32 +113,26 @@ public class CollapsedStackRegistry {
 				}
 			}
 			String displayName = group.displayName != null ? group.displayName : group.id;
-			// Matcher works for both ItemStack and non-ItemStack ingredients (e.g. FluidStack):
-			// for ItemStacks use StackHelper, for everything else use the generic IngredientRegistry helper.
-			customEntries.add(new CollapsedStack(group.id, displayName, ingredient -> {
-				try {
-					String uid;
-					if (ingredient instanceof ItemStack) {
-						ItemStack stack = (ItemStack) ingredient;
-						if (stack.isEmpty()) return false;
-						uid = Internal.getStackHelper().getUniqueIdentifierForStack(stack);
-					} else {
-						@SuppressWarnings("unchecked")
-						mezz.jei.api.ingredients.IIngredientHelper<Object> helper =
-								(mezz.jei.api.ingredients.IIngredientHelper<Object>)
-								Internal.getIngredientRegistry().getIngredientHelper(ingredient);
-						uid = helper.getUniqueId(ingredient);
-					}
-					if (exactUids.contains(uid)) return true;
-					// Check wildcard prefix: "minecraft:iron_pickaxe" matches "minecraft:iron_pickaxe:5" etc.
-					for (String prefix : wildcardPrefixes) {
-						if (uid.equals(prefix) || uid.startsWith(prefix + ":")) return true;
-					}
-					return false;
-				} catch (Exception e) {
-					return false;
+
+			// UID-based fast-path predicate: O(1) hash-set lookup, no StackHelper call.
+			// Used by IngredientFilter.collapse() after it has pre-computed each element's UID once.
+			final Predicate<String> uidPredicate = uid -> {
+				if (exactUids.contains(uid)) return true;
+				for (String prefix : wildcardPrefixes) {
+					if (uid.equals(prefix) || uid.startsWith(prefix + ":")) return true;
 				}
-			}));
+				return false;
+			};
+
+			// Ingredient-level matcher (fallback for call sites that don't pre-compute UIDs,
+			// e.g. withGroupNameMatches).  Delegates UID computation to CollapsedStack.computeIngredientUid
+			// and then uses the same uidPredicate to avoid duplicating the matching logic.
+			CollapsedStack cs = new CollapsedStack(group.id, displayName, ingredient -> {
+				String uid = CollapsedStack.computeIngredientUid(ingredient);
+				return uid != null && uidPredicate.test(uid);
+			});
+			cs.setUidMatcher(uidPredicate);
+			customEntries.add(cs);
 		}
 		Log.get().debug("Loaded {} custom collapsible groups", customEntries.size());
 	}

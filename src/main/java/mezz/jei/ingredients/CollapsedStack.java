@@ -1,9 +1,12 @@
 package mezz.jei.ingredients;
 
+import mezz.jei.Internal;
+import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -25,6 +28,13 @@ public class CollapsedStack {
 	private final String displayName;
 	/** Matches against the raw ingredient object (any type). */
 	private final Predicate<Object> matcher;
+	/**
+	 * Optional fast-path matcher that receives a pre-computed UID string instead of the raw
+	 * ingredient.  Set on custom groups by {@link CollapsedStackRegistry} so that
+	 * {@link mezz.jei.ingredients.IngredientFilter#collapse} can skip calling
+	 * {@code getUniqueIdentifierForStack()} N×M times per filter cycle.
+	 */
+	@Nullable private Predicate<String> uidMatcher;
 	private boolean expanded;
 	private final List<IIngredientListElement<?>> ingredients;
 
@@ -81,6 +91,42 @@ public class CollapsedStack {
 			return false;
 		}
 		return matcher.test(ingredient);
+	}
+
+	/** Returns the UID-based matcher, or {@code null} if this group uses a raw-ingredient predicate. */
+	@Nullable
+	public Predicate<String> getUidMatcher() {
+		return uidMatcher;
+	}
+
+	public void setUidMatcher(Predicate<String> uidMatcher) {
+		this.uidMatcher = uidMatcher;
+	}
+
+	/**
+	 * Computes a unique identifier string for any ingredient type.
+	 * Returns {@code null} if the ingredient is empty or an error occurs.
+	 * Used by {@code collapse()} to precompute UIDs once per element.
+	 */
+	@Nullable
+	public static String computeIngredientUid(Object ingredient) {
+		if (ingredient instanceof ItemStack) {
+			ItemStack stack = (ItemStack) ingredient;
+			if (stack.isEmpty()) return null;
+			try {
+				return Internal.getStackHelper().getUniqueIdentifierForStack(stack);
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		try {
+			@SuppressWarnings("unchecked")
+			IIngredientHelper<Object> helper = (IIngredientHelper<Object>)
+					Internal.getIngredientRegistry().getIngredientHelper(ingredient);
+			return helper.getUniqueId(ingredient);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	// --- Runtime ingredient list (transient per filter cycle) ---

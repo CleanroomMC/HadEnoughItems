@@ -3,6 +3,7 @@ package mezz.jei.ingredients;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,15 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	private List<IIngredientListElement> ingredientListCached = Collections.emptyList();
 	private List<Object> collapsedListCached = Collections.emptyList();
 	@Nullable private String filterCached;
+	/**
+	 * Cached sorted list of all currently-visible ingredients — the result of a full
+	 * suffix-tree traversal + sort.  This does NOT change when the search-bar text changes,
+	 * only when ingredients are added/removed or their visibility changes.  Caching it here
+	 * avoids the expensive {@code elementSearch.getAllIngredients()} traversal on every
+	 * keystroke (once in {@link #getIngredientListUncached} for empty filter and once more
+	 * in {@link #withGroupNameMatches} for every non-empty filter).
+	 */
+	@Nullable private List<IIngredientListElement<?>> allVisibleIngredientsCache = null;
 
 	private boolean afterBlock = false;
 	@Nullable private List<Runnable> delegatedActions;
@@ -56,13 +66,13 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public void addIngredients(NonNullList<IIngredientListElement> ingredients) {
 		ingredients.sort(IngredientListElementComparator.INSTANCE);
 		this.elementSearch.addAll(ingredients);
-		this.filterCached = null;
+		invalidateCache();
 	}
 
 	public <V> void addIngredient(IIngredientListElement<V> element) {
 		updateHiddenState(element);
 		this.elementSearch.add(element);
-		this.filterCached = null;
+		invalidateCache();
 	}
 
 	public void delegateAfterBlock(Runnable runnable) {
@@ -97,6 +107,23 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	public void invalidateCache() {
 		this.filterCached = null;
+		this.allVisibleIngredientsCache = null;
+	}
+
+	/**
+	 * Returns a cached, sorted list of every currently-visible ingredient.
+	 * The cache is invalidated whenever {@link #invalidateCache()} is called (ingredient
+	 * additions, visibility changes, mode changes), but NOT on search-text changes — the
+	 * full ingredient set is independent of the search bar content.
+	 */
+	private List<IIngredientListElement<?>> getAllVisibleIngredients() {
+		if (allVisibleIngredientsCache == null) {
+			allVisibleIngredientsCache = this.elementSearch.getAllIngredients().stream()
+					.filter(IIngredientListElement::isVisible)
+					.sorted(IngredientListElementComparator.INSTANCE)
+					.collect(Collectors.toList());
+		}
+		return allVisibleIngredientsCache;
 	}
 
 	public <V> List<IIngredientListElement<V>> findMatchingElements(IIngredientListElement<V> element) {
@@ -140,7 +167,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	@SubscribeEvent
 	public void onEditModeToggleEvent(EditModeToggleEvent event) {
-		this.filterCached = null;
+		invalidateCache();
 		updateHidden();
 
 		// In Hide Ingredients Mode the user cannot Alt+Click to expand/collapse groups,
@@ -171,7 +198,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			(Config.isEditModeEnabled() || !Config.isIngredientOnConfigBlacklist(ingredient, ingredientHelper));
 		if (element.isVisible() != visible) {
 			element.setVisible(visible);
-			this.filterCached = null;
+			invalidateCache();
 		}
 	}
 
@@ -245,20 +272,14 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	private List<IIngredientListElement<?>> getIngredientListUncached(String filterText) {
 		if (filterText.isEmpty()) {
-			return this.elementSearch.getAllIngredients().stream()
-					.filter(IIngredientListElement::isVisible)
-					.sorted(IngredientListElementComparator.INSTANCE)
-					.collect(Collectors.toList());
+			return new ArrayList<>(getAllVisibleIngredients());
 		}
 		List<SearchToken> tokens = Arrays.stream(filterText.split("\\|"))
 				.map(SearchToken::parseSearchToken)
 				.filter(s -> !s.search.isEmpty())
 				.collect(Collectors.toList());
 		if (tokens.isEmpty()) {
-			return this.elementSearch.getAllIngredients().stream()
-					.filter(IIngredientListElement::isVisible)
-					.sorted(IngredientListElementComparator.INSTANCE)
-					.collect(Collectors.toList());
+			return new ArrayList<>(getAllVisibleIngredients());
 		}
 		return tokens.stream()
 				.map(token -> token.getSearchResults(this.elementSearch))
@@ -295,8 +316,9 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		Set<IIngredientListElement<?>> seen = Collections.newSetFromMap(new IdentityHashMap<>());
 		seen.addAll(baseList);
 		List<IIngredientListElement<?>> result = new ArrayList<>(baseList);
-		for (IIngredientListElement<?> element : this.elementSearch.getAllIngredients()) {
-			if (!element.isVisible() || seen.contains(element)) {
+		// getAllVisibleIngredients() is cached — no extra suffix-tree traversal per keystroke.
+		for (IIngredientListElement<?> element : getAllVisibleIngredients()) {
+			if (seen.contains(element)) {
 				continue;
 			}
 			for (CollapsedStack entry : matchingGroups) {
@@ -353,10 +375,36 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		// Track which entries have already been added to the result list
 		Set<CollapsedStack> addedToResult = Collections.newSetFromMap(new IdentityHashMap<>());
 
+		// Precompute per-element UIDs if any active entry has a UID-based matcher.
+		// This reduces getUniqueIdentifierForStack() calls from O(n×m) to O(n) for
+		// custom groups (which are the expensive ones in the profiler).
+		boolean hasUidEntries = false;
+		for (CollapsedStack entry : activeEntries) {
+			if (entry.getUidMatcher() != null) {
+				hasUidEntries = true;
+				break;
+			}
+		}
+		final String[] elementUids;
+		if (hasUidEntries) {
+			elementUids = new String[ingredientList.size()];
+			for (int i = 0; i < ingredientList.size(); i++) {
+				elementUids[i] = CollapsedStack.computeIngredientUid(ingredientList.get(i).getIngredient());
+			}
+		} else {
+			elementUids = null;
+		}
+
+		int idx = 0;
 		for (IIngredientListElement<?> element : ingredientList) {
+			final String cachedUid = elementUids != null ? elementUids[idx] : null;
 			boolean matched = false;
 			for (CollapsedStack entry : activeEntries) {
-				if (entry.matches(element)) {
+				Predicate<String> uidMatcher = entry.getUidMatcher();
+				boolean isMatch = (uidMatcher != null && cachedUid != null)
+						? uidMatcher.test(cachedUid)
+						: entry.matches(element);
+				if (isMatch) {
 					if (addedToResult.add(entry)) {
 						result.add(entry);
 					}
@@ -367,6 +415,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			if (!matched) {
 				result.add(element);
 			}
+			idx++;
 		}
 
 		// Remove empty collapsed stacks (shouldn't happen, but be safe)
