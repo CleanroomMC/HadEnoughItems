@@ -434,12 +434,8 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		collapsedStateListeners.add(listener);
 	}
 
-	/**
-	 * Called when a group is expanded or collapsed. Invalidates the cached collapsed list
-	 * and notifies only collapsed-state listeners (preserves the current page position).
-	 */
 	public void notifyCollapsedStateChanged() {
-		this.filterCached = null;
+		// Do NOT null filterCached here. Creates client lag spikes.
 		for (Runnable listener : collapsedStateListeners) {
 			listener.run();
 		}
