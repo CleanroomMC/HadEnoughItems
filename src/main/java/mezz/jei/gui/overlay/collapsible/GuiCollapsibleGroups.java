@@ -53,11 +53,15 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	private static final int BTN_TOGGLE_BASE = 100;
 	private static final int BTN_CONFIGURE_BASE = 200;
 	private static final int BTN_DELETE_BASE = 300;
+	private static final int BTN_DELETE_CONFIRM_BASE = 400;
+	private static final int BTN_DELETE_CANCEL_BASE = 500;
 
 	private final GuiScreen parentScreen;
 	private final List<GroupCardEntry> cardEntries = new ArrayList<>();
 	private int currentPage = 0;
 	private int totalPages = 1;
+	/** Index into {@code cardEntries} of the custom group awaiting delete confirmation, or -1. */
+	private int pendingDeleteIdx = -1;
 	@Nullable private IIngredientListElement<?> tooltipElement = null;
 
 	// Drag-to-scroll state for card preview boxes
@@ -152,12 +156,20 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			this.buttonList.add(new GuiButton(BTN_TOGGLE_BASE + i, btnX, btnY, 52, 20, toggleLabel));
 
 			if (card.isCustom) {
-				// Configure button
-				this.buttonList.add(new GuiButton(BTN_CONFIGURE_BASE + i, btnX, btnY + 22, 24, 20,
-					"\u270E")); // pencil unicode
-				// Delete button
-				this.buttonList.add(new GuiButton(BTN_DELETE_BASE + i, btnX + 26, btnY + 22, 26, 20,
-					"\u2716")); // cross unicode
+				if (i == pendingDeleteIdx) {
+					// Confirm row: ✔ Yes / ✗ No
+					this.buttonList.add(new GuiButton(BTN_DELETE_CONFIRM_BASE + i, btnX, btnY + 22, 24, 20,
+						"\u2714")); // ✔ checkmark
+					this.buttonList.add(new GuiButton(BTN_DELETE_CANCEL_BASE + i, btnX + 26, btnY + 22, 26, 20,
+						"\u2716")); // ✗ cancel
+				} else {
+					// Configure button
+					this.buttonList.add(new GuiButton(BTN_CONFIGURE_BASE + i, btnX, btnY + 22, 24, 20,
+						"\u270E")); // pencil unicode
+					// Delete button
+					this.buttonList.add(new GuiButton(BTN_DELETE_BASE + i, btnX + 26, btnY + 22, 26, 20,
+						"\u2716")); // cross unicode
+				}
 			}
 		}
 
@@ -186,11 +198,13 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		}
 		if (button.id == BTN_PREV_PAGE) {
 			currentPage = Math.max(0, currentPage - 1);
+			pendingDeleteIdx = -1;
 			rebuildPageButtons();
 			return;
 		}
 		if (button.id == BTN_NEXT_PAGE) {
 			currentPage = Math.min(totalPages - 1, currentPage + 1);
+			pendingDeleteIdx = -1;
 			rebuildPageButtons();
 			return;
 		}
@@ -244,9 +258,20 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			return;
 		}
 
-		// Delete
-		if (button.id >= BTN_DELETE_BASE) {
+		// Delete — first click: arm confirmation
+		if (button.id >= BTN_DELETE_BASE && button.id < BTN_DELETE_CONFIRM_BASE) {
 			int idx = button.id - BTN_DELETE_BASE;
+			if (idx >= 0 && idx < cardEntries.size() && cardEntries.get(idx).isCustom) {
+				pendingDeleteIdx = idx;
+				rebuildPageButtons();
+			}
+			return;
+		}
+
+		// Delete confirmed — execute the actual removal
+		if (button.id >= BTN_DELETE_CONFIRM_BASE && button.id < BTN_DELETE_CANCEL_BASE) {
+			int idx = button.id - BTN_DELETE_CONFIRM_BASE;
+			pendingDeleteIdx = -1;
 			if (idx >= 0 && idx < cardEntries.size()) {
 				GroupCardEntry card = cardEntries.get(idx);
 				if (card.isCustom) {
@@ -267,6 +292,13 @@ public class GuiCollapsibleGroups extends GuiScreen {
 					}
 				}
 			}
+			return;
+		}
+
+		// Delete cancelled
+		if (button.id >= BTN_DELETE_CANCEL_BASE) {
+			pendingDeleteIdx = -1;
+			rebuildPageButtons();
 		}
 	}
 
@@ -290,6 +322,15 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			int cardY = layoutContentTop + row * (CARD_HEIGHT + CARD_PADDING);
 			GroupCardEntry card = cardEntries.get(i);
 			drawCard(card, cardX, cardY, layoutColWidth, mouseX, mouseY);
+
+			// Draw "Delete?" label to the left of the ✔/✗ confirm buttons
+			if (i == pendingDeleteIdx && card.isCustom) {
+				int btnX = cardX + layoutColWidth - 56;
+				int btnY = cardY + 4;
+				String confirmLabel = Translator.translateToLocal("jei.gui.collapsible.confirmDelete");
+				int labelX = btnX - this.fontRenderer.getStringWidth(confirmLabel) - 3;
+				this.fontRenderer.drawStringWithShadow(confirmLabel, labelX, btnY + 27, 0xFFFF4444);
+			}
 		}
 
 		// Page counter

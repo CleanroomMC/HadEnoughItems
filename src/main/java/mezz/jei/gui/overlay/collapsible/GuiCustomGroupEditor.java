@@ -46,6 +46,10 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	private final CustomGroupsConfig.CustomGroup group;
 	private final Set<String> selectedUids = new LinkedHashSet<>();
 
+	// Persisted across editor instances, reopening restores last search and page.
+	private static String savedSearchText = "";
+	private static int savedFirstItemIndex = 0;
+
 	@Nullable
 	private GuiTextField nameField;
 	@Nullable
@@ -108,10 +112,10 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		nameField.setMaxStringLength(40);
 		nameField.setText(group.displayName != null ? group.displayName : "");
 
-		// Search field
+		// Search field — restore saved text so the user's last search carries over
 		searchField = new GuiTextField(11, this.fontRenderer, 4, topBarHeight - 18, panelDivider - 12, 14);
 		searchField.setMaxStringLength(128);
-		searchField.setText("");
+		searchField.setText(savedSearchText);
 
 		// Save & Cancel buttons
 		this.buttonList.add(new GuiButton(BTN_SAVE, panelDivider + 4, 4, 50, 20,
@@ -147,6 +151,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		this.buttonList.add(new GuiButton(BTN_NEXT_SEL_PAGE, this.width - 34, leftNavY, 30, 20, ">"));
 
 		updateFilteredItems();
+		leftPage = Math.max(0, Math.min(savedFirstItemIndex / leftItemsPerPage, leftTotalPages - 1));
 		updateSelectedStacks();
 		buildOtherGroupIndex();
 	}
@@ -155,6 +160,9 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	public void onGuiClosed() {
 		super.onGuiClosed();
 		Keyboard.enableRepeatEvents(false);
+		// Persist the current search text and the absolute index of the first visible item.
+		savedSearchText = (searchField != null) ? searchField.getText() : "";
+		savedFirstItemIndex = leftPage * leftItemsPerPage;
 	}
 
 	/**
@@ -262,7 +270,6 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	/**
 	 * Collects all exact UIDs from the full ingredient list that share the given wildcard prefix.
 	 * Used for auto-promote checks and wildcard decomposition.
-	 * Mirrors the sibling-lookup from the legacy blacklist's areAllBlacklisted / getMatches logic.
 	 */
 	private List<String> getSiblingUids(String wildcardUid) {
 		if (!wildcardUid.endsWith(":*") || !Internal.hasIngredientFilter()) return Collections.emptyList();
@@ -281,7 +288,6 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	/**
 	 * Decomposes a wildcard entry into individual exact entries, excluding one item
 	 * (the one the user just clicked to remove).
-	 * Mirrors removeIngredientFromConfigBlacklist's wildcard-decompose behaviour.
 	 */
 	private void decomposeWildcard(String wildcardUid, @Nullable String excludeUid) {
 		selectedUids.remove(wildcardUid);
@@ -296,7 +302,6 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	/**
 	 * After adding an exact UID, checks if every meta variant of that item is now individually
 	 * selected. If so, replaces them all with a single wildcard entry.
-	 * Mirrors addIngredientToConfigBlacklist's auto-promote (areAllBlacklisted) behaviour.
 	 */
 	private void maybePromoteToWildcard(Object ingredient, String addedUid) {
 		String wildcardUid = getIngredientWildcardUid(ingredient);
@@ -689,6 +694,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			// Right-click clears search
 			if (searchField.isFocused() && mouseButton == 1) {
 				searchField.setText("");
+				leftPage = 0;
 				updateFilteredItems();
 			}
 		}
@@ -877,8 +883,22 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			return;
 		}
 		if (searchField != null && searchField.isFocused()) {
+			String before = searchField.getText();
 			searchField.textboxKeyTyped(typedChar, keyCode);
+			if (!searchField.getText().equals(before)) {
+				leftPage = 0;
+			}
 			updateFilteredItems();
+			return;
+		}
+		// Ctrl+F focuses the search field
+		if (keyCode == Keyboard.KEY_F && isCtrlKeyDown()) {
+			if (searchField != null) {
+				searchField.setFocused(true);
+				if (nameField != null) {
+					nameField.setFocused(false);
+				}
+			}
 			return;
 		}
 		if (keyCode == Keyboard.KEY_ESCAPE) {

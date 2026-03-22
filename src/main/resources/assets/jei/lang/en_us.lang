@@ -233,4 +233,5 @@ jei.gui.collapsible.editor.title=Selected Items
 jei.gui.collapsible.editor.name=Name
 jei.gui.collapsible.editor.save=Save
 jei.gui.collapsible.editor.selected=%d selected
+jei.gui.collapsible.confirmDelete=Delete?
 hei.tooltip.missing_ingredients=§cMissing Ingredients:
