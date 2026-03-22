@@ -48,6 +48,14 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	 * in {@link #withGroupNameMatches} for every non-empty filter).
 	 */
 	@Nullable private List<IIngredientListElement<?>> allVisibleIngredientsCache = null;
+	/**
+	 * Precomputed mapping from each visible element (by identity) to the list of
+	 * {@link CollapsedStack} groups it belongs to.  Built once from
+	 * {@link #getAllVisibleIngredients()} and ALL registered groups; reused across
+	 * keystrokes.  Invalidated alongside {@code allVisibleIngredientsCache} when
+	 * ingredients or groups change.
+	 */
+	@Nullable private IdentityHashMap<IIngredientListElement<?>, List<CollapsedStack>> groupMembershipCache = null;
 
 	private boolean afterBlock = false;
 	@Nullable private List<Runnable> delegatedActions;
@@ -108,6 +116,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public void invalidateCache() {
 		this.filterCached = null;
 		this.allVisibleIngredientsCache = null;
+		this.groupMembershipCache = null;
 	}
 
 	/**
@@ -124,6 +133,56 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 					.collect(Collectors.toList());
 		}
 		return allVisibleIngredientsCache;
+	}
+
+	/**
+	 * Returns a cached identity-map from each visible element to the list of
+	 * {@link CollapsedStack} groups it matches.  Elements with no group match are
+	 * absent from the map.  The cache is built once from the full visible-ingredient
+	 * list and ALL registered groups (both built-in and custom), so the expensive
+	 * matcher / UID computation happens only once — not on every keystroke.
+	 * <p>
+	 * {@link #collapse} then filters this by the currently-active (enabled) entries
+	 * and uses O(1) map lookups per element instead of re-running matchers.
+	 */
+	private IdentityHashMap<IIngredientListElement<?>, List<CollapsedStack>> getGroupMembership() {
+		if (groupMembershipCache == null) {
+			groupMembershipCache = new IdentityHashMap<>();
+			if (!Config.isCollapsibleGroupsEnabled()) return groupMembershipCache;
+
+			CollapsedStackRegistry registry = CollapsedStackRegistry.getInstance();
+			List<CollapsedStack> allEntries = new ArrayList<>();
+			allEntries.addAll(registry.getEntries());
+			allEntries.addAll(registry.getCustomEntries());
+			if (allEntries.isEmpty()) return groupMembershipCache;
+
+			boolean hasUidEntries = false;
+			for (CollapsedStack entry : allEntries) {
+				if (entry.getUidMatcher() != null) {
+					hasUidEntries = true;
+					break;
+				}
+			}
+
+			for (IIngredientListElement<?> element : getAllVisibleIngredients()) {
+				String uid = hasUidEntries ? CollapsedStack.computeIngredientUid(element.getIngredient()) : null;
+				List<CollapsedStack> matched = null;
+				for (CollapsedStack entry : allEntries) {
+					Predicate<String> uidMatcher = entry.getUidMatcher();
+					boolean isMatch = (uidMatcher != null && uid != null)
+							? uidMatcher.test(uid)
+							: entry.matches(element);
+					if (isMatch) {
+						if (matched == null) matched = new ArrayList<>(2);
+						matched.add(entry);
+					}
+				}
+				if (matched != null) {
+					groupMembershipCache.put(element, matched);
+				}
+			}
+		}
+		return groupMembershipCache;
 	}
 
 	public <V> List<IIngredientListElement<V>> findMatchingElements(IIngredientListElement<V> element) {
@@ -315,17 +374,23 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		// Use identity comparison so dedup works regardless of equals() implementation.
 		Set<IIngredientListElement<?>> seen = Collections.newSetFromMap(new IdentityHashMap<>());
 		seen.addAll(baseList);
+		Set<CollapsedStack> matchingGroupSet = Collections.newSetFromMap(new IdentityHashMap<>());
+		matchingGroupSet.addAll(matchingGroups);
 		List<IIngredientListElement<?>> result = new ArrayList<>(baseList);
-		// getAllVisibleIngredients() is cached — no extra suffix-tree traversal per keystroke.
+		// Use the precomputed membership cache instead of re-running matchers.
+		IdentityHashMap<IIngredientListElement<?>, List<CollapsedStack>> membership = getGroupMembership();
 		for (IIngredientListElement<?> element : getAllVisibleIngredients()) {
 			if (seen.contains(element)) {
 				continue;
 			}
-			for (CollapsedStack entry : matchingGroups) {
-				if (entry.matches(element)) {
-					result.add(element);
-					seen.add(element);
-					break;
+			List<CollapsedStack> groups = membership.get(element);
+			if (groups != null) {
+				for (CollapsedStack entry : groups) {
+					if (matchingGroupSet.contains(entry)) {
+						result.add(element);
+						seen.add(element);
+						break;
+					}
 				}
 			}
 		}
@@ -371,51 +436,35 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		for (CollapsedStack entry : activeEntries) {
 			entry.clearIngredients();
 		}
+
+		// Use the precomputed group-membership cache for O(1) per-element lookups.
+		// The cache maps each visible element to ALL groups it belongs to (built once),
+		// so we only need to intersect with the active set here — no matchers, no UID
+		// computation on the per-keystroke path.
+		Set<CollapsedStack> activeSet = Collections.newSetFromMap(new IdentityHashMap<>());
+		activeSet.addAll(activeEntries);
+		IdentityHashMap<IIngredientListElement<?>, List<CollapsedStack>> membership = getGroupMembership();
+
 		List<Object> result = new ArrayList<>(ingredientList.size());
-		// Track which entries have already been added to the result list
 		Set<CollapsedStack> addedToResult = Collections.newSetFromMap(new IdentityHashMap<>());
 
-		// Precompute per-element UIDs if any active entry has a UID-based matcher.
-		// This reduces getUniqueIdentifierForStack() calls from O(n×m) to O(n) for
-		// custom groups (which are the expensive ones in the profiler).
-		boolean hasUidEntries = false;
-		for (CollapsedStack entry : activeEntries) {
-			if (entry.getUidMatcher() != null) {
-				hasUidEntries = true;
-				break;
-			}
-		}
-		final String[] elementUids;
-		if (hasUidEntries) {
-			elementUids = new String[ingredientList.size()];
-			for (int i = 0; i < ingredientList.size(); i++) {
-				elementUids[i] = CollapsedStack.computeIngredientUid(ingredientList.get(i).getIngredient());
-			}
-		} else {
-			elementUids = null;
-		}
-
-		int idx = 0;
 		for (IIngredientListElement<?> element : ingredientList) {
-			final String cachedUid = elementUids != null ? elementUids[idx] : null;
+			List<CollapsedStack> groups = membership.get(element);
 			boolean matched = false;
-			for (CollapsedStack entry : activeEntries) {
-				Predicate<String> uidMatcher = entry.getUidMatcher();
-				boolean isMatch = (uidMatcher != null && cachedUid != null)
-						? uidMatcher.test(cachedUid)
-						: entry.matches(element);
-				if (isMatch) {
-					if (addedToResult.add(entry)) {
-						result.add(entry);
+			if (groups != null) {
+				for (CollapsedStack entry : groups) {
+					if (activeSet.contains(entry)) {
+						if (addedToResult.add(entry)) {
+							result.add(entry);
+						}
+						entry.addIngredient(element);
+						matched = true;
 					}
-					entry.addIngredient(element);
-					matched = true;
 				}
 			}
 			if (!matched) {
 				result.add(element);
 			}
-			idx++;
 		}
 
 		// Remove empty collapsed stacks (shouldn't happen, but be safe)

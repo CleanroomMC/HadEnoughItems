@@ -114,12 +114,20 @@ public class CollapsedStackRegistry {
 			}
 			String displayName = group.displayName != null ? group.displayName : group.id;
 
-			// UID-based fast-path predicate: O(1) hash-set lookup, no StackHelper call.
+			// UID-based fast-path predicate: O(K) hash-set lookups (K = number of ':' segments
+			// in the UID, typically 2–3) instead of O(W) iteration over all wildcard prefixes.
 			// Used by IngredientFilter.collapse() after it has pre-computed each element's UID once.
 			final Predicate<String> uidPredicate = uid -> {
 				if (exactUids.contains(uid)) return true;
-				for (String prefix : wildcardPrefixes) {
-					if (uid.equals(prefix) || uid.startsWith(prefix + ":")) return true;
+				if (!wildcardPrefixes.isEmpty()) {
+					// Check if the UID itself is a wildcard prefix (uid.equals(prefix))
+					if (wildcardPrefixes.contains(uid)) return true;
+					// Walk colon boundaries and check each prefix substring against the set
+					int idx = 0;
+					while ((idx = uid.indexOf(':', idx)) >= 0) {
+						if (wildcardPrefixes.contains(uid.substring(0, idx))) return true;
+						idx++;
+					}
 				}
 				return false;
 			};
