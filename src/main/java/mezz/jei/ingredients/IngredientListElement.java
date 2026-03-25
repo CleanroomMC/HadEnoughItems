@@ -2,6 +2,7 @@ package mezz.jei.ingredients;
 
 import com.google.common.collect.ImmutableSet;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.bookmarks.BookmarkItem;
@@ -177,7 +178,8 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 			return true;
 		}
 		if (FMLLaunchHandler.side().isClient()) {
-			return Config.getShowHiddenIngredientsInCreative() && ProxyCommonClient.isCreative();
+			return Config.getShowHiddenIngredientsInCreative() && ProxyCommonClient.isCreative() &&
+					!Internal.getHelpers().getIngredientBlacklist().isIngredientBlacklistedByApi(ingredient);
 		}
 		return false;
 	}
