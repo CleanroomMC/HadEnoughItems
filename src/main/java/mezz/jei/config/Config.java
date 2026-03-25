@@ -566,7 +566,13 @@ public final class Config {
 
 		values.tooltipShowRecipeBy = config.getBoolean(CATEGORY_MISC, "tooltipShowRecipeBy", defaultValues.tooltipShowRecipeBy);
 
-		values.showHiddenIngredientsInCreative = config.getBoolean(CATEGORY_MISC, "showHiddenIngredientsInCreative", defaultValues.showHiddenIngredientsInCreative);
+		{
+			boolean prev = values.showHiddenIngredientsInCreative;
+			values.showHiddenIngredientsInCreative = config.getBoolean(CATEGORY_MISC, "showHiddenIngredientsInCreative", defaultValues.showHiddenIngredientsInCreative);
+			if (prev != values.showHiddenIngredientsInCreative) {
+				needsReload = true;
+			}
+		}
 
 		values.skipShowingProgressBar = config.getBoolean(CATEGORY_MISC, "skipShowingProgressBar", defaultValues.skipShowingProgressBar);
 
