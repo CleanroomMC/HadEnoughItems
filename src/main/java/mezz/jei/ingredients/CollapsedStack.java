@@ -24,8 +24,16 @@ public class CollapsedStack {
 	// Registered as IIngredientType for addon compatibility — addons expect every grid item to have a type
 	public static final IIngredientType<CollapsedStack> TYPE = () -> CollapsedStack.class;
 
+	/** Identifies who registered this group. */
+	public enum GroupSource {
+		DEFAULT,
+		MOD,
+		CUSTOM
+	}
+
 	private final String id;
 	private final String displayName;
+	private final GroupSource source;
 	/** Matches against the raw ingredient object (any type). */
 	private final Predicate<Object> matcher;
 	/**
@@ -42,9 +50,17 @@ public class CollapsedStack {
 	 * Primary constructor — matcher receives the raw ingredient object.
 	 */
 	public CollapsedStack(String id, String displayName, Predicate<Object> matcher) {
+		this(id, displayName, matcher, GroupSource.DEFAULT);
+	}
+
+	/**
+	 * Constructor with explicit group source.
+	 */
+	public CollapsedStack(String id, String displayName, Predicate<Object> matcher, GroupSource source) {
 		this.id = id;
 		this.displayName = displayName;
 		this.matcher = matcher;
+		this.source = source;
 		this.expanded = false;
 		this.ingredients = new ArrayList<>();
 	}
@@ -58,6 +74,14 @@ public class CollapsedStack {
 				ingredient -> ingredient instanceof ItemStack && stackMatcher.test((ItemStack) ingredient));
 	}
 
+	/**
+	 * Convenience factory for ItemStack groups with an explicit source.
+	 */
+	public static CollapsedStack ofItemStack(String id, String displayName, Predicate<ItemStack> stackMatcher, GroupSource source) {
+		return new CollapsedStack(id, displayName,
+				ingredient -> ingredient instanceof ItemStack && stackMatcher.test((ItemStack) ingredient), source);
+	}
+
 	// --- Group definition ---
 
 	public String getId() {
@@ -66,6 +90,10 @@ public class CollapsedStack {
 
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	public GroupSource getSource() {
+		return source;
 	}
 
 	public boolean isExpanded() {

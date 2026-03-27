@@ -153,6 +153,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			CollapsedStackRegistry registry = CollapsedStackRegistry.getInstance();
 			List<CollapsedStack> allEntries = new ArrayList<>();
 			allEntries.addAll(registry.getEntries());
+			allEntries.addAll(registry.getModEntries());
 			allEntries.addAll(registry.getCustomEntries());
 			if (allEntries.isEmpty()) return groupMembershipCache;
 
@@ -363,6 +364,11 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 				matchingGroups.add(entry);
 			}
 		}
+		for (CollapsedStack entry : registry.getModEntries()) {
+			if (Translator.toLowercaseWithLocale(entry.getDisplayName()).contains(filterText)) {
+				matchingGroups.add(entry);
+			}
+		}
 		for (CollapsedStack entry : registry.getCustomEntries()) {
 			if (Translator.toLowercaseWithLocale(entry.getDisplayName()).contains(filterText)) {
 				matchingGroups.add(entry);
@@ -410,14 +416,20 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		}
 		CollapsedStackRegistry registry = CollapsedStackRegistry.getInstance();
 		Collection<CollapsedStack> entries = registry.getEntries();
+		List<CollapsedStack> modEntries = registry.getModEntries();
 		List<CollapsedStack> customEntries = registry.getCustomEntries();
-		if (entries.isEmpty() && customEntries.isEmpty()) {
+		if (entries.isEmpty() && modEntries.isEmpty() && customEntries.isEmpty()) {
 			return new ArrayList<>(ingredientList);
 		}
 
 		// Build the list of active entries (not disabled)
 		List<CollapsedStack> activeEntries = new ArrayList<>();
 		for (CollapsedStack entry : entries) {
+			if (registry.isGroupEnabled(entry.getId())) {
+				activeEntries.add(entry);
+			}
+		}
+		for (CollapsedStack entry : modEntries) {
 			if (registry.isGroupEnabled(entry.getId())) {
 				activeEntries.add(entry);
 			}

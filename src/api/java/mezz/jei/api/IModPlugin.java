@@ -49,6 +49,17 @@ public interface IModPlugin {
 	}
 
 	/**
+	 * Register collapsible ingredient groups provided by this mod.
+	 * These appear in the "Manage Groups" screen tagged as "Mod" and can be toggled
+	 * by the user but are not editable or deletable.
+	 *
+	 * @since HEI 4.30.4
+	 */
+	default void registerCollapsibleGroups(ICollapsibleGroupRegistry registry) {
+
+	}
+
+	/**
 	 * Register this mod plugin with the mod registry.
 	 */
 	default void register(IModRegistry registry) {

@@ -6,6 +6,7 @@ import mezz.jei.config.Config;
 import mezz.jei.config.CustomGroupsConfig;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.CollapsedStack;
+import mezz.jei.ingredients.CollapsedStack.GroupSource;
 import mezz.jei.ingredients.CollapsedStackRegistry;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.util.Translator;
@@ -113,7 +114,15 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		for (CollapsedStack entry : registry.getCustomEntries()) {
 			List<IIngredientListElement<?>> previewItems = getPreviewItems(entry);
 			int itemCount = getMatchedItemCount(entry);
-			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), true,
+			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), GroupSource.CUSTOM,
+				!registry.getDisabledGroups().contains(entry.getId()), previewItems, itemCount));
+		}
+
+		// Mod-registered groups
+		for (CollapsedStack entry : registry.getModEntries()) {
+			List<IIngredientListElement<?>> previewItems = getPreviewItems(entry);
+			int itemCount = getMatchedItemCount(entry);
+			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), GroupSource.MOD,
 				!registry.getDisabledGroups().contains(entry.getId()), previewItems, itemCount));
 		}
 
@@ -121,7 +130,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		for (CollapsedStack entry : registry.getEntries()) {
 			List<IIngredientListElement<?>> previewItems = getPreviewItems(entry);
 			int itemCount = getMatchedItemCount(entry);
-			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), false,
+			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), GroupSource.DEFAULT,
 				!registry.getDisabledGroups().contains(entry.getId()), previewItems, itemCount));
 		}
 
@@ -155,7 +164,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 				: Translator.translateToLocal("jei.gui.collapsible.disabled");
 			this.buttonList.add(new GuiButton(BTN_TOGGLE_BASE + i, btnX, btnY, 52, 20, toggleLabel));
 
-			if (card.isCustom) {
+			if (card.source == GroupSource.CUSTOM) {
 				if (i == pendingDeleteIdx) {
 					// Confirm row: ✔ Yes / ✗ No
 					this.buttonList.add(new GuiButton(BTN_DELETE_CONFIRM_BASE + i, btnX, btnY + 22, 24, 20,
@@ -243,7 +252,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			int idx = button.id - BTN_CONFIGURE_BASE;
 			if (idx >= 0 && idx < cardEntries.size()) {
 				GroupCardEntry card = cardEntries.get(idx);
-				if (card.isCustom) {
+				if (card.source == GroupSource.CUSTOM) {
 					CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
 					if (customGroupsConfig != null) {
 						for (CustomGroupsConfig.CustomGroup group : customGroupsConfig.getCustomGroups()) {
@@ -261,7 +270,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		// Delete — first click: arm confirmation
 		if (button.id >= BTN_DELETE_BASE && button.id < BTN_DELETE_CONFIRM_BASE) {
 			int idx = button.id - BTN_DELETE_BASE;
-			if (idx >= 0 && idx < cardEntries.size() && cardEntries.get(idx).isCustom) {
+			if (idx >= 0 && idx < cardEntries.size() && cardEntries.get(idx).source == GroupSource.CUSTOM) {
 				pendingDeleteIdx = idx;
 				rebuildPageButtons();
 			}
@@ -274,7 +283,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			pendingDeleteIdx = -1;
 			if (idx >= 0 && idx < cardEntries.size()) {
 				GroupCardEntry card = cardEntries.get(idx);
-				if (card.isCustom) {
+				if (card.source == GroupSource.CUSTOM) {
 					CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
 					if (customGroupsConfig != null) {
 						customGroupsConfig.removeGroup(card.id);
@@ -324,7 +333,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			drawCard(card, cardX, cardY, layoutColWidth, mouseX, mouseY);
 
 			// Draw "Delete?" label to the left of the ✔/✗ confirm buttons
-			if (i == pendingDeleteIdx && card.isCustom) {
+			if (i == pendingDeleteIdx && card.source == GroupSource.CUSTOM) {
 				int btnX = cardX + layoutColWidth - 56;
 				int btnY = cardY + 4;
 				String confirmLabel = Translator.translateToLocal("jei.gui.collapsible.confirmDelete");
@@ -354,7 +363,12 @@ public class GuiCollapsibleGroups extends GuiScreen {
 
 	private void drawCard(GroupCardEntry card, int x, int y, int width, int mouseX, int mouseY) {
 		// Card background
-		int bgColor = card.isCustom ? 0x40336699 : 0x40444444;
+		int bgColor;
+		switch (card.source) {
+			case CUSTOM:  bgColor = 0x40336699; break;
+			case MOD:     bgColor = 0x40553366; break;
+			default:      bgColor = 0x40444444; break;
+		}
 		drawRect(x, y, x + width, y + CARD_HEIGHT, bgColor);
 
 		// Border
@@ -365,9 +379,23 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		drawVerticalLine(x + width - 1, y, y + CARD_HEIGHT - 1, borderColor);
 
 		// Group name
-		String namePrefix = card.isCustom
-			? "\u00A7e[" + Translator.translateToLocal("jei.gui.collapsible.customGroup") + "] \u00A7r"
-			: "\u00A77[" + Translator.translateToLocal("jei.gui.collapsible.defaultGroup") + "] \u00A7r";
+		String sourceLabel;
+		String sourceColor;
+		switch (card.source) {
+			case CUSTOM:
+				sourceColor = "\u00A7e";
+				sourceLabel = Translator.translateToLocal("jei.gui.collapsible.customGroup");
+				break;
+			case MOD:
+				sourceColor = "\u00A7d";
+				sourceLabel = Translator.translateToLocal("jei.gui.collapsible.modGroup");
+				break;
+			default:
+				sourceColor = "\u00A77";
+				sourceLabel = Translator.translateToLocal("jei.gui.collapsible.defaultGroup");
+				break;
+		}
+		String namePrefix = sourceColor + "[" + sourceLabel + "] \u00A7r";
 		this.fontRenderer.drawStringWithShadow(namePrefix + card.displayName, x + 4, y + 4, 0xFFFFFF);
 
 		// Item count
@@ -607,16 +635,16 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	private static class GroupCardEntry {
 		final String id;
 		final String displayName;
-		final boolean isCustom;
+		final GroupSource source;
 		boolean enabled;
 		final List<IIngredientListElement<?>> previewItems;
 		final int itemCount;
 		int previewScrollRow = 0;
 
-		GroupCardEntry(String id, String displayName, boolean isCustom, boolean enabled, List<IIngredientListElement<?>> previewItems, int itemCount) {
+		GroupCardEntry(String id, String displayName, GroupSource source, boolean enabled, List<IIngredientListElement<?>> previewItems, int itemCount) {
 			this.id = id;
 			this.displayName = displayName;
-			this.isCustom = isCustom;
+			this.source = source;
 			this.enabled = enabled;
 			this.previewItems = previewItems;
 			this.itemCount = itemCount;

@@ -227,6 +227,7 @@ jei.gui.collapsible.title.tooltip=Enable/Disable built in groups and create user
 jei.gui.collapsible.enabled=Enabled
 jei.gui.collapsible.disabled=Disabled
 jei.gui.collapsible.customGroup=Custom
+jei.gui.collapsible.modGroup=Mod
 jei.gui.collapsible.defaultGroup=Default
 jei.gui.collapsible.itemCount=%d items
 jei.gui.collapsible.editor.title=Selected Items

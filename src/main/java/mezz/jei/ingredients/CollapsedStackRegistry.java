@@ -19,6 +19,7 @@ public class CollapsedStackRegistry {
 	private static CollapsedStackRegistry instance;
 
 	private final LinkedHashMap<String, CollapsedStack> entries = new LinkedHashMap<>();
+	private final List<CollapsedStack> modEntries = new ArrayList<>();
 	private final List<CollapsedStack> customEntries = new ArrayList<>();
 	private final Set<String> disabledGroups = new HashSet<>();
 
@@ -69,6 +70,7 @@ public class CollapsedStackRegistry {
 
 	public void clear() {
 		entries.clear();
+		modEntries.clear();
 	}
 
 	public Set<String> getDisabledGroups() {
@@ -86,6 +88,49 @@ public class CollapsedStackRegistry {
 
 	public List<CollapsedStack> getCustomEntries() {
 		return customEntries;
+	}
+
+	public List<CollapsedStack> getModEntries() {
+		return modEntries;
+	}
+
+	/**
+	 * Register a mod-provided collapsible group matching ItemStack ingredients.
+	 */
+	public void addModGroup(String id, String displayName, Predicate<ItemStack> matcher) {
+		modEntries.add(CollapsedStack.ofItemStack(id, displayName, matcher, CollapsedStack.GroupSource.MOD));
+	}
+
+	/**
+	 * Register a mod-provided collapsible group matching any ingredient type.
+	 */
+	public void addModGroupForType(String id, String displayName, Predicate<Object> matcher) {
+		modEntries.add(new CollapsedStack(id, displayName, matcher, CollapsedStack.GroupSource.MOD));
+	}
+
+	/**
+	 * Register a mod-provided collapsible group from a collection of specific ingredients.
+	 * UIDs are computed at registration time and a fast-path UID matcher is set.
+	 */
+	public void addModGroupFromIngredients(String id, String displayName, Collection<?> ingredients) {
+		Set<String> exactUids = new HashSet<>();
+		for (Object ingredient : ingredients) {
+			String uid = CollapsedStack.computeIngredientUid(ingredient);
+			if (uid != null) {
+				exactUids.add(uid);
+			}
+		}
+		if (exactUids.isEmpty()) {
+			Log.get().warn("Mod collapsible group '{}' has no valid ingredients, skipping", id);
+			return;
+		}
+		final Predicate<String> uidPredicate = exactUids::contains;
+		CollapsedStack cs = new CollapsedStack(id, displayName, ingredient -> {
+			String uid = CollapsedStack.computeIngredientUid(ingredient);
+			return uid != null && uidPredicate.test(uid);
+		}, CollapsedStack.GroupSource.MOD);
+		cs.setUidMatcher(uidPredicate);
+		modEntries.add(cs);
 	}
 
 	/**

@@ -2,6 +2,7 @@ package mezz.jei.startup;
 
 import mezz.jei.Internal;
 import mezz.jei.Tags;
+import mezz.jei.api.ICollapsibleGroupRegistry;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
@@ -35,9 +36,11 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.LoggedTimer;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraftforge.fml.common.ProgressManager;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +104,7 @@ public class JeiStarter {
 		}
 
 		registerDefaultCollapsibleGroups();
+		registerModCollapsibleGroups(plugins);
 
 		{
 			CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
@@ -364,6 +368,48 @@ public class JeiStarter {
 			stack -> stack.getItem() == Items.TIPPED_ARROW);
 		registry.group("spawn_eggs", "Spawn Eggs",
 			stack -> stack.getItem() instanceof ItemMonsterPlacer);
+	}
+
+	private static void registerModCollapsibleGroups(List<IModPlugin> plugins) {
+		CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
+
+		ICollapsibleGroupRegistry apiRegistry = new ICollapsibleGroupRegistry() {
+			@Override
+			public void addGroup(String id, String displayName, java.util.function.Predicate<ItemStack> matcher) {
+				registry.addModGroup(id, displayName, matcher);
+			}
+
+			@Override
+			public void addGroupForType(String id, String displayName, java.util.function.Predicate<Object> matcher) {
+				registry.addModGroupForType(id, displayName, matcher);
+			}
+
+			@Override
+			public void addGroup(String id, String displayName, Collection<?> ingredients) {
+				registry.addModGroupFromIngredients(id, displayName, ingredients);
+			}
+		};
+
+		if (Config.skipShowingProgressBar()) {
+			for (IModPlugin plugin : plugins) {
+				try {
+					plugin.registerCollapsibleGroups(apiRegistry);
+				} catch (RuntimeException | LinkageError e) {
+					Log.get().error("Failed to register collapsible groups for plugin: {}", plugin.getClass(), e);
+				}
+			}
+		} else {
+			ProgressManager.ProgressBar bar = ProgressManager.push("Registering collapsible groups", plugins.size());
+			for (IModPlugin plugin : plugins) {
+				try {
+					bar.step(plugin.getClass().getName());
+					plugin.registerCollapsibleGroups(apiRegistry);
+				} catch (RuntimeException | LinkageError e) {
+					Log.get().error("Failed to register collapsible groups for plugin: {}", plugin.getClass(), e);
+				}
+			}
+			ProgressManager.pop(bar);
+		}
 	}
 
 }
