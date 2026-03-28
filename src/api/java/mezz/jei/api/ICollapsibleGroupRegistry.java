@@ -1,8 +1,7 @@
 package mezz.jei.api;
 
-import net.minecraft.item.ItemStack;
+import mezz.jei.api.recipe.IIngredientType;
 
-import java.util.Collection;
 import java.util.function.Predicate;
 
 /**
@@ -13,40 +12,24 @@ import java.util.function.Predicate;
  * Obtain an instance via {@link IModPlugin#registerCollapsibleGroups(ICollapsibleGroupRegistry)}.
  * <p>
  * Group IDs should include your mod ID to avoid conflicts (e.g. {@code "matteroverdrive:matter_dusts"}).
+ * To create a group spanning multiple ingredient types, call {@link #addGroup} once per type
+ * using the same {@code id}.
  *
- * @since HEI 4.30.4
+ * @since HEI 4.30.5
  */
 public interface ICollapsibleGroupRegistry {
 
 	/**
-	 * Register a collapsible group for ItemStack ingredients using a predicate.
-	 * Non-ItemStack ingredients are automatically excluded.
+	 * Register a collapsible group for a specific ingredient type using a type-safe predicate.
+	 * <p>
+	 * Use {@code VanillaTypes.ITEM} for ItemStack groups and {@code VanillaTypes.FLUID} for
+	 * FluidStack groups. Third-party ingredient types registered via {@link IIngredientRegistry}
+	 * are also supported.
 	 *
 	 * @param id          unique group ID, should be namespaced with your mod ID
 	 * @param displayName localized display name shown in the groups screen
-	 * @param matcher     predicate that returns true for ItemStacks belonging to this group
+	 * @param type        the ingredient type (e.g. {@code VanillaTypes.ITEM})
+	 * @param matcher     predicate receiving a fully-typed {@code V} — no casting needed
 	 */
-	void addGroup(String id, String displayName, Predicate<ItemStack> matcher);
-
-	/**
-	 * Register a collapsible group that matches any ingredient type using a predicate.
-	 * Use this for fluids, custom ingredient types, or mixed groups.
-	 *
-	 * @param id          unique group ID, should be namespaced with your mod ID
-	 * @param displayName localized display name shown in the groups screen
-	 * @param matcher     predicate on the raw ingredient object
-	 */
-	void addGroupForType(String id, String displayName, Predicate<Object> matcher);
-
-	/**
-	 * Register a collapsible group containing specific ingredients.
-	 * The collection may contain any mix of ItemStacks, FluidStacks, or other
-	 * registered ingredient types. Each ingredient is resolved to its unique identifier
-	 * at registration time.
-	 *
-	 * @param id          unique group ID, should be namespaced with your mod ID
-	 * @param displayName localized display name shown in the groups screen
-	 * @param ingredients the specific ingredients belonging to this group
-	 */
-	void addGroup(String id, String displayName, Collection<?> ingredients);
+	<V> void addGroup(String id, String displayName, IIngredientType<V> type, Predicate<V> matcher);
 }

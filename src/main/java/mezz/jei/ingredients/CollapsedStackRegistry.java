@@ -95,42 +95,17 @@ public class CollapsedStackRegistry {
 	}
 
 	/**
-	 * Register a mod-provided collapsible group matching ItemStack ingredients.
+	 * Register a mod-provided collapsible group for a specific ingredient type.
+	 * Uses {@link mezz.jei.api.recipe.IIngredientType#getIngredientClass()} to guard the
+	 * predicate, so {@code matcher} receives a fully-typed {@code V} with no unchecked cast.
 	 */
-	public void addModGroup(String id, String displayName, Predicate<ItemStack> matcher) {
-		modEntries.add(CollapsedStack.ofItemStack(id, displayName, matcher, CollapsedStack.GroupSource.MOD));
-	}
-
-	/**
-	 * Register a mod-provided collapsible group matching any ingredient type.
-	 */
-	public void addModGroupForType(String id, String displayName, Predicate<Object> matcher) {
-		modEntries.add(new CollapsedStack(id, displayName, matcher, CollapsedStack.GroupSource.MOD));
-	}
-
-	/**
-	 * Register a mod-provided collapsible group from a collection of specific ingredients.
-	 * UIDs are computed at registration time and a fast-path UID matcher is set.
-	 */
-	public void addModGroupFromIngredients(String id, String displayName, Collection<?> ingredients) {
-		Set<String> exactUids = new HashSet<>();
-		for (Object ingredient : ingredients) {
-			String uid = CollapsedStack.computeIngredientUid(ingredient);
-			if (uid != null) {
-				exactUids.add(uid);
-			}
-		}
-		if (exactUids.isEmpty()) {
-			Log.get().warn("Mod collapsible group '{}' has no valid ingredients, skipping", id);
-			return;
-		}
-		final Predicate<String> uidPredicate = exactUids::contains;
-		CollapsedStack cs = new CollapsedStack(id, displayName, ingredient -> {
-			String uid = CollapsedStack.computeIngredientUid(ingredient);
-			return uid != null && uidPredicate.test(uid);
-		}, CollapsedStack.GroupSource.MOD);
-		cs.setUidMatcher(uidPredicate);
-		modEntries.add(cs);
+	public <V> void addModGroup(String id, String displayName,
+			mezz.jei.api.recipe.IIngredientType<V> type, Predicate<V> matcher) {
+		Class<? extends V> ingredientClass = type.getIngredientClass();
+		modEntries.add(new CollapsedStack(id, displayName, ingredient -> {
+			if (!ingredientClass.isInstance(ingredient)) return false;
+			return matcher.test(ingredientClass.cast(ingredient));
+		}, CollapsedStack.GroupSource.MOD));
 	}
 
 	/**

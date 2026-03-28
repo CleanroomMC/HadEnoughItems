@@ -53,7 +53,7 @@ public interface IModPlugin {
 	 * These appear in the "Manage Groups" screen tagged as "Mod" and can be toggled
 	 * by the user but are not editable or deletable.
 	 *
-	 * @since HEI 4.30.4
+	 * @since HEI 4.30.5
 	 */
 	default void registerCollapsibleGroups(ICollapsibleGroupRegistry registry) {
 

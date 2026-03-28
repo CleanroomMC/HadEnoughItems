@@ -36,11 +36,9 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.LoggedTimer;
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraftforge.fml.common.ProgressManager;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -375,18 +373,10 @@ public class JeiStarter {
 
 		ICollapsibleGroupRegistry apiRegistry = new ICollapsibleGroupRegistry() {
 			@Override
-			public void addGroup(String id, String displayName, java.util.function.Predicate<ItemStack> matcher) {
-				registry.addModGroup(id, displayName, matcher);
-			}
-
-			@Override
-			public void addGroupForType(String id, String displayName, java.util.function.Predicate<Object> matcher) {
-				registry.addModGroupForType(id, displayName, matcher);
-			}
-
-			@Override
-			public void addGroup(String id, String displayName, Collection<?> ingredients) {
-				registry.addModGroupFromIngredients(id, displayName, ingredients);
+			public <V> void addGroup(String id, String displayName,
+					mezz.jei.api.recipe.IIngredientType<V> type,
+					java.util.function.Predicate<V> matcher) {
+				registry.addModGroup(id, displayName, type, matcher);
 			}
 		};
 

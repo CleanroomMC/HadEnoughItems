@@ -111,32 +111,36 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
 
 		// Custom groups come first (like REI)
-		for (CollapsedStack entry : registry.getCustomEntries()) {
-			List<IIngredientListElement<?>> previewItems = getPreviewItems(entry);
-			int itemCount = getMatchedItemCount(entry);
-			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), GroupSource.CUSTOM,
-				!registry.getDisabledGroups().contains(entry.getId()), previewItems, itemCount));
-		}
+		addCardsMergedById(registry.getCustomEntries(), GroupSource.CUSTOM, registry.getDisabledGroups());
 
-		// Mod-registered groups
-		for (CollapsedStack entry : registry.getModEntries()) {
-			List<IIngredientListElement<?>> previewItems = getPreviewItems(entry);
-			int itemCount = getMatchedItemCount(entry);
-			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), GroupSource.MOD,
-				!registry.getDisabledGroups().contains(entry.getId()), previewItems, itemCount));
-		}
+		// Mod-registered groups (same ID can be registered multiple times for different ingredient types)
+		addCardsMergedById(registry.getModEntries(), GroupSource.MOD, registry.getDisabledGroups());
 
 		// Default groups
-		for (CollapsedStack entry : registry.getEntries()) {
-			List<IIngredientListElement<?>> previewItems = getPreviewItems(entry);
-			int itemCount = getMatchedItemCount(entry);
-			cardEntries.add(new GroupCardEntry(entry.getId(), entry.getDisplayName(), GroupSource.DEFAULT,
-				!registry.getDisabledGroups().contains(entry.getId()), previewItems, itemCount));
-		}
+		addCardsMergedById(registry.getEntries(), GroupSource.DEFAULT, registry.getDisabledGroups());
 
 		totalPages = Math.max(1, (cardEntries.size() + cardsPerPage - 1) / cardsPerPage);
 		if (currentPage >= totalPages) {
 			currentPage = totalPages - 1;
+		}
+	}
+
+	private void addCardsMergedById(Collection<CollapsedStack> entries, GroupSource source, Set<String> disabledGroups) {
+		Map<String, List<CollapsedStack>> groupedById = new LinkedHashMap<>();
+		Map<String, String> displayNamesById = new HashMap<>();
+
+		for (CollapsedStack entry : entries) {
+			groupedById.computeIfAbsent(entry.getId(), k -> new ArrayList<>()).add(entry);
+			displayNamesById.putIfAbsent(entry.getId(), entry.getDisplayName());
+		}
+
+		for (Map.Entry<String, List<CollapsedStack>> groupedEntry : groupedById.entrySet()) {
+			String id = groupedEntry.getKey();
+			List<CollapsedStack> groupedStacks = groupedEntry.getValue();
+			List<IIngredientListElement<?>> previewItems = getPreviewItems(groupedStacks);
+			int itemCount = getMatchedItemCount(groupedStacks);
+			cardEntries.add(new GroupCardEntry(id, displayNamesById.get(id), source,
+				!disabledGroups.contains(id), previewItems, itemCount));
 		}
 	}
 
@@ -559,15 +563,16 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	 * Get up to PREVIEW_FETCH_MAX preview elements for a collapsible entry,
 	 * returning the raw IIngredientListElement so each type renders via its own renderer.
 	 */
-	private List<IIngredientListElement<?>> getPreviewItems(CollapsedStack entry) {
+	private List<IIngredientListElement<?>> getPreviewItems(List<CollapsedStack> entries) {
 		List<IIngredientListElement<?>> items = new ArrayList<>();
 		if (!Internal.hasIngredientFilter()) {
 			return items;
 		}
 		IngredientFilter filter = Internal.getIngredientFilter();
-		List<IIngredientListElement> ingredientList = filter.getIngredientList("");
+		@SuppressWarnings({"unchecked", "rawtypes"})
+		List<IIngredientListElement<?>> ingredientList = (List<IIngredientListElement<?>>) (List) filter.getIngredientList("");
 		for (IIngredientListElement<?> element : ingredientList) {
-			if (entry.matches(element)) {
+			if (matchesAny(entries, element)) {
 				items.add(element);
 				if (items.size() >= PREVIEW_FETCH_MAX) {
 					break;
@@ -609,19 +614,29 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	/**
 	 * Count matched items for display.
 	 */
-	private int getMatchedItemCount(CollapsedStack entry) {
+	private int getMatchedItemCount(List<CollapsedStack> entries) {
 		if (!Internal.hasIngredientFilter()) {
 			return 0;
 		}
 		IngredientFilter filter = Internal.getIngredientFilter();
-		List<IIngredientListElement> ingredientList = filter.getIngredientList("");
+		@SuppressWarnings({"unchecked", "rawtypes"})
+		List<IIngredientListElement<?>> ingredientList = (List<IIngredientListElement<?>>) (List) filter.getIngredientList("");
 		int count = 0;
 		for (IIngredientListElement<?> element : ingredientList) {
-			if (entry.matches(element)) {
+			if (matchesAny(entries, element)) {
 				count++;
 			}
 		}
 		return count;
+	}
+
+	private static boolean matchesAny(List<CollapsedStack> entries, IIngredientListElement<?> element) {
+		for (CollapsedStack entry : entries) {
+			if (entry.matches(element)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
