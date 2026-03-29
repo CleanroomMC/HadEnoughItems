@@ -23,6 +23,7 @@ import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.gui.textures.Textures;
 import mezz.jei.ingredients.IngredientBlacklistInternal;
+import mezz.jei.util.Translator;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.IngredientListElementFactory;
 import mezz.jei.ingredients.IngredientRegistry;
@@ -373,10 +374,10 @@ public class JeiStarter {
 
 		ICollapsibleGroupRegistry apiRegistry = new ICollapsibleGroupRegistry() {
 			@Override
-			public <V> void addGroup(String id, String displayName,
+			public <V> void addGroup(String id, String langKey,
 					mezz.jei.api.recipe.IIngredientType<V> type,
 					java.util.function.Predicate<V> matcher) {
-				registry.addModGroup(id, displayName, type, matcher);
+				registry.addModGroup(id, Translator.translateToLocal(langKey), type, matcher);
 			}
 		};
 
