@@ -178,8 +178,7 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 			return true;
 		}
 		if (FMLLaunchHandler.side().isClient()) {
-			return Config.getShowHiddenIngredientsInCreative() && ProxyCommonClient.isCreative() &&
-					!Internal.getHelpers().getIngredientBlacklist().isIngredientBlacklistedByApi(ingredient);
+			return Config.getShowHiddenIngredientsInCreative() && ProxyCommonClient.isCreative();
 		}
 		return false;
 	}
