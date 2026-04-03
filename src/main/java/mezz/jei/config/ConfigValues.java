@@ -1,5 +1,6 @@
 package mezz.jei.config;
 
+import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.GiveMode;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -59,6 +60,6 @@ public class ConfigValues {
 	// collapsible groups
 	public boolean collapsibleGroupsEnabled = true;
 	public boolean collapseOnClose = false;
-	public mezz.jei.util.CollapsedClickAction collapsedClickAction = mezz.jei.util.CollapsedClickAction.OPEN_GROUP;
+	public CollapsedClickAction collapsedClickAction = CollapsedClickAction.OPEN_GROUP;
 	public Set<String> disabledGroups = new HashSet<>();
 }

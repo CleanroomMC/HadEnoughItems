@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.ArrayList;
 
 public final class Config {
 	private static final String configKeyPrefix = "config.jei";
@@ -593,7 +594,7 @@ public final class Config {
 		values.collapsedClickAction = config.getEnum("collapsedClickAction", CATEGORY_COLLAPSIBLE, defaultValues.collapsedClickAction, CollapsedClickAction.values());
 
 		// Explicit property order so the GUI shows collapsibleGroupsEnabled first, then collapseOnClose.
-		java.util.List<String> collapsibleOrder = new java.util.ArrayList<>();
+		List<String> collapsibleOrder = new ArrayList<>();
 		collapsibleOrder.add("collapsibleGroupsEnabled");
 		collapsibleOrder.add("collapseOnClose");
 		collapsibleOrder.add("collapsedClickAction");
