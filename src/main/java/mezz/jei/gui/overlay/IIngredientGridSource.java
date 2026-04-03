@@ -17,7 +17,7 @@ public interface IIngredientGridSource {
 	}
 
 	/**
-	 * Returns the total number of display items (counting collapsed groups as 1 each).
+	 * Returns the total number of displayed ingredients (counting collapsed groups as 1 each).
 	 */
 	default int collapsedSize() {
 		return size();
