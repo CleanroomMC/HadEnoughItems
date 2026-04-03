@@ -52,8 +52,13 @@ public interface IModPlugin {
 	 * Register collapsible ingredient groups provided by this mod.
 	 * These appear in the "Manage Groups" screen tagged as "Mod" and can be toggled
 	 * by the user but are not editable or deletable.
+	 * <p>
+	 * Use {@link ICollapsibleGroupRegistry#newGroup(String, String)} to create a builder
+	 * and call its methods to define the group's members. See {@link ICollapsibleGroupRegistry}
+	 * for full usage examples.
 	 *
-	 * @since HEI 4.30.5
+	 * @param registry the registry used to create collapsible group builders
+	 * @since HEI 4.30.0
 	 */
 	default void registerCollapsibleGroups(ICollapsibleGroupRegistry registry) {
 

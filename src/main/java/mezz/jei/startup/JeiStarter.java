@@ -41,8 +41,12 @@ import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraftforge.fml.common.ProgressManager;
 
 import java.util.Iterator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 
 public class JeiStarter {
 	private boolean started;
@@ -371,13 +375,68 @@ public class JeiStarter {
 
 	private static void registerModCollapsibleGroups(List<IModPlugin> plugins) {
 		CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
+		Map<String, ModGroupBuilderState> groupsById = new HashMap<>();
 
 		ICollapsibleGroupRegistry apiRegistry = new ICollapsibleGroupRegistry() {
 			@Override
-			public <V> void addGroup(String id, String langKey,
-					mezz.jei.api.recipe.IIngredientType<V> type,
-					java.util.function.Predicate<V> matcher) {
-				registry.addModGroup(id, Translator.translateToLocal(langKey), type, matcher);
+			public CollapsibleGroupBuilder newGroup(String id, String langKey) {
+				final ModGroupBuilderState state = groupsById.computeIfAbsent(id, key -> {
+					ModGroupBuilderState created = new ModGroupBuilderState();
+					// No uidMatcher yet — installed after all plugins finish registering.
+					// This avoids IngredientFilter using an empty uid fast-path that would
+					// short-circuit addAny/addAllOf predicates and cause them to never match.
+					created.registeredStack = registry.addModGroup(id, Translator.translateToLocal(langKey), created::matches);
+					return created;
+				});
+
+				return new CollapsibleGroupBuilder() {
+					@Override
+					public CollapsibleGroupBuilder add(Object ingredient) {
+						if (ingredient != null) {
+							String uid = mezz.jei.ingredients.CollapsedStack.computeIngredientUid(ingredient);
+							if (uid != null) {
+								state.exactUids.add(uid);
+							}
+						}
+						return this;
+					}
+
+					@Override
+					public CollapsibleGroupBuilder add(Object... ingredients) {
+						if (ingredients != null) {
+							for (Object ingredient : ingredients) {
+								add(ingredient);
+							}
+						}
+						return this;
+					}
+
+					@Override
+					public CollapsibleGroupBuilder addAllOf(mezz.jei.api.recipe.IIngredientType<?>... types) {
+						if (types != null) {
+							for (mezz.jei.api.recipe.IIngredientType<?> type : types) {
+								if (type != null) {
+									state.allOfTypes.add(type.getIngredientClass());
+								}
+							}
+						}
+						return this;
+					}
+
+					@Override
+					public <V> CollapsibleGroupBuilder addAny(mezz.jei.api.recipe.IIngredientType<V> type, Predicate<V> filter) {
+						if (type != null && filter != null) {
+							Class<? extends V> ingredientClass = type.getIngredientClass();
+							state.typedPredicates.add(ingredient -> {
+								if (!ingredientClass.isInstance(ingredient)) {
+									return false;
+								}
+								return filter.test(ingredientClass.cast(ingredient));
+							});
+						}
+						return this;
+					}
+				};
 			}
 		};
 
@@ -400,6 +459,42 @@ public class JeiStarter {
 				}
 			}
 			ProgressManager.pop(bar);
+		}
+
+		for (ModGroupBuilderState state : groupsById.values()) {
+			if (!state.exactUids.isEmpty() && state.registeredStack != null) {
+				state.registeredStack.setUidMatcher(state::matchesUid);
+			}
+		}
+	}
+
+	private static class ModGroupBuilderState {
+		final Set<String> exactUids = new HashSet<>();
+		final Set<Class<?>> allOfTypes = new HashSet<>();
+		final List<Predicate<Object>> typedPredicates = new java.util.ArrayList<>();
+		/** The CollapsedStack registered in the registry — uid matcher installed post-loop. */
+		mezz.jei.ingredients.CollapsedStack registeredStack;
+
+		boolean matchesUid(String uid) {
+			return exactUids.contains(uid);
+		}
+
+		boolean matches(Object ingredient) {
+			String uid = mezz.jei.ingredients.CollapsedStack.computeIngredientUid(ingredient);
+			if (uid != null && exactUids.contains(uid)) {
+				return true;
+			}
+			for (Class<?> ingredientClass : allOfTypes) {
+				if (ingredientClass.isInstance(ingredient)) {
+					return true;
+				}
+			}
+			for (Predicate<Object> predicate : typedPredicates) {
+				if (predicate.test(ingredient)) {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 

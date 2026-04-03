@@ -95,17 +95,13 @@ public class CollapsedStackRegistry {
 	}
 
 	/**
-	 * Register a mod-provided collapsible group for a specific ingredient type.
-	 * Uses {@link mezz.jei.api.recipe.IIngredientType#getIngredientClass()} to guard the
-	 * predicate, so {@code matcher} receives a fully-typed {@code V} with no unchecked cast.
+	 * Register a mod-provided collapsible group.
+	 * The matcher may combine exact ingredient matches, type-wide matches, and custom predicates.
 	 */
-	public <V> void addModGroup(String id, String displayName,
-			mezz.jei.api.recipe.IIngredientType<V> type, Predicate<V> matcher) {
-		Class<? extends V> ingredientClass = type.getIngredientClass();
-		modEntries.add(new CollapsedStack(id, displayName, ingredient -> {
-			if (!ingredientClass.isInstance(ingredient)) return false;
-			return matcher.test(ingredientClass.cast(ingredient));
-		}, CollapsedStack.GroupSource.MOD));
+	public CollapsedStack addModGroup(String id, String displayName, Predicate<Object> matcher) {
+		CollapsedStack group = new CollapsedStack(id, displayName, matcher, CollapsedStack.GroupSource.MOD);
+		modEntries.add(group);
+		return group;
 	}
 
 	/**
