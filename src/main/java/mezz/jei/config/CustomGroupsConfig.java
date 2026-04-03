@@ -10,7 +10,11 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Manages custom collapsible groups persistence as JSON.
@@ -21,58 +25,60 @@ public class CustomGroupsConfig {
 	private static final Type GROUP_LIST_TYPE = new TypeToken<List<CustomGroup>>() {}.getType();
 
 	private final File configFile;
-	private List<CustomGroup> customGroups = new ArrayList<>();
+	private Map<String, CustomGroup> customGroups = new LinkedHashMap<>();
 
 	public CustomGroupsConfig(File configDir) {
 		this.configFile = new File(configDir, "customCollapsibleGroups.json");
 	}
 
 	public void load() {
+		customGroups = new LinkedHashMap<>();
 		if (!configFile.exists()) {
-			customGroups = new ArrayList<>();
 			return;
 		}
 		try (Reader reader = new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8)) {
 			List<CustomGroup> loaded = GSON.fromJson(reader, GROUP_LIST_TYPE);
-			customGroups = loaded != null ? loaded : new ArrayList<>();
+			if (loaded != null) {
+				for (CustomGroup group : loaded) {
+					customGroups.put(group.id, group);
+				}
+			}
 		} catch (Exception e) {
 			Log.get().error("Failed to load custom collapsible groups from {}", configFile, e);
-			customGroups = new ArrayList<>();
+			customGroups = new LinkedHashMap<>();
 		}
 	}
 
 	public void save() {
 		try (Writer writer = new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8)) {
-			GSON.toJson(customGroups, GROUP_LIST_TYPE, writer);
+			GSON.toJson(new ArrayList<>(customGroups.values()), GROUP_LIST_TYPE, writer);
 		} catch (Exception e) {
 			Log.get().error("Failed to save custom collapsible groups to {}", configFile, e);
 		}
 	}
 
-	public List<CustomGroup> getCustomGroups() {
-		return customGroups;
+	public Collection<CustomGroup> getCustomGroups() {
+		return Collections.unmodifiableCollection(customGroups.values());
+	}
+
+	@Nullable
+	public CustomGroup getGroup(String id) {
+		return customGroups.get(id);
 	}
 
 	public void addGroup(CustomGroup group) {
-		customGroups.add(group);
+		customGroups.put(group.id, group);
 		save();
 	}
 
 	public void removeGroup(String id) {
-		customGroups.removeIf(g -> g.id.equals(id));
+		customGroups.remove(id);
 		save();
 	}
 
 	public void updateGroup(CustomGroup updated) {
-		for (int i = 0; i < customGroups.size(); i++) {
-			if (customGroups.get(i).id.equals(updated.id)) {
-				customGroups.set(i, updated);
-				save();
-				return;
-			}
-		}
-		// Not found — add as new
-		addGroup(updated);
+		customGroups.put(updated.id, updated);
+		save();
 	}
 
 	/**

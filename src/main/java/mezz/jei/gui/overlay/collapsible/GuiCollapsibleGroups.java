@@ -259,11 +259,10 @@ public class GuiCollapsibleGroups extends GuiScreen {
 				if (card.source == GroupSource.CUSTOM) {
 					CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
 					if (customGroupsConfig != null) {
-						for (CustomGroupsConfig.CustomGroup group : customGroupsConfig.getCustomGroups()) {
-							if (group.id.equals(card.id)) {
-								this.mc.displayGuiScreen(new GuiCustomGroupEditor(this, group));
-								return;
-							}
+						CustomGroupsConfig.CustomGroup group = customGroupsConfig.getGroup(card.id);
+						if (group != null) {
+							this.mc.displayGuiScreen(new GuiCustomGroupEditor(this, group));
+							return;
 						}
 					}
 				}
