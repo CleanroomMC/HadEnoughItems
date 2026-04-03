@@ -42,10 +42,7 @@ public class EnchantDataHelper implements IIngredientHelper<EnchantmentData> {
 
 	@Override
 	public String getDisplayName(EnchantmentData ingredient) {
-		// Prefix with the item's localized name so that searching "enchanted" (or "book")
-		// finds all enchanted-book entries via the NO_PREFIX search tree.
-		String itemName = new ItemStack(Items.ENCHANTED_BOOK).getDisplayName();
-		return itemName + " - " + ingredient.enchantment.getTranslatedName(ingredient.enchantmentLevel);
+		return ingredient.enchantment.getTranslatedName(ingredient.enchantmentLevel);
 	}
 
 	@Override
