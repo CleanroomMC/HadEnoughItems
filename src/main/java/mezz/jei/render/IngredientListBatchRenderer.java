@@ -138,7 +138,7 @@ public class IngredientListBatchRenderer {
      * Sets the grid contents from a collapsed ingredient list (mixed IIngredientListElement and CollapsedStack objects).
      * Collapsed groups are rendered as a single slot; expanded groups have their items rendered individually.
      */
-    public void setCollapsed(final int startIndex, List<Object> collapsedList) {
+    public void setCollapsed(final int startIndex, List<IIngredientListElement> collapsedList) {
         renderItems2d.clear();
         renderItems3d.clear();
         renderOther.clear();
@@ -158,9 +158,9 @@ public class IngredientListBatchRenderer {
         // Flatten the ENTIRE collapsed list into display items first, then slice at startIndex.
         // This ensures expanded groups don't break pagination — firstItemIndex is an index into
         // the flattened view, which matches what collapsedSize() now returns.
-        List<Object> displayItems = new ArrayList<>();
-        Map<Object, CollapsedStack> itemToCollapsed = new HashMap<>();
-        for (Object obj : collapsedList) {
+        List<IIngredientListElement> displayItems = new ArrayList<>();
+        Map<IIngredientListElement, CollapsedStack> itemToCollapsed = new HashMap<>();
+        for (IIngredientListElement obj : collapsedList) {
             if (obj instanceof CollapsedStack) {
                 CollapsedStack collapsed = (CollapsedStack) obj;
                 if (collapsed.isExpanded()) {
@@ -191,7 +191,7 @@ public class IngredientListBatchRenderer {
                     slotIndex++;
                     continue;
                 }
-                Object displayItem = displayItems.get(i);
+                IIngredientListElement displayItem = displayItems.get(i);
                 if (displayItem instanceof CollapsedStack) {
                     CollapsedStack collapsed = (CollapsedStack) displayItem;
                     CollapsedStackRenderer renderer = new CollapsedStackRenderer(collapsed);
@@ -199,13 +199,12 @@ public class IngredientListBatchRenderer {
                     renderer.setPadding(1);
                     renderCollapsed.add(renderer);
                     collapsedStackIndexed.put(slotIndex, collapsed);
-                } else if (displayItem instanceof IIngredientListElement) {
-                    IIngredientListElement<?> element = (IIngredientListElement<?>) displayItem;
-                    set(ingredientListSlot, element);
-                    CollapsedStack parentCollapsed = itemToCollapsed.get(element);
+                } else {
+                    set(ingredientListSlot, displayItem);
+                    CollapsedStack parentCollapsed = itemToCollapsed.get(displayItem);
                     if (parentCollapsed != null) {
                         collapsedStackIndexed.put(slotIndex, parentCollapsed);
-                        expandedElementToGroup.put(element, parentCollapsed);
+                        expandedElementToGroup.put(displayItem, parentCollapsed);
                         expandedGroupSlots.computeIfAbsent(parentCollapsed, k -> new ArrayList<>())
                             .add(new Rectangle(ingredientListSlot.getArea()));
                     }

@@ -37,7 +37,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	private IngredientBlacklistInternal blacklist;
 	private IElementSearch elementSearch;
 	private List<IIngredientListElement> ingredientListCached = Collections.emptyList();
-	private List<Object> collapsedListCached = Collections.emptyList();
+	private List<IIngredientListElement> collapsedListCached = Collections.emptyList();
 	@Nullable private String filterCached;
 	/**
 	 * Cached sorted list of all currently-visible ingredients — the result of a full
@@ -282,16 +282,16 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	}
 
 	@Override
-	public List<Object> getCollapsedIngredientList() {
+	public List<IIngredientListElement> getCollapsedIngredientList() {
 		getIngredientList(); // ensure cache is populated
 		return collapsedListCached;
 	}
 
 	@Override
 	public int collapsedSize() {
-		List<Object> collapsed = getCollapsedIngredientList();
+		List<IIngredientListElement> collapsed = getCollapsedIngredientList();
 		int count = 0;
-		for (Object obj : collapsed) {
+		for (IIngredientListElement obj : collapsed) {
 			if (obj instanceof CollapsedStack) {
 				CollapsedStack cs = (CollapsedStack) obj;
 				count += cs.isExpanded() ? cs.size() : 1;
@@ -410,7 +410,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	 * Each ingredient is assigned to the first matching CollapsedStack group (first match wins).
 	 * If collapsible groups are disabled, returns the original list cast to List&lt;Object&gt;.
 	 */
-	private List<Object> collapse(List<IIngredientListElement> ingredientList) {
+	private List<IIngredientListElement> collapse(List<IIngredientListElement> ingredientList) {
 		if (!Config.isCollapsibleGroupsEnabled()) {
 			return new ArrayList<>(ingredientList);
 		}
@@ -457,7 +457,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		activeSet.addAll(activeEntries);
 		IdentityHashMap<IIngredientListElement<?>, List<CollapsedStack>> membership = getGroupMembership();
 
-		List<Object> result = new ArrayList<>(ingredientList.size());
+		List<IIngredientListElement> result = new ArrayList<>(ingredientList.size());
 		Set<CollapsedStack> addedToResult = Collections.newSetFromMap(new IdentityHashMap<>());
 
 		for (IIngredientListElement<?> element : ingredientList) {

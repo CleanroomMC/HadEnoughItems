@@ -12,9 +12,8 @@ public interface IIngredientGridSource {
 	 * CollapsedStack objects alongside IIngredientListElement objects
 	 * when collapsible groups are enabled.
 	 */
-	default List<Object> getCollapsedIngredientList() {
-		//noinspection unchecked,rawtypes
-		return (List) getIngredientList();
+	default List<IIngredientListElement> getCollapsedIngredientList() {
+		return getIngredientList();
 	}
 
 	/**

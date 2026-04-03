@@ -17,6 +17,8 @@ import java.util.Collections;
  * delegate to the first ingredient's helper for addon compatibility.
  */
 public class CollapsedStackIngredientHelper implements IIngredientHelper<CollapsedStack> {
+	public static final CollapsedStackIngredientHelper INSTANCE = new CollapsedStackIngredientHelper();
+
 	@Nullable
 	@Override
 	public CollapsedStack getMatch(Iterable<CollapsedStack> ingredients, CollapsedStack ingredientToMatch) {

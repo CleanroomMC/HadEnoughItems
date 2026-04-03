@@ -2,13 +2,17 @@ package mezz.jei.ingredients;
 
 import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -20,7 +24,7 @@ import java.util.function.Predicate;
  * {@link mezz.jei.api.ingredients.IIngredientHelper#translateFocus}.
  * <p>
  */
-public class CollapsedStack {
+public class CollapsedStack implements IIngredientListElement<CollapsedStack> {
 	// Registered as IIngredientType for addon compatibility — addons expect every grid item to have a type
 	public static final IIngredientType<CollapsedStack> TYPE = () -> CollapsedStack.class;
 
@@ -44,6 +48,7 @@ public class CollapsedStack {
 	 */
 	@Nullable private Predicate<String> uidMatcher;
 	private boolean expanded;
+	private boolean visible = true;
 	private final List<IIngredientListElement<?>> ingredients;
 
 	/**
@@ -178,5 +183,84 @@ public class CollapsedStack {
 
 	public boolean isEmpty() {
 		return ingredients.isEmpty();
+	}
+
+	// --- IIngredientListElement<CollapsedStack> implementation ---
+
+	@Override
+	public CollapsedStack getIngredient() {
+		return this;
+	}
+
+	@Override
+	public int getOrderIndex() {
+		return ingredients.isEmpty() ? 0 : ingredients.get(0).getOrderIndex();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public IIngredientHelper<CollapsedStack> getIngredientHelper() {
+		return CollapsedStackIngredientHelper.INSTANCE;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public IIngredientRenderer<CollapsedStack> getIngredientRenderer() {
+		return mezz.jei.render.CollapsedStackRenderer.INSTANCE;
+	}
+
+	@Override
+	public String getModNameForSorting() {
+		return ingredients.isEmpty() ? "" : ingredients.get(0).getModNameForSorting();
+	}
+
+	@Override
+	public Set<String> getModNameStrings() {
+		return ingredients.isEmpty() ? Collections.emptySet() : ingredients.get(0).getModNameStrings();
+	}
+
+	@Override
+	public List<String> getTooltipStrings() {
+		return ingredients.isEmpty() ? Collections.emptyList() : ingredients.get(0).getTooltipStrings();
+	}
+
+	@Override
+	public Collection<String> getOreDictStrings() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Collection<String> getCreativeTabsStrings() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Collection<String> getColorStrings() {
+		return ingredients.isEmpty() ? Collections.emptyList() : ingredients.get(0).getColorStrings();
+	}
+
+	@Override
+	public String getResourceId() {
+		return "collapsedstack:" + id;
+	}
+
+	@Override
+	public boolean isVisible() {
+		return visible;
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+
+	@Override
+	public int getGroupIndex() {
+		return 0;
+	}
+
+	@Override
+	public boolean startsNewRow() {
+		return false;
 	}
 }

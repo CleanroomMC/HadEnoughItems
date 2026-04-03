@@ -51,7 +51,7 @@ public class IngredientGridWithNavigation implements IShowsRecipeFocuses, IMouse
 		if (resetToFirstPage) {
 			firstItemIndex = 0;
 		}
-		List<Object> collapsedList = ingredientSource.getCollapsedIngredientList();
+		List<IIngredientListElement> collapsedList = ingredientSource.getCollapsedIngredientList();
 		if (firstItemIndex >= ingredientSource.collapsedSize()) {
 			firstItemIndex = 0;
 		}
