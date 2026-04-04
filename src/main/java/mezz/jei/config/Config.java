@@ -490,6 +490,9 @@ public final class Config {
 		config.addCategory(CATEGORY_ADVANCED);
 		config.addCategory(CATEGORY_MISC);
 		config.addCategory(CATEGORY_COLLAPSIBLE);
+		// Override collapsible category lang keys from config.jei.* to config.hei.*
+		config.setCategoryLanguageKey(CATEGORY_COLLAPSIBLE, "config.hei.collapsible");
+		config.setCategoryComment(CATEGORY_COLLAPSIBLE, Translator.translateToLocal("config.hei.collapsible.comment"));
 
 		ConfigCategory modeCategory = config.getCategory("mode");
 		if (modeCategory != null) {
@@ -592,6 +595,27 @@ public final class Config {
 		values.collapseOnClose = config.getBoolean(CATEGORY_COLLAPSIBLE, "collapseOnClose", defaultValues.collapseOnClose);
 
 		values.collapsedClickAction = config.getEnum("collapsedClickAction", CATEGORY_COLLAPSIBLE, defaultValues.collapsedClickAction, CollapsedClickAction.values());
+
+		// Override property lang keys and comments from config.jei.collapsible.* to config.hei.collapsible.*
+		{
+			String heiPrefix = "config.hei.collapsible.";
+
+			Property collapsibleGroupsEnabledProp = config.get(CATEGORY_COLLAPSIBLE, "collapsibleGroupsEnabled", defaultValues.collapsibleGroupsEnabled);
+			collapsibleGroupsEnabledProp.setLanguageKey(heiPrefix + "collapsibleGroupsEnabled");
+			collapsibleGroupsEnabledProp.setComment(Translator.translateToLocal(heiPrefix + "collapsibleGroupsEnabled.comment"));
+
+			Property collapseOnCloseProp = config.get(CATEGORY_COLLAPSIBLE, "collapseOnClose", defaultValues.collapseOnClose);
+			collapseOnCloseProp.setLanguageKey(heiPrefix + "collapseOnClose");
+			collapseOnCloseProp.setComment(Translator.translateToLocal(heiPrefix + "collapseOnClose.comment"));
+
+			Property collapsedClickActionProp = config.get(CATEGORY_COLLAPSIBLE, "collapsedClickAction", defaultValues.collapsedClickAction.name());
+			collapsedClickActionProp.setLanguageKey(heiPrefix + "collapsedClickAction");
+			String defaultLocalized = Translator.translateToLocal("config.jei.default");
+			String validLocalized = Translator.translateToLocal("config.jei.valid");
+			collapsedClickActionProp.setComment(Translator.translateToLocal(heiPrefix + "collapsedClickAction.comment")
+				+ "\n[" + defaultLocalized + ": " + defaultValues.collapsedClickAction.name().toLowerCase(Locale.ENGLISH) + "]"
+				+ "\n[" + validLocalized + ": " + Arrays.toString(collapsedClickActionProp.getValidValues()) + ']');
+		}
 
 		// Explicit property order so the GUI shows collapsibleGroupsEnabled first, then collapseOnClose.
 		List<String> collapsibleOrder = new ArrayList<>();

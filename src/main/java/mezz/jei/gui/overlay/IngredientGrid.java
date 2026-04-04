@@ -145,7 +145,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 						CollapsedStack expandedGroup = guiIngredientSlots.getExpandedCollapsedGroupAt(mouseX, mouseY);
 						if (expandedGroup != null) {
 							String hint = net.minecraft.util.text.TextFormatting.YELLOW
-								+ mezz.jei.util.Translator.translateToLocal("jei.tooltip.collapsed.collapse");
+								+ mezz.jei.util.Translator.translateToLocal("hei.tooltip.collapsed.collapse");
 							hovered.drawTooltip(minecraft, mouseX, mouseY, java.util.Collections.singletonList(hint));
 						} else {
 							hovered.drawTooltip(minecraft, mouseX, mouseY);

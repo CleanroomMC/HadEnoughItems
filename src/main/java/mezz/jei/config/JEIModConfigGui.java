@@ -149,7 +149,7 @@ public class JEIModConfigGui extends GuiConfig {
 		public ManageGroupsEntry(GuiConfig owningScreen, GuiConfigEntries owningEntryList, IConfigElement configElement) {
 			super(owningScreen, owningEntryList, configElement,
 					new GuiButtonExt(0, owningEntryList.controlX, 0, owningEntryList.controlWidth, 18,
-							I18n.format("jei.gui.collapsible.title")));
+							I18n.format("hei.gui.collapsible.title")));
 		}
 
 		@Override public void    updateValueButtonText() {}
@@ -175,7 +175,7 @@ public class JEIModConfigGui extends GuiConfig {
 		@Override public Class<? extends net.minecraftforge.fml.client.config.GuiEditArrayEntries.IArrayEntry> getArrayEntryClass() { return null; }
 		@Override public String getName() { return "manageGroups"; }
 		@Override public String getQualifiedName() { return "manageGroups"; }
-		@Override public String getLanguageKey() { return "jei.gui.collapsible.title"; }
+		@Override public String getLanguageKey() { return "hei.gui.collapsible.title"; }
 		@Override public String getComment() { return ""; }
 		@Override public List<IConfigElement> getChildElements() { return Collections.emptyList(); }
 		@Override public ConfigGuiType getType() { return ConfigGuiType.CONFIG_CATEGORY; }

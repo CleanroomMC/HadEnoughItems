@@ -216,8 +216,8 @@ public class CollapsedStackRenderer implements IIngredientRenderer<CollapsedStac
 		// In FIRST_ITEM mode, alt+click expands; show that instead.
 		String hint = TextFormatting.YELLOW + Translator.translateToLocal(
 			Config.getCollapsedClickAction() == CollapsedClickAction.OPEN_GROUP
-				? "jei.tooltip.collapsed.expand.firstItem"
-				: "jei.tooltip.collapsed.expand");
+				? "hei.tooltip.collapsed.expand.firstItem"
+				: "hei.tooltip.collapsed.expand");
 
 		int tw = Math.max(Math.max(font.getStringWidth(header), font.getStringWidth(hint)), gridW);
 		int th = 12 + gridH + 10;

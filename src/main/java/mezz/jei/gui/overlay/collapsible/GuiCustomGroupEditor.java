@@ -119,9 +119,9 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 		// Save & Cancel buttons
 		this.buttonList.add(new GuiButton(BTN_SAVE, panelDivider + 4, 4, 50, 20,
-			Translator.translateToLocal("jei.gui.collapsible.editor.save")));
+			Translator.translateToLocal("hei.gui.collapsible.editor.save")));
 		this.buttonList.add(new GuiButton(BTN_CANCEL, panelDivider + 58, 4, 50, 20,
-			Translator.translateToLocal("jei.gui.collapsible.back")));
+			Translator.translateToLocal("hei.gui.collapsible.back")));
 
 		// Calculate left grid layout
 		int leftWidth = panelDivider - 8;
@@ -454,7 +454,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 		// Name label
 		this.fontRenderer.drawStringWithShadow(
-			Translator.translateToLocal("jei.gui.collapsible.editor.name") + ":",
+			Translator.translateToLocal("hei.gui.collapsible.editor.name") + ":",
 			4, 10, 0xFFFFFF);
 		if (nameField != null) {
 			nameField.drawTextBox();
@@ -469,9 +469,9 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		drawVerticalLine(panelDivider, 0, this.height, 0xFF555555);
 
 		// "Selected" header on right panel
-		String selHeader = Translator.translateToLocal("jei.gui.collapsible.editor.title");
+		String selHeader = Translator.translateToLocal("hei.gui.collapsible.editor.title");
 		this.fontRenderer.drawStringWithShadow(selHeader, panelDivider + 4, 26, 0xCCCCCC);
-		String selCount = String.format(Translator.translateToLocal("jei.gui.collapsible.editor.selected"), selectedUids.size());
+		String selCount = String.format(Translator.translateToLocal("hei.gui.collapsible.editor.selected"), selectedUids.size());
 		this.fontRenderer.drawStringWithShadow(selCount, panelDivider + 4, 36, 0x888888);
 
 		// Draw left grid (all items)

@@ -37,7 +37,7 @@ public class ConfigButton extends GuiIconToggleButton {
 	protected void getTooltips(List<String> tooltip) {
 		tooltip.add(Translator.translateToLocal("jei.tooltip.config"));
 		if (Config.isOverlayEnabled() && Config.isCollapsibleGroupsEnabled()) {
-			tooltip.add(TextFormatting.GOLD + Translator.translateToLocal("jei.tooltip.config.expandCollapseAll"));
+			tooltip.add(TextFormatting.GOLD + Translator.translateToLocal("hei.tooltip.config.expandCollapseAll"));
 		}
 		if (!Config.isOverlayEnabled()) {
 			tooltip.add(TextFormatting.GOLD + Translator.translateToLocal("jei.tooltip.ingredient.list.disabled"));

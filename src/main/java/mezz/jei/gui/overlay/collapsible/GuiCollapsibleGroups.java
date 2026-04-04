@@ -95,11 +95,11 @@ public class GuiCollapsibleGroups extends GuiScreen {
 
 		// Back button
 		this.buttonList.add(new GuiButton(BTN_BACK, layoutContentLeft, 4, 60, 20,
-			Translator.translateToLocal("jei.gui.collapsible.back")));
+			Translator.translateToLocal("hei.gui.collapsible.back")));
 
 		// New Group button
 		this.buttonList.add(new GuiButton(BTN_NEW, layoutContentLeft + layoutContentWidth - 62, 4, 60, 20,
-			Translator.translateToLocal("jei.gui.collapsible.newGroup")));
+			Translator.translateToLocal("hei.gui.collapsible.newGroup")));
 
 		rebuildCards();
 		rebuildPageButtons();
@@ -164,8 +164,8 @@ public class GuiCollapsibleGroups extends GuiScreen {
 
 			// Toggle button
 			String toggleLabel = card.enabled
-				? Translator.translateToLocal("jei.gui.collapsible.enabled")
-				: Translator.translateToLocal("jei.gui.collapsible.disabled");
+				? Translator.translateToLocal("hei.gui.collapsible.enabled")
+				: Translator.translateToLocal("hei.gui.collapsible.disabled");
 			this.buttonList.add(new GuiButton(BTN_TOGGLE_BASE + i, btnX, btnY, 52, 20, toggleLabel));
 
 			if (card.source == GroupSource.CUSTOM) {
@@ -319,7 +319,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		this.drawDefaultBackground();
 
 		// Title
-		String title = Translator.translateToLocal("jei.gui.collapsible.title");
+		String title = Translator.translateToLocal("hei.gui.collapsible.title");
 		this.drawCenteredString(this.fontRenderer, title, this.width / 2, 10, 0xFFFFFF);
 
 		int startIdx = currentPage * cardsPerPage;
@@ -339,7 +339,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			if (i == pendingDeleteIdx && card.source == GroupSource.CUSTOM) {
 				int btnX = cardX + layoutColWidth - 56;
 				int btnY = cardY + 4;
-				String confirmLabel = Translator.translateToLocal("jei.gui.collapsible.confirmDelete");
+				String confirmLabel = Translator.translateToLocal("hei.gui.collapsible.confirmDelete");
 				int labelX = btnX - this.fontRenderer.getStringWidth(confirmLabel) - 3;
 				this.fontRenderer.drawStringWithShadow(confirmLabel, labelX, btnY + 27, 0xFFFF4444);
 			}
@@ -387,22 +387,22 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		switch (card.source) {
 			case CUSTOM:
 				sourceColor = "\u00A7e";
-				sourceLabel = Translator.translateToLocal("jei.gui.collapsible.customGroup");
+				sourceLabel = Translator.translateToLocal("hei.gui.collapsible.customGroup");
 				break;
 			case MOD:
 				sourceColor = "\u00A7d";
-				sourceLabel = Translator.translateToLocal("jei.gui.collapsible.modGroup");
+				sourceLabel = Translator.translateToLocal("hei.gui.collapsible.modGroup");
 				break;
 			default:
 				sourceColor = "\u00A77";
-				sourceLabel = Translator.translateToLocal("jei.gui.collapsible.defaultGroup");
+				sourceLabel = Translator.translateToLocal("hei.gui.collapsible.defaultGroup");
 				break;
 		}
 		String namePrefix = sourceColor + "[" + sourceLabel + "] \u00A7r";
 		this.fontRenderer.drawStringWithShadow(namePrefix + card.displayName, x + 4, y + 4, 0xFFFFFF);
 
 		// Item count
-		String countText = String.format(Translator.translateToLocal("jei.gui.collapsible.itemCount"), card.itemCount);
+		String countText = String.format(Translator.translateToLocal("hei.gui.collapsible.itemCount"), card.itemCount);
 		this.fontRenderer.drawStringWithShadow(countText, x + 4, y + 16, 0xAAAAAA);
 
 		// Scrollable preview grid
