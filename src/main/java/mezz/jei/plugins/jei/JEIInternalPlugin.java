@@ -9,6 +9,9 @@ import java.util.List;
 import mezz.jei.bookmarks.BookmarkIngredientHelper;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkItemRender;
+import mezz.jei.ingredients.CollapsedStack;
+import mezz.jei.ingredients.CollapsedStackIngredientHelper;
+import mezz.jei.render.CollapsedStackRenderer;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -60,6 +63,10 @@ public class JEIInternalPlugin implements IModPlugin {
 		BookmarkIngredientHelper bookmarkIngredientHelper = new BookmarkIngredientHelper();
 		BookmarkItemRender bookmarkItemRender = new BookmarkItemRender();
 		ingredientRegistration.register(BookmarkItem.TYPE, Collections.emptyList(), bookmarkIngredientHelper, bookmarkItemRender);
+
+		// Register CollapsedStack as ingredient type — addons that introspect grid items require a registered type
+		CollapsedStackIngredientHelper csHelper = new CollapsedStackIngredientHelper();
+		ingredientRegistration.register(CollapsedStack.TYPE, Collections.emptyList(), csHelper, CollapsedStackRenderer.INSTANCE);
 	}
 
 	@Override

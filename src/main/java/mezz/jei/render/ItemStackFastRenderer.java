@@ -6,7 +6,6 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -23,8 +22,12 @@ import mezz.jei.util.ErrorUtil;
 public class ItemStackFastRenderer extends IngredientRenderer<ItemStack> {
 	private static final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
 
-	public ItemStackFastRenderer(IIngredientListElement<ItemStack> itemStackElement) {
+	// Pre-computed at list-population time so getBakedModel() is a free field read every frame.
+	private final IBakedModel cachedModel;
+
+	public ItemStackFastRenderer(IIngredientListElement<ItemStack> itemStackElement, IBakedModel model) {
 		super(itemStackElement);
+		this.cachedModel = model;
 	}
 
 	public void renderItemAndEffectIntoGUI() {
@@ -36,10 +39,7 @@ public class ItemStackFastRenderer extends IngredientRenderer<ItemStack> {
 	}
 
 	private IBakedModel getBakedModel() {
-		ItemModelMesher itemModelMesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-		ItemStack itemStack = element.getIngredient();
-		IBakedModel bakedModel = itemModelMesher.getItemModel(itemStack);
-		return bakedModel.getOverrides().handleItemState(bakedModel, itemStack, null, null);
+		return cachedModel;
 	}
 
 	private void uncheckedRenderItemAndEffectIntoGUI() {

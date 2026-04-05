@@ -1,11 +1,14 @@
 package mezz.jei.config;
 
+import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.GiveMode;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ConfigValues {
 	// advanced
@@ -53,4 +56,10 @@ public class ConfigValues {
 
     // category
 	public List<String> categoryUidOrder = new ArrayList<>();
+
+	// collapsible groups
+	public boolean collapsibleGroupsEnabled = true;
+	public boolean collapseOnClose = false;
+	public CollapsedClickAction collapsedClickAction = CollapsedClickAction.OPEN_GROUP;
+	public Set<String> disabledGroups = new HashSet<>();
 }

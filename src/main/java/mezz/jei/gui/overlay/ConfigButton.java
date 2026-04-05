@@ -1,5 +1,6 @@
 package mezz.jei.gui.overlay;
 
+import java.util.Collection;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -14,6 +15,8 @@ import mezz.jei.config.JEIModConfigGui;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.elements.GuiIconToggleButton;
+import mezz.jei.ingredients.CollapsedStack;
+import mezz.jei.ingredients.CollapsedStackRegistry;
 import mezz.jei.util.Translator;
 import org.lwjgl.input.Keyboard;
 
@@ -33,6 +36,9 @@ public class ConfigButton extends GuiIconToggleButton {
 	@Override
 	protected void getTooltips(List<String> tooltip) {
 		tooltip.add(Translator.translateToLocal("jei.tooltip.config"));
+		if (Config.isOverlayEnabled() && Config.isCollapsibleGroupsEnabled()) {
+			tooltip.add(TextFormatting.GOLD + Translator.translateToLocal("hei.tooltip.config.expandCollapseAll"));
+		}
 		if (!Config.isOverlayEnabled()) {
 			tooltip.add(TextFormatting.GOLD + Translator.translateToLocal("jei.tooltip.ingredient.list.disabled"));
 			tooltip.add(TextFormatting.GOLD + Translator.translateToLocalFormatted("jei.tooltip.ingredient.list.disabled.how.to.fix", KeyBindings.toggleOverlay.getDisplayName()));
@@ -59,7 +65,18 @@ public class ConfigButton extends GuiIconToggleButton {
 	@Override
 	protected boolean onMouseClicked(int mouseX, int mouseY) {
 		if (Config.isOverlayEnabled()) {
-			if (Keyboard.getEventKeyState() && (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL || Keyboard.getEventKey() == Keyboard.KEY_RCONTROL)) {
+			if (GuiScreen.isAltKeyDown() && Config.isCollapsibleGroupsEnabled()
+					&& Internal.hasIngredientFilter()) {
+				CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
+				Collection<CollapsedStack> entries = registry.getEntries();
+				List<CollapsedStack> customEntries = registry.getCustomEntries();
+				boolean allExpanded = entries.stream().allMatch(CollapsedStack::isExpanded)
+						&& customEntries.stream().allMatch(CollapsedStack::isExpanded);
+				boolean targetExpanded = !allExpanded;
+				entries.forEach(e -> e.setExpanded(targetExpanded));
+				customEntries.forEach(e -> e.setExpanded(targetExpanded));
+				Internal.getIngredientFilter().notifyCollapsedStateChanged();
+			} else if (Keyboard.getEventKeyState() && (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL || Keyboard.getEventKey() == Keyboard.KEY_RCONTROL)) {
 				Config.toggleCheatItemsEnabled();
 			} else {
 				Minecraft minecraft = Minecraft.getMinecraft();

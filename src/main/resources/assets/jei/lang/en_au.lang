@@ -120,3 +120,35 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Hide Bottom-Left Corner Bookmark Button
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Whether to hide the bottom-left corner bookmark button
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Click to expand
+hei.tooltip.collapsed.expand.firstItem=Alt+Click for first item
+hei.tooltip.collapsed.collapse=Alt+Click to collapse
+hei.tooltip.config.expandCollapseAll=Alt+Click Toggle Groups
+
+config.hei.collapsible=Collapsible Groups
+config.hei.collapsible.comment=Options for collapsing groups of ingredients into a single slot in the ingredient list.
+config.hei.collapsible.collapsibleGroupsEnabled=Enable Collapsible Groups
+config.hei.collapsible.collapsibleGroupsEnabled.comment=When enabled, groups of related ingredients (potions, enchanted books, etc.) are collapsed into a single slot. Alt+Click a group to expand or collapse it.
+config.hei.collapsible.collapseOnClose=Collapse on Close
+config.hei.collapsible.collapseOnClose.comment=Collapse currently opened groups when HEI is closed.
+config.hei.collapsible.collapsedClickAction=Default Collapsed Action
+config.hei.collapsible.collapsedClickAction.comment=Swaps the single click action, The other option becomes the Alt+Click action. Open Group opens the group. First Item applies the action to the first item in the group.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Open Group
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=First Item
+
+# Group Management GUI
+hei.gui.collapsible.title=Manage Groups
+hei.gui.collapsible.back=Back
+hei.gui.collapsible.newGroup=New Group
+hei.gui.collapsible.title.tooltip=Enable/Disable built in groups and create user defined groups.
+hei.gui.collapsible.enabled=Enabled
+hei.gui.collapsible.disabled=Disabled
+hei.gui.collapsible.customGroup=Custom
+hei.gui.collapsible.defaultGroup=Default
+hei.gui.collapsible.itemCount=%d items
+hei.gui.collapsible.editor.title=Selected Items
+hei.gui.collapsible.editor.name=Name
+hei.gui.collapsible.editor.save=Save
+hei.gui.collapsible.editor.selected=%d selected

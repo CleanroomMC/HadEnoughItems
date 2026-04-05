@@ -129,3 +129,37 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=隱藏左下角書籤按鈕
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=是否隱藏左下角書籤按鈕
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+點擊展開
+hei.tooltip.collapsed.expand.firstItem=Alt+點擊查看第一個物品
+hei.tooltip.collapsed.collapse=Alt+點擊收合
+hei.tooltip.config.expandCollapseAll=Alt+點擊切換群組
+
+config.hei.collapsible=可折疊群組
+config.hei.collapsible.comment=將材料群組折疊為材料列表中的單個格子的相關選項。
+config.hei.collapsible.collapsibleGroupsEnabled=啟用可折疊群組
+config.hei.collapsible.collapsibleGroupsEnabled.comment=啟用後，相關材料的群組（藥水、附魔書等）將折疊為單個格子。Alt+點擊群組以展開或收合。
+config.hei.collapsible.collapseOnClose=關閉時收合
+config.hei.collapsible.collapseOnClose.comment=關閉HEI時收合目前已展開的群組。
+config.hei.collapsible.collapsedClickAction=預設點擊操作
+config.hei.collapsible.collapsedClickAction.comment=切換單擊操作，另一個選項變為Alt+點擊操作。開啟群組會展開群組。第一個物品會對群組中的第一個物品執行操作。
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=開啟群組
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=第一個物品
+
+# Group Management GUI
+hei.gui.collapsible.title=管理群組
+hei.gui.collapsible.back=返回
+hei.gui.collapsible.newGroup=新建群組
+hei.gui.collapsible.title.tooltip=啟用/停用內建群組並建立使用者自訂群組。
+hei.gui.collapsible.enabled=已啟用
+hei.gui.collapsible.disabled=已停用
+hei.gui.collapsible.customGroup=自訂
+hei.gui.collapsible.modGroup=Mod
+hei.gui.collapsible.defaultGroup=預設
+hei.gui.collapsible.itemCount=%d 個物品
+hei.gui.collapsible.editor.title=已選物品
+hei.gui.collapsible.editor.name=名稱
+hei.gui.collapsible.editor.save=儲存
+hei.gui.collapsible.editor.selected=%d 已選擇
+hei.gui.collapsible.confirmDelete=刪除？

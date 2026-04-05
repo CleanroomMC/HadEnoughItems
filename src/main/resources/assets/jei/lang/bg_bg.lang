@@ -120,3 +120,35 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Скрий бутона за отметка в долния ляв ъгъл
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Дали да се скрие бутона за отметка в долния ляв ъгъл
 
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Клик за разгъване
+hei.tooltip.collapsed.expand.firstItem=Alt+Клик за първия предмет
+hei.tooltip.collapsed.collapse=Alt+Клик за свиване
+hei.tooltip.config.expandCollapseAll=Alt+Клик за превключване на групи
+
+config.hei.collapsible=Свиваеми групи
+config.hei.collapsible.comment=Опции за свиване на групи от съставки в един слот в списъка със съставки.
+config.hei.collapsible.collapsibleGroupsEnabled=Активиране на свиваеми групи
+config.hei.collapsible.collapsibleGroupsEnabled.comment=Когато е активирано, групи от свързани съставки (отвари, омагьосани книги и др.) се свиват в един слот. Alt+Клик върху група, за да я разгънете или свиете.
+config.hei.collapsible.collapseOnClose=Свиване при затваряне
+config.hei.collapsible.collapseOnClose.comment=Свиване на текущо отворените групи при затваряне на HEI.
+config.hei.collapsible.collapsedClickAction=Действие при клик по подразбиране
+config.hei.collapsible.collapsedClickAction.comment=Разменя действието при единично кликване, другата опция става действието при Alt+Клик. Отвори групата отваря групата. Първият предмет прилага действието към първия предмет в групата.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Отвори групата
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Първият предмет
+
+# Group Management GUI
+hei.gui.collapsible.title=Управление на групи
+hei.gui.collapsible.back=Назад
+hei.gui.collapsible.newGroup=Нова група
+hei.gui.collapsible.title.tooltip=Активиране/деактивиране на вградени групи и създаване на потребителски групи.
+hei.gui.collapsible.enabled=Активирано
+hei.gui.collapsible.disabled=Деактивирано
+hei.gui.collapsible.customGroup=Потребителска
+hei.gui.collapsible.defaultGroup=По подразбиране
+hei.gui.collapsible.itemCount=%d предмети
+hei.gui.collapsible.editor.title=Избрани предмети
+hei.gui.collapsible.editor.name=Название
+hei.gui.collapsible.editor.save=Запазване
+hei.gui.collapsible.editor.selected=%d избрани
+

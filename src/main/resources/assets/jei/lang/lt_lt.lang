@@ -119,3 +119,35 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Paslėpti žymės mygtuką apatiniame kairiajame kampe
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Ar paslėpti žymės mygtuką apatiniame kairiajame kampe
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+spustelėkite, kad išskleistumėte
+hei.tooltip.collapsed.expand.firstItem=Alt+spustelėkite pirmam daiktui
+hei.tooltip.collapsed.collapse=Alt+spustelėkite, kad sutrauktumėte
+hei.tooltip.config.expandCollapseAll=Alt+Spustelėkite perjungti grupes
+
+config.hei.collapsible=Sutraukiamos grupės
+config.hei.collapsible.comment=Parinktys ingredientų grupių sutraukimui į vieną vietą ingredientų sąraše.
+config.hei.collapsible.collapsibleGroupsEnabled=Įjungti sutraukiamas grupes
+config.hei.collapsible.collapsibleGroupsEnabled.comment=Kai įjungta, susijusių ingredientų grupės (eliksyrai, užkeiktos knygos ir kt.) sutraukiamos į vieną vietą. Alt+spustelėkite grupę, kad ją išskleistumėte ar sutrauktumėte.
+config.hei.collapsible.collapseOnClose=Sutraukti uždarant
+config.hei.collapsible.collapseOnClose.comment=Sutraukti šiuo metu atidarytas grupes kai HEI uždaromas.
+config.hei.collapsible.collapsedClickAction=Numatytasis paspaudimo veiksmas
+config.hei.collapsible.collapsedClickAction.comment=Pakeičia vieno paspaudimo veiksmą, kita parinktis tampa Alt+spustelėjimo veiksmu. Atidaryti grupę atidaro grupę. Pirmas daiktas taiko veiksmą pirmam grupės daiktui.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Atidaryti grupę
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Pirmas daiktas
+
+# Group Management GUI
+hei.gui.collapsible.title=Valdyti grupes
+hei.gui.collapsible.back=Atgal
+hei.gui.collapsible.newGroup=Nauja grupė
+hei.gui.collapsible.title.tooltip=Įgąlinti/išjungti įtaisytąsias grupes ir kurti naudotojo apibrėžtas grupes.
+hei.gui.collapsible.enabled=Įgąlinta
+hei.gui.collapsible.disabled=Išjungta
+hei.gui.collapsible.customGroup=Pasirinktiniű
+hei.gui.collapsible.defaultGroup=Numatytoji
+hei.gui.collapsible.itemCount=%d daiktų
+hei.gui.collapsible.editor.title=Pasirinkti daiktai
+hei.gui.collapsible.editor.name=Pavadinimas
+hei.gui.collapsible.editor.save=Išsaugoti
+hei.gui.collapsible.editor.selected=%d pasirinkta

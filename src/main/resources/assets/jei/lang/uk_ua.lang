@@ -121,3 +121,35 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Приховати кнопку закладки в лівому нижньому куті
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Чи приховувати кнопку закладки в лівому нижньому куті
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Клік для розгортання
+hei.tooltip.collapsed.expand.firstItem=Alt+Клік для першого предмета
+hei.tooltip.collapsed.collapse=Alt+Клік для згортання
+hei.tooltip.config.expandCollapseAll=Alt+Клік перемкнути групи
+
+config.hei.collapsible=Згортувані групи
+config.hei.collapsible.comment=Налаштування згортання груп інгредієнтів в один слот у списку інгредієнтів.
+config.hei.collapsible.collapsibleGroupsEnabled=Увімкнути згортувані групи
+config.hei.collapsible.collapsibleGroupsEnabled.comment=Коли увімкнено, групи пов'язаних інгредієнтів (зілля, зачаровані книги тощо) згортаються в один слот. Alt+Клік по групі для розгортання або згортання.
+config.hei.collapsible.collapseOnClose=Згорнути при закритті
+config.hei.collapsible.collapseOnClose.comment=Згортає відкриті групи при закритті HEI.
+config.hei.collapsible.collapsedClickAction=Дія кліку за замовчуванням
+config.hei.collapsible.collapsedClickAction.comment=Змінює дію одиничного кліку, інший варіант стає дією Alt+Клік. Відкрити групу відкриває групу. Перший предмет застосовує дію до першого предмета в групі.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Відкрити групу
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Перший предмет
+
+# Group Management GUI
+hei.gui.collapsible.title=Управління групами
+hei.gui.collapsible.back=Назад
+hei.gui.collapsible.newGroup=Нова група
+hei.gui.collapsible.title.tooltip=Увімкнення/вимкнення вбудованих груп та створення користувацьких груп.
+hei.gui.collapsible.enabled=Увімкнено
+hei.gui.collapsible.disabled=Вимкнено
+hei.gui.collapsible.customGroup=Користувацька
+hei.gui.collapsible.defaultGroup=За замовчуванням
+hei.gui.collapsible.itemCount=%d предметів
+hei.gui.collapsible.editor.title=Вибрані предмети
+hei.gui.collapsible.editor.name=Назва
+hei.gui.collapsible.editor.save=Зберегти
+hei.gui.collapsible.editor.selected=%d вибрано
