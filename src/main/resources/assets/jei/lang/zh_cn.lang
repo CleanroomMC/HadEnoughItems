@@ -22,6 +22,12 @@ jei.tooltip.bookmarks.usage.nokey=在按键控制设置中为 HEI 书签添加�
 jei.tooltip.bookmarks.usage.key=将鼠标悬停在某个原料上，然后按 %s 将其添加为书签。
 jei.tooltip.bookmarks.not.enough.space=屏幕左侧区域空间不足，无法显示书签列表叠加层。
 
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt + 点击：展开
+hei.tooltip.collapsed.expand.firstItem=Alt + 点击：首个物品
+hei.tooltip.collapsed.collapse=Alt + 点击：折叠
+hei.tooltip.config.expandCollapseAll=Alt + 点击：切换分组
+
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=缺失物品
 jei.tooltip.error.recipe.transfer.inventory.full=物品栏已满
@@ -182,8 +188,16 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=是否隐藏左下角
 config.jei.misc.hideBottomRightCornerConfigButton=隐藏右下角配置按钮
 config.jei.misc.hideBottomRightCornerConfigButton.comment=是否隐藏右下角的配置按钮
 
-config.jei.misc.hideBottomLeftCornerBookmarkButton=隐藏左下角书签按钮
-config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=是否隐藏左下角的书签按钮
+config.hei.collapsible=可折叠分组
+config.hei.collapsible.comment=将原料列表中的同类原料分组折叠为单个格子的相关选项。
+config.hei.collapsible.collapsibleGroupsEnabled=启用可折叠分组
+config.hei.collapsible.collapsibleGroupsEnabled.comment=启用后，相关原料的分组（药水、附魔书等）将折叠为单个格子。Alt + 点击分组以展开或折叠。
+config.hei.collapsible.collapseOnClose=关闭时折叠
+config.hei.collapsible.collapseOnClose.comment=关闭 HEI 时折叠当前已展开的分组。
+config.hei.collapsible.collapsedClickAction=默认点击操作
+config.hei.collapsible.collapsedClickAction.comment=切换单击操作，另一项操作将变为 Alt + 点击。打开分组（open_group）：展开分组。首个物品（first_item）：对分组中的第一个物品执行操作。
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=打开分组
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=首个物品
 
 config.jei.category.categoryUidOrder=分类 UID 排序
 config.jei.category.categoryUidOrder.comment=决定 HEI 中配方分类的显示顺序。列在前面的分类将优先在 HEI 界面中显示。
@@ -205,4 +219,20 @@ hei.tooltip.organizer.1=§6CTRL + 左键点击§7：在分组间移动书签
 hei.tooltip.organizer.2=§6上§r 或 §6下§7：调整分组位置
 hei.tooltip.organizer.3=§6CTRL + 滚轮§7：更改最终产物
 hei.tooltip.organizer.4=§6%s§7：自动合成
+
+hei.gui.collapsible.title=管理分组
+hei.gui.collapsible.back=返回
+hei.gui.collapsible.newGroup=新建分组
+hei.gui.collapsible.title.tooltip=启用/禁用内置分组并创建用户自定义分组。
+hei.gui.collapsible.enabled=已启用
+hei.gui.collapsible.disabled=已禁用
+hei.gui.collapsible.customGroup=自定义
+hei.gui.collapsible.modGroup=模组
+hei.gui.collapsible.defaultGroup=默认
+hei.gui.collapsible.itemCount=%d 个物品
+hei.gui.collapsible.editor.title=已选物品
+hei.gui.collapsible.editor.name=名称
+hei.gui.collapsible.editor.save=保存
+hei.gui.collapsible.editor.selected=%d 已选择
+hei.gui.collapsible.confirmDelete=删除？
 hei.tooltip.missing_ingredients=§c缺失原料：
