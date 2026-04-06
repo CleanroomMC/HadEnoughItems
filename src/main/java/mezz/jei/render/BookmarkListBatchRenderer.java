@@ -79,7 +79,6 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
         int ingredientIndex = 0;
         int currentGroup = ingredientList.get(ingredientIndex).getGroupIndex();
         while (true) {
-            int previousIngredientIndex = ingredientIndex;
             for (int rowIndex = 0; rowIndex < slots.size(); rowIndex++) {
                 List<IngredientListSlot> row = slots.get(rowIndex);
                 for (int column = 0; column < row.size(); column++) {
@@ -99,7 +98,6 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                     }
                 }
             }
-            if(ingredientIndex == previousIngredientIndex) return pages;
             pages.add(ingredientIndex);
         }
     }
