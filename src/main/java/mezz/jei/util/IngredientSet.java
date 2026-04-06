@@ -9,24 +9,13 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import net.minecraft.item.ItemStack;
 
-import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
-import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IIngredientType;
-import mezz.jei.startup.StackHelper;
 
 public class IngredientSet<V> extends AbstractSet<V> {
 	public static <V> IngredientSet<V> create(IIngredientType<V> ingredientType, IIngredientHelper<V> ingredientHelper) {
-		final Function<V, String> uidGenerator;
-		if (ingredientType == VanillaTypes.ITEM) {
-			StackHelper stackHelper = Internal.getStackHelper();
-			uidGenerator = stack -> stackHelper.getUniqueIdentifierForStack((ItemStack) stack, StackHelper.UidMode.FULL);
-		} else {
-			uidGenerator = ingredientHelper::getUniqueId;
-		}
-		return new IngredientSet<>(uidGenerator);
+		return new IngredientSet<>(ingredientHelper::getUniqueId);
 	}
 
 	private final Function<V, String> uidGenerator;

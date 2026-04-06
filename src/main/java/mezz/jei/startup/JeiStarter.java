@@ -13,7 +13,6 @@ import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiEventHandler;
-import mezz.jei.ingredients.CollapsedStackRegistry;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.ghost.GhostIngredientDragManager;
@@ -23,7 +22,7 @@ import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.gui.textures.Textures;
 import mezz.jei.ingredients.IngredientBlacklistInternal;
-import mezz.jei.util.Translator;
+import mezz.jei.ingredients.group.CollapsibleGroupRegistry;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.IngredientListElementFactory;
 import mezz.jei.ingredients.IngredientRegistry;
@@ -36,17 +35,11 @@ import mezz.jei.runtime.SubtypeRegistry;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.LoggedTimer;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraftforge.fml.common.ProgressManager;
 
 import java.util.Iterator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
 
 public class JeiStarter {
 	private boolean started;
@@ -106,14 +99,10 @@ public class JeiStarter {
 			timer.stop();
 		}
 
-		registerDefaultCollapsibleGroups();
-		registerModCollapsibleGroups(plugins);
-
-		{
-			CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
-			registry.loadCustomGroups();
-			registry.syncDisabledGroups();
-		}
+		CollapsibleGroupRegistry collapsibleGroupRegistry = new CollapsibleGroupRegistry();
+		Internal.setCollapsedGroupRegistry(collapsibleGroupRegistry);
+		registerCollapsibleGroups(plugins, collapsibleGroupRegistry);
+		collapsibleGroupRegistry.loadCustomGroups();
 
 		BookmarkList bookmarkList = new BookmarkList(ingredientRegistry);
 		Internal.setBookmarkList(bookmarkList);
@@ -313,6 +302,43 @@ public class JeiStarter {
 		}
 	}
 
+	private static void registerCollapsibleGroups(List<IModPlugin> plugins, ICollapsibleGroupRegistry registry) {
+		if (Config.skipShowingProgressBar()) {
+			Iterator<IModPlugin> iterator = plugins.iterator();
+			while (iterator.hasNext()) {
+				IModPlugin plugin = iterator.next();
+				try {
+					long start_time = System.currentTimeMillis();
+					Log.get().debug("Registering collapsible groups: {} ...", plugin.getClass().getName());
+					plugin.registerCollapsibleGroups(registry);
+					long timeElapsedMs = System.currentTimeMillis() - start_time;
+					Log.get().debug("Registered  collapsible groups: {} in {} ms", plugin.getClass().getName(), timeElapsedMs);
+				} catch (RuntimeException | LinkageError e) {
+					Log.get().error("Failed to register mod collapsible groups: {}", plugin.getClass(), e);
+					iterator.remove();
+				}
+			}
+		} else {
+			ProgressManager.ProgressBar progressBar = ProgressManager.push("Registering collapsible groups", plugins.size());
+			Iterator<IModPlugin> iterator = plugins.iterator();
+			while (iterator.hasNext()) {
+				IModPlugin plugin = iterator.next();
+				try {
+					progressBar.step(plugin.getClass().getName());
+					long start_time = System.currentTimeMillis();
+					Log.get().debug("Registering collapsible groups: {} ...", plugin.getClass().getName());
+					plugin.registerCollapsibleGroups(registry);
+					long timeElapsedMs = System.currentTimeMillis() - start_time;
+					Log.get().debug("Registered  collapsible groups: {} in {} ms", plugin.getClass().getName(), timeElapsedMs);
+				} catch (RuntimeException | LinkageError e) {
+					Log.get().error("Failed to register mod collapsible groups: {}", plugin.getClass(), e);
+					iterator.remove();
+				}
+			}
+			ProgressManager.pop(progressBar);
+		}
+	}
+
 	private static void sendRuntime(List<IModPlugin> plugins, IJeiRuntime jeiRuntime) {
 		if (Config.skipShowingProgressBar()) {
 			Iterator<IModPlugin> iterator = plugins.iterator();
@@ -351,150 +377,6 @@ public class JeiStarter {
 				}
 			}
 			ProgressManager.pop(progressBar);
-		}
-	}
-
-	private static void registerDefaultCollapsibleGroups() {
-		CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
-		// Enchanted books in JEI are stored as EnchantmentData (VanillaTypes.ENCHANT),
-		// not as ItemStacks — IngredientRegistry strips them from the ItemStack list.
-		// Match all EnchantmentData directly; every EnchantmentData IS an enchanted book.
-		registry.groupForType("enchanted_books", "Enchanted Books",
-			ingredient -> ingredient instanceof net.minecraft.enchantment.EnchantmentData);
-		registry.group("potions", "Potions",
-			stack -> stack.getItem() == Items.POTIONITEM);
-		registry.group("splash_potions", "Splash Potions",
-			stack -> stack.getItem() == Items.SPLASH_POTION);
-		registry.group("lingering_potions", "Lingering Potions",
-			stack -> stack.getItem() == Items.LINGERING_POTION);
-		registry.group("tipped_arrows", "Tipped Arrows",
-			stack -> stack.getItem() == Items.TIPPED_ARROW);
-		registry.group("spawn_eggs", "Spawn Eggs",
-			stack -> stack.getItem() instanceof ItemMonsterPlacer);
-	}
-
-	private static void registerModCollapsibleGroups(List<IModPlugin> plugins) {
-		CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
-		Map<String, ModGroupBuilderState> groupsById = new HashMap<>();
-
-		ICollapsibleGroupRegistry apiRegistry = new ICollapsibleGroupRegistry() {
-			@Override
-			public CollapsibleGroupBuilder newGroup(String id, String langKey) {
-				final ModGroupBuilderState state = groupsById.computeIfAbsent(id, key -> {
-					ModGroupBuilderState created = new ModGroupBuilderState();
-					// No uidMatcher yet — installed after all plugins finish registering.
-					// This avoids IngredientFilter using an empty uid fast-path that would
-					// short-circuit addAny/addAllOf predicates and cause them to never match.
-					created.registeredStack = registry.addModGroup(id, Translator.translateToLocal(langKey), created::matches);
-					return created;
-				});
-
-				return new CollapsibleGroupBuilder() {
-					@Override
-					public CollapsibleGroupBuilder add(Object ingredient) {
-						if (ingredient != null) {
-							String uid = mezz.jei.ingredients.CollapsedStack.computeIngredientUid(ingredient);
-							if (uid != null) {
-								state.exactUids.add(uid);
-							}
-						}
-						return this;
-					}
-
-					@Override
-					public CollapsibleGroupBuilder add(Object... ingredients) {
-						if (ingredients != null) {
-							for (Object ingredient : ingredients) {
-								add(ingredient);
-							}
-						}
-						return this;
-					}
-
-					@Override
-					public CollapsibleGroupBuilder addAllOf(mezz.jei.api.recipe.IIngredientType<?>... types) {
-						if (types != null) {
-							for (mezz.jei.api.recipe.IIngredientType<?> type : types) {
-								if (type != null) {
-									state.allOfTypes.add(type.getIngredientClass());
-								}
-							}
-						}
-						return this;
-					}
-
-					@Override
-					public <V> CollapsibleGroupBuilder addAny(mezz.jei.api.recipe.IIngredientType<V> type, Predicate<V> filter) {
-						if (type != null && filter != null) {
-							Class<? extends V> ingredientClass = type.getIngredientClass();
-							state.typedPredicates.add(ingredient -> {
-								if (!ingredientClass.isInstance(ingredient)) {
-									return false;
-								}
-								return filter.test(ingredientClass.cast(ingredient));
-							});
-						}
-						return this;
-					}
-				};
-			}
-		};
-
-		if (Config.skipShowingProgressBar()) {
-			for (IModPlugin plugin : plugins) {
-				try {
-					plugin.registerCollapsibleGroups(apiRegistry);
-				} catch (RuntimeException | LinkageError e) {
-					Log.get().error("Failed to register collapsible groups for plugin: {}", plugin.getClass(), e);
-				}
-			}
-		} else {
-			ProgressManager.ProgressBar bar = ProgressManager.push("Registering collapsible groups", plugins.size());
-			for (IModPlugin plugin : plugins) {
-				try {
-					bar.step(plugin.getClass().getName());
-					plugin.registerCollapsibleGroups(apiRegistry);
-				} catch (RuntimeException | LinkageError e) {
-					Log.get().error("Failed to register collapsible groups for plugin: {}", plugin.getClass(), e);
-				}
-			}
-			ProgressManager.pop(bar);
-		}
-
-		for (ModGroupBuilderState state : groupsById.values()) {
-			if (!state.exactUids.isEmpty() && state.registeredStack != null) {
-				state.registeredStack.setUidMatcher(state::matchesUid);
-			}
-		}
-	}
-
-	private static class ModGroupBuilderState {
-		final Set<String> exactUids = new HashSet<>();
-		final Set<Class<?>> allOfTypes = new HashSet<>();
-		final List<Predicate<Object>> typedPredicates = new java.util.ArrayList<>();
-		/** The CollapsedStack registered in the registry — uid matcher installed post-loop. */
-		mezz.jei.ingredients.CollapsedStack registeredStack;
-
-		boolean matchesUid(String uid) {
-			return exactUids.contains(uid);
-		}
-
-		boolean matches(Object ingredient) {
-			String uid = mezz.jei.ingredients.CollapsedStack.computeIngredientUid(ingredient);
-			if (uid != null && exactUids.contains(uid)) {
-				return true;
-			}
-			for (Class<?> ingredientClass : allOfTypes) {
-				if (ingredientClass.isInstance(ingredient)) {
-					return true;
-				}
-			}
-			for (Predicate<Object> predicate : typedPredicates) {
-				if (predicate.test(ingredient)) {
-					return true;
-				}
-			}
-			return false;
 		}
 	}
 

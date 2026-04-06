@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.api.ingredients.ISlowRenderItem;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
-import mezz.jei.ingredients.CollapsedStack;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.input.ClickedIngredient;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,11 +39,11 @@ public class IngredientListBatchRenderer {
     protected final List<ItemStackFastRenderer> renderItems2d = new ArrayList<>();
     protected final List<ItemStackFastRenderer> renderItems3d = new ArrayList<>();
     protected final List<IngredientRenderer> renderOther = new ArrayList<>();
-    protected final List<CollapsedStackRenderer> renderCollapsed = new ArrayList<>();
-    protected final Map<Integer, CollapsedStack> collapsedStackIndexed = new HashMap<>();
-    protected final Map<IIngredientListElement<?>, CollapsedStack> expandedElementToGroup = new HashMap<>();
+    protected final List<CollapsedGroupRenderer> renderCollapsed = new ArrayList<>();
+    protected final Map<Integer, CollapsedGroupIngredient> collapsedStackIndexed = new HashMap<>();
+    protected final Map<IIngredientListElement<?>, CollapsedGroupIngredient> expandedElementToGroup = new HashMap<>();
     // Per-group list of individual slot rectangles (used for per-slot fill + edge-detection border).
-    protected final Map<CollapsedStack, List<Rectangle>> expandedGroupSlots = new HashMap<>();
+    protected final Map<CollapsedGroupIngredient, List<Rectangle>> expandedGroupSlots = new HashMap<>();
 
     @Nullable
     private Framebuffer framebuffer = null;
@@ -159,10 +158,10 @@ public class IngredientListBatchRenderer {
         // This ensures expanded groups don't break pagination — firstItemIndex is an index into
         // the flattened view, which matches what collapsedSize() now returns.
         List<IIngredientListElement> displayItems = new ArrayList<>();
-        Map<IIngredientListElement, CollapsedStack> itemToCollapsed = new HashMap<>();
+        Map<IIngredientListElement, CollapsedGroupIngredient> itemToCollapsed = new HashMap<>();
         for (IIngredientListElement obj : collapsedList) {
-            if (obj instanceof CollapsedStack) {
-                CollapsedStack collapsed = (CollapsedStack) obj;
+            if (obj instanceof CollapsedGroupIngredient) {
+                CollapsedGroupIngredient collapsed = (CollapsedGroupIngredient) obj;
                 if (collapsed.isExpanded()) {
                     // Expanded: add each ingredient individually, track which belong to this group
                     for (IIngredientListElement<?> element : collapsed.getIngredients()) {
@@ -192,16 +191,16 @@ public class IngredientListBatchRenderer {
                     continue;
                 }
                 IIngredientListElement displayItem = displayItems.get(i);
-                if (displayItem instanceof CollapsedStack) {
-                    CollapsedStack collapsed = (CollapsedStack) displayItem;
-                    CollapsedStackRenderer renderer = new CollapsedStackRenderer(collapsed);
+                if (displayItem instanceof CollapsedGroupIngredient) {
+                    CollapsedGroupIngredient collapsed = (CollapsedGroupIngredient) displayItem;
+                    CollapsedGroupRenderer renderer = new CollapsedGroupRenderer(collapsed);
                     renderer.setArea(ingredientListSlot.getArea());
                     renderer.setPadding(1);
                     renderCollapsed.add(renderer);
                     collapsedStackIndexed.put(slotIndex, collapsed);
                 } else {
                     set(ingredientListSlot, displayItem);
-                    CollapsedStack parentCollapsed = itemToCollapsed.get(displayItem);
+                    CollapsedGroupIngredient parentCollapsed = itemToCollapsed.get(displayItem);
                     if (parentCollapsed != null) {
                         collapsedStackIndexed.put(slotIndex, parentCollapsed);
                         expandedElementToGroup.put(displayItem, parentCollapsed);
@@ -296,7 +295,7 @@ public class IngredientListBatchRenderer {
     @Nullable
     public ClickedIngredient<?> getIngredientUnderMouse(int mouseX, int mouseY) {
         // Check collapsed renderers first
-        CollapsedStackRenderer collapsedHovered = getHoveredCollapsed(mouseX, mouseY);
+        CollapsedGroupRenderer collapsedHovered = getHoveredCollapsed(mouseX, mouseY);
         if (collapsedHovered != null) {
             return collapsedHovered.getClickedIngredient();
         }
@@ -318,7 +317,7 @@ public class IngredientListBatchRenderer {
     }
 
     @Nullable
-    public CollapsedStack getExpandedCollapsedGroupAt(int mouseX, int mouseY) {
+    public CollapsedGroupIngredient getExpandedCollapsedGroupAt(int mouseX, int mouseY) {
         IngredientRenderer hovered = getHovered(mouseX, mouseY);
         if (hovered == null) return null;
         return expandedElementToGroup.get(hovered.getElement());
@@ -362,8 +361,8 @@ public class IngredientListBatchRenderer {
     }
 
     @Nullable
-    public CollapsedStackRenderer getHoveredCollapsed(int mouseX, int mouseY) {
-        for (CollapsedStackRenderer renderer : renderCollapsed) {
+    public CollapsedGroupRenderer getHoveredCollapsed(int mouseX, int mouseY) {
+        for (CollapsedGroupRenderer renderer : renderCollapsed) {
             if (renderer.isMouseOver(mouseX, mouseY)) {
                 return renderer;
             }
@@ -371,7 +370,7 @@ public class IngredientListBatchRenderer {
         return null;
     }
 
-    public Map<Integer, CollapsedStack> getCollapsedStackIndexed() {
+    public Map<Integer, CollapsedGroupIngredient> getCollapsedStackIndexed() {
         return collapsedStackIndexed;
     }
 
@@ -481,7 +480,7 @@ public class IngredientListBatchRenderer {
         // assumes it is on and does not toggle it per item.
         RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.enableDepth();
-        for (CollapsedStackRenderer collapsed : renderCollapsed) {
+        for (CollapsedGroupRenderer collapsed : renderCollapsed) {
             collapsed.render(minecraft);
         }
 

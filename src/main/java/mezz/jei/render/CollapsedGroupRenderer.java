@@ -3,7 +3,7 @@ package mezz.jei.render;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
-import mezz.jei.ingredients.CollapsedStack;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.input.ClickedIngredient;
 import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.Translator;
@@ -29,18 +29,18 @@ import java.util.List;
  * Shows the first item with a count badge indicating total group size,
  * plus a semi-transparent background to distinguish it from normal items.
  */
-public class CollapsedStackRenderer implements IIngredientRenderer<CollapsedStack> {
+public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGroupIngredient> {
 	private static final int COLLAPSED_BG_COLOR = 0x33FFFFFF;
 	private static final int COLLAPSED_BORDER_COLOR = 0x55AAAAFF;
 
 	/** Singleton registered with the ingredient type system — {@code collapsedStack} is null. */
-	public static final CollapsedStackRenderer INSTANCE = new CollapsedStackRenderer(null);
+	public static final CollapsedGroupRenderer INSTANCE = new CollapsedGroupRenderer(null);
 
-	private final CollapsedStack collapsedStack;
+	private final CollapsedGroupIngredient collapsedStack;
 	private Rectangle area = new Rectangle(0, 0, 16, 16);
 	private int padding;
 
-	public CollapsedStackRenderer(CollapsedStack collapsedStack) {
+	public CollapsedGroupRenderer(CollapsedGroupIngredient collapsedStack) {
 		this.collapsedStack = collapsedStack;
 	}
 
@@ -52,7 +52,7 @@ public class CollapsedStackRenderer implements IIngredientRenderer<CollapsedStac
 		this.padding = padding;
 	}
 
-	public CollapsedStack getCollapsedStack() {
+	public CollapsedGroupIngredient getCollapsedStack() {
 		return collapsedStack;
 	}
 
@@ -77,7 +77,7 @@ public class CollapsedStackRenderer implements IIngredientRenderer<CollapsedStac
 	 *   Front item (lower-left) : screen origin (x+0, y+4), occupies (x..x+12, y+4..y+16)
 	 * Count badge is drawn at 0.75× scale in orange in the bottom-right corner.
 	 */
-	private static void renderAt(Minecraft minecraft, CollapsedStack ingredient, int x, int y) {
+	private static void renderAt(Minecraft minecraft, CollapsedGroupIngredient ingredient, int x, int y) {
 		List<IIngredientListElement<?>> ingredients = ingredient.getIngredients();
 		if (ingredients.isEmpty()) {
 			return;
@@ -163,7 +163,7 @@ public class CollapsedStackRenderer implements IIngredientRenderer<CollapsedStac
 	// INSTANCE (null stack) is registered with the ingredient type system.
 
 	@Override
-	public void render(Minecraft minecraft, int xPosition, int yPosition, @Nullable CollapsedStack ingredient) {
+	public void render(Minecraft minecraft, int xPosition, int yPosition, @Nullable CollapsedGroupIngredient ingredient) {
 		if (ingredient == null || ingredient.isEmpty()) {
 			return;
 		}
@@ -171,7 +171,7 @@ public class CollapsedStackRenderer implements IIngredientRenderer<CollapsedStac
 	}
 
 	@Override
-	public List<String> getTooltip(Minecraft minecraft, CollapsedStack ingredient, ITooltipFlag tooltipFlag) {
+	public List<String> getTooltip(Minecraft minecraft, CollapsedGroupIngredient ingredient, ITooltipFlag tooltipFlag) {
 		List<String> tooltip = new ArrayList<>();
 		tooltip.add(TextFormatting.GOLD + ingredient.getDisplayName()
 				+ TextFormatting.GRAY + " (" + ingredient.size() + " items)");

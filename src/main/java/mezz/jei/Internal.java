@@ -5,9 +5,9 @@ import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.color.ColorNamer;
 import mezz.jei.gui.GuiEventHandler;
-import mezz.jei.ingredients.CollapsedStackRegistry;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.IngredientRegistry;
+import mezz.jei.ingredients.group.CollapsibleGroupRegistry;
 import mezz.jei.input.InputHandler;
 import mezz.jei.runtime.JeiHelpers;
 import mezz.jei.runtime.JeiRuntime;
@@ -42,7 +42,7 @@ public final class Internal {
 	@Nullable
 	private static BookmarkList bookmarkList;
 	@Nullable
-	private static CollapsedStackRegistry collapsedStackRegistry;
+	private static CollapsibleGroupRegistry collapsedGroupRegistry;
 
 	private Internal() {
 
@@ -155,15 +155,12 @@ public final class Internal {
         return bookmarkList;
     }
 
-	public static CollapsedStackRegistry getCollapsedStackRegistry() {
-		if (collapsedStackRegistry == null) {
-			collapsedStackRegistry = CollapsedStackRegistry.getInstance();
-		}
-		return collapsedStackRegistry;
+	public static CollapsibleGroupRegistry getCollapsedGroupRegistry() {
+		Preconditions.checkState(collapsedGroupRegistry != null, "Collapsed Group Registry has not been created yet.");
+		return collapsedGroupRegistry;
 	}
 
-	public static void setCollapsedStackRegistry(CollapsedStackRegistry registry) {
-		Internal.collapsedStackRegistry = registry;
-		CollapsedStackRegistry.setInstance(registry);
+	public static void setCollapsedGroupRegistry(CollapsibleGroupRegistry registry) {
+		Internal.collapsedGroupRegistry = registry;
 	}
 }

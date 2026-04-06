@@ -1,14 +1,13 @@
 package mezz.jei.gui.overlay.collapsible;
 
 import mezz.jei.Internal;
+import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.config.Config;
 import mezz.jei.config.CustomGroupsConfig;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.IngredientFilter;
-import mezz.jei.startup.StackHelper;
 import mezz.jei.util.Translator;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -165,69 +164,27 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		savedFirstItemIndex = leftPage * leftItemsPerPage;
 	}
 
-	/**
-	 * Returns a unique string identifier for any ingredient type, or null if unavailable.
-	 * Uses StackHelper for ItemStacks, and the generic IngredientRegistry helper for everything else
-	 * (e.g. FluidStack via FluidStackHelper.getUniqueId).
-	 */
-	@Nullable
 	private static String getIngredientUid(Object ingredient) {
-		if (ingredient instanceof ItemStack) {
-			ItemStack stack = (ItemStack) ingredient;
-			if (stack.isEmpty()) return null;
-			try {
-				return Internal.getStackHelper().getUniqueIdentifierForStack(stack);
-			} catch (Exception e) {
-				return null;
-			}
-		}
-		try {
-			@SuppressWarnings("unchecked")
-			mezz.jei.api.ingredients.IIngredientHelper<Object> helper =
-					(mezz.jei.api.ingredients.IIngredientHelper<Object>)
-					Internal.getIngredientRegistry().getIngredientHelper(ingredient);
-			return helper.getUniqueId(ingredient);
-		} catch (Exception e) {
-			return null;
-		}
+		return Internal.getIngredientRegistry().getIngredientHelper(ingredient).getUniqueId(ingredient);
 	}
 
-	/**
-	 * Returns a wildcard UID for ItemStacks by stripping metadata/subtype info, then appending ":*"
-	 * as a storage marker to distinguish it from exact UIDs.
-	 * Non-ItemStack ingredients have no metadata variants, so their normal UID is returned.
-	 */
-	@Nullable
 	private static String getIngredientWildcardUid(Object ingredient) {
-		if (ingredient instanceof ItemStack) {
-			ItemStack stack = (ItemStack) ingredient;
-			if (stack.isEmpty()) return null;
-			try {
-				String prefix = Internal.getStackHelper().getUniqueIdentifierForStack(stack, StackHelper.UidMode.WILDCARD);
-				return prefix + ":*";
-			} catch (Exception e) {
-				return null;
-			}
-		}
-		// Non-ItemStack types have no metadata variants — fall back to exact UID
-		return getIngredientUid(ingredient);
+		IIngredientHelper helper = Internal.getIngredientRegistry().getIngredientHelper(ingredient);
+		String wildcardId = helper.getWildcardId(ingredient);
+		return wildcardId.equals(getIngredientUid(ingredient)) ? null : wildcardId;
 	}
 
 	/**
-	 * Returns true if the given normal UID is covered by any selected entry —
+	 * Returns true if the given normal UID is covered by any selected entry -
 	 * either an exact match, or a wildcard prefix match (stored as "prefix:*").
 	 */
 	private boolean isUidSelected(String normalUid) {
-		if (selectedUids.contains(normalUid)) return true;
-		return findCoveringWildcard(normalUid) != null;
+		return selectedUids.contains(normalUid) || findCoveringWildcard(normalUid) != null;
 	}
 
 	/**
-	 * Returns the wildcard stored UID (ending in ":*") that covers the given normal UID,
-	 * or null if no wildcard covers it.
+	 * Builds a reverse index of all other custom groups for fast membership lookup
 	 */
-	@Nullable
-	/** Builds a reverse index of all other custom groups for fast membership lookup. */
 	private void buildOtherGroupIndex() {
 		otherGroupExactUids.clear();
 		otherGroupWildcardPrefixes.clear();
@@ -261,7 +218,9 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		for (String stored : selectedUids) {
 			if (stored.endsWith(":*")) {
 				String prefix = stored.substring(0, stored.length() - 2);
-				if (normalUid.equals(prefix) || normalUid.startsWith(prefix + ":")) return prefix + ":*";
+				if (normalUid.equals(prefix) || normalUid.startsWith(prefix + ":")) {
+					return prefix + ":*";
+				}
 			}
 		}
 		return null;
@@ -272,7 +231,9 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	 * Used for auto-promote checks and wildcard decomposition.
 	 */
 	private List<String> getSiblingUids(String wildcardUid) {
-		if (!wildcardUid.endsWith(":*") || !Internal.hasIngredientFilter()) return Collections.emptyList();
+		if (!wildcardUid.endsWith(":*") || !Internal.hasIngredientFilter()) {
+			return Collections.emptyList();
+		}
 		String prefix = wildcardUid.substring(0, wildcardUid.length() - 2);
 		List<IIngredientListElement> all = Internal.getIngredientFilter().getIngredientList("");
 		List<String> result = new ArrayList<>();
@@ -305,44 +266,39 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	 */
 	private void maybePromoteToWildcard(Object ingredient, String addedUid) {
 		String wildcardUid = getIngredientWildcardUid(ingredient);
-		if (wildcardUid == null || !wildcardUid.endsWith(":*")) return;
+		if (wildcardUid == null || !wildcardUid.endsWith(":*")) {
+			return;
+		}
 		List<String> siblings = getSiblingUids(wildcardUid);
-		if (siblings.isEmpty()) return;
+		if (siblings.isEmpty()) {
+			return;
+		}
 		for (String sibling : siblings) {
-			if (!selectedUids.contains(sibling)) return;
+			if (!selectedUids.contains(sibling)) {
+				return;
+			}
 		}
 		// All variants are individually selected — promote to a single wildcard entry
-		selectedUids.removeAll(siblings);
+		siblings.forEach(selectedUids::remove);
 		selectedUids.add(wildcardUid);
 		updateSelectedStacks();
 	}
 
 	/** Returns a mutable list of tooltip lines for any ingredient element. */
-	@SuppressWarnings("unchecked")
 	private <T> List<String> getIngredientTooltipLines(IIngredientListElement<T> element) {
 		try {
 			T ingredient = element.getIngredient();
 			ITooltipFlag flag = mc.gameSettings.advancedItemTooltips
 					? ITooltipFlag.TooltipFlags.ADVANCED
 					: ITooltipFlag.TooltipFlags.NORMAL;
-			if (ingredient instanceof ItemStack) {
-				return ((ItemStack) ingredient).getTooltip(mc.player, flag);
-			}
-			IIngredientRenderer<T> renderer = element.getIngredientRenderer();
-			return new ArrayList<>(renderer.getTooltip(mc, ingredient, flag));
+			return new ArrayList<>(element.getIngredientRenderer().getTooltip(mc, ingredient, flag));
 		} catch (Exception e) {
 			return new ArrayList<>();
 		}
 	}
 
-	private void renderIngredientTooltip(IIngredientListElement<?> element, int mouseX, int mouseY) {
-		List<String> lines = getIngredientTooltipLines(element);
-		if (!lines.isEmpty()) {
-			drawHoveringText(lines, mouseX, mouseY, mc.fontRenderer);
-		}
-	}
-
-	private void updateFilteredItems() {		if (!Internal.hasIngredientFilter()) {
+	private void updateFilteredItems() {
+		if (!Internal.hasIngredientFilter()) {
 			filteredItems = Collections.emptyList();
 			return;
 		}
@@ -374,7 +330,6 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 		for (IIngredientListElement<?> element : all) {
 			String uid = getIngredientUid(element.getIngredient());
-			if (uid == null) continue;
 			if (selectedUids.contains(uid)) {
 				// Exact match
 				selectedStacks.add(element);
@@ -432,7 +387,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
 		if (customGroupsConfig != null) {
 			customGroupsConfig.updateGroup(group);
-			Internal.getCollapsedStackRegistry().recollectCustomEntries();
+			Internal.getCollapsedGroupRegistry().loadCustomGroups();
 			if (Internal.hasIngredientFilter()) {
 				IngredientFilter filter = Internal.getIngredientFilter();
 				// Invalidate the filter cache so the next call to getIngredientList
@@ -524,7 +479,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 			// Orange tint if this item belongs to another custom group
 			String uid = getIngredientUid(ingredient);
-			if (uid != null && !getOtherGroupNames(uid).isEmpty()) {
+			if (!getOtherGroupNames(uid).isEmpty()) {
 				RenderHelper.disableStandardItemLighting();
 				GlStateManager.disableDepth();
 				GlStateManager.colorMask(true, true, true, false);
@@ -535,7 +490,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			}
 
 			// Green overlay if selected (exact or wildcard)
-			boolean selected = uid != null && isUidSelected(uid);
+			boolean selected = isUidSelected(uid);
 			if (selected) {
 				RenderHelper.disableStandardItemLighting();
 				GlStateManager.disableDepth();
@@ -543,7 +498,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				GuiUtils.drawGradientRect(0, x, y, x + ITEM_SIZE, y + ITEM_SIZE, 0x4000FF00, 0x4000FF00);
 				GlStateManager.colorMask(true, true, true, true);
 				// "*" badge for wildcard-matched items (covered by a stored ":*" uid, not exact)
-				if (uid != null && !selectedUids.contains(uid)) {
+				if (!selectedUids.contains(uid)) {
 					fontRenderer.drawStringWithShadow("*", x + 1, y + 1, 0xFFAA00);
 				}
 				GlStateManager.enableDepth();
@@ -610,7 +565,6 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		GlStateManager.disableDepth();
 	}
 
-	@SuppressWarnings("unchecked")
 	private <T> void renderIngredient(IIngredientListElement<T> element, int x, int y) {
 		try {
 			IIngredientRenderer<T> renderer = element.getIngredientRenderer();
@@ -634,21 +588,17 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				IIngredientListElement<?> element = filteredItems.get(startIdx + i);
 				List<String> lines = getIngredientTooltipLines(element);
 				if (element.getIngredient() instanceof ItemStack) {
-					String uid3 = getIngredientUid(element.getIngredient());
-					boolean alreadySelected = uid3 != null && isUidSelected(uid3);
+					boolean alreadySelected = isUidSelected(getIngredientUid(element.getIngredient()));
 					if (alreadySelected) {
 						lines.add(TextFormatting.GOLD + "Ctrl+Click: Remove all variants");
 					} else {
 						lines.add(TextFormatting.GOLD + "Ctrl+Click: Select all variants (Wildcard)");
 					}
 				}
-				String uid2 = getIngredientUid(element.getIngredient());
-				if (uid2 != null) {
-					List<String> otherGroups = getOtherGroupNames(uid2);
-					if (!otherGroups.isEmpty()) {
-						lines.add(TextFormatting.GOLD + "In group" + (otherGroups.size() > 1 ? "s" : "") + ": "
-								+ String.join(", ", otherGroups));
-					}
+				List<String> otherGroups = getOtherGroupNames(getIngredientUid(element.getIngredient()));
+				if (!otherGroups.isEmpty()) {
+					lines.add(TextFormatting.GOLD + "In group" + (otherGroups.size() > 1 ? "s" : "") + ": "
+							+ String.join(", ", otherGroups));
 				}
 				if (!lines.isEmpty()) {
 					drawHoveringText(lines, mouseX, mouseY, mc.fontRenderer);
@@ -689,7 +639,6 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			nameField.mouseClicked(mouseX, mouseY, mouseButton);
 		}
 		if (searchField != null) {
-			boolean wasSearchFocused = searchField.isFocused();
 			searchField.mouseClicked(mouseX, mouseY, mouseButton);
 			// Right-click clears search
 			if (searchField.isFocused() && mouseButton == 1) {
@@ -713,8 +662,6 @@ public class GuiCustomGroupEditor extends GuiScreen {
 					IIngredientListElement<?> element = filteredItems.get(startIdx + i);
 					boolean ctrl = isCtrlKeyDown();
 					String exactUid = getIngredientUid(element.getIngredient());
-					if (exactUid == null) return;
-
 					if (ctrl) {
 						if (isUidSelected(exactUid)) {
 							// Ctrl+Click on a selected item → remove the entire family (all meta variants)

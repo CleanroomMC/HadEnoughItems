@@ -6,15 +6,14 @@ import mezz.jei.config.Config;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.ingredients.GuiItemStackGroup;
 import mezz.jei.gui.ingredients.IIngredientListElement;
-import mezz.jei.ingredients.CollapsedStack;
-import mezz.jei.ingredients.IngredientFilter;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.input.ClickedIngredient;
 import mezz.jei.input.IClickedIngredient;
 import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.input.MouseHelper;
 import mezz.jei.network.packets.PacketDeletePlayerItem;
 import mezz.jei.network.packets.PacketJei;
-import mezz.jei.render.CollapsedStackRenderer;
+import mezz.jei.render.CollapsedGroupRenderer;
 import mezz.jei.render.IngredientListBatchRenderer;
 import mezz.jei.render.IngredientListSlot;
 import mezz.jei.render.IngredientRenderer;
@@ -116,7 +115,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		guiIngredientSlots.renderExpandedGroupOutlines();
 
 		if (!shouldDeleteItemOnClick(minecraft, mouseX, mouseY) && isMouseOver(mouseX, mouseY)) {
-			CollapsedStackRenderer collapsedHovered = guiIngredientSlots.getHoveredCollapsed(mouseX, mouseY);
+			CollapsedGroupRenderer collapsedHovered = guiIngredientSlots.getHoveredCollapsed(mouseX, mouseY);
 			if (collapsedHovered != null) {
 				collapsedHovered.drawHighlight();
 			} else {
@@ -136,13 +135,13 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 				String deleteItem = Translator.translateToLocal("jei.tooltip.delete.item");
 				TooltipRenderer.drawHoveringText(minecraft, deleteItem, mouseX, mouseY);
 			} else {
-				CollapsedStackRenderer collapsedHovered = guiIngredientSlots.getHoveredCollapsed(mouseX, mouseY);
+				CollapsedGroupRenderer collapsedHovered = guiIngredientSlots.getHoveredCollapsed(mouseX, mouseY);
 				if (collapsedHovered != null) {
 					collapsedHovered.drawTooltip(minecraft, mouseX, mouseY);
 				} else {
 					IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
 					if (hovered != null) {
-						CollapsedStack expandedGroup = guiIngredientSlots.getExpandedCollapsedGroupAt(mouseX, mouseY);
+						CollapsedGroupIngredient expandedGroup = guiIngredientSlots.getExpandedCollapsedGroupAt(mouseX, mouseY);
 						if (expandedGroup != null) {
 							String hint = net.minecraft.util.text.TextFormatting.YELLOW
 								+ mezz.jei.util.Translator.translateToLocal("hei.tooltip.collapsed.collapse");
@@ -191,30 +190,6 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 
 	public boolean handleMouseClicked(int mouseX, int mouseY) {
 		if (isMouseOver(mouseX, mouseY)) {
-			boolean firstItemMode = Config.getCollapsedClickAction() == CollapsedClickAction.FIRST_ITEM;
-			boolean altDown = GuiScreen.isAltKeyDown();
-			// OPEN_GROUP: plain click expands a collapsed icon; alt+click falls through (first item).
-			// FIRST_ITEM: alt+click expands a collapsed icon; plain click falls through (first item).
-			boolean expandKeyDown = firstItemMode ? altDown : !altDown;
-			if (expandKeyDown) {
-				CollapsedStackRenderer collapsedHovered = guiIngredientSlots.getHoveredCollapsed(mouseX, mouseY);
-				// A group with only 1 visible item should act as a plain ingredient click,
-				// not expand/collapse — the single item is already trivially "shown".
-				if (collapsedHovered != null && collapsedHovered.getCollapsedStack().size() > 1) {
-					collapsedHovered.getCollapsedStack().toggleExpanded();
-					Internal.getIngredientFilter().notifyCollapsedStateChanged();
-					return true;
-				}
-			}
-			// Alt+Click on any item inside an expanded group always collapses it.
-			if (altDown) {
-				CollapsedStack expandedHovered = guiIngredientSlots.getExpandedCollapsedGroupAt(mouseX, mouseY);
-				if (expandedHovered != null) {
-					expandedHovered.toggleExpanded();
-					Internal.getIngredientFilter().notifyCollapsedStateChanged();
-					return true;
-				}
-			}
 			Minecraft minecraft = Minecraft.getMinecraft();
 			if (shouldDeleteItemOnClick(minecraft, mouseX, mouseY)) {
 				EntityPlayerSP player = minecraft.player;
@@ -226,6 +201,28 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 						JustEnoughItems.getProxy().sendPacketToServer(packet);
 						return true;
 					}
+				}
+			}
+			boolean firstItemMode = Config.getCollapsedClickAction() == CollapsedClickAction.FIRST_ITEM;
+			boolean altDown = GuiScreen.isAltKeyDown();
+			// OPEN_GROUP: plain click expands a collapsed icon; alt+click falls through (first item).
+			// FIRST_ITEM: alt+click expands a collapsed icon; plain click falls through (first item).
+			boolean expandKeyDown = firstItemMode == altDown;
+			if (expandKeyDown) {
+				CollapsedGroupRenderer collapsedHovered = guiIngredientSlots.getHoveredCollapsed(mouseX, mouseY);
+				if (collapsedHovered != null) {
+					collapsedHovered.getCollapsedStack().toggleExpanded();
+					Internal.getIngredientFilter().notifyCollapsedStateChanged();
+					return true;
+				}
+			}
+			// Alt+Click on any item inside an expanded group always collapses it.
+			if (altDown) {
+				CollapsedGroupIngredient expandedHovered = guiIngredientSlots.getExpandedCollapsedGroupAt(mouseX, mouseY);
+				if (expandedHovered != null) {
+					expandedHovered.toggleExpanded();
+					Internal.getIngredientFilter().notifyCollapsedStateChanged();
+					return true;
 				}
 			}
 		}

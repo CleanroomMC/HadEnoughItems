@@ -6,12 +6,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import mezz.jei.api.*;
 import mezz.jei.bookmarks.BookmarkIngredientHelper;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkItemRender;
-import mezz.jei.ingredients.CollapsedStack;
-import mezz.jei.ingredients.CollapsedStackIngredientHelper;
-import mezz.jei.render.CollapsedStackRenderer;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
+import mezz.jei.ingredients.group.CollapsedGroupIngredientHelper;
+import mezz.jei.render.CollapsedGroupRenderer;
+import net.minecraft.item.ItemEnchantedBook;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -23,10 +25,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import mezz.jei.Internal;
-import mezz.jei.api.IJeiRuntime;
-import mezz.jei.api.IModPlugin;
-import mezz.jei.api.IModRegistry;
-import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
@@ -65,8 +63,8 @@ public class JEIInternalPlugin implements IModPlugin {
 		ingredientRegistration.register(BookmarkItem.TYPE, Collections.emptyList(), bookmarkIngredientHelper, bookmarkItemRender);
 
 		// Register CollapsedStack as ingredient type — addons that introspect grid items require a registered type
-		CollapsedStackIngredientHelper csHelper = new CollapsedStackIngredientHelper();
-		ingredientRegistration.register(CollapsedStack.TYPE, Collections.emptyList(), csHelper, CollapsedStackRenderer.INSTANCE);
+		CollapsedGroupIngredientHelper csHelper = new CollapsedGroupIngredientHelper();
+		ingredientRegistration.register(CollapsedGroupIngredient.TYPE, Collections.emptyList(), csHelper, CollapsedGroupRenderer.INSTANCE);
 	}
 
 	@Override
@@ -155,6 +153,28 @@ public class JEIInternalPlugin implements IModPlugin {
 
 			registry.addGhostIngredientHandler(GuiBrewingStand.class, new DebugGhostIngredientHandler<>());
 		}
+	}
+
+	@Override
+	public void registerCollapsibleGroups(ICollapsibleGroupRegistry registry) {
+		registry.newGroup("enchanted_books", "Enchanted Books")
+				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() instanceof ItemEnchantedBook)
+				.build();
+		registry.newGroup("potions", "Potions")
+				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.POTIONITEM)
+				.build();
+		registry.newGroup("splash_potions", "Splash Potions")
+				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.SPLASH_POTION)
+				.build();
+		registry.newGroup("lingering_potions", "Lingering Potions")
+				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.LINGERING_POTION)
+				.build();
+		registry.newGroup("tipped_arrows", "Tipped Arrows")
+				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.TIPPED_ARROW)
+				.build();
+		registry.newGroup("spawn_eggs", "Spawn Eggs")
+				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.SPAWN_EGG)
+				.build();
 	}
 
 	@Override

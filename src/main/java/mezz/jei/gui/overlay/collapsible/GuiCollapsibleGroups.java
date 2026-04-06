@@ -5,19 +5,18 @@ import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.config.Config;
 import mezz.jei.config.CustomGroupsConfig;
 import mezz.jei.gui.ingredients.IIngredientListElement;
-import mezz.jei.ingredients.CollapsedStack;
-import mezz.jei.ingredients.CollapsedStack.GroupSource;
-import mezz.jei.ingredients.CollapsedStackRegistry;
+import mezz.jei.ingredients.group.CollapsibleGroup;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient.GroupSource;
 import mezz.jei.ingredients.IngredientFilter;
+import mezz.jei.ingredients.group.CollapsibleGroupRegistry;
 import mezz.jei.util.Translator;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.client.config.GuiUtils;
 import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nullable;
@@ -108,16 +107,32 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	private void rebuildCards() {
 		cardEntries.clear();
 
-		CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
+		CollapsibleGroupRegistry registry = Internal.getCollapsedGroupRegistry();
 
-		// Custom groups come first (like REI)
-		addCardsMergedById(registry.getCustomEntries(), GroupSource.CUSTOM, registry.getDisabledGroups());
+		List<CollapsibleGroup> allGroups = new ArrayList<>(registry.getAllGroups().values());
+		allGroups.sort(Comparator.comparingInt(g -> sourceOrder(g.getIngredient().getSource())));
 
-		// Mod-registered groups (same ID can be registered multiple times for different ingredient types)
-		addCardsMergedById(registry.getModEntries(), GroupSource.MOD, registry.getDisabledGroups());
+		// Fetch the ingredient list once and reuse it across all cards
+		@SuppressWarnings({"unchecked", "rawtypes"})
+		List<IIngredientListElement<?>> ingredientList = Internal.hasIngredientFilter()
+			? (List<IIngredientListElement<?>>) (List) Internal.getIngredientFilter().getIngredientList("")
+			: Collections.emptyList();
 
-		// Default groups
-		addCardsMergedById(registry.getEntries(), GroupSource.DEFAULT, registry.getDisabledGroups());
+		for (CollapsibleGroup group : allGroups) {
+			CollapsedGroupIngredient ingredient = group.getIngredient();
+			List<IIngredientListElement<?>> previewItems = new ArrayList<>();
+			int itemCount = 0;
+			for (IIngredientListElement<?> element : ingredientList) {
+				if (ingredient.matches(element)) {
+					itemCount++;
+					if (previewItems.size() < PREVIEW_FETCH_MAX) {
+						previewItems.add(element);
+					}
+				}
+			}
+			cardEntries.add(new GroupCardEntry(ingredient.getId(), ingredient.getDisplayName(),
+				ingredient.getSource(), group.isEnabled(), previewItems, itemCount));
+		}
 
 		totalPages = Math.max(1, (cardEntries.size() + cardsPerPage - 1) / cardsPerPage);
 		if (currentPage >= totalPages) {
@@ -125,22 +140,11 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		}
 	}
 
-	private void addCardsMergedById(Collection<CollapsedStack> entries, GroupSource source, Set<String> disabledGroups) {
-		Map<String, List<CollapsedStack>> groupedById = new LinkedHashMap<>();
-		Map<String, String> displayNamesById = new HashMap<>();
-
-		for (CollapsedStack entry : entries) {
-			groupedById.computeIfAbsent(entry.getId(), k -> new ArrayList<>()).add(entry);
-			displayNamesById.putIfAbsent(entry.getId(), entry.getDisplayName());
-		}
-
-		for (Map.Entry<String, List<CollapsedStack>> groupedEntry : groupedById.entrySet()) {
-			String id = groupedEntry.getKey();
-			List<CollapsedStack> groupedStacks = groupedEntry.getValue();
-			List<IIngredientListElement<?>> previewItems = getPreviewItems(groupedStacks);
-			int itemCount = getMatchedItemCount(groupedStacks);
-			cardEntries.add(new GroupCardEntry(id, displayNamesById.get(id), source,
-				!disabledGroups.contains(id), previewItems, itemCount));
+	private static int sourceOrder(GroupSource source) {
+		switch (source) {
+			case CUSTOM: return 0;
+			case MOD: return 1;
+			default: return 2;
 		}
 	}
 
@@ -229,15 +233,8 @@ public class GuiCollapsibleGroups extends GuiScreen {
 				GroupCardEntry card = cardEntries.get(idx);
 				card.enabled = !card.enabled;
 
-				CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
-				Set<String> disabled = new HashSet<>(registry.getDisabledGroups());
-				if (card.enabled) {
-					disabled.remove(card.id);
-				} else {
-					disabled.add(card.id);
-				}
-				registry.setDisabledGroups(disabled);
-				Config.saveDisabledGroups(disabled);
+				Internal.getCollapsedGroupRegistry().setEnabled(card.enabled, card.id);
+				Config.saveDisabledGroups(Internal.getCollapsedGroupRegistry().getDisabledGroups());
 
 				if (Internal.hasIngredientFilter()) {
 					IngredientFilter filter = Internal.getIngredientFilter();
@@ -290,7 +287,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 					CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
 					if (customGroupsConfig != null) {
 						customGroupsConfig.removeGroup(card.id);
-						Internal.getCollapsedStackRegistry().recollectCustomEntries();
+						Internal.getCollapsedGroupRegistry().loadCustomGroups();
 
 						if (Internal.hasIngredientFilter()) {
 							IngredientFilter filter = Internal.getIngredientFilter();
@@ -558,29 +555,6 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		super.keyTyped(typedChar, keyCode);
 	}
 
-	/**
-	 * Get up to PREVIEW_FETCH_MAX preview elements for a collapsible entry,
-	 * returning the raw IIngredientListElement so each type renders via its own renderer.
-	 */
-	private List<IIngredientListElement<?>> getPreviewItems(List<CollapsedStack> entries) {
-		List<IIngredientListElement<?>> items = new ArrayList<>();
-		if (!Internal.hasIngredientFilter()) {
-			return items;
-		}
-		IngredientFilter filter = Internal.getIngredientFilter();
-		@SuppressWarnings({"unchecked", "rawtypes"})
-		List<IIngredientListElement<?>> ingredientList = (List<IIngredientListElement<?>>) (List) filter.getIngredientList("");
-		for (IIngredientListElement<?> element : ingredientList) {
-			if (matchesAny(entries, element)) {
-				items.add(element);
-				if (items.size() >= PREVIEW_FETCH_MAX) {
-					break;
-				}
-			}
-		}
-		return items;
-	}
-
 	@SuppressWarnings("unchecked")
 	private <T> void renderIngredient(IIngredientListElement<T> element, int x, int y) {
 		try {
@@ -608,34 +582,6 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			}
 		} catch (Exception ignored) {
 		}
-	}
-
-	/**
-	 * Count matched items for display.
-	 */
-	private int getMatchedItemCount(List<CollapsedStack> entries) {
-		if (!Internal.hasIngredientFilter()) {
-			return 0;
-		}
-		IngredientFilter filter = Internal.getIngredientFilter();
-		@SuppressWarnings({"unchecked", "rawtypes"})
-		List<IIngredientListElement<?>> ingredientList = (List<IIngredientListElement<?>>) (List) filter.getIngredientList("");
-		int count = 0;
-		for (IIngredientListElement<?> element : ingredientList) {
-			if (matchesAny(entries, element)) {
-				count++;
-			}
-		}
-		return count;
-	}
-
-	private static boolean matchesAny(List<CollapsedStack> entries, IIngredientListElement<?> element) {
-		for (CollapsedStack entry : entries) {
-			if (entry.matches(element)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**

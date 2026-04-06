@@ -1,6 +1,5 @@
 package mezz.jei.gui.overlay;
 
-import java.util.Collection;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -15,8 +14,6 @@ import mezz.jei.config.JEIModConfigGui;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.elements.GuiIconToggleButton;
-import mezz.jei.ingredients.CollapsedStack;
-import mezz.jei.ingredients.CollapsedStackRegistry;
 import mezz.jei.util.Translator;
 import org.lwjgl.input.Keyboard;
 
@@ -65,16 +62,8 @@ public class ConfigButton extends GuiIconToggleButton {
 	@Override
 	protected boolean onMouseClicked(int mouseX, int mouseY) {
 		if (Config.isOverlayEnabled()) {
-			if (GuiScreen.isAltKeyDown() && Config.isCollapsibleGroupsEnabled()
-					&& Internal.hasIngredientFilter()) {
-				CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
-				Collection<CollapsedStack> entries = registry.getEntries();
-				List<CollapsedStack> customEntries = registry.getCustomEntries();
-				boolean allExpanded = entries.stream().allMatch(CollapsedStack::isExpanded)
-						&& customEntries.stream().allMatch(CollapsedStack::isExpanded);
-				boolean targetExpanded = !allExpanded;
-				entries.forEach(e -> e.setExpanded(targetExpanded));
-				customEntries.forEach(e -> e.setExpanded(targetExpanded));
+			if (GuiScreen.isAltKeyDown() && Config.isCollapsibleGroupsEnabled() && Internal.hasIngredientFilter()) {
+				Internal.getCollapsedGroupRegistry().expandOrCloseAll();
 				Internal.getIngredientFilter().notifyCollapsedStateChanged();
 			} else if (Keyboard.getEventKeyState() && (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL || Keyboard.getEventKey() == Keyboard.KEY_RCONTROL)) {
 				Config.toggleCheatItemsEnabled();

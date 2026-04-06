@@ -3,7 +3,6 @@ package mezz.jei.gui;
 import mezz.jei.Internal;
 import mezz.jei.config.Config;
 import mezz.jei.config.OverlayToggleEvent;
-import mezz.jei.ingredients.CollapsedStackRegistry;
 import mezz.jei.gui.ghost.GhostIngredientDragManager;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
@@ -65,9 +64,7 @@ public class GuiEventHandler {
 		ghostIngredientDragManager.updateScreen(gui, false);
 		if (wasDisplayed && !ingredientListOverlay.isListDisplayed() && Config.isCollapseOnClose()
 				&& Internal.hasIngredientFilter()) {
-			CollapsedStackRegistry registry = Internal.getCollapsedStackRegistry();
-			registry.getEntries().forEach(e -> e.setExpanded(false));
-			registry.getCustomEntries().forEach(e -> e.setExpanded(false));
+			Internal.getCollapsedGroupRegistry().closeAllGroups();
 			Internal.getIngredientFilter().notifyCollapsedStateChanged();
 		}
 	}

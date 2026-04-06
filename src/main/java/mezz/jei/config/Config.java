@@ -115,7 +115,7 @@ public final class Config {
 		return values.disabledGroups;
 	}
 
-	public static void saveDisabledGroups(Set<String> disabledGroups) {
+	public static void saveDisabledGroups(Collection<String> disabledGroups) {
 		values.disabledGroups.clear();
 		values.disabledGroups.addAll(disabledGroups);
 		if (config != null) {
