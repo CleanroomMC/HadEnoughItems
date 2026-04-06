@@ -157,9 +157,7 @@ public class JEIInternalPlugin implements IModPlugin {
 
 	@Override
 	public void registerCollapsibleGroups(ICollapsibleGroupRegistry registry) {
-		registry.newGroup("enchanted_books", "Enchanted Books")
-				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() instanceof ItemEnchantedBook)
-				.build();
+		registry.newGroup("enchanted_books", "Enchanted Books").addAllOf(VanillaTypes.ENCHANT).build();
 		registry.newGroup("potions", "Potions")
 				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.POTIONITEM)
 				.build();
