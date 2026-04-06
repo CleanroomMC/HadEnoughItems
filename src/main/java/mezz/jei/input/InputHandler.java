@@ -338,13 +338,20 @@ public class InputHandler {
             return false;
         }
 
-        return switch (pressedKey) {
-            case BOOKMARK -> addBookmark(false);
-            case RECIPE_BOOKMARK -> addBookmark(true);
-            case BOOKMARK_TO_TOP -> handleBookmarkExtra();
-            case SHOW_RECIPE -> showRecipeOrUses(IFocus.Mode.OUTPUT);
-            case SHOW_USES -> showRecipeOrUses(IFocus.Mode.INPUT);
-        };
+        switch (pressedKey) {
+            case BOOKMARK:
+                return addBookmark(false);
+            case RECIPE_BOOKMARK:
+                return addBookmark(true);
+            case BOOKMARK_TO_TOP:
+                return handleBookmarkExtra();
+            case SHOW_RECIPE:
+                return showRecipeOrUses(IFocus.Mode.OUTPUT);
+            case SHOW_USES:
+                return showRecipeOrUses(IFocus.Mode.INPUT);
+        }
+
+        return false;
     }
 
     private boolean addBookmark(boolean isRecipe) {
