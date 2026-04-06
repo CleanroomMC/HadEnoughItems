@@ -1,5 +1,6 @@
 package mezz.jei.gui.overlay.bookmarks;
 
+import it.unimi.dsi.fastutil.ints.IntList;
 import mezz.jei.Internal;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.config.Config;
@@ -33,7 +34,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 
     private int firstItemIndex = 0;
     private final IPaged pageDelegate;
-    private List<Integer> pageBoundaries;
+    private IntList pageBoundaries;
     private final PageNavigation navigation;
 
     private BookmarkGroupOrganizer groupOrganizer;
@@ -190,7 +191,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
                 updateLayout(true);
                 return true;
             }
-            firstItemIndex = pageBoundaries.get(pageNum + 1);
+            firstItemIndex = pageBoundaries.getInt(pageNum + 1);
             updateLayout(false);
             return true;
         }
@@ -198,7 +199,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
         @Override
         public boolean previousPage() {
             int pageNum = getPageNumber();
-            firstItemIndex = pageBoundaries.get(pageNum == 0 ? pageBoundaries.size() - 1 : pageNum - 1);
+            firstItemIndex = pageBoundaries.getInt(pageNum == 0 ? pageBoundaries.size() - 1 : pageNum - 1);
             updateLayout(false);
             return true;
         }
@@ -232,7 +233,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
                     index--;
                 }
             }
-            firstItemIndex = pageBoundaries.get(index); // This side effect is fine.
+            firstItemIndex = pageBoundaries.getInt(index); // This side effect is fine.
             return index;
         }
     }
