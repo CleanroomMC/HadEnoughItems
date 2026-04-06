@@ -119,3 +119,35 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Skjul bokmerke-knapp i nedre venstre hjørne
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Om bokmerke-knappen i nedre venstre hjørne skal skjules
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Klikk for å utvide
+hei.tooltip.collapsed.expand.firstItem=Alt+Klikk for første gjenstand
+hei.tooltip.collapsed.collapse=Alt+Klikk for å skjule
+hei.tooltip.config.expandCollapseAll=Alt+Klikk for å bytte grupper
+
+config.hei.collapsible=Sammenleggbare grupper
+config.hei.collapsible.comment=Alternativer for å slå sammen grupper av ingredienser til én plass i ingredienslisten.
+config.hei.collapsible.collapsibleGroupsEnabled=Aktiver sammenleggbare grupper
+config.hei.collapsible.collapsibleGroupsEnabled.comment=Når aktivert, blir grupper av relaterte ingredienser (drikkevarer, forheksede bøker osv.) slått sammen til én plass. Alt+Klikk på en gruppe for å utvide eller skjule den.
+config.hei.collapsible.collapseOnClose=Legg sammen ved lukking
+config.hei.collapsible.collapseOnClose.comment=Legger sammen åpne grupper når HEI lukkes.
+config.hei.collapsible.collapsedClickAction=Standard klikkhandling
+config.hei.collapsible.collapsedClickAction.comment=Bytter enkeltklikkhandlingen, det andre alternativet blir Alt+Klikk-handlingen. Åpne gruppe åpner gruppen. Første gjenstand bruker handlingen på den første gjenstanden i gruppen.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Åpne gruppe
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Første gjenstand
+
+# Group Management GUI
+hei.gui.collapsible.title=Administrer grupper
+hei.gui.collapsible.back=Tilbake
+hei.gui.collapsible.newGroup=Ny gruppe
+hei.gui.collapsible.title.tooltip=Aktiver/deaktiver innebygde grupper og opprett brukerdefinerte grupper.
+hei.gui.collapsible.enabled=Aktivert
+hei.gui.collapsible.disabled=Deaktivert
+hei.gui.collapsible.customGroup=Egendefinert
+hei.gui.collapsible.defaultGroup=Standard
+hei.gui.collapsible.itemCount=%d gjenstander
+hei.gui.collapsible.editor.title=Valgte gjenstander
+hei.gui.collapsible.editor.name=Navn
+hei.gui.collapsible.editor.save=Lagre
+hei.gui.collapsible.editor.selected=%d valgt

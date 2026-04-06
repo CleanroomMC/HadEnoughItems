@@ -119,3 +119,35 @@ description.jei.wooden.door.3=Dřevěné dveře mohou být otevřeny/zavřeny po
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Skrýt tlačítko záložky v levém dolním rohu
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Zda skrýt tlačítko záložky v levém dolním rohu
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Klik pro rozbalení
+hei.tooltip.collapsed.expand.firstItem=Alt+Klik pro první předmět
+hei.tooltip.collapsed.collapse=Alt+Klik pro sbalení
+hei.tooltip.config.expandCollapseAll=Alt+Klik pro přepínat skupiny
+
+config.hei.collapsible=Sbalitelné skupiny
+config.hei.collapsible.comment=Možnosti pro sbalení skupin ingrediencí do jednoho slotu v seznamu ingrediencí.
+config.hei.collapsible.collapsibleGroupsEnabled=Povolit sbalitelné skupiny
+config.hei.collapsible.collapsibleGroupsEnabled.comment=Pokud je povoleno, skupiny souvisejících ingrediencí (lektvary, očarované knihy atd.) jsou sbaleny do jednoho slotu. Alt+Klik na skupinu pro rozbalení nebo sbalení.
+config.hei.collapsible.collapseOnClose=Sbalit při zavření
+config.hei.collapsible.collapseOnClose.comment=Sbalí aktuálně otevřené skupiny při zavření HEI.
+config.hei.collapsible.collapsedClickAction=Výchozí akce kliknutí
+config.hei.collapsible.collapsedClickAction.comment=Zamění akci jednoduchého kliknutí, druhá možnost se stane akcí Alt+Klik. Otevřít skupinu otevře skupinu. První předmět aplikuje akci na první předmět ve skupině.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Otevřít skupinu
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=První předmět
+
+# Group Management GUI
+hei.gui.collapsible.title=Správa skupin
+hei.gui.collapsible.back=Zpět
+hei.gui.collapsible.newGroup=Nová skupina
+hei.gui.collapsible.title.tooltip=Povolení/zakázání vestavěných skupin a vytváření uživatelských skupin.
+hei.gui.collapsible.enabled=Povoleno
+hei.gui.collapsible.disabled=Zakázáno
+hei.gui.collapsible.customGroup=Vlastní
+hei.gui.collapsible.defaultGroup=Výchozí
+hei.gui.collapsible.itemCount=%d předmětů
+hei.gui.collapsible.editor.title=Vybrané předměty
+hei.gui.collapsible.editor.name=Název
+hei.gui.collapsible.editor.save=Uložit
+hei.gui.collapsible.editor.selected=%d vybráno

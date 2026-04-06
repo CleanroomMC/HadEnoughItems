@@ -22,6 +22,12 @@ jei.tooltip.bookmarks.usage.nokey=Add a key binding for HEI bookmarks in your Co
 jei.tooltip.bookmarks.usage.key=Hover over an ingredient and press "%s" to bookmark it.
 jei.tooltip.bookmarks.not.enough.space=There is not enough space to display bookmarks here.
 
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Click to Expand
+hei.tooltip.collapsed.expand.firstItem=Alt+Click for First Item
+hei.tooltip.collapsed.collapse=Alt+Click to Collapse
+hei.tooltip.config.expandCollapseAll=Alt+Click Toggle Groups
+
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Missing Items
 jei.tooltip.error.recipe.transfer.inventory.full=Inventory is too full
@@ -182,6 +188,17 @@ config.jei.misc.hideBottomRightCornerConfigButton.comment=Whether to hide the bo
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Hide Bottom-Left Corner Bookmark Button
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Whether to hide the bottom-left corner bookmark button
 
+config.hei.collapsible=Collapsible Groups
+config.hei.collapsible.comment=Options for collapsing groups of ingredients into a single slot in the ingredient list.
+config.hei.collapsible.collapsibleGroupsEnabled=Enable Collapsible Groups
+config.hei.collapsible.collapsibleGroupsEnabled.comment=When enabled, groups of related ingredients (potions, enchanted books, etc.) are collapsed into a single slot. Alt+Click a group to expand or collapse it.
+config.hei.collapsible.collapseOnClose=Collapse on Close
+config.hei.collapsible.collapseOnClose.comment=Collapse currently opened groups when HEI is closed.
+config.hei.collapsible.collapsedClickAction=Default Collapsed Action
+config.hei.collapsible.collapsedClickAction.comment=Swaps the single click action, The other option becomes the Alt+Click action. Open Group opens the group. First Item applies the action to the first item in the group.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Open Group
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=First Item
+
 config.jei.category.categoryUidOrder=Category UID Order
 config.jei.category.categoryUidOrder.comment=Determines the display order of recipe categories in HEI. Categories listed earlier appear first in the HEI interface.
 
@@ -195,8 +212,27 @@ hei.tooltip.favorite=Add Favorite Recipe
 hei.tooltip.favorite_scroll=Scroll to Change Favorited Item
 hei.tooltip.recipe_bookmark=Bookmark Recipe
 
-hei.tooltip.press_alt=Press §fALT§r to see Tooltips
-hei.tooltip.organizer.1=§fUP§r or §fDOWN§r: Move Group Up or Down
-hei.tooltip.organizer.2=§fCTRL + SCROLL§r: Change Final Output
-hei.tooltip.organizer.3=§f%s§r: Autocraft (By Default)
+hei.tooltip.item_group=§7Item Group
+hei.tooltip.recipe_group=§7Recipe Group
+hei.tooltip.press_alt=§7Press §fALT§7 to see Actions
+hei.tooltip.organizer.1=§6CTRL + LEFT CLICK§7: Move Bookmarks Between Groups
+hei.tooltip.organizer.2=§6UP§r or §6DOWN§7: Move Group Up or Down
+hei.tooltip.organizer.3=§6CTRL + SCROLL§7: Change Final Output
+hei.tooltip.organizer.4=§6%s§7: Autocraft
+
+hei.gui.collapsible.title=Manage Groups
+hei.gui.collapsible.back=Back
+hei.gui.collapsible.newGroup=New Group
+hei.gui.collapsible.title.tooltip=Enable/Disable built in groups and create user defined groups.
+hei.gui.collapsible.enabled=Enabled
+hei.gui.collapsible.disabled=Disabled
+hei.gui.collapsible.customGroup=Custom
+hei.gui.collapsible.modGroup=Mod
+hei.gui.collapsible.defaultGroup=Default
+hei.gui.collapsible.itemCount=%d items
+hei.gui.collapsible.editor.title=Selected Items
+hei.gui.collapsible.editor.name=Name
+hei.gui.collapsible.editor.save=Save
+hei.gui.collapsible.editor.selected=%d selected
+hei.gui.collapsible.confirmDelete=Delete?
 hei.tooltip.missing_ingredients=§cMissing Ingredients:

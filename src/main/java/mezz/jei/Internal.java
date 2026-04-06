@@ -5,6 +5,7 @@ import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.color.ColorNamer;
 import mezz.jei.gui.GuiEventHandler;
+import mezz.jei.ingredients.CollapsedStackRegistry;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.input.InputHandler;
@@ -40,6 +41,8 @@ public final class Internal {
 	private static InputHandler inputHandler;
 	@Nullable
 	private static BookmarkList bookmarkList;
+	@Nullable
+	private static CollapsedStackRegistry collapsedStackRegistry;
 
 	private Internal() {
 
@@ -151,4 +154,16 @@ public final class Internal {
 		Preconditions.checkState(bookmarkList != null, "Bookmark List has not been created yet.");
         return bookmarkList;
     }
+
+	public static CollapsedStackRegistry getCollapsedStackRegistry() {
+		if (collapsedStackRegistry == null) {
+			collapsedStackRegistry = CollapsedStackRegistry.getInstance();
+		}
+		return collapsedStackRegistry;
+	}
+
+	public static void setCollapsedStackRegistry(CollapsedStackRegistry registry) {
+		Internal.collapsedStackRegistry = registry;
+		CollapsedStackRegistry.setInstance(registry);
+	}
 }

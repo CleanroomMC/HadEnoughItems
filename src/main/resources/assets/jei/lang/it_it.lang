@@ -119,3 +119,35 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Nascondi pulsante segnalibro nell'angolo in basso a sinistra
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Se nascondere il pulsante segnalibro nell'angolo in basso a sinistra
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Clic per espandere
+hei.tooltip.collapsed.expand.firstItem=Alt+Clic per il primo oggetto
+hei.tooltip.collapsed.collapse=Alt+Clic per comprimere
+hei.tooltip.config.expandCollapseAll=Alt+Clic attiva/disattiva gruppi
+
+config.hei.collapsible=Gruppi comprimibili
+config.hei.collapsible.comment=Opzioni per comprimere gruppi di ingredienti in un singolo slot nell'elenco degli ingredienti.
+config.hei.collapsible.collapsibleGroupsEnabled=Abilita gruppi comprimibili
+config.hei.collapsible.collapsibleGroupsEnabled.comment=Quando abilitato, i gruppi di ingredienti correlati (pozioni, libri incantati, ecc.) vengono compressi in un singolo slot. Alt+Clic su un gruppo per espanderlo o comprimerlo.
+config.hei.collapsible.collapseOnClose=Comprimi alla chiusura
+config.hei.collapsible.collapseOnClose.comment=Comprime i gruppi attualmente aperti quando HEI viene chiuso.
+config.hei.collapsible.collapsedClickAction=Azione clic predefinita
+config.hei.collapsible.collapsedClickAction.comment=Scambia l'azione del clic singolo, l'altra opzione diventa l'azione Alt+Clic. Apri Gruppo apre il gruppo. Primo Oggetto applica l'azione al primo oggetto del gruppo.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Apri Gruppo
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Primo Oggetto
+
+# Group Management GUI
+hei.gui.collapsible.title=Gestisci gruppi
+hei.gui.collapsible.back=Indietro
+hei.gui.collapsible.newGroup=Nuovo gruppo
+hei.gui.collapsible.title.tooltip=Abilita/disabilita i gruppi integrati e crea gruppi definiti dall'utente.
+hei.gui.collapsible.enabled=Abilitato
+hei.gui.collapsible.disabled=Disabilitato
+hei.gui.collapsible.customGroup=Personalizzato
+hei.gui.collapsible.defaultGroup=Predefinito
+hei.gui.collapsible.itemCount=%d oggetti
+hei.gui.collapsible.editor.title=Oggetti selezionati
+hei.gui.collapsible.editor.name=Nome
+hei.gui.collapsible.editor.save=Salva
+hei.gui.collapsible.editor.selected=%d selezionati

@@ -164,3 +164,35 @@ config.jei.interface.defaultFluidContainerItem.comment=Предмет по ум�
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Скрыть кнопку закладки в левом нижнем углу
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Скрывать ли кнопку закладки в левом нижнем углу
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Клик для раскрытия
+hei.tooltip.collapsed.expand.firstItem=Alt+Клик для первого предмета
+hei.tooltip.collapsed.collapse=Alt+Клик для сворачивания
+hei.tooltip.config.expandCollapseAll=Alt+Клик переключить группы
+
+config.hei.collapsible=Сворачиваемые группы
+config.hei.collapsible.comment=Настройки сворачивания групп ингредиентов в один слот в списке ингредиентов.
+config.hei.collapsible.collapsibleGroupsEnabled=Включить сворачиваемые группы
+config.hei.collapsible.collapsibleGroupsEnabled.comment=При включении группы связанных ингредиентов (зелья, зачарованные книги и т.д.) сворачиваются в один слот. Alt+Клик по группе для раскрытия или сворачивания.
+config.hei.collapsible.collapseOnClose=Сворачивать при закрытии
+config.hei.collapsible.collapseOnClose.comment=Сворачивать открытые группы при закрытии HEI.
+config.hei.collapsible.collapsedClickAction=Действие клика по умолчанию
+config.hei.collapsible.collapsedClickAction.comment=Меняет действие одиночного клика, другой вариант становится действием Alt+Клик. Открыть группу открывает группу. Первый предмет применяет действие к первому предмету в группе.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Открыть группу
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Первый предмет
+
+# Group Management GUI
+hei.gui.collapsible.title=Управление группами
+hei.gui.collapsible.back=Назад
+hei.gui.collapsible.newGroup=Новая группа
+hei.gui.collapsible.title.tooltip=Включение/отключение встроенных групп и создание пользовательских групп.
+hei.gui.collapsible.enabled=Включено
+hei.gui.collapsible.disabled=Отключено
+hei.gui.collapsible.customGroup=Пользовательская
+hei.gui.collapsible.defaultGroup=По умолчанию
+hei.gui.collapsible.itemCount=%d предметов
+hei.gui.collapsible.editor.title=Выбранные предметы
+hei.gui.collapsible.editor.name=Название
+hei.gui.collapsible.editor.save=Сохранить
+hei.gui.collapsible.editor.selected=%d выбрано

@@ -7,8 +7,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.PacketBuffer;
 
 public class PacketCraftUpdate extends PacketJei {
-    private boolean success;
-    private int itemsCrafted;
+    private final boolean success;
+    private final int itemsCrafted;
 
     public PacketCraftUpdate(boolean success, int itemsCrafted) {
         this.success = success;
@@ -23,12 +23,14 @@ public class PacketCraftUpdate extends PacketJei {
     @Override
     public void writePacketData(PacketBuffer buf) {
         buf.writeBoolean(success);
-        buf.writeVarInt(itemsCrafted);
+        if (success) {
+            buf.writeVarInt(itemsCrafted);
+        }
     }
 
     public static void readPacketData(PacketBuffer packetBuffer, EntityPlayer entityPlayer) {
         boolean success = packetBuffer.readBoolean();
-        int itemsCrafted = packetBuffer.readVarInt();
+        int itemsCrafted = success ? packetBuffer.readVarInt() : 0;
         Internal.getRuntime().getAutocraftingHandler().stepFinished(success, itemsCrafted);
     }
 }

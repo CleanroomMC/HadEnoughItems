@@ -132,3 +132,35 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Ukryj przycisk zakładki w lewym dolnym rogu
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Czy ukryć przycisk zakładki w lewym dolnym rogu
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Klik aby rozwinąć
+hei.tooltip.collapsed.expand.firstItem=Alt+Klik dla pierwszego przedmiotu
+hei.tooltip.collapsed.collapse=Alt+Klik aby zwinąć
+hei.tooltip.config.expandCollapseAll=Alt+Klik aby przełączyć grupy
+
+config.hei.collapsible=Zwijane grupy
+config.hei.collapsible.comment=Opcje zwijania grup składników do jednego slotu na liście składników.
+config.hei.collapsible.collapsibleGroupsEnabled=Włącz zwijane grupy
+config.hei.collapsible.collapsibleGroupsEnabled.comment=Po włączeniu grupy powiązanych składników (mikstury, zaklęte księgi itp.) są zwijane do jednego slotu. Alt+Klik na grupę, aby ją rozwinąć lub zwinąć.
+config.hei.collapsible.collapseOnClose=Zwiń przy zamknięciu
+config.hei.collapsible.collapseOnClose.comment=Zwija aktualnie otwarte grupy po zamknięciu HEI.
+config.hei.collapsible.collapsedClickAction=Domyślna akcja kliknięcia
+config.hei.collapsible.collapsedClickAction.comment=Zamienia akcję pojedynczego kliknięcia, druga opcja staje się akcją Alt+Klik. Otwórz grupę otwiera grupę. Pierwszy przedmiot stosuje akcję do pierwszego przedmiotu w grupie.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Otwórz grupę
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Pierwszy przedmiot
+
+# Group Management GUI
+hei.gui.collapsible.title=Zarządzaj grupami
+hei.gui.collapsible.back=Wstecz
+hei.gui.collapsible.newGroup=Nowa grupa
+hei.gui.collapsible.title.tooltip=Włącz/wyłącz wbudowane grupy i twórz grupy zdefiniowane przez użytkownika.
+hei.gui.collapsible.enabled=Włączone
+hei.gui.collapsible.disabled=Wyłączone
+hei.gui.collapsible.customGroup=Niestandardowe
+hei.gui.collapsible.defaultGroup=Domyślne
+hei.gui.collapsible.itemCount=%d przedmiotów
+hei.gui.collapsible.editor.title=Wybrane przedmioty
+hei.gui.collapsible.editor.name=Nazwa
+hei.gui.collapsible.editor.save=Zapisz
+hei.gui.collapsible.editor.selected=%d wybranych

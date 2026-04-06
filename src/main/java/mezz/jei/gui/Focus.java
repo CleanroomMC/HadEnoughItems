@@ -17,6 +17,12 @@ public class Focus<V> implements IFocus<V> {
 		checkInternal(this);
 	}
 
+	// INTERNAL USAGE ONLY
+	protected Focus() {
+		this.mode = null;
+		this.value = null;
+	}
+
 	@Override
 	public V getValue() {
 		return value;

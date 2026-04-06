@@ -24,6 +24,16 @@ public class ShapelessRecipeWrapper<T extends IRecipe> implements ICraftingRecip
 		this.recipe = recipe;
 	}
 
+	/**
+	 * Internal API to grab the raw recipe of this {@link ICraftingRecipeWrapper}
+	 *
+	 * @since 4.30.0
+	 * @return raw {@link IRecipe} recipe
+	 */
+	public T getRawRecipe() {
+		return recipe;
+	}
+
 	@Override
 	public void getIngredients(IIngredients ingredients) {
 		ItemStack recipeOutput = recipe.getRecipeOutput();

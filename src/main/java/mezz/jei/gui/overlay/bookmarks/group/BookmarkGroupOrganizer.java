@@ -18,6 +18,7 @@ import mezz.jei.render.IngredientListSlot;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
@@ -113,6 +114,8 @@ public class BookmarkGroupOrganizer {
         GuiScreen.drawRect(left, top - 2, groupArea.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH, top, color);
         // Rectangle 3: a rectangle pointing right from the bottom edge of the group area
         GuiScreen.drawRect(left, bottom, groupArea.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH, bottom + 2, color);
+
+        GlStateManager.color(1, 1, 1, 1);
     }
 
     public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
@@ -131,13 +134,21 @@ public class BookmarkGroupOrganizer {
             }
             List<String> tooltips = new ArrayList<>();
             List<IngredientListBatchRenderer> slotRows = new ArrayList<>();
+
+            if (group.group instanceof RecipeBookmarkGroup) {
+                tooltips.add(Translator.translateToLocal("hei.tooltip.recipe_group"));
+            } else {
+                tooltips.add(Translator.translateToLocal("hei.tooltip.item_group"));
+            }
+
             // Detect if the user is holding either ALT key.
             if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
                 tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.1"));
+                tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.2"));
                 if (group.group instanceof RecipeBookmarkGroup) {
-                    tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.2"));
+                    tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.3"));
                     if (Config.isAutocraftingEnabled()) {
-                        tooltips.add(Translator.translateToLocalFormatted("hei.tooltip.organizer.3", KeyBindings.crafting.getDisplayName()));
+                        tooltips.add(Translator.translateToLocalFormatted("hei.tooltip.organizer.4", KeyBindings.crafting.getDisplayName()));
                     }
                 }
             } else {

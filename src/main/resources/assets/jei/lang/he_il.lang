@@ -119,3 +119,35 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=הסתר כפתור סימנייה בפינה השמאלית התחתונה
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=האם להסתיר את כפתור הסימנייה בפינה השמאלית התחתונה
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+לחיצה כדי להרחיב
+hei.tooltip.collapsed.expand.firstItem=Alt+לחיצה לפריט הראשון
+hei.tooltip.collapsed.collapse=Alt+לחיצה כדי לכווץ
+hei.tooltip.config.expandCollapseAll=Alt+לחיצה להחלפת קבוצות
+
+config.hei.collapsible=קבוצות מתכווצות
+config.hei.collapsible.comment=אפשרויות לכיווץ קבוצות רכיבים לתא יחיד ברשימת הרכיבים.
+config.hei.collapsible.collapsibleGroupsEnabled=הפעל קבוצות מתכווצות
+config.hei.collapsible.collapsibleGroupsEnabled.comment=כאשר מופעל, קבוצות של רכיבים קשורים (שיקויים, ספרים מכושפים וכו') מכווצות לתא יחיד. Alt+לחיצה על קבוצה כדי להרחיב או לכווץ אותה.
+config.hei.collapsible.collapseOnClose=כיווץ בסגירה
+config.hei.collapsible.collapseOnClose.comment=כיווץ קבוצות פתוחות כאשר HEI נסגר.
+config.hei.collapsible.collapsedClickAction=פעולת לחיצה ברירת מחדל
+config.hei.collapsible.collapsedClickAction.comment=מחליף את פעולת הלחיצה הבודדת, האפשרות השנייה הופכת לפעולת Alt+לחיצה. פתח קבוצה פותח את הקבוצה. פריט ראשון מחיל את הפעולה על הפריט הראשון בקבוצה.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=פתח קבוצה
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=פריט ראשון
+
+# Group Management GUI
+hei.gui.collapsible.title=ניהול קבוצות
+hei.gui.collapsible.back=חזרה
+hei.gui.collapsible.newGroup=קבוצה חדשה
+hei.gui.collapsible.title.tooltip=הפעלה/השבתה של קבוצות מובנות ויצירת קבוצות מותאמות אישית.
+hei.gui.collapsible.enabled=מופעל
+hei.gui.collapsible.disabled=מושבת
+hei.gui.collapsible.customGroup=מותאם אישית
+hei.gui.collapsible.defaultGroup=ברירת מחדל
+hei.gui.collapsible.itemCount=%d פריטים
+hei.gui.collapsible.editor.title=פריטים נבחרים
+hei.gui.collapsible.editor.name=שם
+hei.gui.collapsible.editor.save=שמירה
+hei.gui.collapsible.editor.selected=%d נבחרו

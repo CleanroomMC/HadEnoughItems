@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.awt.Color;
 
 import net.minecraft.enchantment.EnchantmentData;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 

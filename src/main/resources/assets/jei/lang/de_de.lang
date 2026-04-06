@@ -152,3 +152,35 @@ config.jei.interface.defaultFluidContainerItem.comment=Voreingestelltes Item, de
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Lesezeichen-Button in der unteren linken Ecke ausblenden
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Ob der Lesezeichen-Button in der unteren linken Ecke ausgeblendet werden soll
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Klick zum Aufklappen
+hei.tooltip.collapsed.expand.firstItem=Alt+Klick für erstes Element
+hei.tooltip.collapsed.collapse=Alt+Klick zum Zuklappen
+hei.tooltip.config.expandCollapseAll=Alt+Klick zum Gruppen umschalten
+
+config.hei.collapsible=Einklappbare Gruppen
+config.hei.collapsible.comment=Optionen zum Einklappen von Zutatengruppen in einen einzelnen Slot in der Zutatenliste.
+config.hei.collapsible.collapsibleGroupsEnabled=Einklappbare Gruppen aktivieren
+config.hei.collapsible.collapsibleGroupsEnabled.comment=Wenn aktiviert, werden Gruppen verwandter Zutaten (Tränke, verzauberte Bücher usw.) in einen einzelnen Slot zusammengeklappt. Alt+Klick auf eine Gruppe zum Auf- oder Zuklappen.
+config.hei.collapsible.collapseOnClose=Beim Schließen einklappen
+config.hei.collapsible.collapseOnClose.comment=Aktuell geöffnete Gruppen beim Schließen von HEI einklappen.
+config.hei.collapsible.collapsedClickAction=Standard-Klickaktion
+config.hei.collapsible.collapsedClickAction.comment=Wechselt die Einzelklick-Aktion, die andere Option wird zur Alt+Klick-Aktion. Gruppe öffnen öffnet die Gruppe. Erstes Element wendet die Aktion auf das erste Element der Gruppe an.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Gruppe öffnen
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Erstes Element
+
+# Group Management GUI
+hei.gui.collapsible.title=Gruppen verwalten
+hei.gui.collapsible.back=Zurück
+hei.gui.collapsible.newGroup=Neue Gruppe
+hei.gui.collapsible.title.tooltip=Integrierte Gruppen aktivieren/deaktivieren und benutzerdefinierte Gruppen erstellen.
+hei.gui.collapsible.enabled=Aktiviert
+hei.gui.collapsible.disabled=Deaktiviert
+hei.gui.collapsible.customGroup=Benutzerdefiniert
+hei.gui.collapsible.defaultGroup=Standard
+hei.gui.collapsible.itemCount=%d Elemente
+hei.gui.collapsible.editor.title=Ausgewählte Elemente
+hei.gui.collapsible.editor.name=Name
+hei.gui.collapsible.editor.save=Speichern
+hei.gui.collapsible.editor.selected=%d ausgewählt

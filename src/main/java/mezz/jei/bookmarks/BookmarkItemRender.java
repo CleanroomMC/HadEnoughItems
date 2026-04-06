@@ -8,6 +8,7 @@ import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.CountUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.util.ITooltipFlag;
 
 import javax.annotation.Nullable;
@@ -32,6 +33,10 @@ public class BookmarkItemRender implements IIngredientRenderer<BookmarkItem> {
                 CountUtil.renderCountString(fontRenderer, ingredient.getDisplayAmount(), xPosition, yPosition, true);
             }
         }
+
+        // We need no lighting and plain color for continued ingredient rendering
+        GlStateManager.disableLighting();
+        GlStateManager.color(1, 1, 1, 1);
     }
 
     @Override

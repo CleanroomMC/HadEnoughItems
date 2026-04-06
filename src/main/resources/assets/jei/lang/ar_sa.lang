@@ -119,3 +119,35 @@ description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Cir
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=إخفاء زر الإشارة المرجعية في الزاوية السفلية اليسرى
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=ما إذا كان سيتم إخفاء زر الإشارة المرجعية في الزاوية السفلية اليسرى
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+انقر للتوسيع
+hei.tooltip.collapsed.expand.firstItem=Alt+انقر للعنصر الأول
+hei.tooltip.collapsed.collapse=Alt+انقر للطي
+hei.tooltip.config.expandCollapseAll=Alt+النقر لتبديل المجموعات
+
+config.hei.collapsible=المجموعات القابلة للطي
+config.hei.collapsible.comment=خيارات لطي مجموعات المكونات في خانة واحدة في قائمة المكونات.
+config.hei.collapsible.collapsibleGroupsEnabled=تفعيل المجموعات القابلة للطي
+config.hei.collapsible.collapsibleGroupsEnabled.comment=عند التفعيل، يتم طي مجموعات المكونات ذات الصلة (الجرعات، الكتب المسحورة، إلخ) في خانة واحدة. Alt+انقر على مجموعة لتوسيعها أو طيها.
+config.hei.collapsible.collapseOnClose=الطي عند الإغلاق
+config.hei.collapsible.collapseOnClose.comment=طي المجموعات المفتوحة حالياً عند إغلاق HEI.
+config.hei.collapsible.collapsedClickAction=إجراء النقر الافتراضي
+config.hei.collapsible.collapsedClickAction.comment=يبدل إجراء النقرة الواحدة، يصبح الخيار الآخر هو إجراء Alt+النقر. فتح المجموعة يفتح المجموعة. العنصر الأول يطبق الإجراء على أول عنصر في المجموعة.
+config.hei.collapsible.collapsedClickAction.OPEN_GROUP=فتح المجموعة
+config.hei.collapsible.collapsedClickAction.FIRST_ITEM=العنصر الأول
+
+# Group Management GUI
+hei.gui.collapsible.title=إدارة المجموعات
+hei.gui.collapsible.back=رجوع
+hei.gui.collapsible.newGroup=مجموعة جديدة
+hei.gui.collapsible.title.tooltip=تفعيل/تعطيل المجموعات المدمجة وإنشاء مجموعات مخصصة.
+hei.gui.collapsible.enabled=مفعّل
+hei.gui.collapsible.disabled=معطّل
+hei.gui.collapsible.customGroup=مخصص
+hei.gui.collapsible.defaultGroup=افتراضي
+hei.gui.collapsible.itemCount=%d عناصر
+hei.gui.collapsible.editor.title=العناصر المحددة
+hei.gui.collapsible.editor.name=الاسم
+hei.gui.collapsible.editor.save=حفظ
+hei.gui.collapsible.editor.selected=%d محدد
