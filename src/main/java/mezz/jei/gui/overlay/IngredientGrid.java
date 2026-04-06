@@ -191,6 +191,20 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 
 	public boolean handleMouseClicked(int mouseX, int mouseY) {
 		if (isMouseOver(mouseX, mouseY)) {
+			Minecraft minecraft = Minecraft.getMinecraft();
+			// Delete item given priority over collapsed group expand/collapse.
+			if (shouldDeleteItemOnClick(minecraft, mouseX, mouseY)) {
+				EntityPlayerSP player = minecraft.player;
+				if (player != null) {
+					ItemStack itemStack = player.inventory.getItemStack();
+					if (!itemStack.isEmpty()) {
+						player.inventory.setItemStack(ItemStack.EMPTY);
+						PacketJei packet = new PacketDeletePlayerItem(itemStack);
+						JustEnoughItems.getProxy().sendPacketToServer(packet);
+						return true;
+					}
+				}
+			}
 			boolean firstItemMode = Config.getCollapsedClickAction() == CollapsedClickAction.FIRST_ITEM;
 			boolean altDown = GuiScreen.isAltKeyDown();
 			// OPEN_GROUP: plain click expands a collapsed icon; alt+click falls through (first item).
@@ -213,19 +227,6 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 					expandedHovered.toggleExpanded();
 					Internal.getIngredientFilter().notifyCollapsedStateChanged();
 					return true;
-				}
-			}
-			Minecraft minecraft = Minecraft.getMinecraft();
-			if (shouldDeleteItemOnClick(minecraft, mouseX, mouseY)) {
-				EntityPlayerSP player = minecraft.player;
-				if (player != null) {
-					ItemStack itemStack = player.inventory.getItemStack();
-					if (!itemStack.isEmpty()) {
-						player.inventory.setItemStack(ItemStack.EMPTY);
-						PacketJei packet = new PacketDeletePlayerItem(itemStack);
-						JustEnoughItems.getProxy().sendPacketToServer(packet);
-						return true;
-					}
 				}
 			}
 		}
