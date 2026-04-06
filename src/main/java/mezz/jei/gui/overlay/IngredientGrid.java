@@ -191,6 +191,30 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 
 	public boolean handleMouseClicked(int mouseX, int mouseY) {
 		if (isMouseOver(mouseX, mouseY)) {
+			boolean firstItemMode = Config.getCollapsedClickAction() == CollapsedClickAction.FIRST_ITEM;
+			boolean altDown = GuiScreen.isAltKeyDown();
+			// OPEN_GROUP: plain click expands a collapsed icon; alt+click falls through (first item).
+			// FIRST_ITEM: alt+click expands a collapsed icon; plain click falls through (first item).
+			boolean expandKeyDown = firstItemMode ? altDown : !altDown;
+			if (expandKeyDown) {
+				CollapsedStackRenderer collapsedHovered = guiIngredientSlots.getHoveredCollapsed(mouseX, mouseY);
+				// A group with only 1 visible item should act as a plain ingredient click,
+				// not expand/collapse — the single item is already trivially "shown".
+				if (collapsedHovered != null && collapsedHovered.getCollapsedStack().size() > 1) {
+					collapsedHovered.getCollapsedStack().toggleExpanded();
+					Internal.getIngredientFilter().notifyCollapsedStateChanged();
+					return true;
+				}
+			}
+			// Alt+Click on any item inside an expanded group always collapses it.
+			if (altDown) {
+				CollapsedStack expandedHovered = guiIngredientSlots.getExpandedCollapsedGroupAt(mouseX, mouseY);
+				if (expandedHovered != null) {
+					expandedHovered.toggleExpanded();
+					Internal.getIngredientFilter().notifyCollapsedStateChanged();
+					return true;
+				}
+			}
 			Minecraft minecraft = Minecraft.getMinecraft();
 			// Delete item given priority over collapsed group expand/collapse.
 			if (shouldDeleteItemOnClick(minecraft, mouseX, mouseY)) {
