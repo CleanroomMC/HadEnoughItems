@@ -83,7 +83,19 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 	}
 
 	public boolean matches(IIngredientListElement element) {
-		return this.uids.contains(element.getIngredientHelper().getUniqueId(element.getIngredient()));
+		String uid = element.getIngredientHelper().getUniqueId(element.getIngredient());
+		if (this.uids.contains(uid)) {
+			return true;
+		}
+		for (String stored : this.uids) {
+			if (stored.endsWith(":*")) {
+				String prefix = stored.substring(0, stored.length() - 2);
+				if (uid.equals(prefix) || uid.startsWith(prefix + ":")) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	// --- Runtime ingredient list (transient per filter cycle) ---

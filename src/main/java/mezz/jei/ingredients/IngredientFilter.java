@@ -152,15 +152,27 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 				return;
 			}
 			Multimap<String, CollapsibleGroup> uids = HashMultimap.create();
+			List<Map.Entry<String, CollapsibleGroup>> wildcardEntries = new ArrayList<>();
 			for (CollapsibleGroup group : groups.values()) {
 				for (String uid : group.getIngredient().getUids()) {
-					uids.put(uid, group);
+					if (uid.endsWith(":*")) {
+						wildcardEntries.add(new AbstractMap.SimpleImmutableEntry<>(uid.substring(0, uid.length() - 2), group));
+					} else {
+						uids.put(uid, group);
+					}
 				}
 			}
 			for (IIngredientListElement element : allVisibleIngredientsCache) {
-				Collection<CollapsibleGroup> uidGroups = uids.get(element.getIngredientHelper().getUniqueId(element.getIngredient()));
+				String uid = element.getIngredientHelper().getUniqueId(element.getIngredient());
+				Collection<CollapsibleGroup> uidGroups = uids.get(uid);
 				if (!uidGroups.isEmpty()) {
 					groupMembershipCache.putAll(element, uidGroups);
+				}
+				for (Map.Entry<String, CollapsibleGroup> entry : wildcardEntries) {
+					String prefix = entry.getKey();
+					if (uid.equals(prefix) || uid.startsWith(prefix + ":")) {
+						groupMembershipCache.put(element, entry.getValue());
+					}
 				}
 			}
 			groupToElementsCache = Multimaps.invertFrom(groupMembershipCache, HashMultimap.create());

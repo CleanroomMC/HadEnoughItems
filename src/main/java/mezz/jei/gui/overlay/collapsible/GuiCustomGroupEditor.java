@@ -171,7 +171,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	private static String getIngredientWildcardUid(Object ingredient) {
 		IIngredientHelper helper = Internal.getIngredientRegistry().getIngredientHelper(ingredient);
 		String wildcardId = helper.getWildcardId(ingredient);
-		return wildcardId.equals(getIngredientUid(ingredient)) ? null : wildcardId;
+		return wildcardId.equals(getIngredientUid(ingredient)) ? null : wildcardId + ":*";
 	}
 
 	/**
