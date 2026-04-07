@@ -23,6 +23,7 @@ This means (same as JEI of course):
  * Better ordering of recipes in certain contexts
  * Better rendering of ingredient amounts to improve clarity
  * Bookmark Groups
+ * Collapsible Groups
 
 ### For Devs:
 Add CleanroomMC's repository and depend on HEI's maven entry:
@@ -34,5 +35,5 @@ repositories {
 }
 
 dependencies {
-    implementation 'mezz:jei:4.29.15'
+    implementation 'mezz:jei:4.30.0'
 }
