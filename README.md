@@ -35,5 +35,5 @@ repositories {
 }
 
 dependencies {
-    implementation 'mezz:jei:4.30.0'
+    implementation 'mezz:jei:4.30.1'
 }
