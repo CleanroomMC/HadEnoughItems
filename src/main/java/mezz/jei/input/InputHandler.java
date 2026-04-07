@@ -19,6 +19,7 @@ import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
 import mezz.jei.gui.recipes.RecipeClickableArea;
+import mezz.jei.gui.recipes.RecipeLayout;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.IngredientRegistry;
@@ -29,6 +30,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
@@ -39,6 +41,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InputHandler {
+
+    private enum KeyBind {
+        SHOW_RECIPE(KeyBindings.showRecipe),
+        SHOW_USES(KeyBindings.showUses),
+        BOOKMARK(KeyBindings.bookmark),
+        BOOKMARK_TO_TOP(KeyBindings.bookmarkToTop),
+        RECIPE_BOOKMARK(KeyBindings.recipeBookmark);
+
+        private KeyBinding keyBind;
+
+        KeyBind(KeyBinding keyBind) {
+            this.keyBind = keyBind;
+        }
+
+        public boolean tryMatch(int keyCode) {
+            return keyBind.isActiveAndMatches(keyCode);
+        }
+    }
+
     private final RecipeRegistry recipeRegistry;
     private final IIngredientRegistry ingredientRegistry;
     private final IngredientFilter ingredientFilter;
@@ -68,18 +89,6 @@ public class InputHandler {
         this.showsRecipeFocuses.add(new GuiContainerWrapper(guiScreenHelper));
     }
 
-    private boolean handleBookmarkExtra() {
-        boolean forceAdd = (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) && Keyboard.isKeyDown(KeyBindings.bookmark.getKeyCode());
-        if (!forceAdd) return false;
-        IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(MouseHelper.getX(), MouseHelper.getY());
-        if (clicked != null) {
-            if (!Config.isBookmarkOverlayEnabled())
-                Config.toggleBookmarkEnabled();
-            return bookmarkList.add(new BookmarkItem<>(clicked.getValue()), true);
-        }
-        return false;
-    }
-
     /**
      * When we have keyboard focus, use Pre
      */
@@ -96,8 +105,6 @@ public class InputHandler {
     @SubscribeEvent
     public void onGuiKeyboardEvent(GuiScreenEvent.KeyboardInputEvent.Post event) {
         if (hasKeyboardFocus()) return;
-        if (handleBookmarkExtra())
-            event.setCanceled(true);
         else if (handleKeyEvent())
             event.setCanceled(true);
     }
@@ -126,14 +133,22 @@ public class InputHandler {
                         clickHandled.add(eventButton);
                     }
                 }
-            } else if (clickHandled.contains(eventButton)) {
-                clickHandled.remove(eventButton);
-                cancelEvent = true;
+            } else {
+                cancelEvent = handleMouseRelease(guiScreen, mouseX, mouseY) || clickHandled.remove(eventButton);
             }
         } else if (Mouse.getEventDWheel() != 0) {
             cancelEvent = handleMouseScroll(Mouse.getEventDWheel(), mouseX, mouseY);
         }
         return cancelEvent;
+    }
+
+    private boolean handleMouseRelease(GuiScreen guiScreen, int mouseX, int mouseY) {
+        final int eventButton = Mouse.getEventButton();
+        if (leftAreaDispatcher.handleMouseReleased(mouseX, mouseY, eventButton)) {
+            return true;
+        }
+
+        return false;
     }
 
     private boolean handleMouseScroll(int dWheel, int mouseX, int mouseY) {
@@ -311,36 +326,78 @@ public class InputHandler {
     }
 
     private boolean handleFocusKeybinds(int eventKey) {
-        final boolean showRecipe = KeyBindings.showRecipe.isActiveAndMatches(eventKey);
-        final boolean showUses = KeyBindings.showUses.isActiveAndMatches(eventKey);
-        final boolean bookmark = KeyBindings.bookmark.isActiveAndMatches(eventKey);
-        if (showRecipe || showUses || bookmark) {
-            IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(MouseHelper.getX(), MouseHelper.getY());
-            if (clicked != null) {
-                if (bookmark) {
-                    if (bookmarkList.remove(clicked.getValue())) {
-                        if (bookmarkList.isEmpty() && Config.isBookmarkOverlayEnabled()) {
-                            Config.toggleBookmarkEnabled();
-                        }
-                        return true;
-                    } else {
-                        if (!Config.isBookmarkOverlayEnabled()) {
-                            Config.toggleBookmarkEnabled();
-                        }
-                        return bookmarkList.add(new BookmarkItem<>(clicked.getValue()));
-                    }
-                } else {
-                    IFocus.Mode mode = showRecipe ? IFocus.Mode.OUTPUT : IFocus.Mode.INPUT;
-                    Object value = clicked.getValue();
-                    recipesGui.show(new Focus<>(
-                            mode,
-                            value instanceof BookmarkItem ? ((BookmarkItem<?>) value).ingredient : value));
-                    clicked.onClickHandled();
-                    return true;
-                }
+        KeyBind pressedKey = null;
+        for (KeyBind keyBind : KeyBind.values()) {
+            if (keyBind.tryMatch(eventKey)) {
+                pressedKey = keyBind;
+                break;
             }
         }
+
+        if (pressedKey == null) {
+            return false;
+        }
+
+        switch (pressedKey) {
+            case BOOKMARK:
+                return addBookmark(false);
+            case RECIPE_BOOKMARK:
+                return addBookmark(true);
+            case BOOKMARK_TO_TOP:
+                return handleBookmarkExtra();
+            case SHOW_RECIPE:
+                return showRecipeOrUses(IFocus.Mode.OUTPUT);
+            case SHOW_USES:
+                return showRecipeOrUses(IFocus.Mode.INPUT);
+        }
+
         return false;
+    }
+
+    private boolean addBookmark(boolean isRecipe) {
+        int mouseX = MouseHelper.getX();
+        int mouseY = MouseHelper.getY();
+        IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(mouseX, mouseY);
+        if (clicked == null) {
+            return false;
+        }
+
+        if (bookmarkList.remove(clicked.getValue())) {
+            if (bookmarkList.isEmpty() && Config.isBookmarkOverlayEnabled()) {
+                Config.toggleBookmarkEnabled();
+            }
+
+            return true;
+        }
+
+        if (!Config.isBookmarkOverlayEnabled()) {
+            Config.toggleBookmarkEnabled();
+        }
+        
+        if (isRecipe) {
+            RecipeLayout layout = recipesGui.getRecipeLayout(mouseX, mouseY);
+            if (layout == null) {
+                return false;
+            }
+            
+            return layout.addToBookmarks();
+        }
+        
+        return bookmarkList.add(new BookmarkItem<>(clicked.getValue()));
+    }
+
+    private boolean showRecipeOrUses(IFocus.Mode mode) {
+        IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(MouseHelper.getX(), MouseHelper.getY());
+        if (clicked == null) {
+            return false;
+        }
+
+        Object value = clicked.getValue();
+        recipesGui.show(new Focus<>(
+            mode,
+            value instanceof BookmarkItem ? ((BookmarkItem<?>) value).ingredient : value));
+            clicked.onClickHandled();
+        return true;
     }
 
     private boolean isContainerTextFieldFocused() {
@@ -352,4 +409,15 @@ public class InputHandler {
         return textField != null && textField.getVisible() && textField.isFocused();
     }
 
+    private boolean handleBookmarkExtra() {
+        IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(MouseHelper.getX(), MouseHelper.getY());
+        if (clicked != null) {
+            if (!Config.isBookmarkOverlayEnabled())
+                Config.toggleBookmarkEnabled();
+
+            return bookmarkList.add(new BookmarkItem<>(clicked.getValue()), true);
+        }
+
+        return false;
+    }
 }

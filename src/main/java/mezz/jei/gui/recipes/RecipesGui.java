@@ -557,4 +557,15 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 	public void onStateChange() {
 		updateLayout();
 	}
+
+	@Nullable
+	public RecipeLayout getRecipeLayout(int mouseX, int mouseY) {
+		for (RecipeLayout layout : recipeLayouts) {
+			if (layout.isMouseOver(mouseX, mouseY)) {
+				return layout;
+			}
+		}
+
+		return null;
+	}
 }

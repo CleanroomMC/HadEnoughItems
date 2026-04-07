@@ -150,6 +150,18 @@ public class LeftAreaDispatcher implements IShowsRecipeFocuses, IGhostIngredient
 		return false;
 	}
 
+	public boolean handleMouseReleased(int mouseX, int mouseY, int mouseButton) {
+		if (!(canShow || hasContent())) {
+			return false;
+		}	
+
+		if (displayArea.contains(mouseX, mouseY)) {
+			return contents.get(current).handleMouseReleased(mouseX, mouseY, mouseButton);
+		}
+
+		return false;
+	}
+
 	@Override
 	public boolean nextPage() {
 		current++;

@@ -32,6 +32,16 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
         }
         return false;
     }
+    
+    public boolean addItem(BookmarkItem<?> item, boolean toFront) {
+        if (super.addItem(item, toFront)) {
+            chain.addOutput((RecipeBookmarkItem<?>) item); // From canAddItem
+            
+            return true;
+        }
+
+        return false;
+    }
 
     public boolean canAddItem(BookmarkItem<?> item) {
         return item instanceof RecipeBookmarkItem;

@@ -186,6 +186,15 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 	}
 
 	@Override
+	public boolean handleMouseReleased(int mouseX, int mouseY, int mouseButton) {
+		if (contents.isMouseOver(mouseX, mouseY)) {
+			return this.contents.handleMouseReleased(mouseX, mouseY, mouseButton);
+		}
+
+		return false;
+	}
+	
+	@Override
 	public boolean onKeyPressed(char typedChar, int eventKey) {
 		return isListDisplayed() && this.contents.getBookmarkGroupOrganizer().onKeyPressed(typedChar, eventKey);
 	}

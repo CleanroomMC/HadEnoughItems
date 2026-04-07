@@ -1,5 +1,13 @@
 package mezz.jei.gui.recipes;
 
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import mezz.jei.Internal;
 import mezz.jei.api.gui.IDrawable;
@@ -13,6 +21,9 @@ import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
+import mezz.jei.autocrafting.RecipeBookmarkGroup;
+import mezz.jei.autocrafting.RecipeBookmarkItem;
+import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.gui.Focus;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.elements.DrawableNineSliceTexture;
@@ -28,12 +39,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
-
-import javax.annotation.Nullable;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class RecipeLayout implements IRecipeLayoutDrawable {
 	private static final int RECIPE_BUTTON_SIZE = 13;
@@ -412,5 +417,14 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		return posY;
 	}
 
-
+	public boolean addToBookmarks() {
+        BookmarkList bookmarkList = Internal.getBookmarkList();
+        RecipeBookmarkGroup group = new RecipeBookmarkGroup(bookmarkList.nextId());
+        RecipeBookmarkItem<?> recipeBookmarkItem = new RecipeBookmarkItem<>(getRecipeFavoriteButton().getDisplayedIngredient());
+        recipeBookmarkItem.setGroup(group); // Do this early so that the dummy items are also added.
+        recipeBookmarkItem.populateWith(recipeWrapper, recipeCategory);
+        group.addItem(recipeBookmarkItem); // Do this late so that the recipe isn't overwritten.
+        group.update();
+        return bookmarkList.add(group);
+	}
 }
