@@ -2,9 +2,11 @@ package mezz.jei.render;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 
 import java.util.List;
 
@@ -23,6 +25,8 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
         renderItems2d.clear();
         renderItems3d.clear();
         renderOther.clear();
+        renderCollapsed.clear();
+        collapsedStackIndexed.clear();
         size = 0;
 
         // We need to clear all of them anyway.
@@ -33,6 +37,7 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
         }
         if (!ingredientList.isEmpty()) {
             int i = startIndex;
+            int slotIndex = 0;
             int currentGroup = ingredientList.get(i).getGroupIndex();
             IntList groupIndices = new IntArrayList();
             for (List<IngredientListSlot> row : slots) {
@@ -42,6 +47,7 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                         if (column == 0) {
                             groupIndices.add(-1);
                         }
+                        slotIndex++;
                         continue;
                     }
                     if (i >= ingredientList.size()) {
@@ -58,9 +64,20 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                         groupIndices.add(currentGroup);
                     }
 
-                    set(ingredientListSlot, element);
+                    Object ingredient = element.getIngredient();
+                    if (ingredient instanceof BookmarkItem && ((BookmarkItem<?>) ingredient).ingredient instanceof CollapsedGroupIngredient) {
+                        CollapsedGroupIngredient collapsed = (CollapsedGroupIngredient) ((BookmarkItem<?>) ingredient).ingredient;
+                        CollapsedGroupRenderer renderer = new CollapsedGroupRenderer(collapsed);
+                        renderer.setArea(ingredientListSlot.getArea());
+                        renderer.setPadding(1);
+                        renderCollapsed.add(renderer);
+                        collapsedStackIndexed.put(slotIndex, collapsed);
+                    } else {
+                        set(ingredientListSlot, element);
+                    }
                     size++;
                     i++;
+                    slotIndex++;
                 }
             }
 
