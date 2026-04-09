@@ -37,25 +37,19 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 	private final String langKey;
 	/** Identifies who registered this group. */
 	private final GroupSource source;
-	private final List<Object> ingredients;
 	private final List<IIngredientListElement<?>> elements;
 	private final Set<String> uids;
 	/** Matches against the raw ingredient object (any type). */
 	private boolean expanded;
 	private boolean visible = true;
 
-	public CollapsedGroupIngredient(String id, String langKey, List<Object> ingredients, Set<String> uids) {
-		this(id, langKey, ingredients, uids, GroupSource.DEFAULT);
-	}
-
-	public CollapsedGroupIngredient(String id, String langKey, List<Object> ingredients, Set<String> uids, GroupSource source) {
+	public CollapsedGroupIngredient(String id, String langKey, Set<String> uids, GroupSource source) {
 		this.id = id;
 		this.langKey = langKey;
-		this.ingredients = ingredients;
 		this.uids = uids;
 		this.source = source;
 		this.expanded = false;
-		this.elements = new ArrayList<>(ingredients.size());
+		this.elements = new ArrayList<>(uids.size());
 	}
 
 	public String getId() {

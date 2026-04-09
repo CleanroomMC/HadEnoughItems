@@ -12,6 +12,7 @@ import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkItemRender;
 import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.ingredients.group.CollapsedGroupIngredientHelper;
+import mezz.jei.ingredients.group.CollapsibleGroupRegistry;
 import mezz.jei.render.CollapsedGroupRenderer;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -156,21 +157,22 @@ public class JEIInternalPlugin implements IModPlugin {
 	}
 
 	@Override
-	public void registerCollapsibleGroups(ICollapsibleGroupRegistry registry) {
-		registry.newGroup("enchanted_books", "Enchanted Books").addAllOf(VanillaTypes.ENCHANT).build();
-		registry.newGroup("potions", "Potions")
+	public void registerCollapsibleGroups(ICollapsibleGroupRegistry r) {
+		CollapsibleGroupRegistry registry = (CollapsibleGroupRegistry) r;
+		registry.defaultNewGroup("enchanted_books", "Enchanted Books").addAllOf(VanillaTypes.ENCHANT).build();
+		registry.defaultNewGroup("potions", "Potions")
 				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.POTIONITEM)
 				.build();
-		registry.newGroup("splash_potions", "Splash Potions")
+		registry.defaultNewGroup("splash_potions", "Splash Potions")
 				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.SPLASH_POTION)
 				.build();
-		registry.newGroup("lingering_potions", "Lingering Potions")
+		registry.defaultNewGroup("lingering_potions", "Lingering Potions")
 				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.LINGERING_POTION)
 				.build();
-		registry.newGroup("tipped_arrows", "Tipped Arrows")
+		registry.defaultNewGroup("tipped_arrows", "Tipped Arrows")
 				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.TIPPED_ARROW)
 				.build();
-		registry.newGroup("spawn_eggs", "Spawn Eggs")
+		registry.defaultNewGroup("spawn_eggs", "Spawn Eggs")
 				.addAny(VanillaTypes.ITEM, stack -> stack.getItem() == Items.SPAWN_EGG)
 				.build();
 	}

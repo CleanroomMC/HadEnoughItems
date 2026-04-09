@@ -20,7 +20,11 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
 
     @Override
     public Builder newGroup(String id, String langKey) {
-        return new Builder(this, id, langKey);
+        return new Builder(this, CollapsedGroupIngredient.GroupSource.MOD, id, langKey);
+    }
+
+    public Builder defaultNewGroup(String id, String langKey) {
+        return new Builder(this, CollapsedGroupIngredient.GroupSource.DEFAULT, id, langKey);
     }
 
     public void setEnabled(boolean enabled, String group) {
@@ -76,9 +80,8 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
             if (group.id == null || group.id.isEmpty() || group.itemUids == null) {
                 continue;
             }
-            List<Object> ingredients = new ArrayList<>();
             Set<String> ingredientUids = new HashSet<>(group.itemUids);
-            CollapsedGroupIngredient ingredient = new CollapsedGroupIngredient(group.id, group.displayName, ingredients, ingredientUids, CollapsedGroupIngredient.GroupSource.CUSTOM);
+            CollapsedGroupIngredient ingredient = new CollapsedGroupIngredient(group.id, group.displayName, ingredientUids, CollapsedGroupIngredient.GroupSource.CUSTOM);
             this.groups.put(group.id, new CollapsibleGroup(ingredient));
             amount++;
         }
@@ -88,13 +91,14 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
     public static class Builder implements ICollapsibleGroupRegistry.Builder {
 
         private final CollapsibleGroupRegistry registry;
+        private final CollapsedGroupIngredient.GroupSource groupSource;
         private final String id;
         private final String langKey;
-        private final List<Object> ingredients = new ArrayList<>();
         private final Set<String> ingredientUids = new ObjectOpenHashSet<>();
 
-        public Builder(CollapsibleGroupRegistry registry, String id, String langKey) {
+        public Builder(CollapsibleGroupRegistry registry, CollapsedGroupIngredient.GroupSource groupSource, String id, String langKey) {
             this.registry = registry;
+            this.groupSource = groupSource;
             this.id = id;
             this.langKey = langKey;
         }
@@ -103,7 +107,6 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
         public ICollapsibleGroupRegistry.Builder add(Object... ingredients) {
             IIngredientRegistry registry = Internal.getIngredientRegistry();
             for (Object ingredient : ingredients) {
-                this.ingredients.add(ingredient);
                 this.ingredientUids.add(registry.getIngredientHelper(ingredient).getUniqueId(ingredient));
             }
             return this;
@@ -114,7 +117,6 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
             IIngredientRegistry registry = Internal.getIngredientRegistry();
             for (IIngredientType type : types) {
                 for (Object ingredient : registry.getAllIngredients(type)) {
-                    this.ingredients.add(ingredient);
                     this.ingredientUids.add(registry.getIngredientHelper(ingredient).getUniqueId(ingredient));
                 }
             }
@@ -126,7 +128,6 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
             IIngredientRegistry registry = Internal.getIngredientRegistry();
             for (V ingredient : registry.getAllIngredients(type)) {
                 if (filter.test(ingredient)) {
-                    this.ingredients.add(ingredient);
                     this.ingredientUids.add(registry.getIngredientHelper(ingredient).getUniqueId(ingredient));
                 }
             }
@@ -137,7 +138,7 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
         public void build() {
             this.registry.groups.put(this.id,
                     new CollapsibleGroup(
-                            new CollapsedGroupIngredient(this.id, this.langKey, this.ingredients, this.ingredientUids)));
+                            new CollapsedGroupIngredient(this.id, this.langKey, this.ingredientUids, groupSource)));
         }
 
     }

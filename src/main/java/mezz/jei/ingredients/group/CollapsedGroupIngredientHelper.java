@@ -101,9 +101,9 @@ public class CollapsedGroupIngredientHelper implements IIngredientHelper<Collaps
 	@Override
 	public String getErrorInfo(@Nullable CollapsedGroupIngredient ingredient) {
 		if (ingredient == null) {
-			return "CollapsedStack is null";
+			return "CollapsibleGroup is null";
 		}
-		return "CollapsedStack[" + ingredient.getId() + ", " + ingredient.size() + " items]";
+		return "CollapsibleGroup[" + ingredient.getId() + ", " + ingredient.size() + " items]";
 	}
 
 	// Delegate recipe lookups to the representative item for addon compatibility
