@@ -21,7 +21,7 @@ public class BookmarkGrid extends IngredientGrid {
     private Rectangle area = new Rectangle();
 
     public BookmarkGrid(GridAlignment alignment, BookmarkGroupOrganizer groupOrganizer) {
-        super(new BookmarkListBatchRenderer(groupOrganizer), alignment);
+        super(new BookmarkListBatchRenderer(groupOrganizer), alignment, false);
         this.alignment = alignment;
     }
 
