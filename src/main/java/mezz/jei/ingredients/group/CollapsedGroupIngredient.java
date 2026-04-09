@@ -5,6 +5,7 @@ import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.render.CollapsedGroupRenderer;
+import mezz.jei.util.Translator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,7 +64,7 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 	}
 
 	public String getDisplayName() {
-		return langKey;
+		return Translator.translateToLocal(langKey);
 	}
 
 	public GroupSource getSource() {
