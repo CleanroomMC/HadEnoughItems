@@ -1,14 +1,11 @@
 package mezz.jei.gui.overlay.bookmarks;
 
+import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.config.Config;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IngredientGrid;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
-import mezz.jei.ingredients.group.CollapsedGroupIngredient;
-import mezz.jei.render.BookmarkListBatchRenderer;
-import mezz.jei.render.CollapsedGroupRenderer;
-import mezz.jei.render.IngredientListBatchRenderer;
-import mezz.jei.render.IngredientListSlot;
+import mezz.jei.render.*;
 import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.MathUtil;
 import net.minecraft.client.gui.GuiScreen;
@@ -90,15 +87,21 @@ public class BookmarkGrid extends IngredientGrid {
         if (expandKeyDown) {
             CollapsedGroupRenderer collapsedHovered = renderer.getHoveredCollapsed(mouseX, mouseY);
             if (collapsedHovered != null) {
-                renderer.toggleBookmarkGroupExpanded(collapsedHovered.getCollapsedStack().getId());
-                return true;
+                BookmarkItem item = renderer.getBookmarkItemForRenderer(collapsedHovered);
+                if (item != null) {
+                    renderer.toggleBookmarkItemExpanded(item);
+                    return true;
+                }
             }
         }
         if (altDown) {
-            CollapsedGroupIngredient expandedHovered = renderer.getExpandedCollapsedGroupAt(mouseX, mouseY);
-            if (expandedHovered != null) {
-                renderer.toggleBookmarkGroupExpanded(expandedHovered.getId());
-                return true;
+            IngredientRenderer<?> hovered = renderer.getHovered(mouseX, mouseY);
+            if (hovered != null) {
+                BookmarkItem item = renderer.getBookmarkItemForExpandedElement(hovered.getElement());
+                if (item != null) {
+                    renderer.toggleBookmarkItemExpanded(item);
+                    return true;
+                }
             }
         }
         return false;
