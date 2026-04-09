@@ -92,7 +92,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 				GlStateManager.DestFactor.ZERO
 		);
 		// Draw background tint to visually distinguish collapsed groups
-		GuiScreen.drawRect(x, y, x + 16, y + 16, COLLAPSED_BG_COLOR);
+		GuiScreen.drawRect(x, y, x + 16, y + 16, ingredient.getBackgroundColor());
 		GlStateManager.disableBlend();
 
 		if (ingredients.size() == 1) {
@@ -135,7 +135,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 			GlStateManager.enableDepth();
 		}
 
-		drawCollapsedBorder(x, y);
+		drawCollapsedBorder(x, y, ingredient.getBorderColor());
 	}
 
 	/**
@@ -171,8 +171,8 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		// Small triangle indicator in the top-left corner to show it's collapsible
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
-		GuiScreen.drawRect(x, y, x + 4, y + 1, COLLAPSED_BORDER_COLOR);
-		GuiScreen.drawRect(x, y + 1, x + 1, y + 4, COLLAPSED_BORDER_COLOR);
+		GuiScreen.drawRect(x, y, x + 4, y + 1, borderColor);
+		GuiScreen.drawRect(x, y + 1, x + 1, y + 4, borderColor);
 		GlStateManager.enableDepth();
 		GlStateManager.disableBlend();
 	}
