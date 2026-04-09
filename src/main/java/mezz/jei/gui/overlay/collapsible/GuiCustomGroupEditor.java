@@ -42,6 +42,8 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	private static final int BTN_NEXT_PAGE = 3;
 	private static final int BTN_PREV_SEL_PAGE = 4;
 	private static final int BTN_NEXT_SEL_PAGE = 5;
+	private static final int BTN_CLEAR = 6;
+
 	private static final int FIELD_NAME_BOX = 10;
 	private static final int FIELD_SEARCH_BOX = 11;
 	private static final int FIELD_BACKGROUND_COLOR_BOX = 12;
@@ -178,6 +180,10 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		// Page nav buttons for right grid
 		this.buttonList.add(new GuiButton(BTN_PREV_SEL_PAGE, panelDivider + 4, leftNavY, 20, 20, "<"));
 		this.buttonList.add(new GuiButton(BTN_NEXT_SEL_PAGE, this.width - 24, leftNavY, 20, 20, ">"));
+
+		// Clear all items
+		this.buttonList.add(new GuiButton(BTN_CLEAR, panelDivider + (this.width - panelDivider) / 2 - 25, leftNavY, 50, 20,
+				Translator.translateToLocal("hei.gui.collapsible.editor.clear")));
 
 		updateFilteredItems();
 		leftPage = Math.max(0, Math.min(savedFirstItemIndex / leftItemsPerPage, leftTotalPages - 1));
@@ -404,6 +410,10 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				break;
 			case BTN_NEXT_SEL_PAGE:
 				rightPage = Math.min(rightTotalPages - 1, rightPage + 1);
+				break;
+			case BTN_CLEAR:
+				selectedUids.clear();
+				updateSelectedStacks();
 				break;
 		}
 	}
