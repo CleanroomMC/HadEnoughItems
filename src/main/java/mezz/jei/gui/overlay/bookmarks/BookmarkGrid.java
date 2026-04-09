@@ -1,13 +1,14 @@
 package mezz.jei.gui.overlay.bookmarks;
 
+import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.config.Config;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IngredientGrid;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
-import mezz.jei.render.BookmarkListBatchRenderer;
-import mezz.jei.render.IngredientListBatchRenderer;
-import mezz.jei.render.IngredientListSlot;
+import mezz.jei.render.*;
+import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.MathUtil;
+import net.minecraft.client.gui.GuiScreen;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -73,7 +74,37 @@ public class BookmarkGrid extends IngredientGrid {
         return area.contains(mouseX, mouseY);
     }
 
-    protected IngredientListBatchRenderer getGuiIngredientSlots() {
+    public IngredientListBatchRenderer getGuiIngredientSlots() {
         return guiIngredientSlots;
     }
+
+    @Override
+    protected boolean handleCollapsedGroupClicked(int mouseX, int mouseY) {
+        BookmarkListBatchRenderer renderer = (BookmarkListBatchRenderer) guiIngredientSlots;
+        boolean firstItemMode = Config.getCollapsedClickAction() == CollapsedClickAction.FIRST_ITEM;
+        boolean altDown = GuiScreen.isAltKeyDown();
+        boolean expandKeyDown = firstItemMode == altDown;
+        if (expandKeyDown) {
+            CollapsedGroupRenderer collapsedHovered = renderer.getHoveredCollapsed(mouseX, mouseY);
+            if (collapsedHovered != null) {
+                BookmarkItem item = renderer.getBookmarkItemForRenderer(collapsedHovered);
+                if (item != null) {
+                    renderer.toggleBookmarkItemExpanded(item);
+                    return true;
+                }
+            }
+        }
+        if (altDown) {
+            IngredientRenderer<?> hovered = renderer.getHovered(mouseX, mouseY);
+            if (hovered != null) {
+                BookmarkItem item = renderer.getBookmarkItemForExpandedElement(hovered.getElement());
+                if (item != null) {
+                    renderer.toggleBookmarkItemExpanded(item);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

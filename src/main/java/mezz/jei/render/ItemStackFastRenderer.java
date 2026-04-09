@@ -2,6 +2,7 @@ package mezz.jei.render;
 
 import java.awt.Rectangle;
 
+import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -22,12 +23,8 @@ import mezz.jei.util.ErrorUtil;
 public class ItemStackFastRenderer extends IngredientRenderer<ItemStack> {
 	private static final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
 
-	// Pre-computed at list-population time so getBakedModel() is a free field read every frame.
-	private final IBakedModel cachedModel;
-
 	public ItemStackFastRenderer(IIngredientListElement<ItemStack> itemStackElement, IBakedModel model) {
 		super(itemStackElement);
-		this.cachedModel = model;
 	}
 
 	public void renderItemAndEffectIntoGUI() {
@@ -39,7 +36,10 @@ public class ItemStackFastRenderer extends IngredientRenderer<ItemStack> {
 	}
 
 	private IBakedModel getBakedModel() {
-		return cachedModel;
+		ItemModelMesher itemModelMesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
+		ItemStack itemStack = element.getIngredient();
+		IBakedModel bakedModel = itemModelMesher.getItemModel(itemStack);
+		return bakedModel.getOverrides().handleItemState(bakedModel, itemStack, null, null);
 	}
 
 	private void uncheckedRenderItemAndEffectIntoGUI() {

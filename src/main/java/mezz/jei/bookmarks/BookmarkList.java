@@ -10,6 +10,7 @@ import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.IIngredientGridSource;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
 import mezz.jei.ingredients.IngredientRegistry;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.util.Log;
 import org.apache.commons.io.IOUtils;
 
@@ -49,8 +50,12 @@ public class BookmarkList implements IIngredientGridSource {
 
     public <T> boolean add(BookmarkItem<T> ingredient, boolean forceFront) {
         BookmarkItem<T> normalized = IngredientUtil.normalizeBookmark(ingredient);
-        if (!contains(normalized)) {
-            if (addToLists(normalized, forceFront || Config.isAddingBookmarksToFront())) {
+        boolean addToFront = forceFront || Config.isAddingBookmarksToFront();
+        boolean alreadyExists = normalized.ingredient instanceof CollapsedGroupIngredient
+                ? groupContains(getAddingGroup(addToFront), normalized)
+                : contains(normalized);
+        if (!alreadyExists) {
+            if (addToLists(normalized, addToFront)) {
                 notifyListenersOfChange();
                 saveBookmarks();
                 return true;
@@ -80,6 +85,22 @@ public class BookmarkList implements IIngredientGridSource {
         return add(new BookmarkItem<>(ingredient), forceFront);
     }
 
+
+    private boolean groupContains(BookmarkGroup group, BookmarkItem<?> item) {
+        IIngredientHelper<Object> ingredientHelper = ingredientRegistry.getIngredientHelper(item);
+        String uid = ingredientHelper.getUniqueId(item);
+        for (BookmarkItem<?> existing : group.getItems()) {
+            if (item == existing) {
+                return true;
+            }
+            if (existing != null && existing.getClass() == item.getClass()) {
+                if (uid.equals(ingredientHelper.getUniqueId(existing))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     private boolean contains(Object ingredient) {
         // We cannot assume that ingredients have a working equals() implementation. Even ItemStack doesn't have one...
