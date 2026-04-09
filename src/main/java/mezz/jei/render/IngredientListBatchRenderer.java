@@ -24,10 +24,7 @@ import net.minecraft.client.gui.Gui;
 
 import javax.annotation.Nullable;
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_HEIGHT;
@@ -323,12 +320,16 @@ public class IngredientListBatchRenderer {
     @Nullable
     public CollapsedGroupIngredient getExpandedCollapsedGroupAt(int mouseX, int mouseY) {
         IngredientRenderer hovered = getHovered(mouseX, mouseY);
-        if (hovered == null) return null;
+        if (hovered == null) {
+            return null;
+        }
         return expandedElementToGroup.get(hovered.getElement());
     }
 
     public void renderExpandedGroupOutlines() {
-        if (expandedGroupSlots.isEmpty()) return;
+        if (expandedGroupSlots.isEmpty()) {
+            return;
+        }
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(
@@ -337,11 +338,11 @@ public class IngredientListBatchRenderer {
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        int bgColor = 0x33555555;     // subtle smoke background
+        int bgColor = 0x33555555; // subtle smoke background
         int borderColor = 0xCC888888; // medium smoke border
         for (List<Rectangle> slots : expandedGroupSlots.values()) {
             // Build a fast lookup set keyed by "x,y" to detect adjacent group slots.
-            java.util.Set<String> keys = new java.util.HashSet<>();
+            Set<String> keys = new HashSet<>();
             for (Rectangle r : slots) keys.add(r.x + "," + r.y);
             for (Rectangle r : slots) {
                 // Background fill for each slot in group
@@ -354,24 +355,36 @@ public class IngredientListBatchRenderer {
                 boolean hasRight = keys.contains((r.x + INGREDIENT_WIDTH) + "," + r.y);
 
                 // Horizontal edges own the full width including corner pixels — drawn exactly once.
-                if (!hasTop) Gui.drawRect(r.x, r.y, r.x + r.width, r.y + 1, borderColor); // top
-                if (!hasBottom) Gui.drawRect(r.x, r.y + r.height - 1, r.x + r.width, r.y + r.height, borderColor); // bottom
+                if (!hasTop) {
+                    Gui.drawRect(r.x, r.y, r.x + r.width, r.y + 1, borderColor); // top
+                }
+                if (!hasBottom) {
+                    Gui.drawRect(r.x, r.y + r.height - 1, r.x + r.width, r.y + r.height, borderColor); // bottom
+                }
 
                 // Vertical edges are inset by 1px at each end where a horizontal edge already owns that corner,
                 int vTop = r.y + (!hasTop ? 1 : 0);
                 int vBottom = r.y + r.height - (!hasBottom ? 1 : 0);
-                if (!hasLeft && vTop < vBottom) Gui.drawRect(r.x, vTop, r.x + 1, vBottom, borderColor); // left
-                if (!hasRight && vTop < vBottom) Gui.drawRect(r.x + r.width - 1, vTop, r.x + r.width, vBottom, borderColor); // right
+                if (!hasLeft && vTop < vBottom) {
+                    Gui.drawRect(r.x, vTop, r.x + 1, vBottom, borderColor); // left
+                }
+                if (!hasRight && vTop < vBottom) {
+                    Gui.drawRect(r.x + r.width - 1, vTop, r.x + r.width, vBottom, borderColor); // right
+                }
 
                 // Inner concave corner pixels: both cardinal neighbors are part of the group so neither draws.
-                if (hasTop && hasLeft  && !keys.contains((r.x - INGREDIENT_WIDTH) + "," + (r.y - INGREDIENT_HEIGHT)))
+                if (hasTop && hasLeft  && !keys.contains((r.x - INGREDIENT_WIDTH) + "," + (r.y - INGREDIENT_HEIGHT))) {
                     Gui.drawRect(r.x, r.y, r.x + 1, r.y + 1, borderColor); // top-left inner corner
-                if (hasTop && hasRight && !keys.contains((r.x + INGREDIENT_WIDTH) + "," + (r.y - INGREDIENT_HEIGHT)))
+                }
+                if (hasTop && hasRight && !keys.contains((r.x + INGREDIENT_WIDTH) + "," + (r.y - INGREDIENT_HEIGHT))) {
                     Gui.drawRect(r.x + r.width - 1, r.y, r.x + r.width, r.y + 1, borderColor); // top-right inner corner
-                if (hasBottom && hasLeft  && !keys.contains((r.x - INGREDIENT_WIDTH) + "," + (r.y + INGREDIENT_HEIGHT)))
+                }
+                if (hasBottom && hasLeft  && !keys.contains((r.x - INGREDIENT_WIDTH) + "," + (r.y + INGREDIENT_HEIGHT))) {
                     Gui.drawRect(r.x, r.y + r.height - 1, r.x + 1, r.y + r.height, borderColor); // bottom-left inner corner
-                if (hasBottom && hasRight && !keys.contains((r.x + INGREDIENT_WIDTH) + "," + (r.y + INGREDIENT_HEIGHT)))
+                }
+                if (hasBottom && hasRight && !keys.contains((r.x + INGREDIENT_WIDTH) + "," + (r.y + INGREDIENT_HEIGHT))) {
                     Gui.drawRect(r.x + r.width - 1, r.y + r.height - 1, r.x + r.width, r.y + r.height, borderColor); // bottom-right inner corner
+                }
             }
         }
         GlStateManager.disableBlend();
