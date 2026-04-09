@@ -155,7 +155,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		GuiScreen.drawRect(x, y, x + 4, y + 1, COLLAPSED_BORDER_COLOR);
-		GuiScreen.drawRect(x, y, x + 1, y + 4, COLLAPSED_BORDER_COLOR);
+		GuiScreen.drawRect(x, y + 1, x + 1, y + 4, COLLAPSED_BORDER_COLOR);
 		GlStateManager.enableDepth();
 	}
 
