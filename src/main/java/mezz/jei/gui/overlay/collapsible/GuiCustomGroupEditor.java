@@ -418,7 +418,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		// Name label
 		this.fontRenderer.drawStringWithShadow(
 			Translator.translateToLocal("hei.gui.collapsible.editor.name") + ":",
-			4, 10, 0xFFFFFF);
+			6, 10, 0xFFFFFF);
 		if (nameField != null) {
 			nameField.drawTextBox();
 		}
