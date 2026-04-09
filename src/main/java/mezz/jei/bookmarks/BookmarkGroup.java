@@ -7,6 +7,7 @@ import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.IngredientListElementFactory;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.startup.ForgeModIdHelper;
+import mezz.jei.util.Log;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -43,8 +44,13 @@ public class BookmarkGroup {
     }
 
     public void addItemInternal(BookmarkItem<?> item) {
+        IIngredientListElement<?> element = getIngredientListElement(item);
+        if (element == null) {
+            Log.get().error("Failed to create ingredient list element for bookmark item: {}", item.ingredient);
+            return;
+        }
         items.add(item);
-        ingredientListElements.add(getIngredientListElement(item));
+        ingredientListElements.add(element);
         item.setGroup(this);
     }
 
