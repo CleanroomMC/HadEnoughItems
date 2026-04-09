@@ -142,12 +142,12 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 		// Page nav buttons for left grid
 		int leftNavY = this.height - 22;
-		this.buttonList.add(new GuiButton(BTN_PREV_PAGE, 4, leftNavY, 30, 20, "<"));
-		this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, panelDivider - 34, leftNavY, 30, 20, ">"));
+		this.buttonList.add(new GuiButton(BTN_PREV_PAGE, 4, leftNavY, 20, 20, "<"));
+		this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, panelDivider - 24, leftNavY, 20, 20, ">"));
 
 		// Page nav buttons for right grid
-		this.buttonList.add(new GuiButton(BTN_PREV_SEL_PAGE, panelDivider + 4, leftNavY, 30, 20, "<"));
-		this.buttonList.add(new GuiButton(BTN_NEXT_SEL_PAGE, this.width - 34, leftNavY, 30, 20, ">"));
+		this.buttonList.add(new GuiButton(BTN_PREV_SEL_PAGE, panelDivider + 4, leftNavY, 20, 20, "<"));
+		this.buttonList.add(new GuiButton(BTN_NEXT_SEL_PAGE, this.width - 24, leftNavY, 20, 20, ">"));
 
 		updateFilteredItems();
 		leftPage = Math.max(0, Math.min(savedFirstItemIndex / leftItemsPerPage, leftTotalPages - 1));

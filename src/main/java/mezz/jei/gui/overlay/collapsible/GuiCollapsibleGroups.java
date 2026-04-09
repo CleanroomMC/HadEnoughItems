@@ -193,8 +193,8 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		// Page navigation
 		if (totalPages > 1) {
 			int navY = layoutContentTop + cardsPerCol * (CARD_HEIGHT + CARD_PADDING) + 4;
-			this.buttonList.add(new GuiButton(BTN_PREV_PAGE, layoutContentLeft, navY, 40, 20, "<"));
-			this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, layoutContentLeft + layoutContentWidth - 40, navY, 40, 20, ">"));
+			this.buttonList.add(new GuiButton(BTN_PREV_PAGE, layoutContentLeft, navY, 20, 20, "<"));
+			this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, layoutContentLeft + layoutContentWidth - 20, navY, 20, 20, ">"));
 		}
 	}
 
