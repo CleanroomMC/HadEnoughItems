@@ -73,7 +73,7 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 	}
 
 	public void toggleExpanded() {
-		this.expanded = !this.expanded;
+		this.setExpanded(!this.expanded);
 	}
 
 	public boolean matches(IIngredientListElement element) {

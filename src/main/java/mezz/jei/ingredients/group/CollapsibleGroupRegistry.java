@@ -8,7 +8,11 @@ import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.config.Config;
 import mezz.jei.config.CustomGroupsConfig;
+import mezz.jei.render.CollapsedGroupRenderer;
+import mezz.jei.render.IngredientListBatchRenderer;
+import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.Log;
+import net.minecraft.client.gui.GuiScreen;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -86,6 +90,32 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
             amount++;
         }
         Log.get().info("Loaded {} custom collapsible groups", amount);
+    }
+
+    public boolean handleMouseClicked(IngredientListBatchRenderer renderer, int mouseX, int mouseY) {
+        boolean firstItemMode = Config.getCollapsedClickAction() == CollapsedClickAction.FIRST_ITEM;
+        boolean altDown = GuiScreen.isAltKeyDown();
+        // OPEN_GROUP: plain click expands a collapsed icon; alt+click falls through (first item).
+        // FIRST_ITEM: alt+click expands a collapsed icon; plain click falls through (first item).
+        boolean expandKeyDown = firstItemMode == altDown;
+        if (expandKeyDown) {
+            CollapsedGroupRenderer collapsedHovered = renderer.getHoveredCollapsed(mouseX, mouseY);
+            if (collapsedHovered != null) {
+                collapsedHovered.getCollapsedStack().toggleExpanded();
+                Internal.getIngredientFilter().notifyCollapsedStateChanged();
+                return true;
+            }
+        }
+        // Alt+Click on any item inside an expanded group always collapses it.
+        if (altDown) {
+            CollapsedGroupIngredient expandedHovered = renderer.getExpandedCollapsedGroupAt(mouseX, mouseY);
+            if (expandedHovered != null) {
+                expandedHovered.toggleExpanded();
+                Internal.getIngredientFilter().notifyCollapsedStateChanged();
+                return true;
+            }
+        }
+        return false;
     }
 
     public static class Builder implements ICollapsibleGroupRegistry.Builder {

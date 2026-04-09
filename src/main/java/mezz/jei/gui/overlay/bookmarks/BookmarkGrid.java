@@ -4,10 +4,14 @@ import mezz.jei.config.Config;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IngredientGrid;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.render.BookmarkListBatchRenderer;
+import mezz.jei.render.CollapsedGroupRenderer;
 import mezz.jei.render.IngredientListBatchRenderer;
 import mezz.jei.render.IngredientListSlot;
+import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.MathUtil;
+import net.minecraft.client.gui.GuiScreen;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -73,7 +77,31 @@ public class BookmarkGrid extends IngredientGrid {
         return area.contains(mouseX, mouseY);
     }
 
-    protected IngredientListBatchRenderer getGuiIngredientSlots() {
+    public IngredientListBatchRenderer getGuiIngredientSlots() {
         return guiIngredientSlots;
     }
+
+    @Override
+    protected boolean handleCollapsedGroupClicked(int mouseX, int mouseY) {
+        BookmarkListBatchRenderer renderer = (BookmarkListBatchRenderer) guiIngredientSlots;
+        boolean firstItemMode = Config.getCollapsedClickAction() == CollapsedClickAction.FIRST_ITEM;
+        boolean altDown = GuiScreen.isAltKeyDown();
+        boolean expandKeyDown = firstItemMode == altDown;
+        if (expandKeyDown) {
+            CollapsedGroupRenderer collapsedHovered = renderer.getHoveredCollapsed(mouseX, mouseY);
+            if (collapsedHovered != null) {
+                renderer.toggleBookmarkGroupExpanded(collapsedHovered.getCollapsedStack().getId());
+                return true;
+            }
+        }
+        if (altDown) {
+            CollapsedGroupIngredient expandedHovered = renderer.getExpandedCollapsedGroupAt(mouseX, mouseY);
+            if (expandedHovered != null) {
+                renderer.toggleBookmarkGroupExpanded(expandedHovered.getId());
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

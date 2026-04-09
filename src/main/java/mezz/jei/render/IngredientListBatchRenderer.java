@@ -94,17 +94,7 @@ public class IngredientListBatchRenderer {
         return slots.stream().flatMap(List::stream).collect(Collectors.toList());
     }
 
-    public void set(final int startIndex, List<IIngredientListElement> ingredientList) {
-        renderItems2d.clear();
-        renderItems3d.clear();
-        renderOther.clear();
-        renderCollapsed.clear();
-        collapsedStackIndexed.clear();
-        expandedElementToGroup.clear();
-        expandedGroupSlots.clear();
-        maxSize = 0;
-        size = 0;
-
+    protected void setSlots(final int startIndex, List<IIngredientListElement> ingredientList) {
         // We need to clear all of them anyway.
         for (List<IngredientListSlot> row : slots) {
             for (IngredientListSlot slot : row) {
@@ -129,6 +119,20 @@ public class IngredientListBatchRenderer {
                 i++;
             }
         }
+    }
+
+    public void set(final int startIndex, List<IIngredientListElement> ingredientList) {
+        renderItems2d.clear();
+        renderItems3d.clear();
+        renderOther.clear();
+        renderCollapsed.clear();
+        collapsedStackIndexed.clear();
+        expandedElementToGroup.clear();
+        expandedGroupSlots.clear();
+        maxSize = 0;
+        size = 0;
+
+        setSlots(startIndex, ingredientList);
 
         invalidateBuffer();
     }
