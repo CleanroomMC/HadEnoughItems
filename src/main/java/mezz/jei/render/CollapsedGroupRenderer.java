@@ -30,9 +30,6 @@ import java.util.List;
  * plus a semi-transparent background to distinguish it from normal items.
  */
 public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGroupIngredient> {
-	private static final int COLLAPSED_BG_COLOR = 0x33FFFFFF;
-	private static final int COLLAPSED_BORDER_COLOR = 0x55AAAAFF;
-
 	/** Singleton registered with the ingredient type system — {@code collapsedStack} is null. */
 	public static final CollapsedGroupRenderer INSTANCE = new CollapsedGroupRenderer(null);
 
