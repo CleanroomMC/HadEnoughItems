@@ -40,6 +40,8 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	private static final int BTN_NEXT_PAGE = 3;
 	private static final int BTN_PREV_SEL_PAGE = 4;
 	private static final int BTN_NEXT_SEL_PAGE = 5;
+	private static final int FIELD_NAME_BOX = 10;
+	private static final int FIELD_SEARCH_BOX = 11;
 
 	private final GuiCollapsibleGroups parentScreen;
 	private final CustomGroupsConfig.CustomGroup group;
@@ -107,7 +109,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		int panelDivider = (int) (this.width * 0.65);
 
 		// Name field
-		nameField = new GuiTextField(10, this.fontRenderer, 62, 6, panelDivider - 70, 16);
+		nameField = new GuiTextField(FIELD_NAME_BOX, this.fontRenderer, 62, 6, panelDivider - 70, 16);
 		nameField.setMaxStringLength(40);
 		nameField.setText(group.displayName != null ? group.displayName : "");
 
@@ -124,7 +126,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 		// Calculate left grid layout
 		int leftWidth = panelDivider - 8;
-		int leftHeight = this.height - topBarHeight - 26; // room for page nav
+		int leftHeight = this.height - topBarHeight - 44; // room for page nav
 		leftCols = Math.max(1, leftWidth / ITEM_SIZE);
 		leftRows = Math.max(1, leftHeight / ITEM_SIZE);
 		leftGridX = (panelDivider - 4 - leftCols * ITEM_SIZE) / 2;
@@ -142,6 +144,12 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 		// Page nav buttons for left grid
 		int leftNavY = this.height - 22;
+
+		// Search field — restore saved text so the user's last search carries over
+		searchField = new GuiTextField(FIELD_SEARCH_BOX, this.fontRenderer, 6, leftNavY - 18, panelDivider - 12, 14);
+		searchField.setMaxStringLength(128);
+		searchField.setText(savedSearchText);
+
 		this.buttonList.add(new GuiButton(BTN_PREV_PAGE, 4, leftNavY, 20, 20, "<"));
 		this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, panelDivider - 24, leftNavY, 20, 20, ">"));
 
