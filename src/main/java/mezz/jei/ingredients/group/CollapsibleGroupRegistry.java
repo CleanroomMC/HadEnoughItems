@@ -49,7 +49,7 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
     }
 
     public void expandOrCloseAll() {
-        this.setExpandedOnAllGroups(this.groups.values().stream().map(CollapsibleGroup::getIngredient).allMatch(CollapsedGroupIngredient::isExpanded));
+        this.setExpandedOnAllGroups(this.groups.values().stream().map(CollapsibleGroup::getIngredient).noneMatch(CollapsedGroupIngredient::isExpanded));
     }
 
     public boolean isGroupDisabled(String group) {
