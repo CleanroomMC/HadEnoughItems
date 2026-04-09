@@ -83,8 +83,17 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 			return;
 		}
 
+		GlStateManager.disableLighting();
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(
+				GlStateManager.SourceFactor.SRC_ALPHA,
+				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+				GlStateManager.SourceFactor.ONE,
+				GlStateManager.DestFactor.ZERO
+		);
 		// Draw background tint to visually distinguish collapsed groups
 		GuiScreen.drawRect(x, y, x + 16, y + 16, COLLAPSED_BG_COLOR);
+		GlStateManager.disableBlend();
 
 		if (ingredients.size() == 1) {
 			// Single item: render at full size
@@ -151,12 +160,21 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 	}
 
 	private static void drawCollapsedBorder(int x, int y) {
+		GlStateManager.disableLighting();
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(
+				GlStateManager.SourceFactor.SRC_ALPHA,
+				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+				GlStateManager.SourceFactor.ONE,
+				GlStateManager.DestFactor.ZERO
+		);
 		// Small triangle indicator in the top-left corner to show it's collapsible
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		GuiScreen.drawRect(x, y, x + 4, y + 1, COLLAPSED_BORDER_COLOR);
 		GuiScreen.drawRect(x, y + 1, x + 1, y + 4, COLLAPSED_BORDER_COLOR);
 		GlStateManager.enableDepth();
+		GlStateManager.disableBlend();
 	}
 
 	// --- IIngredientRenderer<CollapsedStack> implementation ---
