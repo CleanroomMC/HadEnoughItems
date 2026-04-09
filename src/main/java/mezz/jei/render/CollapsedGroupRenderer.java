@@ -159,7 +159,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		}
 	}
 
-	private static void drawCollapsedBorder(int x, int y) {
+	private static void drawCollapsedBorder(int x, int y, int borderColor) {
 		GlStateManager.disableLighting();
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(

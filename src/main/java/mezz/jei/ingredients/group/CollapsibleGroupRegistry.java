@@ -85,7 +85,7 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
                 continue;
             }
             Set<String> ingredientUids = new HashSet<>(group.itemUids);
-            CollapsedGroupIngredient ingredient = new CollapsedGroupIngredient(group.id, group.displayName, ingredientUids, CollapsedGroupIngredient.GroupSource.CUSTOM);
+            CollapsedGroupIngredient ingredient = new CollapsedGroupIngredient(group.id, group.displayName, group.backgroundColor, group.borderColor, ingredientUids, CollapsedGroupIngredient.GroupSource.CUSTOM);
             this.groups.put(group.id, new CollapsibleGroup(ingredient));
             amount++;
         }
@@ -124,6 +124,8 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
         private final CollapsedGroupIngredient.GroupSource groupSource;
         private final String id;
         private final String langKey;
+        private int backgroundColor = CollapsedGroupIngredient.BACKGROUND_COLOR_SMOKE;
+        private int borderColor = CollapsedGroupIngredient.BORDER_COLOR_SMOKE;
         private final Set<String> ingredientUids = new ObjectOpenHashSet<>();
 
         public Builder(CollapsibleGroupRegistry registry, CollapsedGroupIngredient.GroupSource groupSource, String id, String langKey) {
@@ -165,10 +167,17 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
         }
 
         @Override
+        public ICollapsibleGroupRegistry.Builder color(int backgroundColor, int borderColor) {
+            this.backgroundColor = backgroundColor;
+            this.borderColor = borderColor;
+            return this;
+        }
+
+        @Override
         public void build() {
             this.registry.groups.put(this.id,
                     new CollapsibleGroup(
-                            new CollapsedGroupIngredient(this.id, this.langKey, this.ingredientUids, groupSource)));
+                            new CollapsedGroupIngredient(this.id, this.langKey, this.backgroundColor, this.borderColor, this.ingredientUids, groupSource)));
         }
 
     }

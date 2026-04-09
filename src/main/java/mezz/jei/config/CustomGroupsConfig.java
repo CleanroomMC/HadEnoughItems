@@ -3,6 +3,7 @@ package mezz.jei.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.util.Log;
 
 import javax.annotation.Nullable;
@@ -88,22 +89,28 @@ public class CustomGroupsConfig {
 	public static class CustomGroup {
 		public String id;
 		public String displayName;
+		public int backgroundColor;
+		public int borderColor;
 		public List<String> itemUids;
 
 		public CustomGroup() {
 			this.id = "";
 			this.displayName = "";
+			this.backgroundColor = CollapsedGroupIngredient.BACKGROUND_COLOR_SMOKE;
+			this.borderColor = CollapsedGroupIngredient.BORDER_COLOR_SMOKE;
 			this.itemUids = new ArrayList<>();
 		}
 
-		public CustomGroup(String id, String displayName, List<String> itemUids) {
+		public CustomGroup(String id, String displayName, int backgroundColor, int borderColor, List<String> itemUids) {
 			this.id = id;
 			this.displayName = displayName;
+			this.backgroundColor = backgroundColor;
+			this.borderColor = borderColor;
 			this.itemUids = new ArrayList<>(itemUids);
 		}
 
 		public CustomGroup copy() {
-			return new CustomGroup(id, displayName, new ArrayList<>(itemUids));
+			return new CustomGroup(id, displayName, backgroundColor, borderColor, new ArrayList<>(itemUids));
 		}
 	}
 }

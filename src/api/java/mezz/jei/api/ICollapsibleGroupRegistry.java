@@ -72,6 +72,15 @@ public interface ICollapsibleGroupRegistry {
 		<V> Builder addAny(IIngredientType<V> type, Predicate<V> filter);
 
 		/**
+		 * Set the color for the collapsable group.
+		 *
+		 * @param backgroundColor the background color for the group
+		 * @param borderColor the color displayed on the border of the group
+		 * @return this builder for chaining
+		 */
+		Builder color(int backgroundColor, int borderColor);
+
+		/**
 		 * Finalizes the current builder and registers it
 		 */
 		void build();

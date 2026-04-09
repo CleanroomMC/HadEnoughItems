@@ -208,7 +208,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			String newId = "custom:" + UUID.randomUUID().toString().substring(0, 8);
 			CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
 			if (customGroupsConfig != null) {
-				CustomGroupsConfig.CustomGroup newGroup = new CustomGroupsConfig.CustomGroup(newId, "New Group", new ArrayList<>());
+				CustomGroupsConfig.CustomGroup newGroup = new CustomGroupsConfig.CustomGroup(newId, "New Group", CollapsedGroupIngredient.BACKGROUND_COLOR_SMOKE, CollapsedGroupIngredient.BORDER_COLOR_SMOKE, new ArrayList<>());
 				this.mc.displayGuiScreen(new GuiCustomGroupEditor(this, newGroup));
 			}
 			return;
