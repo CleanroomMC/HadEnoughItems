@@ -344,19 +344,19 @@ public class IngredientListBatchRenderer {
                 Gui.drawRect(r.x, r.y, r.x + r.width, r.y + r.height, bgColor);
 
                 // Determine which cardinal neighbors are part of this group
-                boolean hasTop    = keys.contains(r.x + "," + (r.y - INGREDIENT_HEIGHT));
+                boolean hasTop = keys.contains(r.x + "," + (r.y - INGREDIENT_HEIGHT));
                 boolean hasBottom = keys.contains(r.x + "," + (r.y + INGREDIENT_HEIGHT));
-                boolean hasLeft   = keys.contains((r.x - INGREDIENT_WIDTH) + "," + r.y);
-                boolean hasRight  = keys.contains((r.x + INGREDIENT_WIDTH) + "," + r.y);
+                boolean hasLeft = keys.contains((r.x - INGREDIENT_WIDTH) + "," + r.y);
+                boolean hasRight = keys.contains((r.x + INGREDIENT_WIDTH) + "," + r.y);
 
                 // Horizontal edges own the full width including corner pixels — drawn exactly once.
-                if (!hasTop)    Gui.drawRect(r.x, r.y, r.x + r.width, r.y + 1, borderColor); // top
+                if (!hasTop) Gui.drawRect(r.x, r.y, r.x + r.width, r.y + 1, borderColor); // top
                 if (!hasBottom) Gui.drawRect(r.x, r.y + r.height - 1, r.x + r.width, r.y + r.height, borderColor); // bottom
 
                 // Vertical edges are inset by 1px at each end where a horizontal edge already owns that corner,
-                int vTop    = r.y + (!hasTop    ? 1 : 0);
+                int vTop = r.y + (!hasTop ? 1 : 0);
                 int vBottom = r.y + r.height - (!hasBottom ? 1 : 0);
-                if (!hasLeft  && vTop < vBottom) Gui.drawRect(r.x, vTop, r.x + 1, vBottom, borderColor); // left
+                if (!hasLeft && vTop < vBottom) Gui.drawRect(r.x, vTop, r.x + 1, vBottom, borderColor); // left
                 if (!hasRight && vTop < vBottom) Gui.drawRect(r.x + r.width - 1, vTop, r.x + r.width, vBottom, borderColor); // right
 
                 // Inner concave corner pixels: both cardinal neighbors are part of the group so neither draws.
