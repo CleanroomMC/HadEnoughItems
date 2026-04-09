@@ -659,11 +659,14 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				IIngredientListElement<?> element = filteredItems.get(startIdx + i);
 				List<String> lines = getIngredientTooltipLines(element);
 				if (element.getIngredient() instanceof ItemStack) {
-					boolean alreadySelected = isUidSelected(getIngredientUid(element.getIngredient()));
-					if (alreadySelected) {
-						lines.add(TextFormatting.GOLD + "Ctrl+Click: Remove all variants");
-					} else {
-						lines.add(TextFormatting.GOLD + "Ctrl+Click: Select all variants (Wildcard)");
+					String familyWildcard = getIngredientWildcardUid(element.getIngredient());
+					if (familyWildcard != null && familyWildcard.endsWith(":*")) {
+						boolean alreadySelected = isUidSelected(getIngredientUid(element.getIngredient()));
+						if (alreadySelected) {
+							lines.add(TextFormatting.GOLD + "Ctrl+Click: Remove all variants");
+						} else {
+							lines.add(TextFormatting.GOLD + "Ctrl+Click: Select all variants (Wildcard)");
+						}
 					}
 				}
 				List<String> otherGroups = getOtherGroupNames(getIngredientUid(element.getIngredient()));
