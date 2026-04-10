@@ -176,6 +176,11 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 				}
 			}
 			groupToElementsCache = Multimaps.invertFrom(groupMembershipCache, HashMultimap.create());
+
+			for (CollapsibleGroup group : groups.values()) {
+				Collection<IIngredientListElement<?>> groupElements = groupToElementsCache.get(group);
+				group.getIngredient().setStableIngredients(groupElements.isEmpty() ? Collections.emptyList() : new ArrayList<>(groupElements));
+			}
 		}
 	}
 
@@ -311,7 +316,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		for (IIngredientListElement obj : collapsed) {
 			if (obj instanceof CollapsedGroupIngredient) {
 				CollapsedGroupIngredient cs = (CollapsedGroupIngredient) obj;
-				count += cs.isExpanded() ? cs.size() : 1;
+				count += cs.isExpanded() ? cs.getFilterIngredients().size() : 1;
 			} else {
 				count++;
 			}
@@ -461,7 +466,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			}
 		}
 
-		result.removeIf(obj -> obj instanceof CollapsedGroupIngredient && ((CollapsedGroupIngredient) obj).isEmpty());
+		result.removeIf(obj -> obj instanceof CollapsedGroupIngredient && ((CollapsedGroupIngredient) obj).isFilterEmpty());
 		return result;
 	}
 

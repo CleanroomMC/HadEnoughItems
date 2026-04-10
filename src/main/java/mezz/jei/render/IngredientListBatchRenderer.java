@@ -165,7 +165,7 @@ public class IngredientListBatchRenderer {
                 CollapsedGroupIngredient collapsed = (CollapsedGroupIngredient) obj;
                 if (collapsed.isExpanded()) {
                     // Expanded: add each ingredient individually, track which belong to this group
-                    for (IIngredientListElement<?> element : collapsed.getIngredients()) {
+                    for (IIngredientListElement<?> element : collapsed.getFilterIngredients()) {
                         displayItems.add(element);
                         itemToCollapsed.put(element, collapsed);
                     }

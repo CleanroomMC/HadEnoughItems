@@ -38,8 +38,10 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 	private final String langKey;
 	/** Identifies who registered this group. */
 	private final GroupSource source;
-	private final List<IIngredientListElement<?>> elements;
+	private final List<IIngredientListElement<?>> filterElements;
 	private final Set<String> uids;
+
+	private List<IIngredientListElement<?>> elements;
 	/** Matches against the raw ingredient object (any type). */
 	private boolean expanded;
 	private boolean visible = true;
@@ -51,6 +53,7 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 		this.source = source;
 		this.expanded = false;
 		this.elements = new ArrayList<>(uids.size());
+		this.filterElements = new ArrayList<>(uids.size());
 	}
 
 	public String getId() {
@@ -103,12 +106,20 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 		return elements;
 	}
 
+	public List<IIngredientListElement<?>> getFilterIngredients() {
+		return filterElements;
+	}
+
+	public void setStableIngredients(List<IIngredientListElement<?>> stableIngredients) {
+		this.elements = stableIngredients;
+	}
+
 	public void addIngredient(IIngredientListElement<?> element) {
-		elements.add(element);
+		filterElements.add(element);
 	}
 
 	public void clearIngredients() {
-		elements.clear();
+		filterElements.clear();
 	}
 
 	public int size() {
@@ -117,6 +128,10 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 
 	public boolean isEmpty() {
 		return elements.isEmpty();
+	}
+
+	public boolean isFilterEmpty() {
+		return filterElements.isEmpty();
 	}
 
 	@Override
