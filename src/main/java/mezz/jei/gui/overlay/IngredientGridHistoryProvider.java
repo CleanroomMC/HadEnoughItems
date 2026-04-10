@@ -44,10 +44,10 @@ public class IngredientGridHistoryProvider {
     public static final int BACKGROUND_COLOR = 0xee555555;
     public static final boolean HISTORY_MATCH_NBT = true;
 
-    private final boolean enable;
+    private final boolean enabled;
 
-    public boolean isEnable() {
-        return enable;
+    public boolean isEnabled() {
+        return enabled;
     }
 
     private int historySize;
@@ -58,8 +58,8 @@ public class IngredientGridHistoryProvider {
 
     private boolean showHistory;
 
-    public IngredientGridHistoryProvider(boolean enable) {
-        this.enable = enable;
+    public IngredientGridHistoryProvider(boolean enabled) {
+        this.enabled = enabled;
         this.guiHistoryIngredientSlots = new IngredientListBatchRenderer();
 
         GLOBAL_HISTORY_CONTAINER.add(this);
@@ -70,14 +70,14 @@ public class IngredientGridHistoryProvider {
      */
     public static <V> void onSetFocus(IFocus<V> focus) {
         for (IngredientGridHistoryProvider historyProvider : GLOBAL_HISTORY_CONTAINER) {
-            if (historyProvider.isEnable()) {
+            if (historyProvider.isEnabled()) {
                 historyProvider.addHistoryIngredient(focus.getValue());
             }
         }
     }
 
     public void addHistoryIngredient(@Nullable Object value) {
-        if (!enable) {
+        if (!enabled) {
             return;
         }
         if (value == null) {
@@ -106,7 +106,7 @@ public class IngredientGridHistoryProvider {
     }
 
     public void removeElement(int index) {
-        if (!enable) {
+        if (!enabled) {
             return;
         }
 
@@ -117,7 +117,7 @@ public class IngredientGridHistoryProvider {
     // internal methods
 
     void updateColumns(int columns) {
-        if (!enable) {
+        if (!enabled) {
             return;
         }
 
@@ -125,7 +125,7 @@ public class IngredientGridHistoryProvider {
     }
 
     void updateHistorySize(int columns) {
-        if (!enable) {
+        if (!enabled) {
             return;
         }
 
@@ -133,7 +133,7 @@ public class IngredientGridHistoryProvider {
     }
 
     void clearHistorySlots() {
-        if (!enable) {
+        if (!enabled) {
             return;
         }
 
@@ -148,7 +148,7 @@ public class IngredientGridHistoryProvider {
             Collection<Rectangle> exclusionAreas,
             IngredientListBatchRenderer guiIngredientSlots) {
 
-        if (!enable) {
+        if (!enabled) {
             return false;
         }
 
@@ -200,7 +200,7 @@ public class IngredientGridHistoryProvider {
     }
 
     void drawExtra(Minecraft minecraft) {
-        if (!enable) {
+        if (!enabled) {
             return;
         }
         if (!showHistory) {
@@ -220,7 +220,7 @@ public class IngredientGridHistoryProvider {
 
     @SuppressWarnings("rawtypes")
     void drawTooltipsExtra(Minecraft minecraft, int mouseX, int mouseY) {
-        if (!enable) {
+        if (!enabled) {
             return;
         }
         if (!showHistory) {
@@ -242,7 +242,7 @@ public class IngredientGridHistoryProvider {
         if (result != null) {
             return result;
         }
-        if (!enable) {
+        if (!enabled) {
             return null;
         }
         if (!showHistory) {

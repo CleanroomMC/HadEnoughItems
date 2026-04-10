@@ -83,7 +83,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		this.area = new Rectangle(x, y, width, height);
 		this.guiIngredientSlots.clear();
 
-		if (historyProvider.isEnable()) {
+		if (historyProvider.isEnabled()) {
 			historyProvider.updateColumns(columns);
 			historyProvider.updateHistorySize(columns);
 			historyProvider.clearHistorySlots();
@@ -133,7 +133,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		guiIngredientSlots.render(minecraft);
 		guiIngredientSlots.renderExpandedGroupOutlines();
 
-		if (historyProvider.isEnable()) {
+		if (historyProvider.isEnabled()) {
 			historyProvider.drawExtra(minecraft);
 		}
 
@@ -173,7 +173,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 						}
 					}
 
-					if (historyProvider.isEnable()) {
+					if (historyProvider.isEnabled()) {
 						historyProvider.drawTooltipsExtra(minecraft, mouseX, mouseY);
 					}
 				}
@@ -261,7 +261,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 			result = null;
 		}
 
-		if (historyProvider.isEnable()) {
+		if (historyProvider.isEnabled()) {
 			result = historyProvider.getIngredientUnderMouseExtra(result, mouseX, mouseY);
 		}
 
