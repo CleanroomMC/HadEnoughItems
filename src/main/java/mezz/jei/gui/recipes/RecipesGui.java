@@ -371,10 +371,10 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 					} else if (KeyBindings.previousPage.isActiveAndMatches(eventKey)) {
 						logic.previousPage();
 						return true;
-					} else if (KeyBindings.previousCategory.isActiveAndMatches(eventKey)) {
+					} else if (KeyBindings.nextCategory.isActiveAndMatches(eventKey)) {
 						logic.nextRecipeCategory();
 						return true;
-					} else if (KeyBindings.nextCategory.isActiveAndMatches(eventKey)) {
+					} else if (KeyBindings.previousCategory.isActiveAndMatches(eventKey)) {
 						logic.previousRecipeCategory();
 						return true;
 					}
