@@ -1,5 +1,6 @@
 package mezz.jei.gui.overlay;
 
+import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.recipe.IFocus;
@@ -83,16 +84,21 @@ public class IngredientGridHistoryProvider {
         if (value == null) {
             return;
         }
+        if (ignoreIngredient(value)) {
+            return;
+        }
 
-        Object normalized = getNormalize(Objects.requireNonNull(ingredientRegistry), value);
+        Object normalized = normalizeIngredient(Objects.requireNonNull(ingredientRegistry), value);
+        IIngredientHelper<Object> helper = ingredientRegistry.getIngredientHelper(normalized);
+
         IIngredientListElement<?> ingredient = IngredientListElement.create(
                 normalized,
-                ingredientRegistry.getIngredientHelper(normalized),
+                helper,
                 ingredientRegistry.getIngredientRenderer(normalized),
                 ForgeModIdHelper.getInstance(),
-                ORDER_TRACKER.getOrderIndex(normalized, ingredientRegistry.getIngredientHelper(normalized)));
+                ORDER_TRACKER.getOrderIndex(normalized, helper));
 
-        historyIngredientElements.removeIf(element -> areIngredientEqual(element.getIngredient(), normalized, HISTORY_MATCH_NBT));
+        historyIngredientElements.removeIf(element -> areIngredientsEqual(element.getIngredient(), normalized, HISTORY_MATCH_NBT));
         historyIngredientElements.add(0, ingredient);
         if (historyIngredientElements.size() > historySize) {
             historyIngredientElements.remove(historyIngredientElements.size() - 1);
@@ -258,7 +264,7 @@ public class IngredientGridHistoryProvider {
 
     // helper methods
 
-    private static boolean areIngredientEqual(Object ingredient1, Object ingredient2, boolean matchesNbt) {
+    private static boolean areIngredientsEqual(Object ingredient1, Object ingredient2, boolean matchesNbt) {
         if (ingredient1 == ingredient2) {
             return true;
         }
@@ -274,7 +280,11 @@ public class IngredientGridHistoryProvider {
         return false;
     }
 
-    private static <T> T getNormalize(IIngredientRegistry ingredientRegistry, T ingredient) {
+    private static boolean ignoreIngredient(Object ingredient) {
+        return Internal.getHelpers().getIngredientBlacklist().isIngredientBlacklisted(ingredient);
+    }
+
+    private static <T> T normalizeIngredient(IIngredientRegistry ingredientRegistry, T ingredient) {
         IIngredientHelper<T> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
         T copy = LegacyUtil.getIngredientCopy(ingredient, ingredientHelper);
         if (copy instanceof ItemStack) {
