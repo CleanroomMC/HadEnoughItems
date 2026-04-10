@@ -1,6 +1,7 @@
 package mezz.jei.render;
 
 import mezz.jei.api.ingredients.IIngredientRenderer;
+import mezz.jei.api.ingredients.ISlowRenderItem;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.group.CollapsedGroupIngredient;
@@ -14,10 +15,17 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -32,6 +40,8 @@ import java.util.List;
 public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGroupIngredient> {
 	private static final int COLLAPSED_BG_COLOR = 0x33FFFFFF;
 	private static final int COLLAPSED_BORDER_COLOR = 0x55AAAAFF;
+	private static final ResourceLocation RES_ITEM_GLINT =
+			new ResourceLocation("textures/misc/enchanted_item_glint.png");
 
 	/** Singleton registered with the ingredient type system — {@code collapsedStack} is null. */
 	public static final CollapsedGroupRenderer INSTANCE = new CollapsedGroupRenderer(null);
@@ -86,6 +96,23 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		// Draw background tint to visually distinguish collapsed groups
 		GuiScreen.drawRect(x, y, x + 16, y + 16, COLLAPSED_BG_COLOR);
 
+		// --- Batch GL state setup — mirrors IngredientListBatchRenderer.renderImpl ---
+		// Hoist per-frame constants out of the per-item renderItemModelIntoGUI call.
+		// The only unconditional GL work saved is setBlurMipmap (4× glTexParameteri per
+		// item); all other toggles are cached by GlStateManager and only fire on change.
+		RenderItem renderItem = minecraft.getRenderItem();
+		TextureManager textureManager = minecraft.getTextureManager();
+		textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+		GlStateManager.enableRescaleNormal();
+		GlStateManager.enableAlpha();
+		GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
+		GlStateManager.enableBlend();
+		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderHelper.enableGUIStandardItemLighting();
+		renderItem.zLevel += 50.0F;
+
 		if (ingredients.size() == 1) {
 			// Single item: render at full size
 			renderElementAt(minecraft, ingredients.get(0), x, y, 1.0f);
@@ -93,16 +120,21 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 			// 0.75 scale → 12 px icon.
 			// Back  (upper-right): origin at (x+4, y+0) → occupies x+4..x+16, y..y+12
 			// Front (lower-left) : origin at (x+0, y+4) → occupies x..x+12,   y+4..y+16
-			RenderItem renderItem = minecraft.getRenderItem();
 			renderElementAt(minecraft, ingredients.get(1), x + 4, y + 0, 0.75f); // back
 			// Elevate zLevel so the front item's depth values are naturally in front of the
 			// back item's geometry. Using GL_LEQUAL (normal) keeps the front item's own
 			// internal face culling intact — GL_ALWAYS would break tile-entity models.
-			float prevZLevel = renderItem.zLevel;
-			renderItem.zLevel += 100;
+			renderItem.zLevel += 100.0F;
 			renderElementAt(minecraft, ingredients.get(0), x + 0, y + 4, 0.75f); // front
-			renderItem.zLevel = prevZLevel;
+			renderItem.zLevel -= 100.0F;
 		}
+
+		// --- Batch GL state teardown ---
+		renderItem.zLevel -= 50.0F;
+		GlStateManager.disableLighting();
+		GlStateManager.disableAlpha();
+		GlStateManager.disableRescaleNormal();
+		textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 
 		// Count badge: 0.75× scale, orange, right-aligned at the bottom of the slot
 		int count = ingredient.size();
@@ -131,7 +163,12 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 
 	/**
 	 * Renders one ingredient at (x, y) at the given scale using the GL matrix stack.
-	 * Delegates to renderItemAndEffectIntoGUI so all item types (2D, 3D, built-in) render correctly.
+	 * For ItemStack ingredients, uses the same direct-render fast path as
+	 * {@link ItemStackFastRenderer} — skipping the redundant per-call GL state management
+	 * inside renderItemModelIntoGUI (alpha, blend, rescaleNormal, blur mipmap setup/restore)
+	 * because the caller (renderAt) has already hoisted that batch state.
+	 * Non-ItemStack ingredients fall back to their own IIngredientRenderer and are wrapped
+	 * with lighting restoration since those renderers manage lighting independently.
 	 */
 	private static void renderElementAt(Minecraft minecraft, IIngredientListElement<?> element, int x, int y, float scale) {
 		Object ingredient = element.getIngredient();
@@ -140,14 +177,92 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 			GlStateManager.translate(x, y, 0);
 			GlStateManager.scale(scale, scale, scale);
 			if (ingredient instanceof ItemStack) {
-				minecraft.getRenderItem().renderItemAndEffectIntoGUI((ItemStack) ingredient, 0, 0);
+				ItemStack itemStack = (ItemStack) ingredient;
+				RenderItem renderItem = minecraft.getRenderItem();
+				IBakedModel bakedModel = renderItem.getItemModelWithOverrides(itemStack, null, null);
+				if (!bakedModel.isBuiltInRenderer() && !(itemStack.getItem() instanceof ISlowRenderItem)) {
+					// Fast path: batch GL state is already set up by renderAt.
+					renderItemStackFast(renderItem, itemStack, bakedModel);
+				} else {
+					// Slow path for TEISR items (beds, shulkers, banners) and ISlowRenderItem.
+					// renderItemModelIntoGUI disables lighting at exit; restore afterward.
+					renderItem.renderItemAndEffectIntoGUI(itemStack, 0, 0);
+					RenderHelper.enableGUIStandardItemLighting();
+				}
 			} else {
+				// Non-ItemStack slow path: the IIngredientRenderer manages its own GL state
+				// (e.g. ItemStackRenderer calls disableStandardItemLighting on exit, which
+				// kills GL_LIGHT0/1 and GL_COLOR_MATERIAL).  Restore full lighting before
+				// the call and again after so subsequent fast-path items are unaffected.
+				RenderHelper.enableGUIStandardItemLighting();
 				renderIngredient(minecraft, 0, 0, element);
+				RenderHelper.enableGUIStandardItemLighting();
 			}
 			GlStateManager.popMatrix();
 		} catch (RuntimeException | LinkageError ignored) {
 			GlStateManager.popMatrix();
 		}
+	}
+
+	/**
+	 * Fast-path item render that mirrors {@link ItemStackFastRenderer#uncheckedRenderItemAndEffectIntoGUI()}.
+	 * Assumes the caller has already set up batch GL state (texture bound, blur mipmap,
+	 * alpha test, blend, rescale-normal, color, zLevel+50).
+	 * Performs only the per-item work: matrix transform, model render, and optional glint.
+	 */
+	private static void renderItemStackFast(RenderItem renderItem, ItemStack itemStack, IBakedModel bakedModel) {
+		// Toggle lighting per-item based on model type, exactly as setupGuiTransform does.
+		if (bakedModel.isGui3d()) {
+			GlStateManager.enableLighting();
+		} else {
+			GlStateManager.disableLighting();
+		}
+		GlStateManager.pushMatrix();
+		// Mirrors setupGuiTransform(0, 0, isGui3d): translate to slot centre, flip Y, scale to 16px.
+		// zLevel has already been incremented by 50 by the batch setup in renderAt.
+		GlStateManager.translate(8.0F, 8.0F, 100.0F + renderItem.zLevel);
+		GlStateManager.scale(16.0F, -16.0F, 16.0F);
+		bakedModel = ForgeHooksClient.handleCameraTransforms(bakedModel, ItemCameraTransforms.TransformType.GUI, false);
+		GlStateManager.translate(-0.5F, -0.5F, -0.5F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		renderItem.renderModel(bakedModel, itemStack);
+		if (itemStack.hasEffect()) {
+			renderItemGlint(renderItem, bakedModel);
+		}
+		GlStateManager.popMatrix();
+	}
+
+	/**
+	 * Renders the enchanted-item glint effect.
+	 * Identical to {@link ItemStackFastRenderer#renderEffect(IBakedModel)} — duplicated here
+	 * to avoid coupling to that class's non-static method.
+	 */
+	private static void renderItemGlint(RenderItem renderItem, IBakedModel model) {
+		TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
+		GlStateManager.depthMask(false);
+		GlStateManager.depthFunc(514); // GL_EQUAL
+		GlStateManager.blendFunc(768, 1); // SRC_COLOR, ONE
+		textureManager.bindTexture(RES_ITEM_GLINT);
+		GlStateManager.matrixMode(5890); // GL_TEXTURE
+		GlStateManager.pushMatrix();
+		GlStateManager.scale(8.0F, 8.0F, 8.0F);
+		float f = (float) (Minecraft.getSystemTime() % 3000L) / 3000.0F / 8.0F;
+		GlStateManager.translate(f, 0.0F, 0.0F);
+		GlStateManager.rotate(-50.0F, 0.0F, 0.0F, 1.0F);
+		renderItem.renderModel(model, -8372020);
+		GlStateManager.popMatrix();
+		GlStateManager.pushMatrix();
+		GlStateManager.scale(8.0F, 8.0F, 8.0F);
+		float f1 = (float) (Minecraft.getSystemTime() % 4873L) / 4873.0F / 8.0F;
+		GlStateManager.translate(-f1, 0.0F, 0.0F);
+		GlStateManager.rotate(10.0F, 0.0F, 0.0F, 1.0F);
+		renderItem.renderModel(model, -8372020);
+		GlStateManager.popMatrix();
+		GlStateManager.matrixMode(5888); // GL_MODELVIEW
+		GlStateManager.blendFunc(770, 771); // SRC_ALPHA, ONE_MINUS_SRC_ALPHA
+		GlStateManager.depthFunc(515); // GL_LEQUAL
+		GlStateManager.depthMask(true);
+		textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 	}
 
 	private static void drawCollapsedBorder(int x, int y) {
