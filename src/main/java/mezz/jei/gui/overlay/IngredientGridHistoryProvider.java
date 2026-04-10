@@ -2,7 +2,6 @@ package mezz.jei.gui.overlay;
 
 import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
-import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -51,7 +50,6 @@ public class IngredientGridHistoryProvider {
         return enabled;
     }
 
-    private int historySize;
     private int columns;
     private final IngredientListBatchRenderer guiHistoryIngredientSlots;
     @SuppressWarnings("rawtypes")
@@ -88,8 +86,8 @@ public class IngredientGridHistoryProvider {
             return;
         }
 
-        Object normalized = normalizeIngredient(Objects.requireNonNull(ingredientRegistry), value);
-        IIngredientHelper<Object> helper = ingredientRegistry.getIngredientHelper(normalized);
+        Object normalized = normalizeIngredient(value);
+        IIngredientHelper<Object> helper = Objects.requireNonNull(ingredientRegistry).getIngredientHelper(normalized);
 
         IIngredientListElement<?> ingredient = IngredientListElement.create(
                 normalized,
@@ -100,9 +98,6 @@ public class IngredientGridHistoryProvider {
 
         historyIngredientElements.removeIf(element -> areIngredientsEqual(element.getIngredient(), normalized, HISTORY_MATCH_NBT));
         historyIngredientElements.add(0, ingredient);
-        if (historyIngredientElements.size() > historySize) {
-            historyIngredientElements.remove(historyIngredientElements.size() - 1);
-        }
 
         while (historyIngredientElements.size() > USE_ROWS * Config.largestNumColumns) {
             historyIngredientElements.remove(historyIngredientElements.size() - 1);
@@ -130,14 +125,6 @@ public class IngredientGridHistoryProvider {
         this.columns = columns;
     }
 
-    void updateHistorySize(int columns) {
-        if (!enabled) {
-            return;
-        }
-
-        historySize = columns * USE_ROWS;
-    }
-
     void clearHistorySlots() {
         if (!enabled) {
             return;
@@ -159,7 +146,6 @@ public class IngredientGridHistoryProvider {
         }
 
         this.columns = columns;
-        this.historySize = columns * USE_ROWS;
 
         if (rows >= MIN_ROWS) {
             rows = rows - USE_ROWS;
@@ -284,8 +270,8 @@ public class IngredientGridHistoryProvider {
         return Internal.getHelpers().getIngredientBlacklist().isIngredientBlacklisted(ingredient);
     }
 
-    private static <T> T normalizeIngredient(IIngredientRegistry ingredientRegistry, T ingredient) {
-        IIngredientHelper<T> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
+    private static <T> T normalizeIngredient(T ingredient) {
+        IIngredientHelper<T> ingredientHelper = Objects.requireNonNull(ingredientRegistry).getIngredientHelper(ingredient);
         T copy = LegacyUtil.getIngredientCopy(ingredient, ingredientHelper);
         if (copy instanceof ItemStack) {
             ((ItemStack) copy).setCount(1);

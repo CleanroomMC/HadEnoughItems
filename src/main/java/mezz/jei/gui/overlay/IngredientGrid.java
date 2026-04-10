@@ -85,7 +85,6 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 
 		if (historyProvider.isEnabled()) {
 			historyProvider.updateColumns(columns);
-			historyProvider.updateHistorySize(columns);
 			historyProvider.clearHistorySlots();
 		}
 
