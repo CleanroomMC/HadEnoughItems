@@ -2,7 +2,9 @@ package mezz.jei.plugins.jei.info;
 
 import javax.annotation.Nullable;
 
-import mezz.jei.api.gui.*;
+import mezz.jei.api.gui.IDrawable;
+import mezz.jei.api.gui.IGuiIngredientGroup;
+import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IIngredientType;
