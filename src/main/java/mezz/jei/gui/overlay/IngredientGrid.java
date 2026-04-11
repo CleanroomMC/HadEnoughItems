@@ -47,8 +47,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 
 	private Rectangle area = new Rectangle();
 	protected final IngredientListBatchRenderer guiIngredientSlots;
-
-	private final IngredientGridHistoryProvider historyProvider;
+	protected final IngredientGridHistoryProvider historyProvider;
 
 	public IngredientGrid(IngredientListBatchRenderer guiIngredientSlots, GridAlignment alignment, boolean enableHistory) {
 		this.alignment = alignment;

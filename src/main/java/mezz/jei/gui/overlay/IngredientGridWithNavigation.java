@@ -40,7 +40,7 @@ public class IngredientGridWithNavigation implements IShowsRecipeFocuses, IMouse
 	private Rectangle area = new Rectangle();
 
 	public IngredientGridWithNavigation(IIngredientGridSource ingredientSource, GuiScreenHelper guiScreenHelper, GridAlignment alignment) {
-		this.ingredientGrid = new IngredientGrid(new IngredientListBatchRenderer(), alignment, true);
+		this.ingredientGrid = new IngredientGrid(new IngredientListBatchRenderer(), alignment, Config.enableHistoryPanel() && !Config.isHistoryPanelOnLeft());
 		this.ingredientSource = ingredientSource;
 		this.guiScreenHelper = guiScreenHelper;
 		this.pageDelegate = new IngredientGridPaged();

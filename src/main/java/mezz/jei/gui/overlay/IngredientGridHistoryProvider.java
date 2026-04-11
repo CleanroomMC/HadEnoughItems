@@ -117,7 +117,7 @@ public class IngredientGridHistoryProvider {
 
     // internal methods
 
-    void updateColumns(int columns) {
+    public void updateColumns(int columns) {
         if (!enabled) {
             return;
         }
@@ -125,7 +125,7 @@ public class IngredientGridHistoryProvider {
         this.columns = columns;
     }
 
-    void clearHistorySlots() {
+    public void clearHistorySlots() {
         if (!enabled) {
             return;
         }
@@ -133,7 +133,7 @@ public class IngredientGridHistoryProvider {
         guiHistoryIngredientSlots.clear();
     }
 
-    boolean updateBoundsExtra(
+    public boolean updateBoundsExtra(
             int columns,
             int rows,
             int y,
@@ -191,7 +191,7 @@ public class IngredientGridHistoryProvider {
         return true;
     }
 
-    void drawExtra(Minecraft minecraft) {
+    public void drawExtra(Minecraft minecraft) {
         if (!enabled) {
             return;
         }
@@ -211,7 +211,7 @@ public class IngredientGridHistoryProvider {
     }
 
     @SuppressWarnings("rawtypes")
-    void drawTooltipsExtra(Minecraft minecraft, int mouseX, int mouseY) {
+    public void drawTooltipsExtra(Minecraft minecraft, int mouseX, int mouseY) {
         if (!enabled) {
             return;
         }
@@ -226,7 +226,7 @@ public class IngredientGridHistoryProvider {
     }
 
     @Nullable
-    IClickedIngredient<?> getIngredientUnderMouseExtra(
+    public IClickedIngredient<?> getIngredientUnderMouseExtra(
             @Nullable IClickedIngredient<?> result,
             int mouseX,
             int mouseY) {

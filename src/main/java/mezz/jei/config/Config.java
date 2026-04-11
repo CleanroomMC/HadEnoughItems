@@ -385,6 +385,14 @@ public final class Config {
         return values.hideBottomLeftCornerBookmarkButton;
     }
 
+	public static boolean enableHistoryPanel() {
+		return values.enableHistoryPanel;
+	}
+
+	public static boolean isHistoryPanelOnLeft() {
+		return values.isHistoryPanelOnLeft;
+	}
+
     public static int getRecipeBookmarkGroupColor() {
 		return values.recipeBookmarkGroupColor;
 	}
@@ -583,6 +591,10 @@ public final class Config {
 		values.hideBottomRightCornerConfigButton = config.getBoolean(CATEGORY_MISC, "hideBottomRightCornerConfigButton", defaultValues.hideBottomRightCornerConfigButton);
 
         values.hideBottomLeftCornerBookmarkButton = config.getBoolean(CATEGORY_MISC, "hideBottomLeftCornerBookmarkButton", defaultValues.hideBottomLeftCornerBookmarkButton);
+
+		values.enableHistoryPanel = config.getBoolean(CATEGORY_MISC, "enableHistoryPanel", defaultValues.enableHistoryPanel);
+
+		values.isHistoryPanelOnLeft = config.getBoolean(CATEGORY_MISC, "isHistoryPanelOnLeft", defaultValues.isHistoryPanelOnLeft);
 
 		{
 			boolean prev = values.collapsibleGroupsEnabled;

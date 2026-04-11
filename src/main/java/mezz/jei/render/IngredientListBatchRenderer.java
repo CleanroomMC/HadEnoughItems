@@ -404,8 +404,11 @@ public class IngredientListBatchRenderer {
         return collapsedStackIndexed;
     }
 
+    static int counter = 0;
+
     public void render(Minecraft minecraft) {
         if (allowBuffering && !Config.isEditModeEnabled() && Config.bufferIngredientRenders() && OpenGlHelper.isFramebufferEnabled()) {
+            counter++;
             if (framebuffer == null) {
                 framebuffer = new Framebuffer(minecraft.displayWidth, minecraft.displayHeight, true);
                 framebuffer.framebufferColor[0] = 0.0F;
@@ -413,6 +416,7 @@ public class IngredientListBatchRenderer {
                 framebuffer.framebufferColor[2] = 0.0F;
             }
             if (refreshBuffer) {
+                Log.get().info("debug: " + counter);
                 framebuffer.createBindFramebuffer(minecraft.displayWidth, minecraft.displayHeight);
                 framebuffer.framebufferClear();
                 framebuffer.bindFramebuffer(false);
