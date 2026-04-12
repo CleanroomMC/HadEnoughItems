@@ -383,28 +383,25 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	}
 
 	/**
-	 * Augments a filtered ingredient list so that every group relevant to the current search
-	 * is represented by its full member set. A group is relevant if:
-	 *   1. its display name contains the filter text, OR
-	 *   2. at least one of its members already appears in the base results.
-	 *
-	 * This ensures that searching "diamond" surfaces the complete "Helmets" group (not just
-	 * the diamond helmet alone) so that {@link #collapse} can produce a proper multi-item
-	 * group token rather than a degenerate 1-item one.
+	 * Augments a filtered ingredient list with any groups whose display name matches the
+	 * search text, so that typing "wool" surfaces the entire Wool group even though none of
+	 * the individual wool variants mention "wool" in their item name.
+	 * <p>
+	 * We deliberately only expand on group-name match, not on member match. Expanding on
+	 * member match would cause e.g. searching "orange" to pull in the full 16-item Wool
+	 * group when the user only wants the orange wool item.
 	 */
 	private List<IIngredientListElement<?>> withGroupNameMatches(List<IIngredientListElement<?>> baseList, String filterText) {
 		Multimap<CollapsibleGroup, IIngredientListElement<?>> groupToElements = getGroupToElements();
-		Multimap<IIngredientListElement<?>, CollapsibleGroup> membership = getGroupMembership();
 
-		// Collect every group that is relevant to this search
+		// Collect groups whose display name matches the search text.
+		// We intentionally do NOT expand groups just because a member matched — that produced
+		// "full group" results when the user typed e.g. "orange", expecting individual items.
 		Set<CollapsibleGroup> groupsToExpand = new ObjectOpenHashSet<>();
 		for (CollapsibleGroup group : Internal.getCollapsedGroupRegistry().getAllGroups().values()) {
 			if (Translator.toLowercaseWithLocale(group.getIngredient().getDisplayName()).contains(filterText)) {
 				groupsToExpand.add(group);
 			}
-		}
-		for (IIngredientListElement<?> element : baseList) {
-			groupsToExpand.addAll(membership.get(element));
 		}
 
 		if (groupsToExpand.isEmpty()) {

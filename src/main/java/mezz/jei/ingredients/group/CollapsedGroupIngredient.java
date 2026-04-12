@@ -122,8 +122,18 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 		filterElements.clear();
 	}
 
+	/**
+	 * Returns the ingredient list that should be displayed in the current context.
+	 * When a search filter is active ({@code filterElements} is non-empty), returns
+	 * only the matched subset so the count badge and icons reflect the search results.
+	 * Falls back to the full stable list when no filter is applied (e.g. bookmarks).
+	 */
+	public List<IIngredientListElement<?>> getDisplayIngredients() {
+		return filterElements.isEmpty() ? elements : filterElements;
+	}
+
 	public int size() {
-		return elements.size();
+		return getDisplayIngredients().size();
 	}
 
 	public boolean isEmpty() {
