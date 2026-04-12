@@ -7,8 +7,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 import mezz.jei.Internal;
 import mezz.jei.ingredients.group.CollapsibleGroup;
 import mezz.jei.ingredients.group.CollapsedGroupIngredient;
@@ -65,9 +66,10 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	@Nullable private Multimap<IIngredientListElement<?>, CollapsibleGroup> groupMembershipCache = null;
 	/**
 	 * Reverse of {@link #groupMembershipCache}: maps each {@link CollapsibleGroup} to the
-	 * visible elements that belong to it. Built alongside {@code groupMembershipCache} via
-	 * {@link Multimaps#invertFrom} at no extra cost; used by {@link #withGroupNameMatches}
-	 * to look up group members directly instead of scanning all visible ingredients.
+	 * visible elements that belong to it. Built directly during the sorted
+	 * {@code allVisibleIngredientsCache} traversal to preserve sort order; used by
+	 * {@link #withGroupNameMatches} to look up group members directly instead of scanning
+	 * all visible ingredients.
 	 */
 	@Nullable private Multimap<CollapsibleGroup, IIngredientListElement<?>> groupToElementsCache = null;
 
@@ -162,20 +164,29 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 					}
 				}
 			}
+			// Build groupToElementsCache directly during the sorted traversal so its
+			// per-group value order matches allVisibleIngredientsCache's sort order.
+			// Multimaps.invertFrom over a HashMultimap would lose that order because
+			// HashMultimap.entries() iterates keys in hash order, not insertion order.
+			SetMultimap<CollapsibleGroup, IIngredientListElement<?>> gtoc = LinkedHashMultimap.create();
 			for (IIngredientListElement element : allVisibleIngredientsCache) {
 				String uid = element.getIngredientHelper().getUniqueId(element.getIngredient());
 				Collection<CollapsibleGroup> uidGroups = uids.get(uid);
 				if (!uidGroups.isEmpty()) {
 					groupMembershipCache.putAll(element, uidGroups);
+					for (CollapsibleGroup group : uidGroups) {
+						gtoc.put(group, element);
+					}
 				}
 				for (Map.Entry<String, CollapsibleGroup> entry : wildcardEntries) {
 					String prefix = entry.getKey();
 					if (uid.equals(prefix) || uid.startsWith(prefix + ":")) {
 						groupMembershipCache.put(element, entry.getValue());
+						gtoc.put(entry.getValue(), element);
 					}
 				}
 			}
-			groupToElementsCache = Multimaps.invertFrom(groupMembershipCache, HashMultimap.create());
+			groupToElementsCache = gtoc;
 
 			for (CollapsibleGroup group : groups.values()) {
 				Collection<IIngredientListElement<?>> groupElements = groupToElementsCache.get(group);
