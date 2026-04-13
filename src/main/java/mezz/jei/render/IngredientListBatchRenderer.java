@@ -169,6 +169,10 @@ public class IngredientListBatchRenderer {
                         displayItems.add(element);
                         itemToCollapsed.put(element, collapsed);
                     }
+                } else if (collapsed.size() == 1) {
+                    // Single-item group: render as a plain ingredient slot without collapsed visuals.
+                    // Not tracked in itemToCollapsed so clicks/hover treat it as a normal item.
+                    displayItems.add(collapsed.getDisplayIngredients().get(0));
                 } else {
                     // Collapsed: add the CollapsedStack itself as a single display item
                     displayItems.add(collapsed);
