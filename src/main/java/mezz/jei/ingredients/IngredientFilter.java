@@ -474,7 +474,23 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			}
 		}
 
-		result.removeIf(obj -> obj instanceof CollapsedGroupIngredient && ((CollapsedGroupIngredient) obj).isFilterEmpty());
+		// Remove empty groups and deduplicate size-1 groups that share the same single element.
+		// The set tracks the first size-1 group element seen; later duplicates are dropped.
+		Set<IIngredientListElement<?>> seenSingles = new ObjectOpenHashSet<>();
+		result.removeIf(obj -> {
+			if (!(obj instanceof CollapsedGroupIngredient)) {
+				return false;
+			}
+			CollapsedGroupIngredient cg = (CollapsedGroupIngredient) obj;
+			if (cg.isFilterEmpty()) {
+				return true;
+			}
+			List<IIngredientListElement<?>> fi = cg.getFilterIngredients();
+			if (fi.size() == 1) {
+				return !seenSingles.add(fi.get(0));
+			}
+			return false;
+		});
 		return result;
 	}
 
