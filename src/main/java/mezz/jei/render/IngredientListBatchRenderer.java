@@ -165,7 +165,7 @@ public class IngredientListBatchRenderer {
                 CollapsedGroupIngredient collapsed = (CollapsedGroupIngredient) obj;
                 if (collapsed.isExpanded()) {
                     // Expanded: add each ingredient individually, track which belong to this group
-                    for (IIngredientListElement<?> element : collapsed.getIngredients()) {
+                    for (IIngredientListElement<?> element : collapsed.getFilterIngredients()) {
                         displayItems.add(element);
                         itemToCollapsed.put(element, collapsed);
                     }
@@ -373,13 +373,13 @@ public class IngredientListBatchRenderer {
                 }
 
                 // Inner concave corner pixels: both cardinal neighbors are part of the group so neither draws.
-                if (hasTop && hasLeft  && !keys.contains((r.x - INGREDIENT_WIDTH) + "," + (r.y - INGREDIENT_HEIGHT))) {
+                if (hasTop && hasLeft && !keys.contains((r.x - INGREDIENT_WIDTH) + "," + (r.y - INGREDIENT_HEIGHT))) {
                     Gui.drawRect(r.x, r.y, r.x + 1, r.y + 1, borderColor); // top-left inner corner
                 }
                 if (hasTop && hasRight && !keys.contains((r.x + INGREDIENT_WIDTH) + "," + (r.y - INGREDIENT_HEIGHT))) {
                     Gui.drawRect(r.x + r.width - 1, r.y, r.x + r.width, r.y + 1, borderColor); // top-right inner corner
                 }
-                if (hasBottom && hasLeft  && !keys.contains((r.x - INGREDIENT_WIDTH) + "," + (r.y + INGREDIENT_HEIGHT))) {
+                if (hasBottom && hasLeft && !keys.contains((r.x - INGREDIENT_WIDTH) + "," + (r.y + INGREDIENT_HEIGHT))) {
                     Gui.drawRect(r.x, r.y + r.height - 1, r.x + 1, r.y + r.height, borderColor); // bottom-left inner corner
                 }
                 if (hasBottom && hasRight && !keys.contains((r.x + INGREDIENT_WIDTH) + "," + (r.y + INGREDIENT_HEIGHT))) {

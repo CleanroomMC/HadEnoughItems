@@ -47,11 +47,17 @@ public class CollapsedGroupIngredientHelper implements IIngredientHelper<Collaps
 
 	@Override
 	public String getModId(CollapsedGroupIngredient ingredient) {
+		if (ingredient.isEmpty()) {
+			return "jei";
+		}
 		return getFirstIngredientHelper(ingredient).getModId(getFirstIngredient(ingredient));
 	}
 
 	@Override
 	public String getDisplayModId(CollapsedGroupIngredient ingredient) {
+		if (ingredient.isEmpty()) {
+			return "jei";
+		}
 		return getFirstIngredientHelper(ingredient).getDisplayModId(getFirstIngredient(ingredient));
 	}
 
