@@ -164,10 +164,16 @@ public class IngredientListBatchRenderer {
             if (obj instanceof CollapsedGroupIngredient) {
                 CollapsedGroupIngredient collapsed = (CollapsedGroupIngredient) obj;
                 if (collapsed.isExpanded()) {
-                    // Expanded: add each ingredient individually, track which belong to this group
-                    for (IIngredientListElement<?> element : collapsed.getFilterIngredients()) {
-                        displayItems.add(element);
-                        itemToCollapsed.put(element, collapsed);
+                    List<IIngredientListElement<?>> filterIngredients = collapsed.getFilterIngredients();
+                    if (filterIngredients.size() == 1) {
+                        // Expanded but filtered to a single item: treat as a plain slot, no group border.
+                        displayItems.add(filterIngredients.get(0));
+                    } else {
+                        // Expanded: add each ingredient individually, track which belong to this group
+                        for (IIngredientListElement<?> element : filterIngredients) {
+                            displayItems.add(element);
+                            itemToCollapsed.put(element, collapsed);
+                        }
                     }
                 } else if (collapsed.size() == 1) {
                     // Single-item group: render as a plain ingredient slot without collapsed visuals.
