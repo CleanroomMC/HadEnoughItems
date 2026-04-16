@@ -136,6 +136,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 	private static void renderElementAt(Minecraft minecraft, IIngredientListElement<?> element, int x, int y, float scale) {
 		Object ingredient = element.getIngredient();
 		try {
+			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x, y, 0);
 			GlStateManager.scale(scale, scale, scale);
