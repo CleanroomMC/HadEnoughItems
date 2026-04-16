@@ -3,6 +3,7 @@ package mezz.jei.gui.recipes;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import mezz.jei.api.IRecipesGui;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
 
@@ -37,6 +38,14 @@ public interface IRecipeGuiLogic {
 	boolean setCategoryFocus();
 
 	boolean setCategoryFocus(List<String> recipeCategoryUids);
+
+	String getSearchFilter();
+
+	boolean setSearchFilter(String searchFilter);
+
+	IRecipesGui.RecipeSearchMode getSearchMode();
+
+	boolean setSearchMode(IRecipesGui.RecipeSearchMode searchMode);
 
 	IRecipeCategory getSelectedRecipeCategory();
 

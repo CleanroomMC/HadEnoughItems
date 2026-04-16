@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import mezz.jei.api.IRecipesGui;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.gui.Focus;
@@ -13,6 +14,8 @@ import mezz.jei.util.ErrorUtil;
 public class IngredientLookupState {
 	@Nullable
 	private final IFocus<?> focus;
+	private String searchFilter;
+	private IRecipesGui.RecipeSearchMode searchMode;
 	private final ImmutableList<IRecipeCategory> recipeCategories;
 
 	private int recipeCategoryIndex;
@@ -27,6 +30,8 @@ public class IngredientLookupState {
 			focus = Focus.check(focus);
 		}
 		this.focus = focus;
+		this.searchFilter = "";
+		this.searchMode = IRecipesGui.RecipeSearchMode.NONE;
 		this.recipeCategories = ImmutableList.copyOf(recipeCategories);
 		this.setRecipeCategoryIndex(recipeCategoryIndex);
 		this.setRecipeIndex(recipeIndex);
@@ -63,5 +68,21 @@ public class IngredientLookupState {
 
 	public void setRecipesPerPage(int recipesPerPage) {
 		this.recipesPerPage = recipesPerPage;
+	}
+
+	public String getSearchFilter() {
+		return searchFilter;
+	}
+
+	public void setSearchFilter(String searchFilter) {
+		this.searchFilter = searchFilter;
+	}
+
+	public IRecipesGui.RecipeSearchMode getSearchMode() {
+		return searchMode;
+	}
+
+	public void setSearchMode(IRecipesGui.RecipeSearchMode searchMode) {
+		this.searchMode = searchMode;
 	}
 }
