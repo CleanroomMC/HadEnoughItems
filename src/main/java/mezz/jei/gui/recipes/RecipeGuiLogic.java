@@ -175,11 +175,11 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 
 	@Override
 	public boolean setSearchFilter(String searchFilter) {
-		state.setSearchFilter(searchFilter);
+		boolean wasChanged = state.setSearchFilter(searchFilter);
 		updateRecipes();
 		clampRecipeIndex();
 		stateListener.onStateChange();
-		return true;
+		return wasChanged;
 	}
 
 	@Override
@@ -189,11 +189,11 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 
 	@Override
 	public boolean setSearchMode(IRecipesGui.RecipeSearchMode searchMode) {
-		state.setSearchMode(searchMode);
+		boolean wasChanged = state.setSearchMode(searchMode);
 		updateRecipes();
 		clampRecipeIndex();
 		stateListener.onStateChange();
-		return true;
+		return wasChanged;
 	}
 
 	@Override

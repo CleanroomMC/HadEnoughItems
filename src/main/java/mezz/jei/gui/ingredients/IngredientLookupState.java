@@ -74,15 +74,19 @@ public class IngredientLookupState {
 		return searchFilter;
 	}
 
-	public void setSearchFilter(String searchFilter) {
+	public boolean setSearchFilter(String searchFilter) {
+		String old = this.searchFilter;
 		this.searchFilter = searchFilter;
+		return !old.equals(searchFilter);
 	}
 
 	public IRecipesGui.RecipeSearchMode getSearchMode() {
 		return searchMode;
 	}
 
-	public void setSearchMode(IRecipesGui.RecipeSearchMode searchMode) {
+	public boolean setSearchMode(IRecipesGui.RecipeSearchMode searchMode) {
+		IRecipesGui.RecipeSearchMode old = this.searchMode;
 		this.searchMode = searchMode;
+		return old != searchMode;
 	}
 }

@@ -390,7 +390,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 	@Override
 	protected void keyTyped(char typedChar, int keyCode) {
 		if (hasKeyboardFocus() && searchField.textboxKeyTyped(typedChar, keyCode)) {
-			this.logic.setSearchFilter(searchField.getText());
+			setSearchFilter(searchField.getText());
 			keyHandled = true;
 			return;
 		}
@@ -479,8 +479,8 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 	}
 
 	@Override
-	public void setSearchFilter(String searchFilter) {
-		logic.setSearchFilter(searchFilter);
+	public boolean setSearchFilter(String searchFilter) {
+		return logic.setSearchFilter(searchFilter);
 	}
 
 	public RecipeSearchMode getSearchMode() {
@@ -488,8 +488,8 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 	}
 
 	@Override
-	public void setSearchMode(RecipeSearchMode searchMode) {
-		logic.setSearchMode(searchMode);
+	public boolean setSearchMode(RecipeSearchMode searchMode) {
+		return logic.setSearchMode(searchMode);
 	}
 
 	@Nullable
@@ -520,7 +520,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			RecipeSearchMode currentMode = logic.getSearchMode();
 			RecipeSearchMode[] values  = RecipeSearchMode.values();
 			int nextOrdinal = currentMode.ordinal() + (GuiScreen.isShiftKeyDown() ? -1 : 1);
-			logic.setSearchMode(values[(values.length + nextOrdinal) % values.length]);
+			setSearchMode(values[(values.length + nextOrdinal) % values.length]);
 			setKeyboardFocus(isSearchEnabled());
 		} else if (guibutton.id >= RecipeLayout.recipeTransferButtonIndex && mc != null) {
 			int recipeIndex = guibutton.id - RecipeLayout.recipeTransferButtonIndex;

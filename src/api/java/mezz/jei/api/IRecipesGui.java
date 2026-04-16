@@ -44,9 +44,10 @@ public interface IRecipesGui {
 	/**
 	 * Set the text of the search filter
 	 *
+	 * @return if the search filter was changed as a result
 	 * @since HEI 999
 	 */
-	void setSearchFilter(String searchFilter);
+	boolean setSearchFilter(String searchFilter);
 
 	/**
 	 * @return the search mode being used
@@ -56,9 +57,11 @@ public interface IRecipesGui {
 
 	/**
 	 * Set the search mode being used
+	 *
+	 * @return if the search mode was changed as a result
 	 * @since HEI 999
 	 */
-	void setSearchMode(RecipeSearchMode searchMode);
+	boolean setSearchMode(RecipeSearchMode searchMode);
 
 	/**
 	 * What ingredients are being searched by the search filter.
