@@ -32,6 +32,7 @@ public class Textures {
 	public final TextureInfo infoIcon;
 	public final TextureInfo catalystTab;
 	public final TextureInfo flameIcon;
+	public final TextureInfo searchIcon;
 
 	public Textures(JeiTextureMap textureMap) {
 		this.textureMap = textureMap;
@@ -72,6 +73,7 @@ public class Textures {
 		this.bookmarkButtonEnabledIcon = registerGuiSprite("icons/bookmark_button_enabled", 16, 16);
 		this.infoIcon = registerGuiSprite("icons/info", 16, 16);
 		this.flameIcon = registerGuiSprite("icons/flame", 14, 14);
+		this.searchIcon = registerGuiSprite("icons/search", 8, 8);
 	}
 
 	private TextureInfo registerGuiSprite(String name, int width, int height) {
