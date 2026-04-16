@@ -280,6 +280,7 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 
 		int recipeWidgetIndex = 0;
 		int recipePosY = posY;
+		boolean hasError = false;
 		final int firstRecipeIndex = state.getRecipeIndex() - (state.getRecipeIndex() % state.getRecipesPerPage());
 		for (int recipeIndex = firstRecipeIndex; recipeIndex < recipes.size() && recipeLayouts.size() < state.getRecipesPerPage(); recipeIndex++) {
 			IRecipeWrapper recipeWrapper = recipes.get(recipeIndex);
@@ -289,10 +290,17 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 				recipes.remove(recipeIndex);
 				recipeRegistry.hideRecipe(recipeWrapper, recipeCategory.getUid());
 				recipeIndex--;
+				hasError = true;
 			} else {
 				recipeLayouts.add(recipeLayout);
 				recipePosY += spacingY;
 			}
+		}
+
+		// If we have had an error, the page can appear without recipes and labelled as i.e. "36/35".
+		// To avoid that situation, we reduce the page to the max valid page.
+		if (hasError) {
+			clampRecipeIndex();
 		}
 
 		return recipeLayouts;
