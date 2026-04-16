@@ -193,8 +193,8 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		// Page navigation
 		if (totalPages > 1) {
 			int navY = layoutContentTop + cardsPerCol * (CARD_HEIGHT + CARD_PADDING) + 4;
-			this.buttonList.add(new GuiButton(BTN_PREV_PAGE, layoutContentLeft, navY, 40, 20, "<"));
-			this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, layoutContentLeft + layoutContentWidth - 40, navY, 40, 20, ">"));
+			this.buttonList.add(new GuiButton(BTN_PREV_PAGE, layoutContentLeft, navY, 20, 20, "<"));
+			this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, layoutContentLeft + layoutContentWidth - 20, navY, 20, 20, ">"));
 		}
 	}
 
@@ -208,7 +208,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			String newId = "custom:" + UUID.randomUUID().toString().substring(0, 8);
 			CustomGroupsConfig customGroupsConfig = Config.getCustomGroupsConfig();
 			if (customGroupsConfig != null) {
-				CustomGroupsConfig.CustomGroup newGroup = new CustomGroupsConfig.CustomGroup(newId, "New Group", new ArrayList<>());
+				CustomGroupsConfig.CustomGroup newGroup = new CustomGroupsConfig.CustomGroup(newId, "New Group", CollapsedGroupIngredient.BACKGROUND_COLOR_SMOKE, CollapsedGroupIngredient.BORDER_COLOR_SMOKE, new ArrayList<>());
 				this.mc.displayGuiScreen(new GuiCustomGroupEditor(this, newGroup));
 			}
 			return;

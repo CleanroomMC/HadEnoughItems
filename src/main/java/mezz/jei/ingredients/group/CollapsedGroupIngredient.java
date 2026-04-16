@@ -28,6 +28,9 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 	// Registered as IIngredientType for addon compatibility — addons expect every grid item to have a type
 	public static final IIngredientType<CollapsedGroupIngredient> TYPE = () -> CollapsedGroupIngredient.class;
 
+	public static final int BACKGROUND_COLOR_SMOKE = 0x33555555; // subtle smoke background
+	public static final int BORDER_COLOR_SMOKE = 0xCC888888; // medium smoke border
+
 	public enum GroupSource {
 		DEFAULT,
 		MOD,
@@ -40,13 +43,15 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 	private final GroupSource source;
 	private final List<IIngredientListElement<?>> filterElements;
 	private final Set<String> uids;
+	private final int backgroundColor;
+	private final int borderColor;
 
 	private List<IIngredientListElement<?>> elements;
 	/** Matches against the raw ingredient object (any type). */
 	private boolean expanded;
 	private boolean visible = true;
 
-	public CollapsedGroupIngredient(String id, String langKey, Set<String> uids, GroupSource source) {
+	public CollapsedGroupIngredient(String id, String langKey, int backgroundColor, int borderColor, Set<String> uids, GroupSource source) {
 		this.id = id;
 		this.langKey = langKey;
 		this.uids = uids;
@@ -54,6 +59,8 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 		this.expanded = false;
 		this.elements = new ArrayList<>(uids.size());
 		this.filterElements = new ArrayList<>(uids.size());
+		this.backgroundColor = backgroundColor;
+		this.borderColor = borderColor;
 	}
 
 	public String getId() {
@@ -66,6 +73,14 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 
 	public GroupSource getSource() {
 		return source;
+	}
+
+	public int getBackgroundColor() {
+		return backgroundColor;
+	}
+
+	public int getBorderColor() {
+		return borderColor;
 	}
 
 	public boolean isExpanded() {

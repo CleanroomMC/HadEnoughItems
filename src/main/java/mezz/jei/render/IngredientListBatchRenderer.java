@@ -338,13 +338,13 @@ public class IngredientListBatchRenderer {
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        int bgColor = 0x33555555; // subtle smoke background
-        int borderColor = 0xCC888888; // medium smoke border
-        for (List<Rectangle> slots : expandedGroupSlots.values()) {
+        for (Map.Entry<CollapsedGroupIngredient, List<Rectangle>> slots : expandedGroupSlots.entrySet()) {
+            int bgColor = slots.getKey().getBackgroundColor();
+            int borderColor = slots.getKey().getBorderColor();
             // Build a fast lookup set keyed by "x,y" to detect adjacent group slots.
             Set<String> keys = new HashSet<>();
-            for (Rectangle r : slots) keys.add(r.x + "," + r.y);
-            for (Rectangle r : slots) {
+            for (Rectangle r : slots.getValue()) keys.add(r.x + "," + r.y);
+            for (Rectangle r : slots.getValue()) {
                 // Background fill for each slot in group
                 Gui.drawRect(r.x, r.y, r.x + r.width, r.y + r.height, bgColor);
 
