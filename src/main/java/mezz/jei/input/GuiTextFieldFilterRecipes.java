@@ -97,8 +97,7 @@ public class GuiTextFieldFilterRecipes extends GuiTextField {
 	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
 		if (mouseButton == 1) {
 			setText("");
-			recipesGui.setSearchFilter("");
-			return true;
+			return recipesGui.setSearchFilter("");
 		} else {
 			super.mouseClicked(mouseX, mouseY, mouseButton);
 		}
