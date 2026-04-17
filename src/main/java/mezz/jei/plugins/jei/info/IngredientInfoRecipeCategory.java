@@ -3,14 +3,16 @@ package mezz.jei.plugins.jei.info;
 import javax.annotation.Nullable;
 
 import mezz.jei.api.gui.IDrawable;
-import mezz.jei.api.gui.IGuiFluidStackGroup;
-import mezz.jei.api.gui.IGuiItemStackGroup;
+import mezz.jei.api.gui.IGuiIngredientGroup;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.ingredients.VanillaTypes;
+import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.config.Constants;
 import mezz.jei.gui.GuiHelper;
+import mezz.jei.plugins.jei.JEIInternalPlugin;
 import mezz.jei.util.Translator;
 
 public class IngredientInfoRecipeCategory implements IRecipeCategory<IngredientInfoRecipe> {
@@ -56,15 +58,14 @@ public class IngredientInfoRecipeCategory implements IRecipeCategory<IngredientI
 
 	@Override
 	public void setRecipe(IRecipeLayout recipeLayout, IngredientInfoRecipe recipeWrapper, IIngredients ingredients) {
-		IGuiItemStackGroup guiItemStacks = recipeLayout.getItemStacks();
-
 		int xPos = (recipeWidth - 18) / 2;
-		guiItemStacks.init(0, true, xPos, 0);
-		guiItemStacks.setBackground(0, slotBackground);
-		guiItemStacks.set(ingredients);
-
-		IGuiFluidStackGroup guiFluidStackGroup = recipeLayout.getFluidStacks();
-		guiFluidStackGroup.init(0, true, xPos + 1, 1);
-		guiFluidStackGroup.set(ingredients);
+		for (IIngredientType<?> ingredientType : JEIInternalPlugin.ingredientRegistry.getRegisteredIngredientTypes()) {
+			if (ingredients.getInputs(ingredientType).isEmpty() || ingredients.getOutputs(ingredientType).isEmpty()) continue;
+			IGuiIngredientGroup<?> group = recipeLayout.getIngredientsGroup(ingredientType);
+			group.init(0, true, xPos + 1, 1);
+			// only render the background for items
+			if (ingredientType == VanillaTypes.ITEM) group.setBackground(0, slotBackground);
+			group.set(ingredients);
+		}
 	}
 }
