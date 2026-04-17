@@ -101,6 +101,11 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
         if (expandKeyDown) {
             CollapsedGroupRenderer collapsedHovered = renderer.getHoveredCollapsed(mouseX, mouseY);
             if (collapsedHovered != null) {
+                // If the search has filtered this group down to a single item, don't expand —
+                // let the click fall through so InputHandler treats it as clicking the item directly.
+                if (collapsedHovered.getCollapsedStack().size() == 1) {
+                    return false;
+                }
                 collapsedHovered.getCollapsedStack().toggleExpanded();
                 Internal.getIngredientFilter().notifyCollapsedStateChanged();
                 return true;

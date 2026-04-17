@@ -8,6 +8,7 @@ import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkList;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.config.Config;
 import mezz.jei.config.IngredientBlacklistType;
 import mezz.jei.config.KeyBindings;
@@ -382,6 +383,11 @@ public class InputHandler {
                 return false;
             }
             return layout.addToBookmarks();
+        }
+
+        // Don't allow bookmarking collapsed groups directly — only individual items.
+        if (value instanceof CollapsedGroupIngredient) {
+            return false;
         }
 
         return bookmarkList.add(new BookmarkItem<>(value));

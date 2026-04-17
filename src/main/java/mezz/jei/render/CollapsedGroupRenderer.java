@@ -75,7 +75,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 	 * Count badge is drawn at 0.75× scale in orange in the bottom-right corner.
 	 */
 	private static void renderAt(Minecraft minecraft, CollapsedGroupIngredient ingredient, int x, int y) {
-		List<IIngredientListElement<?>> ingredients = ingredient.getIngredients();
+		List<IIngredientListElement<?>> ingredients = ingredient.getDisplayIngredients();
 		if (ingredients.isEmpty()) {
 			return;
 		}
@@ -204,7 +204,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 	}
 
 	public void drawTooltip(Minecraft minecraft, int mouseX, int mouseY) {
-		List<IIngredientListElement<?>> ingredients = collapsedStack.getIngredients();
+		List<IIngredientListElement<?>> ingredients = collapsedStack.getDisplayIngredients();
 		if (ingredients.isEmpty()) return;
 
 		// Single-item group (e.g. search filtered to one result): show the item's native tooltip

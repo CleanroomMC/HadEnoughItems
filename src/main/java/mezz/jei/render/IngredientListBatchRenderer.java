@@ -164,11 +164,21 @@ public class IngredientListBatchRenderer {
             if (obj instanceof CollapsedGroupIngredient) {
                 CollapsedGroupIngredient collapsed = (CollapsedGroupIngredient) obj;
                 if (collapsed.isExpanded()) {
-                    // Expanded: add each ingredient individually, track which belong to this group
-                    for (IIngredientListElement<?> element : collapsed.getFilterIngredients()) {
-                        displayItems.add(element);
-                        itemToCollapsed.put(element, collapsed);
+                    List<IIngredientListElement<?>> filterIngredients = collapsed.getFilterIngredients();
+                    if (filterIngredients.size() == 1) {
+                        // Expanded but filtered to a single item: treat as a plain slot, no group border.
+                        displayItems.add(filterIngredients.get(0));
+                    } else {
+                        // Expanded: add each ingredient individually, track which belong to this group
+                        for (IIngredientListElement<?> element : filterIngredients) {
+                            displayItems.add(element);
+                            itemToCollapsed.put(element, collapsed);
+                        }
                     }
+                } else if (collapsed.size() == 1) {
+                    // Single-item group: render as a plain ingredient slot without collapsed visuals.
+                    // Not tracked in itemToCollapsed so clicks/hover treat it as a normal item.
+                    displayItems.add(collapsed.getDisplayIngredients().get(0));
                 } else {
                     // Collapsed: add the CollapsedStack itself as a single display item
                     displayItems.add(collapsed);
@@ -298,6 +308,13 @@ public class IngredientListBatchRenderer {
         // Check collapsed renderers first
         CollapsedGroupRenderer collapsedHovered = getHoveredCollapsed(mouseX, mouseY);
         if (collapsedHovered != null) {
+            // If the search has filtered this group to a single item, act as if the user
+            // clicked that item directly — no expand step needed.
+            CollapsedGroupIngredient stack = collapsedHovered.getCollapsedStack();
+            if (stack.size() == 1) {
+                IIngredientListElement<?> single = stack.getDisplayIngredients().get(0);
+                return ClickedIngredient.create(single.getIngredient(), collapsedHovered.getArea());
+            }
             return collapsedHovered.getClickedIngredient();
         }
         IngredientRenderer hovered = getHovered(mouseX, mouseY);
