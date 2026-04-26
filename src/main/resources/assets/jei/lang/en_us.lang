@@ -241,3 +241,11 @@ hei.gui.collapsible.editor.clear=Clear
 hei.gui.collapsible.editor.selected=%d selected
 hei.gui.collapsible.confirmDelete=Delete?
 hei.tooltip.missing_ingredients=§cMissing Ingredients:
+
+hei.tooltip.search.title=Search Recipes
+hei.tooltip.search.info=Cycle mode by clicking. Hold §6SHIFT§r to reverse direction.
+hei.tooltip.search.mode.none=Not searching
+hei.tooltip.search.mode.both=Searching both Inputs and Outputs
+hei.tooltip.search.mode.input=Searching only Inputs
+hei.tooltip.search.mode.output=Searching only Outputs
+hei.tooltip.search.note=Recipes may not encode Inputs or Outputs as you may expect!

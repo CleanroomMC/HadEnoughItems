@@ -1,16 +1,20 @@
 package mezz.jei.gui.recipes;
 
 import com.google.common.collect.ImmutableList;
+import mezz.jei.Internal;
 import mezz.jei.api.IRecipeRegistry;
+import mezz.jei.api.IRecipesGui;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
+import mezz.jei.autocrafting.IngredientUtil;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.gui.Focus;
 import mezz.jei.gui.ingredients.IngredientLookupState;
 import mezz.jei.ingredients.IngredientRegistry;
+import mezz.jei.ingredients.Ingredients;
 import mezz.jei.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -165,6 +169,34 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 	}
 
 	@Override
+	public String getSearchFilter() {
+		return state.getSearchFilter();
+	}
+
+	@Override
+	public boolean setSearchFilter(String searchFilter) {
+		if (!state.setSearchFilter(searchFilter)) return false;
+		updateRecipes();
+		clampRecipeIndex();
+		stateListener.onStateChange();
+		return true;
+	}
+
+	@Override
+	public IRecipesGui.RecipeSearchMode getSearchMode() {
+		return this.state.getSearchMode();
+	}
+
+	@Override
+	public boolean setSearchMode(IRecipesGui.RecipeSearchMode searchMode) {
+		if (!state.setSearchMode(searchMode)) return false;
+		updateRecipes();
+		clampRecipeIndex();
+		stateListener.onStateChange();
+		return true;
+	}
+
+	@Override
 	public List<Object> getRecipeCatalysts() {
 		IRecipeCategory category = getSelectedRecipeCategory();
 		return getRecipeCatalysts(category);
@@ -186,13 +218,48 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 	private void updateRecipes() {
 		final IRecipeCategory recipeCategory = getSelectedRecipeCategory();
 		IFocus<?> focus = state.getFocus();
+		List<IRecipeWrapper> recipes;
 		if (focus != null) {
 			//noinspection unchecked
-			this.recipes = recipeRegistry.getRecipeWrappers(recipeCategory, focus);
+			recipes = recipeRegistry.getRecipeWrappers(recipeCategory, focus);
 		} else {
 			//noinspection unchecked
-			this.recipes = recipeRegistry.getRecipeWrappers(recipeCategory);
+			recipes = recipeRegistry.getRecipeWrappers(recipeCategory);
 		}
+		this.recipes = filterSearch(recipes);
+	}
+
+	private List<IRecipeWrapper> filterSearch(List<IRecipeWrapper> recipes) {
+		final String searchFilter = state.getSearchFilter();
+		final IRecipesGui.RecipeSearchMode searchMode = state.getSearchMode();
+		if (searchMode == IRecipesGui.RecipeSearchMode.NONE || searchFilter.isEmpty()) return recipes;
+		final ImmutableList<Object> filteredIngredients = Internal.getIngredientFilter().getFilteredIngredients(searchFilter);
+		final boolean isInput = searchMode == IRecipesGui.RecipeSearchMode.INPUT || searchMode == IRecipesGui.RecipeSearchMode.BOTH;
+		final boolean isOutput = searchMode == IRecipesGui.RecipeSearchMode.OUTPUT || searchMode == IRecipesGui.RecipeSearchMode.BOTH;
+		recipes.removeIf(recipe -> {
+			Ingredients ingredients = new Ingredients();
+			recipe.getIngredients(ingredients);
+			if (isInput) {
+				for (List<?> value : ingredients.getInputIngredients().values()) {
+					for (Object o : value) {
+						if (IngredientUtil.aliasesContains(filteredIngredients, o)) {
+							return false;
+						}
+					}
+				}
+			}
+			if (isOutput) {
+				for (List<?> value : ingredients.getOutputIngredients().values()) {
+					for (Object o : value) {
+						if (IngredientUtil.aliasesContains(filteredIngredients, o)) {
+							return false;
+						}
+					}
+				}
+			}
+			return true;
+		});
+		return recipes;
 	}
 
 	@Override
@@ -213,6 +280,7 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 
 		int recipeWidgetIndex = 0;
 		int recipePosY = posY;
+		boolean hasError = false;
 		final int firstRecipeIndex = state.getRecipeIndex() - (state.getRecipeIndex() % state.getRecipesPerPage());
 		for (int recipeIndex = firstRecipeIndex; recipeIndex < recipes.size() && recipeLayouts.size() < state.getRecipesPerPage(); recipeIndex++) {
 			IRecipeWrapper recipeWrapper = recipes.get(recipeIndex);
@@ -222,10 +290,17 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 				recipes.remove(recipeIndex);
 				recipeRegistry.hideRecipe(recipeWrapper, recipeCategory.getUid());
 				recipeIndex--;
+				hasError = true;
 			} else {
 				recipeLayouts.add(recipeLayout);
 				recipePosY += spacingY;
 			}
+		}
+
+		// If we have had an error, the page can appear without recipes and labelled as i.e. "36/35".
+		// To avoid that situation, we reduce the page to the max valid page.
+		if (hasError) {
+			clampRecipeIndex();
 		}
 
 		return recipeLayouts;
@@ -284,6 +359,10 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 			state.setRecipeIndex((pageCount - 1) * state.getRecipesPerPage());
 		}
 		stateListener.onStateChange();
+	}
+
+	private void clampRecipeIndex() {
+		state.setRecipeIndex(Math.min(pageCount(state.getRecipesPerPage()), state.getRecipeIndex()));
 	}
 
 	private int pageCount(int recipesPerPage) {
