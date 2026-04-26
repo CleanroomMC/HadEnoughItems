@@ -37,7 +37,7 @@ public interface IRecipesGui {
 
 	/**
 	 * @return the text of the search filter
-	 * @since HEI 999
+	 * @since HEI 4.31.0
 	 */
 	String getSearchFilter();
 
@@ -45,13 +45,13 @@ public interface IRecipesGui {
 	 * Set the text of the search filter
 	 *
 	 * @return if the search filter was changed as a result
-	 * @since HEI 999
+	 * @since HEI 4.31.0
 	 */
 	boolean setSearchFilter(String searchFilter);
 
 	/**
 	 * @return the search mode being used
-	 * @since HEI 999
+	 * @since HEI 4.31.0
 	 */
 	RecipeSearchMode getSearchMode();
 
@@ -59,14 +59,14 @@ public interface IRecipesGui {
 	 * Set the search mode being used
 	 *
 	 * @return if the search mode was changed as a result
-	 * @since HEI 999
+	 * @since HEI 4.31.0
 	 */
 	boolean setSearchMode(RecipeSearchMode searchMode);
 
 	/**
 	 * What ingredients are being searched by the search filter.
 	 *
-	 * @since HEI 999
+	 * @since HEI 4.31.0
 	 */
 	enum RecipeSearchMode {
 		NONE, INPUT, OUTPUT, BOTH;
