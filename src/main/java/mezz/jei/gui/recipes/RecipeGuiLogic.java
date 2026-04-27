@@ -253,6 +253,9 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 		final int generation = searchCount.incrementAndGet();
 
 		searchExecutor.submit(() -> {
+			if (searchCount.get() > generation) {
+				return;
+			}
 			List<IRecipeWrapper> result = new ArrayList<>();
 			Set<IRecipeWrapper> matched;
 			try {
