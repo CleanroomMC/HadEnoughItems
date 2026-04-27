@@ -188,7 +188,7 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
         // Flatten: BookmarkItem<CollapsedGroupIngredient> → sub-elements (expanded) or single slot (collapsed).
         // itemToGroupIndex preserves the bookmark's group index for sub-elements that don't carry it themselves.
         List<IIngredientListElement> displayItems = new ArrayList<>();
-        Map<IIngredientListElement, CollapsedGroupIngredient> itemToCollapsed = new HashMap<>();
+        List<CollapsedGroupIngredient> displayItemGroups = new ArrayList<>();
         Map<IIngredientListElement, Integer> itemToGroupIndex = new HashMap<>();
 
         for (IIngredientListElement element : collapsedList) {
@@ -200,16 +200,18 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                 if (isBookmarkItemExpanded(bookmarkItem)) {
                     for (IIngredientListElement<?> subElement : collapsed.getIngredients()) {
                         displayItems.add(subElement);
-                        itemToCollapsed.put(subElement, collapsed);
+                        displayItemGroups.add(collapsed);
                         itemToGroupIndex.put(subElement, groupIndex);
                         expandedElementToBookmark.put(subElement, bookmarkItem);
                     }
                 } else {
                     displayItems.add(element);
+                    displayItemGroups.add(null);
                     itemToGroupIndex.put(element, groupIndex);
                 }
             } else {
                 displayItems.add(element);
+                displayItemGroups.add(null);
                 itemToGroupIndex.put(element, element.getGroupIndex());
             }
         }
@@ -270,10 +272,10 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                     collapsedRendererToBookmark.put(renderer, bookmarkItem);
                 } else {
                     set(ingredientListSlot, displayItem);
-                    CollapsedGroupIngredient parentCollapsed = itemToCollapsed.get(displayItem);
+                    CollapsedGroupIngredient parentCollapsed = displayItemGroups.get(i);
                     if (parentCollapsed != null) {
                         collapsedStackIndexed.put(slotIndex, parentCollapsed);
-                        expandedElementToGroup.put(displayItem, parentCollapsed);
+                        expandedElementToGroup.put(ingredientListSlot, parentCollapsed);
                         expandedGroupSlots.computeIfAbsent(parentCollapsed, k -> new ArrayList<>())
                             .add(new Rectangle(ingredientListSlot.getArea()));
                     }
