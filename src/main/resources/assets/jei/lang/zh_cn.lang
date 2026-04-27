@@ -241,3 +241,11 @@ hei.gui.collapsible.editor.clear=清除
 hei.gui.collapsible.editor.selected=%d 已选择
 hei.gui.collapsible.confirmDelete=删除？
 hei.tooltip.missing_ingredients=§c缺失原料：
+
+hei.tooltip.search.title=搜索配方
+hei.tooltip.search.info=点击切换模式。按住 §6SHIFT§r 反向切换。
+hei.tooltip.search.mode.none=未搜索
+hei.tooltip.search.mode.both=同时搜索输入和输出
+hei.tooltip.search.mode.input=仅搜索输入
+hei.tooltip.search.mode.output=仅搜索输出
+hei.tooltip.search.note=配方的输入或输出格式可能与预期不符！
