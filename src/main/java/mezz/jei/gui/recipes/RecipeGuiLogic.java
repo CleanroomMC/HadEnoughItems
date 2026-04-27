@@ -2,6 +2,7 @@ package mezz.jei.gui.recipes;
 
 import com.google.common.collect.ImmutableList;
 import mezz.jei.Internal;
+import mezz.jei.Tags;
 import mezz.jei.api.IRecipeRegistry;
 import mezz.jei.api.IRecipesGui;
 import mezz.jei.api.ingredients.IIngredientHelper;
@@ -9,32 +10,38 @@ import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
-import mezz.jei.autocrafting.IngredientUtil;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.gui.Focus;
+import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.ingredients.IngredientLookupState;
 import mezz.jei.ingredients.IngredientRegistry;
-import mezz.jei.ingredients.Ingredients;
 import mezz.jei.util.MathUtil;
+import mezz.jei.util.RecipeUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerPlayer;
 
 import javax.annotation.Nonnegative;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RecipeGuiLogic implements IRecipeGuiLogic {
 	private final IRecipeRegistry recipeRegistry;
 	private final IRecipeLogicStateListener stateListener;
 	private final IngredientRegistry ingredientRegistry;
+	private final Stack<IngredientLookupState> history = new Stack<>();
+	private final AtomicInteger searchCount = new AtomicInteger(0);
+	private final ExecutorService searchExecutor = Executors.newSingleThreadExecutor(r -> {
+		Thread t = new Thread(r, Tags.MOD_ID + "-RecipeSearch");
+		t.setDaemon(true);
+		return t;
+	});
 
 	private boolean initialState = true;
 	private IngredientLookupState state;
-	private final Stack<IngredientLookupState> history = new Stack<>();
 
 	/**
 	 * List of recipes for the currently selected recipeClass
@@ -176,8 +183,8 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 	@Override
 	public boolean setSearchFilter(String searchFilter) {
 		if (!state.setSearchFilter(searchFilter)) return false;
+		state.setRecipeIndex(0);
 		updateRecipes();
-		clampRecipeIndex();
 		stateListener.onStateChange();
 		return true;
 	}
@@ -190,8 +197,8 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 	@Override
 	public boolean setSearchMode(IRecipesGui.RecipeSearchMode searchMode) {
 		if (!state.setSearchMode(searchMode)) return false;
+		state.setRecipeIndex(0);
 		updateRecipes();
-		clampRecipeIndex();
 		stateListener.onStateChange();
 		return true;
 	}
@@ -218,48 +225,57 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 	private void updateRecipes() {
 		final IRecipeCategory recipeCategory = getSelectedRecipeCategory();
 		IFocus<?> focus = state.getFocus();
-		List<IRecipeWrapper> recipes;
+		final List<IRecipeWrapper> allRecipes;
 		if (focus != null) {
 			//noinspection unchecked
-			recipes = recipeRegistry.getRecipeWrappers(recipeCategory, focus);
+			allRecipes = recipeRegistry.getRecipeWrappers(recipeCategory, focus);
 		} else {
 			//noinspection unchecked
-			recipes = recipeRegistry.getRecipeWrappers(recipeCategory);
+			allRecipes = recipeRegistry.getRecipeWrappers(recipeCategory);
 		}
-		this.recipes = filterSearch(recipes);
-	}
 
-	private List<IRecipeWrapper> filterSearch(List<IRecipeWrapper> recipes) {
 		final String searchFilter = state.getSearchFilter();
 		final IRecipesGui.RecipeSearchMode searchMode = state.getSearchMode();
-		if (searchMode == IRecipesGui.RecipeSearchMode.NONE || searchFilter.isEmpty()) return recipes;
-		final ImmutableList<Object> filteredIngredients = Internal.getIngredientFilter().getFilteredIngredients(searchFilter);
+		if (searchMode == IRecipesGui.RecipeSearchMode.NONE || searchFilter.isEmpty()) {
+			this.recipes = allRecipes;
+			return;
+		}
+
+		final Collection<IIngredientListElement<?>> filteredIngredients = Internal.getIngredientFilter().getRawIngredients(searchFilter);
+		if (filteredIngredients.isEmpty()) {
+			RecipeGuiLogic.this.recipes = Collections.emptyList();
+			stateListener.onStateChange();
+			return;
+		}
+
 		final boolean isInput = searchMode == IRecipesGui.RecipeSearchMode.INPUT || searchMode == IRecipesGui.RecipeSearchMode.BOTH;
 		final boolean isOutput = searchMode == IRecipesGui.RecipeSearchMode.OUTPUT || searchMode == IRecipesGui.RecipeSearchMode.BOTH;
-		recipes.removeIf(recipe -> {
-			Ingredients ingredients = new Ingredients();
-			recipe.getIngredients(ingredients);
-			if (isInput) {
-				for (List<?> value : ingredients.getInputIngredients().values()) {
-					for (Object o : value) {
-						if (IngredientUtil.aliasesContains(filteredIngredients, o)) {
-							return false;
-						}
-					}
+		final int generation = searchCount.incrementAndGet();
+
+		searchExecutor.submit(() -> {
+			List<IRecipeWrapper> result = new ArrayList<>();
+			Set<IRecipeWrapper> matched;
+			try {
+				matched = RecipeUtil.search(recipeCategory, filteredIngredients, isInput, isOutput);
+			} catch (Exception e) {
+				matched = Collections.emptySet(); // Swallow for now
+			}
+			if (searchCount.get() > generation) {
+				return;
+			}
+			for (IRecipeWrapper recipe : allRecipes) {
+				if (matched.contains(recipe)) {
+					result.add(recipe);
 				}
 			}
-			if (isOutput) {
-				for (List<?> value : ingredients.getOutputIngredients().values()) {
-					for (Object o : value) {
-						if (IngredientUtil.aliasesContains(filteredIngredients, o)) {
-							return false;
-						}
-					}
+			Minecraft.getMinecraft().addScheduledTask(() -> {
+				if (searchCount.get() > generation) {
+					return;
 				}
-			}
-			return true;
+				RecipeGuiLogic.this.recipes = result;
+				stateListener.onStateChange();
+			});
 		});
-		return recipes;
 	}
 
 	@Override
