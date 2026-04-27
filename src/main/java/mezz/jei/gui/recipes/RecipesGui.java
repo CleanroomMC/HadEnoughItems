@@ -583,6 +583,9 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		final int titleY = guiTop + borderPadding;
 		titleHoverChecker = new HoverChecker(titleY, titleY + fontRenderer.FONT_HEIGHT, titleX, titleX + titleWidth, 0);
 
+		this.searchField.setText(this.logic.getSearchFilter());
+		setKeyboardFocus(this.logic.getSearchMode() != RecipeSearchMode.NONE);
+
 		int spacingY = recipeBackground.getHeight() + recipeSpacing;
 
 		recipeLayouts.clear();
@@ -655,7 +658,6 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	@Override
 	public void onStateChange() {
-		this.searchField.setText(this.logic.getSearchFilter());
 		updateLayout();
 	}
 
