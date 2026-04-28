@@ -47,6 +47,7 @@ public class GuiHelper implements IGuiHelper {
 	private final DrawableNineSliceTexture nineSliceSlot;
 	private final IDrawableStatic infoIcon;
 	private final IDrawableStatic flameIcon;
+	private final IDrawableStatic searchIcon;
 
 	public GuiHelper(IIngredientRegistry ingredientRegistry, Textures textures) {
 		this.ingredientRegistry = ingredientRegistry;
@@ -79,6 +80,7 @@ public class GuiHelper implements IGuiHelper {
 
 		this.infoIcon = createDrawable(textures.infoIcon);
 		this.flameIcon = createDrawable(textures.flameIcon);
+		this.searchIcon = createDrawable(textures.searchIcon);
 	}
 
 	@Override
@@ -227,5 +229,9 @@ public class GuiHelper implements IGuiHelper {
 
 	public IDrawableStatic getFlameIcon() {
 		return flameIcon;
+	}
+
+	public IDrawableStatic getSearchIcon() {
+		return searchIcon;
 	}
 }

@@ -17,6 +17,7 @@ import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.startup.ForgeModIdHelper;
 import mezz.jei.util.LegacyUtil;
+import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import javax.annotation.Nullable;
@@ -98,6 +99,10 @@ public class RecipeCategoryTab extends RecipeGuiTab {
 		//noinspection ConstantConditions
 		if (title != null) {
 			tooltip.add(title);
+		}
+
+		if (Minecraft.getMinecraft().gameSettings.advancedItemTooltips) {
+			tooltip.add(TextFormatting.DARK_GRAY + category.getUid());
 		}
 
 		String modName = LegacyUtil.getModName(category);

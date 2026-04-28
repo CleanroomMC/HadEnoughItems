@@ -17,10 +17,7 @@ import mezz.jei.gui.elements.GuiIconButtonSmall;
 import mezz.jei.gui.ingredients.GuiIngredient;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.ingredients.IngredientRegistry;
-import mezz.jei.input.ClickedIngredient;
-import mezz.jei.input.IClickedIngredient;
-import mezz.jei.input.IShowsRecipeFocuses;
-import mezz.jei.input.MouseHelper;
+import mezz.jei.input.*;
 import mezz.jei.runtime.JeiRuntime;
 import mezz.jei.transfer.RecipeTransferUtil;
 import mezz.jei.util.ErrorUtil;
@@ -35,6 +32,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.HoverChecker;
 import org.lwjgl.input.Mouse;
 
@@ -43,6 +41,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFocuses, IRecipeLogicStateListener {
 	private static final int borderPadding = 6;
@@ -71,6 +70,9 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 	private final GuiButton previousRecipeCategory;
 	private final GuiButton nextPage;
 	private final GuiButton previousPage;
+	private final GuiButton searchButton;
+
+	private final GuiTextFieldFilterRecipes searchField;
 
 	@Nullable
 	private GuiScreen parentScreen;
@@ -96,6 +98,9 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 		nextPage = new GuiIconButtonSmall(4, 0, 0, buttonWidth, buttonHeight, arrowNext);
 		previousPage = new GuiIconButtonSmall(5, 0, 0, buttonWidth, buttonHeight, arrowPrevious);
+
+		searchButton = new GuiIconButtonSmall(10, 0, 0, buttonWidth, buttonHeight, guiHelper.getSearchIcon());
+		searchField = new GuiTextFieldFilterRecipes(11, this);
 
 		background = guiHelper.getGuiBackground();
 	}
@@ -167,6 +172,15 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		previousPage.x = leftButtonX;
 		previousPage.y = pageButtonTop;
 
+		searchButton.x = leftButtonX + buttonWidth + 1;
+		searchButton.y = recipeClassButtonTop;
+		searchField.updateBounds(new Rectangle(
+				searchButton.x + buttonWidth + 1,
+				recipeClassButtonTop,
+				xSize - (buttonWidth + 1) * 3 - borderPadding * 2, // 3 buttons, padding for both sides
+				buttonHeight
+		));
+
 		this.headerHeight = (pageButtonTop + buttonHeight) - guiTop;
 
 		addButtons();
@@ -180,6 +194,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		this.buttonList.add(previousRecipeCategory);
 		this.buttonList.add(nextPage);
 		this.buttonList.add(previousPage);
+		this.buttonList.add(searchButton);
 	}
 
 	@Override
@@ -208,13 +223,18 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 		int textPadding = (buttonHeight - fontRenderer.FONT_HEIGHT) / 2;
-		drawCenteredString(fontRenderer, title, xSize, guiLeft, nextRecipeCategory.y + textPadding, Color.WHITE.getRGB(), true);
+		if (isSearchEnabled()) {
+			searchField.drawTextBox();
+		} else {
+			drawCenteredString(fontRenderer, title, xSize, guiLeft, nextRecipeCategory.y + textPadding, Color.WHITE.getRGB(), true);
+		}
 		drawCenteredString(fontRenderer, pageString, xSize, guiLeft, nextPage.y + textPadding, Color.WHITE.getRGB(), true);
 
 		nextRecipeCategory.drawButton(mc, mouseX, mouseY, partialTicks);
 		previousRecipeCategory.drawButton(mc, mouseX, mouseY, partialTicks);
 		nextPage.drawButton(mc, mouseX, mouseY, partialTicks);
 		previousPage.drawButton(mc, mouseX, mouseY, partialTicks);
+		searchButton.drawButton(mc, mouseX, mouseY, partialTicks);
 
 		RecipeLayout hoveredLayout = null;
 		for (RecipeLayout recipeLayout : recipeLayouts) {
@@ -235,7 +255,11 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			hoveredRecipeCatalyst.drawOverlays(mc, 0, 0, mouseX, mouseY);
 		}
 
-		if (titleHoverChecker.checkHover(mouseX, mouseY) && !logic.hasAllCategories()) {
+		if (this.searchButton.isMouseOver()) {
+			TooltipRenderer.drawHoveringText(mc, searchButtonTooltip(), mouseX, mouseY);
+		}
+
+		if (!isSearchEnabled() && titleHoverChecker.checkHover(mouseX, mouseY) && !logic.hasAllCategories()) {
 			String showAllRecipesString = Translator.translateToLocal("jei.tooltip.show.all.recipes");
 			TooltipRenderer.drawHoveringText(mc, showAllRecipesString, mouseX, mouseY);
 		}
@@ -303,15 +327,38 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 					}
 				}
 			}
-			if (scrollDelta < 0) {
-				logic.nextPage();
-				return;
-			} else if (scrollDelta > 0) {
-				logic.previousPage();
-				return;
+			if (isShiftKeyDown()) {
+				// change tabs when shift is held
+				if (scrollDelta < 0) {
+					logic.nextRecipeCategory();
+					return;
+				} else if (scrollDelta > 0) {
+					logic.previousRecipeCategory();
+					return;
+				}
+			} else {
+				if (scrollDelta < 0) {
+					logic.nextPage();
+					return;
+				} else if (scrollDelta > 0) {
+					logic.previousPage();
+					return;
+				}
 			}
 		}
 		super.handleMouseInput();
+	}
+
+	public boolean isSearchEnabled() {
+		return getSearchMode() != RecipeSearchMode.NONE;
+	}
+
+	public boolean hasKeyboardFocus() {
+		return isSearchEnabled() && this.searchField.isFocused();
+	}
+
+	public void setKeyboardFocus(boolean keyboardFocus) {
+		this.searchField.setFocused(keyboardFocus);
 	}
 
 	@Override
@@ -320,7 +367,12 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			return;
 		}
 		if (isMouseOver(mouseX, mouseY)) {
-			if (titleHoverChecker.checkHover(mouseX, mouseY)) {
+			boolean searchClicked = isSearchEnabled() && this.searchField.isMouseOver(mouseX, mouseY);
+			setKeyboardFocus(searchClicked);
+			if (searchClicked) {
+				this.searchField.handleMouseClicked(mouseX, mouseY, mouseButton);
+				return;
+			} else if (titleHoverChecker.checkHover(mouseX, mouseY)) {
 				if (logic.setCategoryFocus()) {
 					return;
 				}
@@ -348,6 +400,11 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	@Override
 	protected void keyTyped(char typedChar, int keyCode) {
+		if (hasKeyboardFocus() && searchField.textboxKeyTyped(typedChar, keyCode)) {
+			setSearchFilter(searchField.getText());
+			keyHandled = true;
+			return;
+		}
 		if (handleKeybinds(keyCode)) {
 			keyHandled = true;
 		}
@@ -434,6 +491,24 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		}
 	}
 
+	public String getSearchFilter() {
+		return logic.getSearchFilter();
+	}
+
+	@Override
+	public boolean setSearchFilter(String searchFilter) {
+		return logic.setSearchFilter(searchFilter);
+	}
+
+	public RecipeSearchMode getSearchMode() {
+		return logic.getSearchMode();
+	}
+
+	@Override
+	public boolean setSearchMode(RecipeSearchMode searchMode) {
+		return logic.setSearchMode(searchMode);
+	}
+
 	@Nullable
 	@Override
 	public Object getIngredientUnderMouse() {
@@ -458,6 +533,12 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			logic.nextRecipeCategory();
 		} else if (guibutton.id == previousRecipeCategory.id) {
 			logic.previousRecipeCategory();
+		} else if (guibutton.id == searchButton.id) {
+			RecipeSearchMode currentMode = logic.getSearchMode();
+			RecipeSearchMode[] values  = RecipeSearchMode.values();
+			int nextOrdinal = currentMode.ordinal() + (GuiScreen.isShiftKeyDown() ? -1 : 1);
+			setSearchMode(values[(values.length + nextOrdinal) % values.length]);
+			setKeyboardFocus(isSearchEnabled());
 		} else if (guibutton.id >= RecipeLayout.recipeTransferButtonIndex && mc != null) {
 			int recipeIndex = guibutton.id - RecipeLayout.recipeTransferButtonIndex;
 			RecipeLayout recipeLayout = recipeLayouts.get(recipeIndex);
@@ -501,6 +582,9 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		final int titleX = guiLeft + (xSize - titleWidth) / 2;
 		final int titleY = guiTop + borderPadding;
 		titleHoverChecker = new HoverChecker(titleY, titleY + fontRenderer.FONT_HEIGHT, titleX, titleX + titleWidth, 0);
+
+		this.searchField.setText(this.logic.getSearchFilter());
+		setKeyboardFocus(this.logic.getSearchMode() != RecipeSearchMode.NONE);
 
 		int spacingY = recipeBackground.getHeight() + recipeSpacing;
 
@@ -557,6 +641,19 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			return ((GuiContainer) parentScreen).inventorySlots;
 		}
 		return null;
+	}
+
+	private List<String> searchButtonTooltip() {
+		List<String> tooltip = new ArrayList<>();
+		tooltip.add(Translator.translateToLocal("hei.tooltip.search.title"));
+		tooltip.add(Translator.translateToLocal("hei.tooltip.search.info"));
+		for (RecipeSearchMode value : RecipeSearchMode.values()) {
+			String searchModeDescriptionString = Translator.translateToLocal("hei.tooltip.search.mode." + value.name().toLowerCase(Locale.ENGLISH));
+			if (value == getSearchMode()) tooltip.add(TextFormatting.GOLD + " >" + searchModeDescriptionString);
+			else tooltip.add("> " + searchModeDescriptionString);
+		}
+		tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + Translator.translateToLocal("hei.tooltip.search.note"));
+		return tooltip;
 	}
 
 	@Override
