@@ -118,15 +118,24 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			? (List<IIngredientListElement<?>>) (List) Internal.getIngredientFilter().getIngredientList("")
 			: Collections.emptyList();
 
+		// Precompute UIDs once for all ingredients.
+		String[] elementUids = new String[ingredientList.size()];
+		for (int i = 0; i < ingredientList.size(); i++) {
+			IIngredientListElement<?> e = ingredientList.get(i);
+			@SuppressWarnings({"unchecked", "rawtypes"})
+			String uid = ((mezz.jei.api.ingredients.IIngredientHelper) e.getIngredientHelper()).getUniqueId(e.getIngredient());
+			elementUids[i] = uid;
+		}
+
 		for (CollapsibleGroup group : allGroups) {
 			CollapsedGroupIngredient ingredient = group.getIngredient();
 			List<IIngredientListElement<?>> previewItems = new ArrayList<>();
 			int itemCount = 0;
-			for (IIngredientListElement<?> element : ingredientList) {
-				if (ingredient.matches(element)) {
+			for (int i = 0; i < ingredientList.size(); i++) {
+				if (ingredient.matchesUid(elementUids[i])) {
 					itemCount++;
 					if (previewItems.size() < PREVIEW_FETCH_MAX) {
-						previewItems.add(element);
+						previewItems.add(ingredientList.get(i));
 					}
 				}
 			}
@@ -582,14 +591,6 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			}
 		} catch (Exception ignored) {
 		}
-	}
-
-	/**
-	 * Called when returning from the editor screen to refresh the card list.
-	 */
-	public void onEditorClosed() {
-		rebuildCards();
-		rebuildPageButtons();
 	}
 
 	private static class GroupCardEntry {
