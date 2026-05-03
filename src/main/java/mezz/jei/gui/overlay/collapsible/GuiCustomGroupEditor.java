@@ -8,6 +8,7 @@ import mezz.jei.config.CustomGroupsConfig;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.group.CollapsedGroupIngredient;
+import mezz.jei.ingredients.group.CollapsibleGroup;
 import mezz.jei.util.Translator;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -90,7 +91,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	// Maps each right-panel element to its stored UID (exact or wildcard ending in ":*")
 	private final Map<IIngredientListElement<?>, String> selectedStackToStoredUid = new HashMap<>();
 
-	// Index of OTHER custom groups — used to tint items that already belong to a different group.
+	// Index of OTHER groups (any source: DEFAULT, MOD, CUSTOM) — used to tint items that already belong to a different group.
 	// Built once in initGui(); key = exact UID, value = list of display names.
 	private Map<String, List<String>> otherGroupExactUids = new HashMap<>();
 	// [prefix, displayName] pairs for wildcard entries in other groups
@@ -222,18 +223,19 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	}
 
 	/**
-	 * Builds a reverse index of all other custom groups for fast membership lookup
+	 * Builds a reverse index of all other groups (DEFAULT, MOD, and CUSTOM) for fast membership lookup.
 	 */
 	private void buildOtherGroupIndex() {
 		otherGroupExactUids.clear();
 		otherGroupWildcardPrefixes.clear();
 		otherGroupUidCache.clear();
-		CustomGroupsConfig cfg = Config.getCustomGroupsConfig();
-		if (cfg == null) return;
-		for (CustomGroupsConfig.CustomGroup g : cfg.getCustomGroups()) {
-			if (g.id.equals(group.id) || g.itemUids == null) continue;
-			String name = (g.displayName != null && !g.displayName.isEmpty()) ? g.displayName : g.id;
-			for (String uid : g.itemUids) {
+		Map<String, CollapsibleGroup> allGroups = Internal.getCollapsedGroupRegistry().getAllGroups();
+		for (Map.Entry<String, CollapsibleGroup> entry : allGroups.entrySet()) {
+			if (entry.getKey().equals(group.id)) continue;
+			CollapsedGroupIngredient ingredient = entry.getValue().getIngredient();
+			String name = ingredient.getDisplayName();
+			if (name == null || name.isEmpty()) name = entry.getKey();
+			for (String uid : ingredient.getUids()) {
 				if (uid.endsWith(":*")) {
 					otherGroupWildcardPrefixes.add(new String[]{uid.substring(0, uid.length() - 2), name});
 				} else {
