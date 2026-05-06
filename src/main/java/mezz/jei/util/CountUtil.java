@@ -41,7 +41,6 @@ public final class CountUtil {
 
     /**
      * Renders string as it would be if it was a count on an itemstack.
-     * Legacy method overload: uses a bool instead of a float for scale.
      * 
      * @param font        The font renderer
      * @param count       The count

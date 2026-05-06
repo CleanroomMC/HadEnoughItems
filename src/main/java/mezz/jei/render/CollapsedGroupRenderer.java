@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Renders a collapsed group shows the first two items with a count badge
- * indicating total group size and background to distinguish it from normal itemstacks.
+ * Renders a collapsed group showing the first two items scaled as a preview, background tint,
+ * and a count badge indicating number of items in the group.
  */
 public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGroupIngredient> {
 	/** Singleton registered with the ingredient type system — {@code collapsedStack} is null. */
@@ -144,7 +144,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 				GlStateManager.SourceFactor.ONE,
 				GlStateManager.DestFactor.ZERO
 		);
-		// top left triangle indicator
+		// top left indicator
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		GuiScreen.drawRect(x, y, x + 4, y + 1, borderColor);
@@ -289,7 +289,6 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		if (ingredients.isEmpty()) {
 			return null;
 		}
-		// Return CollapsedStack directly registered IIngredientType
 		return ClickedIngredient.create(collapsedStack, area);
 	}
 
