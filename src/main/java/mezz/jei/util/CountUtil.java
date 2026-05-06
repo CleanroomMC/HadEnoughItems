@@ -40,7 +40,9 @@ public final class CountUtil {
     }
 
     /**
-     * Renders string as it would be if it was a count on an itemstack
+     * Renders string as it would be if it was a count on an itemstack.
+     * Legacy method overload: uses a bool instead of a float for scale.
+     * 
      * @param font        The font renderer
      * @param count       The count
      * @param xPosition   X coordinate
@@ -50,23 +52,40 @@ public final class CountUtil {
      *                    (mimics the way item stack counts are rendered),
      *                    or to use xPosition and yPosition as absolute screen coordinates
      * @param scale       True to scale down by 1/2 in the screen-space
+     * @see #renderStringAsCount(FontRenderer, String, int, int, int, boolean, float)
      */
     public static void renderStringAsCount(FontRenderer font, String count, int xPosition, int yPosition, int color, boolean relative, boolean scale) {
+        renderStringAsCount(font, count, xPosition, yPosition, color, relative, scale ? 0.5f : 1.0f);
+    }
+
+    /**
+     * Renders string as it would be if it was a count on an itemstack
+     * @param font        The font renderer
+     * @param count       The count
+     * @param xPosition   X coordinate
+     * @param yPosition   Y coordinate
+     * @param color       Color of rendered string
+     * @param relative    Whether or not to render relative to the xPosition and yPosition
+     *                    (mimics the way item stack counts are rendered),
+     *                    or to use xPosition and yPosition as absolute screen coordinates
+     * @param scale       Value to scale the count by
+     */
+    public static void renderStringAsCount(FontRenderer font, String count, int xPosition, int yPosition, int color, boolean relative, float scale) {
         GlStateManager.pushMatrix();
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
         GlStateManager.disableBlend();
 
-        if (scale) {
-            GlStateManager.scale(0.5F, 0.5F, 1.0F);
+        if (scale != 1.0f) {
+            GlStateManager.scale(scale, scale, 1.0F);
         }
 
-        int x = scale ?
-                (relative ? xPosition + 16 : xPosition) * 2 - font.getStringWidth(count) :
-                (relative ? xPosition + 17 : xPosition) - font.getStringWidth(count);
-        int y = scale ?
-                (relative ? yPosition + 16 : yPosition) * 2 - 8 :
-                relative ? yPosition + 9 : yPosition;
+        int x = scale != 1.0f
+                ? (int)((relative ? xPosition + 16 : xPosition) / scale) - font.getStringWidth(count)
+                : (relative ? xPosition + 17 : xPosition) - font.getStringWidth(count);
+        int y = scale != 1.0f
+                ? (int)((relative ? yPosition + 16 : yPosition) / scale) - 8
+                : (relative ? yPosition + 9 : yPosition);
 
         font.drawStringWithShadow(count, x, y, color);
 
