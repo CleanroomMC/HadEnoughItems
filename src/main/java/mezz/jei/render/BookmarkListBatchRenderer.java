@@ -1,5 +1,7 @@
 package mezz.jei.render;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -188,7 +190,7 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
         // Flatten: BookmarkItem<CollapsedGroupIngredient> → sub-elements (expanded) or single slot (collapsed).
         // itemToGroupIndex preserves the bookmark's group index for sub-elements that don't carry it themselves.
         List<IIngredientListElement> displayItems = new ArrayList<>();
-        List<CollapsedGroupIngredient> displayItemGroups = new ArrayList<>();
+        Int2ObjectMap<CollapsedGroupIngredient> displayItemGroups = new Int2ObjectOpenHashMap<>();
         Map<IIngredientListElement, Integer> itemToGroupIndex = new HashMap<>();
 
         for (IIngredientListElement element : collapsedList) {
@@ -199,19 +201,17 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                 int groupIndex = element.getGroupIndex();
                 if (isBookmarkItemExpanded(bookmarkItem)) {
                     for (IIngredientListElement<?> subElement : collapsed.getIngredients()) {
+                        displayItemGroups.put(displayItems.size(), collapsed);
                         displayItems.add(subElement);
-                        displayItemGroups.add(collapsed);
                         itemToGroupIndex.put(subElement, groupIndex);
                         expandedElementToBookmark.put(subElement, bookmarkItem);
                     }
                 } else {
                     displayItems.add(element);
-                    displayItemGroups.add(null);
                     itemToGroupIndex.put(element, groupIndex);
                 }
             } else {
                 displayItems.add(element);
-                displayItemGroups.add(null);
                 itemToGroupIndex.put(element, element.getGroupIndex());
             }
         }

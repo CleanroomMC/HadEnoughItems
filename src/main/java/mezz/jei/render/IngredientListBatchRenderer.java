@@ -1,6 +1,8 @@
 package mezz.jei.render;
 
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.api.ingredients.ISlowRenderItem;
 import mezz.jei.config.Config;
@@ -159,7 +161,7 @@ public class IngredientListBatchRenderer {
         // This ensures expanded groups don't break pagination — firstItemIndex is an index into
         // the flattened view, which matches what collapsedSize() now returns.
         List<IIngredientListElement> displayItems = new ArrayList<>();
-        List<CollapsedGroupIngredient> displayItemGroups = new ArrayList<>();
+        Int2ObjectMap<CollapsedGroupIngredient> displayItemGroups = new Int2ObjectOpenHashMap<>();
         for (IIngredientListElement obj : collapsedList) {
             if (obj instanceof CollapsedGroupIngredient) {
                 CollapsedGroupIngredient collapsed = (CollapsedGroupIngredient) obj;
@@ -168,26 +170,22 @@ public class IngredientListBatchRenderer {
                     if (filterIngredients.size() == 1) {
                         // Expanded but filtered to a single item: treat as a plain slot, no group border.
                         displayItems.add(filterIngredients.get(0));
-                        displayItemGroups.add(null);
                     } else {
                         // Expanded: add each ingredient individually, track which belong to this group
                         for (IIngredientListElement<?> element : filterIngredients) {
+                            displayItemGroups.put(displayItems.size(), collapsed);
                             displayItems.add(element);
-                            displayItemGroups.add(collapsed);
                         }
                     }
                 } else if (collapsed.size() == 1) {
                     // Single-item group: render as a plain ingredient slot without collapsed visuals.
                     displayItems.add(collapsed.getDisplayIngredients().get(0));
-                    displayItemGroups.add(null);
                 } else {
                     // Collapsed: add the CollapsedStack itself as a single display item
                     displayItems.add(collapsed);
-                    displayItemGroups.add(null);
                 }
             } else {
                 displayItems.add(obj);
-                displayItemGroups.add(null);
             }
         }
 
