@@ -9,7 +9,7 @@ public class TokenInfo {
             return null;
         }
         PrefixInfo prefixInfo = PrefixInfo.get(token.charAt(0));
-        if (prefixInfo != null && prefixInfo.getMode() == Config.SearchMode.REQUIRE_PREFIX) {
+        if (prefixInfo != null && (prefixInfo.getMode() == Config.SearchMode.REQUIRE_PREFIX || prefixInfo.getMode() == Config.SearchMode.ENABLED)) {
             token = token.substring(1);
             if (token.isEmpty()) {
                 return null;
