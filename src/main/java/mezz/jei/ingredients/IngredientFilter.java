@@ -103,6 +103,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		if (this.afterBlock) {
 			runnable.run();
 			invalidateCache();
+			buildCache();
 		} else {
 			if (this.delegatedActions == null) {
 				this.delegatedActions = new ArrayList<>();
