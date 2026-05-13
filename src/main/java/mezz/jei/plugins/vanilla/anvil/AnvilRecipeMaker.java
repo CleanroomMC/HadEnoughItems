@@ -120,7 +120,7 @@ public final class AnvilRecipeMaker {
 				.filter(enchantedBooks -> !enchantedBooks.isEmpty())
 				.map(enchantedBooks -> {
 					List<ItemStack> outputs = getEnchantedIngredients(ingredient, enchantedBooks);
-					// All lists here are immutable, except enchantedBooks which is a transforming list,
+					// All lists here are immutable, except outputs which is a transforming list,
 					// so we call the constructor directly
 					return new AnvilRecipeWrapper(ingredientSingletonList, enchantedBooks, outputs);
 				});
