@@ -16,12 +16,14 @@ import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IRecipeWrapper;
 
 public class AnvilRecipeWrapper implements IRecipeWrapper {
-	private final List<List<ItemStack>> inputs;
-	private final List<List<ItemStack>> output;
+	private final List<ItemStack> leftInputs;
+	private final List<ItemStack> rightInputs;
+	private final List<ItemStack> output;
 
-	public AnvilRecipeWrapper(List<ItemStack> leftInput, List<ItemStack> rightInputs, List<ItemStack> outputs) {
-		this.inputs = ImmutableList.of(leftInput, rightInputs);
-		this.output = ImmutableList.of(outputs);
+	public AnvilRecipeWrapper(List<ItemStack> leftInputs, List<ItemStack> rightInputs, List<ItemStack> outputs) {
+		this.leftInputs = leftInputs;
+		this.rightInputs = rightInputs;
+		this.output = outputs;
 	}
 
 	@Override
@@ -86,7 +88,7 @@ public class AnvilRecipeWrapper implements IRecipeWrapper {
 
 	@Override
 	public void getIngredients(IIngredients ingredients) {
-		ingredients.setInputLists(VanillaTypes.ITEM, inputs);
-		ingredients.setOutputLists(VanillaTypes.ITEM, output);
+		ingredients.setInputLists(VanillaTypes.ITEM, ImmutableList.of(leftInputs, rightInputs));
+		ingredients.setOutputLists(VanillaTypes.ITEM, ImmutableList.of(output));
 	}
 }
