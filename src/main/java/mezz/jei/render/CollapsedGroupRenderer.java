@@ -6,6 +6,7 @@ import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.input.ClickedIngredient;
 import mezz.jei.util.CollapsedClickAction;
+import mezz.jei.util.CountUtil;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -25,9 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Renders a collapsed group as a single ingredient list slot.
- * Shows the first item with a count badge indicating total group size,
- * plus a semi-transparent background to distinguish it from normal items.
+ * Renders a collapsed group showing the first two items scaled as a preview, background tint,
+ * and a count badge indicating number of items in the group.
  */
 public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGroupIngredient> {
 	/** Singleton registered with the ingredient type system — {@code collapsedStack} is null. */
@@ -68,11 +68,6 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 	/**
 	 * Stateless render at an arbitrary position — shared by the instance render and
 	 * the {@link IIngredientRenderer} contract.
-	 * For groups with 2+ items, mimics REI's stacked-card icon: each item is rendered at
-	 * 0.75× scale (12 px), offset 4 px so both stay entirely within the 16×16 slot area.
-	 *   Back  item (upper-right): screen origin (x+4, y+0), occupies (x+4..x+16, y..y+12)
-	 *   Front item (lower-left) : screen origin (x+0, y+4), occupies (x..x+12, y+4..y+16)
-	 * Count badge is drawn at 0.75× scale in orange in the bottom-right corner.
 	 */
 	private static void renderAt(Minecraft minecraft, CollapsedGroupIngredient ingredient, int x, int y) {
 		List<IIngredientListElement<?>> ingredients = ingredient.getDisplayIngredients();
@@ -88,48 +83,32 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 				GlStateManager.SourceFactor.ONE,
 				GlStateManager.DestFactor.ZERO
 		);
-		// Draw background tint to visually distinguish collapsed groups
+		// Background tint
 		GuiScreen.drawRect(x, y, x + 16, y + 16, ingredient.getBackgroundColor());
 		GlStateManager.disableBlend();
 
 		if (ingredients.size() == 1) {
-			// Single item: render at full size
 			renderElementAt(minecraft, ingredients.get(0), x, y, 1.0f);
 		} else {
-			// 0.75 scale → 12 px icon.
-			// Back  (upper-right): origin at (x+4, y+0) → occupies x+4..x+16, y..y+12
-			// Front (lower-left) : origin at (x+0, y+4) → occupies x..x+12,   y+4..y+16
+			// Scaled item previews
 			RenderItem renderItem = minecraft.getRenderItem();
-			renderElementAt(minecraft, ingredients.get(1), x + 4, y + 0, 0.75f); // back
-			// Elevate zLevel so the front item's depth values are naturally in front of the
-			// back item's geometry. Using GL_LEQUAL (normal) keeps the front item's own
-			// internal face culling intact — GL_ALWAYS would break tile-entity models.
+			// Back
+			renderElementAt(minecraft, ingredients.get(1), x + 4, y + 0, 0.75f);
 			float prevZLevel = renderItem.zLevel;
 			renderItem.zLevel += 100;
-			renderElementAt(minecraft, ingredients.get(0), x + 0, y + 4, 0.75f); // front
+			// Front
+			renderElementAt(minecraft, ingredients.get(0), x + 0, y + 4, 0.75f);
 			renderItem.zLevel = prevZLevel;
 		}
 
-		// Count badge: 0.75× scale, orange, right-aligned at the bottom of the slot
+		// Count badge 
 		int count = ingredient.size();
 		if (count > 1) {
+			String countStr = CountUtil.minifyCountString(count);
+			float badgeScale = count <= 999 ? 0.75f : 0.5f;
 			FontRenderer fontRenderer = minecraft.fontRenderer;
-			String countStr = String.valueOf(count);
-			GlStateManager.disableLighting();
-			GlStateManager.disableDepth();
-			GlStateManager.disableBlend();
-			final float badgeScale = 0.75f;
-			// Convert desired screen position to scaled-coordinate space.
-			// Screen right edge: x+16 → scaled coord (x+16)/badgeScale
-			// Screen top of text: y+10 → scaled coord (y+10)/badgeScale
-			int textWidth = fontRenderer.getStringWidth(countStr);
-			int scaledRight = (int) ((x + 16) / badgeScale);
-			int scaledTop  = (int) ((y + 10) / badgeScale);
-			GlStateManager.pushMatrix();
-			GlStateManager.scale(badgeScale, badgeScale, 1.0f);
-			fontRenderer.drawStringWithShadow(countStr, scaledRight - textWidth, scaledTop, 0xFFAA00);
-			GlStateManager.popMatrix();
-			GlStateManager.enableDepth();
+
+			CountUtil.renderStringAsCount(fontRenderer, countStr, x, y, 0xFFAA00, true, badgeScale);
 		}
 
 		drawCollapsedBorder(x, y, ingredient.getBorderColor());
@@ -137,7 +116,6 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 
 	/**
 	 * Renders one ingredient at (x, y) at the given scale using the GL matrix stack.
-	 * Delegates to renderItemAndEffectIntoGUI so all item types (2D, 3D, built-in) render correctly.
 	 */
 	private static void renderElementAt(Minecraft minecraft, IIngredientListElement<?> element, int x, int y, float scale) {
 		Object ingredient = element.getIngredient();
@@ -166,7 +144,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 				GlStateManager.SourceFactor.ONE,
 				GlStateManager.DestFactor.ZERO
 		);
-		// Small triangle indicator in the top-left corner to show it's collapsible
+		// top left indicator
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		GuiScreen.drawRect(x, y, x + 4, y + 1, borderColor);
@@ -174,9 +152,6 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		GlStateManager.enableDepth();
 		GlStateManager.disableBlend();
 	}
-
-	// --- IIngredientRenderer<CollapsedStack> implementation ---
-	// INSTANCE (null stack) is registered with the ingredient type system.
 
 	@Override
 	public void render(Minecraft minecraft, int xPosition, int yPosition, @Nullable CollapsedGroupIngredient ingredient) {
@@ -207,7 +182,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		List<IIngredientListElement<?>> ingredients = collapsedStack.getDisplayIngredients();
 		if (ingredients.isEmpty()) return;
 
-		// Single-item group (e.g. search filtered to one result): show the item's native tooltip
+		// Single-item group - show the item's native tooltip
 		if (ingredients.size() == 1) {
 			new IngredientRenderer<>(ingredients.get(0)).drawTooltip(minecraft, mouseX, mouseY);
 			return;
@@ -215,8 +190,8 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 
 		FontRenderer font = minecraft.fontRenderer;
 		final int COLS = 8;
-		final int SLOT = 18; // 16px icon + 1px padding each side
-		final int MAX_VISIBLE = COLS * 2 + 7; // 23 = rows of 8, 8, 7
+		final int SLOT = 18;
+		final int MAX_VISIBLE = COLS * 2 + 7;
 
 		int total = ingredients.size();
 		int shown = Math.min(total, MAX_VISIBLE);
@@ -228,8 +203,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 
 		String header = TextFormatting.GOLD + collapsedStack.getDisplayName()
 			+ TextFormatting.GRAY + " (" + total + " items)";
-		// In OPEN_GROUP mode, alt+click uses first item; show that as the hint.
-		// In FIRST_ITEM mode, alt+click expands; show that instead.
+		// OPEN_GROUP/FIRST_ITEM hint tooltip
 		String hint = TextFormatting.YELLOW + Translator.translateToLocal(
 			Config.getCollapsedClickAction() == CollapsedClickAction.OPEN_GROUP
 				? "hei.tooltip.collapsed.expand.firstItem"
@@ -250,7 +224,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 
-		// Draw tooltip background (MC-style dark purple box with gradient border)
+		// Tooltip background
 		final int z = 300;
 		int bg = 0xF0100010, bs = 0x505000FF, be = (bs & 0xFEFEFE) >> 1 | (bs & 0xFF000000);
 		GuiUtils.drawGradientRect(z, tx-3, ty-4, tx+tw+3, ty-3, bg, bg);
@@ -288,7 +262,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.popMatrix();
 
-		// "+N" overflow indicator in 8th slot of row 3 (only when there are hidden items)
+		// "+N" overflow indicator
 		GlStateManager.disableDepth();
 		GlStateManager.disableLighting();
 		if (overflow > 0) {
@@ -315,7 +289,6 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		if (ingredients.isEmpty()) {
 			return null;
 		}
-		// Return CollapsedStack directly — it is a registered IIngredientType
 		return ClickedIngredient.create(collapsedStack, area);
 	}
 
@@ -323,7 +296,6 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		return area.contains(mouseX, mouseY);
 	}
 
-	@SuppressWarnings("unchecked")
 	private static <T> void renderIngredient(Minecraft minecraft, int x, int y, IIngredientListElement<T> element) {
 		IIngredientRenderer<T> renderer = element.getIngredientRenderer();
 		T ingredient = element.getIngredient();

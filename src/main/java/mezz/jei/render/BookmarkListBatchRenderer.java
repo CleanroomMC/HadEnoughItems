@@ -1,5 +1,7 @@
 package mezz.jei.render;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -188,7 +190,7 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
         // Flatten: BookmarkItem<CollapsedGroupIngredient> → sub-elements (expanded) or single slot (collapsed).
         // itemToGroupIndex preserves the bookmark's group index for sub-elements that don't carry it themselves.
         List<IIngredientListElement> displayItems = new ArrayList<>();
-        Map<IIngredientListElement, CollapsedGroupIngredient> itemToCollapsed = new HashMap<>();
+        Int2ObjectMap<CollapsedGroupIngredient> displayItemGroups = new Int2ObjectOpenHashMap<>();
         Map<IIngredientListElement, Integer> itemToGroupIndex = new HashMap<>();
 
         for (IIngredientListElement element : collapsedList) {
@@ -199,8 +201,8 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                 int groupIndex = element.getGroupIndex();
                 if (isBookmarkItemExpanded(bookmarkItem)) {
                     for (IIngredientListElement<?> subElement : collapsed.getIngredients()) {
+                        displayItemGroups.put(displayItems.size(), collapsed);
                         displayItems.add(subElement);
-                        itemToCollapsed.put(subElement, collapsed);
                         itemToGroupIndex.put(subElement, groupIndex);
                         expandedElementToBookmark.put(subElement, bookmarkItem);
                     }
@@ -270,10 +272,10 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
                     collapsedRendererToBookmark.put(renderer, bookmarkItem);
                 } else {
                     set(ingredientListSlot, displayItem);
-                    CollapsedGroupIngredient parentCollapsed = itemToCollapsed.get(displayItem);
+                    CollapsedGroupIngredient parentCollapsed = displayItemGroups.get(i);
                     if (parentCollapsed != null) {
                         collapsedStackIndexed.put(slotIndex, parentCollapsed);
-                        expandedElementToGroup.put(displayItem, parentCollapsed);
+                        expandedElementToGroup.put(ingredientListSlot, parentCollapsed);
                         expandedGroupSlots.computeIfAbsent(parentCollapsed, k -> new ArrayList<>())
                             .add(new Rectangle(ingredientListSlot.getArea()));
                     }

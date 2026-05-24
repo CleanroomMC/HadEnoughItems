@@ -1,6 +1,8 @@
 package mezz.jei.render;
 
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mezz.jei.api.ingredients.ISlowRenderItem;
 import mezz.jei.config.Config;
@@ -38,7 +40,7 @@ public class IngredientListBatchRenderer {
     protected final List<IngredientRenderer> renderOther = new ArrayList<>();
     protected final List<CollapsedGroupRenderer> renderCollapsed = new ArrayList<>();
     protected final Map<Integer, CollapsedGroupIngredient> collapsedStackIndexed = new HashMap<>();
-    protected final Map<IIngredientListElement<?>, CollapsedGroupIngredient> expandedElementToGroup = new HashMap<>();
+    protected final Map<IngredientListSlot, CollapsedGroupIngredient> expandedElementToGroup = new HashMap<>();
     // Per-group list of individual slot rectangles (used for per-slot fill + edge-detection border).
     protected final Map<CollapsedGroupIngredient, List<Rectangle>> expandedGroupSlots = new HashMap<>();
 
@@ -159,7 +161,7 @@ public class IngredientListBatchRenderer {
         // This ensures expanded groups don't break pagination — firstItemIndex is an index into
         // the flattened view, which matches what collapsedSize() now returns.
         List<IIngredientListElement> displayItems = new ArrayList<>();
-        Map<IIngredientListElement, CollapsedGroupIngredient> itemToCollapsed = new HashMap<>();
+        Int2ObjectMap<CollapsedGroupIngredient> displayItemGroups = new Int2ObjectOpenHashMap<>();
         for (IIngredientListElement obj : collapsedList) {
             if (obj instanceof CollapsedGroupIngredient) {
                 CollapsedGroupIngredient collapsed = (CollapsedGroupIngredient) obj;
@@ -171,13 +173,12 @@ public class IngredientListBatchRenderer {
                     } else {
                         // Expanded: add each ingredient individually, track which belong to this group
                         for (IIngredientListElement<?> element : filterIngredients) {
+                            displayItemGroups.put(displayItems.size(), collapsed);
                             displayItems.add(element);
-                            itemToCollapsed.put(element, collapsed);
                         }
                     }
                 } else if (collapsed.size() == 1) {
                     // Single-item group: render as a plain ingredient slot without collapsed visuals.
-                    // Not tracked in itemToCollapsed so clicks/hover treat it as a normal item.
                     displayItems.add(collapsed.getDisplayIngredients().get(0));
                 } else {
                     // Collapsed: add the CollapsedStack itself as a single display item
@@ -211,10 +212,10 @@ public class IngredientListBatchRenderer {
                     collapsedStackIndexed.put(slotIndex, collapsed);
                 } else {
                     set(ingredientListSlot, displayItem);
-                    CollapsedGroupIngredient parentCollapsed = itemToCollapsed.get(displayItem);
+                    CollapsedGroupIngredient parentCollapsed = displayItemGroups.get(i);
                     if (parentCollapsed != null) {
                         collapsedStackIndexed.put(slotIndex, parentCollapsed);
-                        expandedElementToGroup.put(displayItem, parentCollapsed);
+                        expandedElementToGroup.put(ingredientListSlot, parentCollapsed);
                         expandedGroupSlots.computeIfAbsent(parentCollapsed, k -> new ArrayList<>())
                             .add(new Rectangle(ingredientListSlot.getArea()));
                     }
@@ -336,11 +337,14 @@ public class IngredientListBatchRenderer {
 
     @Nullable
     public CollapsedGroupIngredient getExpandedCollapsedGroupAt(int mouseX, int mouseY) {
-        IngredientRenderer hovered = getHovered(mouseX, mouseY);
-        if (hovered == null) {
-            return null;
+        for (List<IngredientListSlot> row : slots) {
+            for (IngredientListSlot slot : row) {
+                if (slot.isMouseOver(mouseX, mouseY)) {
+                    return expandedElementToGroup.get(slot);
+                }
+            }
         }
-        return expandedElementToGroup.get(hovered.getElement());
+        return null;
     }
 
     public void renderExpandedGroupOutlines() {
