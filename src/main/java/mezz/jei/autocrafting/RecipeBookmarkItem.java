@@ -15,6 +15,7 @@ import mezz.jei.ingredients.Ingredients;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,8 +71,28 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
         }
         for (I alias : aliases) {
             IRecipeWrapper favorite = FavoriteRecipes.getFavorite(alias);
+            IRecipeCategory<?> favoriteCategory = null;
+            if (favorite == null) {
+                // Find recipe from other bookmarked recipes
+                RecipeBookmarkItem<?> found = (RecipeBookmarkItem<?>) Internal.getBookmarkList()
+                    .getBookmarkGroupsInternal()
+                    .stream()
+                    .map(BookmarkGroup::getItemsInternal)
+                    .flatMap(Collection::stream)
+                    .filter(item -> item instanceof RecipeBookmarkItem
+                                    && item != this
+                                    && ((RecipeBookmarkItem<?>) item).recipe != null
+                                    && IngredientUtil.aliasesContains(((RecipeBookmarkItem<?>) item).aliases, alias))
+                    .findFirst()
+                    .orElse(null);
+                if (found != null) {
+                    favorite = found.recipe;
+                    favoriteCategory = found.category;
+                }
+            } else {
+                favoriteCategory = FavoriteRecipes.getFavoriteCategory(alias);
+            }
             if (favorite != null) {
-                IRecipeCategory<?> favoriteCategory = FavoriteRecipes.getFavoriteCategory(alias);
                 this.ingredient = alias;
                 populateWith(favorite, favoriteCategory);
                 return;
