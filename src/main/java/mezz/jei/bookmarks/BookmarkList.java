@@ -353,4 +353,8 @@ public class BookmarkList implements IIngredientGridSource {
         notifyListenersOfChange();
         saveBookmarks();
     }
+
+    public List<BookmarkGroup> getBookmarkGroupsInternal() {
+        return list;
+    }
 }
