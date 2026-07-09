@@ -20,6 +20,9 @@ public class AutocraftingHandler implements IAutocraftingHandler {
     @Nullable
     private RecipeBookmarkItem<?> currentRequester;
     private Stack<RecipeBookmarkItem<?>> recipesToAutocraft;
+    // True while a dispatched craft is awaiting its stepFinished callback; prevents autocraftLoop
+    // from tearing down the queue before the last recipe's shortfall can be re-queued.
+    private boolean waitingForStep = false;
 
     public void start(RecipeChain chain) {
         this.currentChain = chain;
@@ -61,6 +64,7 @@ public class AutocraftingHandler implements IAutocraftingHandler {
         }
         IRecipeCraftingHandler craftingHandler = (IRecipeCraftingHandler) recipeTransferHandler;
         if (craftingHandler.craft(openContainer, recipeLayout, player, (int) this.currentRequester.getMultiplier(), false) == null) {
+            waitingForStep = true;
             craftingHandler.craft(openContainer, recipeLayout, player, (int) this.currentRequester.getMultiplier(), true);
             return false; // This "false" return is different from the others; it just means we're waiting for the recipe to complete
         }
@@ -75,13 +79,14 @@ public class AutocraftingHandler implements IAutocraftingHandler {
         do {
             this.currentRequester = recipesToAutocraft.pop();
         } while (autocraft() && !recipesToAutocraft.isEmpty());
-        if (recipesToAutocraft != null && recipesToAutocraft.isEmpty()) {
+        if (!waitingForStep && recipesToAutocraft != null && recipesToAutocraft.isEmpty()) {
             stop();
         }
     }
 
     @Override
     public void stepFinished(boolean success, int amount) {
+        waitingForStep = false;
         if (this.recipesToAutocraft == null) {
             return;
         }
@@ -94,6 +99,7 @@ public class AutocraftingHandler implements IAutocraftingHandler {
 
     @Override
     public void stop() {
+        this.waitingForStep = false;
         this.currentChain = null;
         this.currentRequester = null;
         this.recipesToAutocraft = null;
