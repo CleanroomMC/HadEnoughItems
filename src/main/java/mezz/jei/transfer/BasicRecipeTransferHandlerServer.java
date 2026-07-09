@@ -2,6 +2,7 @@ package mezz.jei.transfer;
 
 import mezz.jei.JustEnoughItems;
 import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
+import mezz.jei.autocrafting.IngredientUtil;
 import mezz.jei.network.packets.PacketCraftUpdate;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -286,16 +287,30 @@ public final class BasicRecipeTransferHandlerServer {
      */
     @Nullable
     private static Slot getSlotWithStack(Container container, Iterable<Integer> slotNumbers, ItemStack itemStack) {
+        // A reusable tool is matched on its Item alone: its damage changes as it wears, and mods such as
+        // GregTech rewrite its NBT on every craft, so an exact match would never find the same tool twice.
+        // The most-worn candidate is preferred, so that a tool is used up before a fresh one is started.
+        boolean reusableTool = IngredientUtil.isReusableInCrafting(itemStack);
+        Slot bestSlot = null;
+        int mostDamage = -1;
         for (Integer slotNumber : slotNumbers) {
             if (slotNumber >= 0 && slotNumber < container.inventorySlots.size()) {
                 Slot slot = container.getSlot(slotNumber);
                 ItemStack slotStack = slot.getStack();
-                if (ItemStack.areItemsEqual(itemStack, slotStack) && ItemStack.areItemStackTagsEqual(itemStack, slotStack)) {
+                if (reusableTool) {
+                    if (slotStack.getItem() == itemStack.getItem()) {
+                        int damage = slotStack.getItemDamage();
+                        if (damage > mostDamage) {
+                            mostDamage = damage;
+                            bestSlot = slot;
+                        }
+                    }
+                } else if (ItemStack.areItemsEqual(itemStack, slotStack) && ItemStack.areItemStackTagsEqual(itemStack, slotStack)) {
                     return slot;
                 }
             }
         }
-        return null;
+        return bestSlot;
     }
 
     /**

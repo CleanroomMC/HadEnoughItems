@@ -6,6 +6,7 @@ import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.LegacyUtil;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -19,6 +20,54 @@ public class IngredientUtil {
             return ((FluidStack) ingredient).amount;
         }
         return 0;
+    }
+
+    /**
+     * True if crafting with this stack leaves the same item behind, as a durability tool does.
+     * A lava bucket also has a container item, but it is a different item (the empty bucket), so it is consumed.
+     */
+    public static boolean isReusableInCrafting(ItemStack stack) {
+        if (!stack.getItem().hasContainerItem(stack)) {
+            return false;
+        }
+        ItemStack container = stack.getItem().getContainerItem(stack);
+        return container.getItem() == stack.getItem();
+    }
+
+    /**
+     * True if any alias of an ingredient is a reusable tool. The aliases of an ingredient are only ever
+     * represented by one of them, which may not be the tool, so every alias has to be checked.
+     */
+    public static boolean anyReusableInCrafting(List<?> aliases) {
+        for (Object alias : aliases) {
+            if (alias instanceof ItemStack && isReusableInCrafting((ItemStack) alias)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * True if the player's inventory holds any item matching a reusable-tool alias of this ingredient,
+     * regardless of wear. Only aliases that are themselves reusable tools count, so a consumable item
+     * sharing the same OreDictionary class can't satisfy a tool requirement.
+     */
+    public static boolean inventoryHasToolFor(List<?> aliases, InventoryPlayer inv) {
+        for (int i = 0; i < inv.getSizeInventory(); i++) {
+            ItemStack held = inv.getStackInSlot(i);
+            if (held.isEmpty()) {
+                continue;
+            }
+            for (Object alias : aliases) {
+                if (alias instanceof ItemStack) {
+                    ItemStack aliasStack = (ItemStack) alias;
+                    if (isReusableInCrafting(aliasStack) && held.getItem() == aliasStack.getItem()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes", "ConstantValue"})

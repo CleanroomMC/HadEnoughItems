@@ -101,7 +101,9 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 
         inputDummyItems = inputs.stream().map((input) -> {
             final long initialSize = input.amount;
-            return new DummyBookmarkItem<>(input.aliases.get(0), getGroup(), () -> initialSize * getMultiplier());
+            final boolean reusable = IngredientUtil.anyReusableInCrafting(input.aliases);
+            return new DummyBookmarkItem<>(input.aliases.get(0), getGroup(),
+                    () -> reusable ? Math.min(initialSize * getMultiplier(), 1) : initialSize * getMultiplier());
         }).collect(Collectors.toList());
     }
 

@@ -156,6 +156,9 @@ public class RecipeChain {
             // Divide the amount of the item used in the recipe by how many of the requested item it produces (rounding up).
             needed.amount += ((requester.amount + requester.outputAmount - 1) / requester.outputAmount) * edgeValue(requester, needed);
         }
+        if (IngredientUtil.anyReusableInCrafting(needed.aliases)) {
+            needed.amount = Math.min(needed.amount, 1); // reusable tools: need one usable instance, not one per craft
+        }
         if (needed.secondaryTo != null) {
             needed.secondaryTo.amount = Math.max(needed.secondaryTo.amount, needed.amount);
         }
@@ -265,6 +268,13 @@ public class RecipeChain {
         }
         String uniqueId = null;
         if (needed.selfOutputAmount == 0) {
+            if (IngredientUtil.anyReusableInCrafting(needed.aliases)
+                    && IngredientUtil.inventoryHasToolFor(needed.aliases, Minecraft.getMinecraft().player.inventory)) {
+                // The player already owns a usable instance of this reusable tool (any matching alias,
+                // regardless of wear); no need to craft a replacement until it breaks.
+                needed.amount = 0;
+                return;
+            }
             uniqueId = Internal.getIngredientRegistry().getUniqueId(needed.ingredient);
             invCounts.computeIfPresent(uniqueId, (k, v) -> {
                 needed.amount = Math.max(0L, needed.amount - v);
