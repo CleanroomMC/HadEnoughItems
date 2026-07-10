@@ -232,21 +232,28 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		int total = ingredients.size();
 		int shown = Math.min(total, MAX_VISIBLE);
 		int overflow = total - shown;
+		int overflowPadding = 0;
 		int numRows = shown <= COLS ? 1 : shown <= COLS * 2 ? 2 : 3;
 		int gridCols = numRows > 1 ? COLS : shown;
 		int gridW = gridCols * SLOT;
 		int gridH = numRows * SLOT;
 
+		if (overflow > 0) {
+			String overStr = "+" + overflow;
+			int overWidth = font.getStringWidth(overStr) + 2;
+			overflowPadding = Math.max(0, overWidth - SLOT);
+		}
+
 		String header = TextFormatting.GOLD + collapsedStack.getDisplayName()
-			+ TextFormatting.GRAY + " (" + total + " items)";
+				+ TextFormatting.GRAY + " (" + total + " items)";
 		// In OPEN_GROUP mode, alt+click uses first item; show that as the hint.
 		// In FIRST_ITEM mode, alt+click expands; show that instead.
 		String hint = TextFormatting.YELLOW + Translator.translateToLocal(
-			Config.getCollapsedClickAction() == CollapsedClickAction.OPEN_GROUP
-				? "hei.tooltip.collapsed.expand.firstItem"
-				: "hei.tooltip.collapsed.expand");
+				Config.getCollapsedClickAction() == CollapsedClickAction.OPEN_GROUP
+						? "hei.tooltip.collapsed.expand.firstItem"
+						: "hei.tooltip.collapsed.expand");
 
-		int tw = Math.max(Math.max(font.getStringWidth(header), font.getStringWidth(hint)), gridW);
+		int tw = Math.max(Math.max(font.getStringWidth(header), font.getStringWidth(hint)), gridW) + overflowPadding;
 		int th = 12 + gridH + 10;
 
 		ScaledResolution sr = new ScaledResolution(minecraft);
@@ -264,15 +271,15 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		// Draw tooltip background (MC-style dark purple box with gradient border)
 		final int z = 300;
 		int bg = 0xF0100010, bs = 0x505000FF, be = (bs & 0xFEFEFE) >> 1 | (bs & 0xFF000000);
-		GuiUtils.drawGradientRect(z, tx-3, ty-4, tx+tw+3, ty-3, bg, bg);
-		GuiUtils.drawGradientRect(z, tx-3, ty+th+3, tx+tw+3, ty+th+4, bg, bg);
-		GuiUtils.drawGradientRect(z, tx-3, ty-3, tx+tw+3, ty+th+3, bg, bg);
-		GuiUtils.drawGradientRect(z, tx-4, ty-3, tx-3, ty+th+3, bg, bg);
-		GuiUtils.drawGradientRect(z, tx+tw+3, ty-3, tx+tw+4, ty+th+3, bg, bg);
-		GuiUtils.drawGradientRect(z, tx-3, ty-2, tx-2, ty+th+2, bs, be);
-		GuiUtils.drawGradientRect(z, tx+tw+2, ty-2, tx+tw+3, ty+th+2, bs, be);
-		GuiUtils.drawGradientRect(z, tx-3, ty-3, tx+tw+3, ty-2, bs, bs);
-		GuiUtils.drawGradientRect(z, tx-3, ty+th+2, tx+tw+3, ty+th+3, be, be);
+		GuiUtils.drawGradientRect(z, tx - 3, ty - 4, tx + tw + 3, ty - 3, bg, bg);
+		GuiUtils.drawGradientRect(z, tx - 3, ty + th + 3, tx + tw + 3, ty + th + 4, bg, bg);
+		GuiUtils.drawGradientRect(z, tx - 3, ty - 3, tx + tw + 3, ty + th + 3, bg, bg);
+		GuiUtils.drawGradientRect(z, tx - 4, ty - 3, tx - 3, ty + th + 3, bg, bg);
+		GuiUtils.drawGradientRect(z, tx + tw + 3, ty - 3, tx + tw + 4, ty + th + 3, bg, bg);
+		GuiUtils.drawGradientRect(z, tx - 3, ty - 2, tx - 2, ty + th + 2, bs, be);
+		GuiUtils.drawGradientRect(z, tx + tw + 2, ty - 2, tx + tw + 3, ty + th + 2, bs, be);
+		GuiUtils.drawGradientRect(z, tx - 3, ty - 3, tx + tw + 3, ty - 2, bs, bs);
+		GuiUtils.drawGradientRect(z, tx - 3, ty + th + 2, tx + tw + 3, ty + th + 3, be, be);
 
 		// Title
 		font.drawStringWithShadow(header, tx, ty, -1);
@@ -292,8 +299,10 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 			if (ing instanceof ItemStack) {
 				renderItem.renderItemAndEffectIntoGUI((ItemStack) ing, ix, iy);
 			} else {
-				try { renderIngredient(minecraft, ix, iy, element); }
-				catch (RuntimeException | LinkageError ignored) {}
+				try {
+					renderIngredient(minecraft, ix, iy, element);
+				} catch (RuntimeException | LinkageError ignored) {
+				}
 			}
 		}
 		RenderHelper.disableStandardItemLighting();

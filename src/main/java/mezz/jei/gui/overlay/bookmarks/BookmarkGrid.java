@@ -21,10 +21,11 @@ public class BookmarkGrid extends IngredientGrid {
     private Rectangle area = new Rectangle();
 
     public BookmarkGrid(GridAlignment alignment, BookmarkGroupOrganizer groupOrganizer) {
-        super(new BookmarkListBatchRenderer(groupOrganizer), alignment);
+        super(new BookmarkListBatchRenderer(groupOrganizer), alignment, Config.enableHistoryPanel() && Config.isHistoryPanelOnLeft());
         this.alignment = alignment;
     }
 
+    @Override
     public boolean updateBounds(Rectangle availableArea, int minWidth, Collection<Rectangle> exclusionAreas) {
         final int columns = Math.min(availableArea.width / INGREDIENT_WIDTH, Config.getMaxColumns());
         final int rows = availableArea.height / INGREDIENT_HEIGHT;
@@ -44,23 +45,38 @@ public class BookmarkGrid extends IngredientGrid {
         this.area = new Rectangle(x, y, width, height);
         this.guiIngredientSlots.clear();
 
+        if (historyProvider.isEnabled()) {
+            historyProvider.updateColumns(columns);
+            historyProvider.clearHistorySlots();
+        }
+
         if (rows == 0 || columns < Config.smallestNumColumns) {
             return false;
         }
 
-        for (int row = 0; row < rows; row++) {
-            int y1 = y + (row * INGREDIENT_HEIGHT);
-            List<IngredientListSlot> ingredientRow = new ArrayList<>();
-            for (int column = 0; column < columns; column++) {
-                int x1 = xOffset + (column * INGREDIENT_WIDTH);
-                IngredientListSlot ingredientListSlot = new IngredientListSlot(x1, y1, INGREDIENT_PADDING);
-                Rectangle stackArea = ingredientListSlot.getArea();
-                final boolean blocked = MathUtil.intersects(exclusionAreas, stackArea);
-                ingredientListSlot.setBlocked(blocked);
-                ingredientRow.add(ingredientListSlot);
+        if (!historyProvider.updateBoundsExtra(
+                columns,
+                rows,
+                y,
+                xOffset,
+                exclusionAreas,
+                this.guiIngredientSlots)) {
+
+            for (int row = 0; row < rows; row++) {
+                int y1 = y + (row * INGREDIENT_HEIGHT);
+                List<IngredientListSlot> ingredientRow = new ArrayList<>();
+                for (int column = 0; column < columns; column++) {
+                    int x1 = xOffset + (column * INGREDIENT_WIDTH);
+                    IngredientListSlot ingredientListSlot = new IngredientListSlot(x1, y1, INGREDIENT_PADDING);
+                    Rectangle stackArea = ingredientListSlot.getArea();
+                    final boolean blocked = MathUtil.intersects(exclusionAreas, stackArea);
+                    ingredientListSlot.setBlocked(blocked);
+                    ingredientRow.add(ingredientListSlot);
+                }
+                this.guiIngredientSlots.add(ingredientRow);
             }
-            this.guiIngredientSlots.add(ingredientRow);
         }
+
         return true;
     }
 
