@@ -33,6 +33,7 @@ public class RecipeChain {
     public final Map<RecipeBookmarkItem<?>, List<RecipeBookmarkItem<?>>> secondaryOutputs = new Object2ObjectOpenHashMap<>();
 
     private final RecipeBookmarkGroup group;
+    private final Map<RecipeBookmarkItem<?>, Set<RecipeBookmarkItem<?>>> reusableEdges = new Object2ObjectOpenHashMap<>();
 
     public RecipeChain(RecipeBookmarkGroup group) {
         this.group = group;
@@ -85,13 +86,66 @@ public class RecipeChain {
                             .add(needed);
                 }
             }
-            try {
-                graphStorage.putEdgeValue(requester, needed, input.amount);
-                needed.setGroup(group); // May not be the case if we're dragging in a new recipe.
-            } catch (IllegalArgumentException e) {
-                Log.get().error("Failed to add edge from {} to {}.", requester, needed, e);
-            }
+            addDependency(requester, needed, input.amount, input.reusableInCrafting);
+            needed.setGroup(group); // May not be the case if we're dragging in a new recipe.
         }
+    }
+
+    private void addDependency(RecipeBookmarkItem<?> requester, RecipeBookmarkItem<?> needed, long amount, boolean reusable) {
+        if (wouldCreateCycle(requester, needed)) {
+            Log.get().warn("Skipped cyclic recipe bookmark dependency from {} to {}.", requester, needed);
+            return;
+        }
+        try {
+            graphStorage.putEdgeValue(requester, needed, amount);
+            setReusableEdge(requester, needed, reusable);
+        } catch (IllegalArgumentException e) {
+            Log.get().error("Failed to add edge from {} to {}.", requester, needed, e);
+        }
+    }
+
+    private boolean wouldCreateCycle(RecipeBookmarkItem<?> requester, RecipeBookmarkItem<?> needed) {
+        if (requester.equals(needed)) {
+            return true;
+        }
+        if (!graphStorage.nodes().contains(requester) || !graphStorage.nodes().contains(needed)) {
+            return false;
+        }
+        Set<RecipeBookmarkItem<?>> visited = new ObjectOpenHashSet<>();
+        Deque<RecipeBookmarkItem<?>> pending = new ArrayDeque<>();
+        pending.add(needed);
+        while (!pending.isEmpty()) {
+            RecipeBookmarkItem<?> node = pending.removeFirst();
+            if (!visited.add(node)) {
+                continue;
+            }
+            if (node.equals(requester)) {
+                return true;
+            }
+            pending.addAll(graphStorage.successors(node));
+        }
+        return false;
+    }
+
+    private void setReusableEdge(RecipeBookmarkItem<?> requester, RecipeBookmarkItem<?> needed, boolean reusable) {
+        if (reusable) {
+            reusableEdges.computeIfAbsent(requester, k -> new ObjectOpenHashSet<>()).add(needed);
+            return;
+        }
+        Set<RecipeBookmarkItem<?>> inputs = reusableEdges.get(requester);
+        if (inputs != null) {
+            inputs.remove(needed);
+        }
+    }
+
+    private boolean isReusableEdge(RecipeBookmarkItem<?> requester, RecipeBookmarkItem<?> needed) {
+        Set<RecipeBookmarkItem<?>> inputs = reusableEdges.get(requester);
+        return inputs != null && inputs.contains(needed);
+    }
+
+    private void removeReusableEdges(RecipeBookmarkItem<?> node) {
+        reusableEdges.remove(node);
+        reusableEdges.values().forEach(inputs -> inputs.remove(node));
     }
 
     private Map<String, RecipeBookmarkItem<?>> getAliasMap() {
@@ -153,8 +207,13 @@ public class RecipeChain {
                 Log.get().warn("Requester {} is apparently not made by its own recipe? Curious.", requester);
                 continue;
             }
+            long inputAmount = edgeValue(requester, needed);
+            if (isReusableEdge(requester, needed)) {
+                needed.amount += inputAmount;
+                continue;
+            }
             // Divide the amount of the item used in the recipe by how many of the requested item it produces (rounding up).
-            needed.amount += ((requester.amount + requester.outputAmount - 1) / requester.outputAmount) * edgeValue(requester, needed);
+            needed.amount += ((requester.amount + requester.outputAmount - 1) / requester.outputAmount) * inputAmount;
         }
         if (needed.secondaryTo != null) {
             needed.secondaryTo.amount = Math.max(needed.secondaryTo.amount, needed.amount);
@@ -189,6 +248,7 @@ public class RecipeChain {
             return;
         }
         graphStorage.removeNode(node);
+        removeReusableEdges(node);
         List<RecipeBookmarkItem<?>> affectedSecondaries = secondaryOutputs.remove(node);
         if (affectedSecondaries != null && !affectedSecondaries.isEmpty()) {
             if (affectedSecondaries.size() == 1) {
@@ -220,6 +280,7 @@ public class RecipeChain {
         }
         for (RecipeBookmarkItem otherNode : nodesToRemove) {
             graphStorage.removeNode(otherNode);
+            removeReusableEdges(otherNode);
         }
     }
 
@@ -301,11 +362,8 @@ public class RecipeChain {
                     if (other == null && input.inputs != null) {
                         Log.get().warn("Failed to get connections for {}", input);
                     }
-                    try {
-                        graphStorage.putEdgeValue(requester, other != null ? other : new RecipeBookmarkItem<>(input.aliases), input.amount);
-                    } catch (IllegalArgumentException e) {
-                        Log.get().error("Failed to add edge from {} to {}.", requester, input, e);
-                    }
+                    RecipeBookmarkItem<?> needed = other != null ? other : new RecipeBookmarkItem<>(input.aliases);
+                    addDependency(requester, needed, input.amount, input.reusableInCrafting);
                 }
             }
         }
