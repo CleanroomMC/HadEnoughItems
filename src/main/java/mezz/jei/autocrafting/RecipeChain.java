@@ -16,6 +16,9 @@ import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import java.util.*;
@@ -293,12 +296,18 @@ public class RecipeChain {
         InventoryPlayer inv = Minecraft.getMinecraft().player.inventory;
         Map<String, Long> invCounts = new Object2LongOpenHashMap<>(inv.getSizeInventory() * 2);
         for (int i = 0; i < inv.getSizeInventory(); i++) {
-            ItemStack stack = inv.getStackInSlot(i);
-            if (stack.isEmpty()) {
-                continue;
+            addStackToCounts(inv.getStackInSlot(i), ingredientRegistry, invCounts);
+        }
+
+        Container openContainer = Minecraft.getMinecraft().player.openContainer;
+        if (openContainer != null) {
+            for (Slot slot : openContainer.inventorySlots) {
+                // The crafting grid is cleared before each autocrafting step, and its contents are returned to the player.
+                // Count those inputs here so that an item already in the grid is not crafted unnecessarily first.
+                if (slot.inventory instanceof InventoryCrafting) {
+                    addStackToCounts(slot.getStack(), ingredientRegistry, invCounts);
+                }
             }
-            String uniqueId = ingredientRegistry.getUniqueId(stack);
-            invCounts.compute(uniqueId, (k, v) -> v == null ? stack.getCount() : v + stack.getCount());
         }
 
         final Map<String, BookmarkItem<?>> lookup = missing == null ? null : new HashMap<>();
@@ -316,6 +325,14 @@ public class RecipeChain {
             }
         }
         calculateCrafting(); // Reset the displayed amounts.
+    }
+
+    private static void addStackToCounts(ItemStack stack, IngredientRegistry ingredientRegistry, Map<String, Long> invCounts) {
+        if (stack.isEmpty()) {
+            return;
+        }
+        String uniqueId = ingredientRegistry.getUniqueId(stack);
+        invCounts.compute(uniqueId, (k, v) -> v == null ? stack.getCount() : v + stack.getCount());
     }
 
     public void calculateMissingIngredients(RecipeBookmarkItem<?> needed, Map<String, Long> invCounts,
