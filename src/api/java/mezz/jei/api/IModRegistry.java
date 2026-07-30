@@ -11,6 +11,7 @@ import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.api.gui.IGlobalGuiHandler;
 import mezz.jei.api.gui.IGuiScreenHandler;
+import mezz.jei.api.gui.ISlotIngredientProvider;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
@@ -115,6 +116,12 @@ public interface IModRegistry {
 	 * @since JEI 4.8.4
 	 */
 	<T extends GuiScreen> void addGhostIngredientHandler(Class<T> guiClass, IGhostIngredientHandler<T> handler);
+
+	/**
+	 * Lets mods tell HEI what a slot's item actually represents, for GUIs that show something which is
+	 * not an item by putting a placeholder item in an ordinary slot.
+	 */
+	<T extends GuiContainer> void addSlotIngredientProvider(Class<T> guiClass, ISlotIngredientProvider<T> provider);
 
 	/**
 	 * Add an info page for an ingredient.
