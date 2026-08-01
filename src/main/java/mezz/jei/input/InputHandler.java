@@ -43,14 +43,18 @@ import java.util.List;
 
 public class InputHandler {
 
+	/**
+	 * Ordered most specific first.
+	 */
 	private enum KeyBind {
 		SHOW_RECIPE(KeyBindings.showRecipe),
 		SHOW_USES(KeyBindings.showUses),
-		BOOKMARK(KeyBindings.bookmark),
+		BOOKMARK_NEW_GROUP_TO_TOP(KeyBindings.bookmarkNewGroupToTop),
+		BOOKMARK_NEW_GROUP(KeyBindings.bookmarkNewGroup),
 		BOOKMARK_TO_TOP(KeyBindings.bookmarkToTop),
-		RECIPE_BOOKMARK(KeyBindings.recipeBookmark);
+		BOOKMARK(KeyBindings.bookmark);
 
-		private KeyBinding keyBind;
+		private final KeyBinding keyBind;
 
 		KeyBind(KeyBinding keyBind) {
 			this.keyBind = keyBind;
@@ -341,11 +345,13 @@ public class InputHandler {
 
 		switch (pressedKey) {
 			case BOOKMARK:
-				return addBookmark(false);
-			case RECIPE_BOOKMARK:
-				return addBookmark(true);
+				return addBookmark(false, false);
 			case BOOKMARK_TO_TOP:
-				return handleBookmarkExtra();
+				return addBookmark(false, true);
+			case BOOKMARK_NEW_GROUP:
+				return addBookmark(true, isPrepend());
+			case BOOKMARK_NEW_GROUP_TO_TOP:
+				return addBookmark(true, true);
 			case SHOW_RECIPE:
 				return showRecipeOrUses(IFocus.Mode.OUTPUT);
 			case SHOW_USES:
@@ -355,7 +361,11 @@ public class InputHandler {
 		return false;
 	}
 
-	private boolean addBookmark(boolean isRecipe) {
+	private static boolean isPrepend() {
+		return GuiScreen.isShiftKeyDown();
+	}
+
+	private boolean addBookmark(boolean newGroup, boolean addToFront) {
 		int mouseX = MouseHelper.getX();
 		int mouseY = MouseHelper.getY();
 		IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(mouseX, mouseY);
@@ -365,6 +375,7 @@ public class InputHandler {
 
 		Object value = clicked.getValue();
 
+		// Pointing at something already bookmarked means the player wants it gone
 		if (value instanceof BookmarkItem) {
 			boolean removed = bookmarkList.remove(value);
 			if (removed && bookmarkList.isEmpty() && Config.isBookmarkOverlayEnabled()) {
@@ -373,24 +384,21 @@ public class InputHandler {
 			return removed;
 		}
 
-		if (!Config.isBookmarkOverlayEnabled()) {
+		final boolean added;
+		RecipeLayout layout = recipesGui.getRecipeLayout(mouseX, mouseY);
+		if (layout != null) {
+			added = layout.addToBookmarks(addToFront);
+		} else if (value instanceof CollapsedGroupIngredient) {
+			added = false;
+		} else if (newGroup) {
+			added = bookmarkList.addToNewGroup(new BookmarkItem<>(value), addToFront);
+		} else {
+			added = bookmarkList.add(new BookmarkItem<>(value), addToFront);
+		}
+		if (added && !Config.isBookmarkOverlayEnabled()) {
 			Config.toggleBookmarkEnabled();
 		}
-
-		if (isRecipe) {
-			RecipeLayout layout = recipesGui.getRecipeLayout(mouseX, mouseY);
-			if (layout == null) {
-				return false;
-			}
-			return layout.addToBookmarks();
-		}
-
-		// Don't allow bookmarking collapsed groups directly — only individual items.
-		if (value instanceof CollapsedGroupIngredient) {
-			return false;
-		}
-
-		return bookmarkList.add(new BookmarkItem<>(value));
+		return added;
 	}
 
 	private boolean showRecipeOrUses(IFocus.Mode mode) {
@@ -400,10 +408,8 @@ public class InputHandler {
 		}
 
 		Object value = clicked.getValue();
-		recipesGui.show(new Focus<>(
-			mode,
-			value instanceof BookmarkItem ? ((BookmarkItem<?>) value).getIngredient() : value));
-			clicked.onClickHandled();
+		recipesGui.show(new Focus<>(mode, value instanceof BookmarkItem ? ((BookmarkItem<?>) value).getIngredient() : value));
+		clicked.onClickHandled();
 		return true;
 	}
 
@@ -414,17 +420,5 @@ public class InputHandler {
 		}
 		GuiTextField textField = ReflectionUtil.getFieldWithClass(gui, GuiTextField.class);
 		return textField != null && textField.getVisible() && textField.isFocused();
-	}
-
-	private boolean handleBookmarkExtra() {
-		IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(MouseHelper.getX(), MouseHelper.getY());
-		if (clicked != null) {
-			if (!Config.isBookmarkOverlayEnabled())
-				Config.toggleBookmarkEnabled();
-
-			return bookmarkList.add(new BookmarkItem<>(clicked.getValue()), true);
-		}
-
-		return false;
 	}
 }

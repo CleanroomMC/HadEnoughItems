@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import mezz.jei.Internal;
+import mezz.jei.config.Config;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiFluidStackGroup;
 import mezz.jei.api.gui.IGuiIngredientGroup;
@@ -418,6 +419,10 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	}
 
 	public boolean addToBookmarks() {
+		return addToBookmarks(Config.isAddingBookmarksToFront());
+	}
+
+	public boolean addToBookmarks(boolean addToFront) {
 		BookmarkList bookmarkList = Internal.getBookmarkList();
 		RecipeBookmarkGroup group = new RecipeBookmarkGroup(bookmarkList.nextId());
 		RecipeBookmarkItem<?> recipeBookmarkItem = new RecipeBookmarkItem<>(getRecipeFavoriteButton().getDisplayedIngredient());
@@ -425,6 +430,6 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		recipeBookmarkItem.populateWith(recipeWrapper, recipeCategory);
 		// Added last so that expanding the chain does not overwrite the recipe chosen above.
 		group.addItem(recipeBookmarkItem);
-		return bookmarkList.add(group);
+		return bookmarkList.add(group, addToFront);
 	}
 }

@@ -38,19 +38,35 @@ public class BookmarkList implements IIngredientGridSource {
 	}
 
 	public <T> boolean add(BookmarkItem<T> ingredient) {
-		return add(ingredient, false);
+		return add(ingredient, Config.isAddingBookmarksToFront());
 	}
 
 	public boolean add(BookmarkGroup group) {
-		list.add(group);
+		return add(group, false);
+	}
+
+	public boolean add(BookmarkGroup group, boolean addToFront) {
+		if (addToFront) {
+			list.add(0, group);
+		} else {
+			list.add(group);
+		}
 		notifyListenersOfChange();
 		saveBookmarks();
 		return true;
 	}
 
-	public <T> boolean add(BookmarkItem<T> ingredient, boolean forceFront) {
+	public <T> boolean addToNewGroup(BookmarkItem<T> ingredient, boolean addToFront) {
 		BookmarkItem<T> normalized = IngredientUtil.normalizeBookmark(ingredient);
-		boolean addToFront = forceFront || Config.isAddingBookmarksToFront();
+		BookmarkGroup group = new BookmarkGroup(nextId++);
+		if (!group.addItem(normalized)) {
+			return false;
+		}
+		return add(group, addToFront);
+	}
+
+	public <T> boolean add(BookmarkItem<T> ingredient, boolean addToFront) {
+		BookmarkItem<T> normalized = IngredientUtil.normalizeBookmark(ingredient);
 		boolean alreadyExists = normalized.getIngredient() instanceof CollapsedGroupIngredient
 				? groupContains(getAddingGroup(addToFront), normalized)
 				: contains(normalized);
@@ -60,10 +76,10 @@ public class BookmarkList implements IIngredientGridSource {
 				saveBookmarks();
 				return true;
 			}
-		} else if (forceFront) {
+		} else {
 			// avoid boolean expression short-circuiting
 			boolean flag1 = remove(normalized, true);
-			boolean flag2 = addToLists(normalized, true);
+			boolean flag2 = addToLists(normalized, addToFront);
 			if (flag1 || flag2) {
 				notifyListenersOfChange();
 				saveBookmarks();
