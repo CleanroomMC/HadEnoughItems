@@ -7,7 +7,6 @@ import mezz.jei.autocrafting.CraftingPlan;
 import mezz.jei.autocrafting.RecipeBookmarkGroup;
 import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.bookmarks.BookmarkGroup;
-import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.config.KeyBindings;
@@ -32,8 +31,9 @@ import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_HEIGHT;
 import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_PADDING;
 
 public class BookmarkGroupOrganizer {
-	public final int GROUP_PADDING_Y = INGREDIENT_HEIGHT / 2 - 5;
-	public final int GROUP_PADDING_X = BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH / 2 - 1;
+	public static final int GROUP_PADDING_Y = INGREDIENT_HEIGHT / 2 - 5;
+	public static final int GROUP_PADDING_X = BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH / 2 - 1;
+
 	private final List<BookmarkGroupDisplay> groups = new ArrayList<>();
 	private final IngredientListBatchRenderer missingIngredientRenderer = new IngredientListBatchRenderer(false);
 
@@ -161,7 +161,9 @@ public class BookmarkGroupOrganizer {
 			// Detect if the user is holding either ALT key.
 			if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
 				tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.1"));
-				tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.2"));
+				tooltips.add(Translator.translateToLocalFormatted("hei.tooltip.organizer.2",
+					KeyBindings.moveGroupUp.getDisplayName(), KeyBindings.moveGroupDown.getDisplayName()));
+				tooltips.add(Translator.translateToLocalFormatted("hei.tooltip.organizer.5", KeyBindings.bookmark.getDisplayName()));
 				if (group.group instanceof RecipeBookmarkGroup) {
 					tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.3"));
 					if (Config.isAutocraftingEnabled()) {
@@ -172,8 +174,6 @@ public class BookmarkGroupOrganizer {
 				hovered = true;
 				tooltips.add(Translator.translateToLocal("hei.tooltip.press_alt"));
 				if (group.group instanceof RecipeBookmarkGroup) {
-					// Working out what is missing walks the whole chain and scans the inventory, so it is
-					// only redone when the hovered group changes or the chain itself is invalidated.
 					if (group.group.id != hoveredGroupId) {
 						rebuildMissingIngredients((RecipeBookmarkGroup) group.group);
 					}
@@ -181,8 +181,6 @@ public class BookmarkGroupOrganizer {
 						tooltips.add(Translator.translateToLocal("hei.tooltip.missing_ingredients"));
 						slotRows.add(this.missingIngredientRenderer);
 					} else if (craftingBlocker != null) {
-						// Nothing is missing, so the only thing standing in the way is where the player is
-						// standing. Say which, rather than letting autocrafting look like it did nothing.
 						tooltips.add("§c" + craftingBlocker);
 					}
 				}
@@ -205,7 +203,6 @@ public class BookmarkGroupOrganizer {
 		this.missingIngredientRenderer.clear();
 		List<IngredientListSlot> slots = new ObjectArrayList<>(missing.size());
 		for (int i = 0; i < missing.size(); i++) {
-			// Positions are placeholders; the tooltip lays these out with moveSlotsToFit once it knows its width.
 			slots.add(new IngredientListSlot(0, 0, INGREDIENT_PADDING));
 		}
 		this.missingIngredientRenderer.add(slots);
@@ -234,25 +231,24 @@ public class BookmarkGroupOrganizer {
 	public boolean onKeyPressed(char typedChar, int eventKey) {
 		int mouseX = MouseHelper.getX();
 		int mouseY = MouseHelper.getY();
-		if (mouseX > area.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH) {
-			return false;
-		}
+		final boolean overTabStrip = mouseX <= area.x + BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH;
+
 		for (BookmarkGroupDisplay group : groups) {
 			if (mouseY < group.area.y || mouseY > group.area.y + group.area.height) {
 				continue;
 			}
 			BookmarkList bookmarkList = Internal.getBookmarkList();
-			if (Keyboard.isKeyDown(Keyboard.KEY_UP)) {
+			if (KeyBindings.moveGroupUp.isActiveAndMatches(eventKey)) {
 				if (bookmarkList.moveGroup(group.group, true)) {
 					return true;
 				}
 			}
-			if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
+			if (KeyBindings.moveGroupDown.isActiveAndMatches(eventKey)) {
 				if (bookmarkList.moveGroup(group.group, false)) {
 					return true;
 				}
 			}
-			if (KeyBindings.bookmark.isActiveAndMatches(eventKey)) {
+			if (overTabStrip && KeyBindings.bookmark.isActiveAndMatches(eventKey)) {
 				if (bookmarkList.removeGroup(group.group)) {
 					return true;
 				}
