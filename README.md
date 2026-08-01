@@ -25,6 +25,44 @@ This means (same as JEI of course):
  * Bookmark Groups
  * Collapsible Groups
 
+### Keybinds
+
+All keys below are rebindable under **Options => Controls => Had Enough Items (HEI)**. They only apply while a GUI is open.
+
+#### Bookmarks and Groups
+
+Point at an ingredient or a recipe and press one of these. Whether you bookmark an *ingredient* or a *recipe* is decided by what is under the cursor, not by which key you press — the same key does both.
+
+| Key                | Purpose                                                                                    |
+|--------------------|--------------------------------------------------------------------------------------------|
+| `A`                | Bookmarks the hovered ingredient or recipe to the **end** of the current bookmark group.   |
+| `Shift + A`        | Bookmarks the hovered ingredient or recipe to the **start** of the current bookmark group. |
+| `Ctrl + A`         | Bookmarks the hovered ingredient into a **new group of its own**, at the **end**.          |
+| `Ctrl + Shift + A` | Bookmarks the hovered ingredient into a **new group of its own**, at the **start**.        |
+
+Pressing any of these keys on something that is *already* bookmarked, removes it. Bookmarking an ingredient you already have bookmarked elsewhere moves it to whichever end you asked for rather than adding a second copy. Recipes always get a group of their own, so `Ctrl` makes no difference to them.
+
+The bookmark overlay opens by itself the first time you bookmark something, and closes when you remove the last one.
+
+#### Bookmark Groups
+
+Point anywhere along a group's rows for these:
+
+| Key                                 | What it does                                                                                                                                   |
+|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Shift + Up`                        | Moves the group up one place.                                                                                                                  |
+| `Shift + Down`                      | Moves the group down one place.                                                                                                                |
+| `Shift + C`                         | Autocrafts a recipe group. Requires autocrafting to be enabled in the config.                                                                  |
+| `Ctrl + Left Click`                 | Drags the whole group rather than a single bookmark, which is how you move bookmarks between groups.                                           |
+| `Ctrl + Scroll`                     | Cycles the amount of the final output of a recipe chain.                                                                                       |
+| `A` **on the group's coloured tab** | **Deletes the whole group.** No confirmation, no undo. Restricted to the narrow tab on the left so it can't be hit while aiming at a bookmark. |
+
+Hold **Alt** while hovering a group to list its actions in the tooltip.
+
+#### Other
+
+`Ctrl + O` shows and hides HEI. **Show/Hide Bookmarked Ingredients** toggles just the bookmark overlay and has no key assigned by default.
+
 ### For Devs:
 Add CleanroomMC's repository and depend on HEI's maven entry:
 ```groovy
@@ -37,3 +75,4 @@ repositories {
 dependencies {
     implementation 'mezz:jei:4.32.0'
 }
+```
