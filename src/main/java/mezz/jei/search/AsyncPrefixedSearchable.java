@@ -41,8 +41,8 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
     private boolean firstBuild = true;
     private List<IIngredientListElement> leftovers; // strictly written by service thread and read by main thread
 
-    public AsyncPrefixedSearchable(ISearchStorage<IIngredientListElement<?>> searchStorage, PrefixInfo prefixInfo) {
-        super(searchStorage, prefixInfo);
+    public AsyncPrefixedSearchable(ISearchStorageBuilder<IIngredientListElement<?>> searchStorageBuilder, PrefixInfo prefixInfo) {
+        super(searchStorageBuilder, prefixInfo);
     }
 
     @Override
@@ -74,19 +74,17 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
     @Override
     public void start() {
         this.timer = new LoggedTimer();
-        this.timer.start("Asynchronously building [" + prefixInfo.getDesc() + "] search tree");
+        this.timer.start("Asynchronously building [" + prefixInfo.getDesc() + "] search index");
     }
 
     @Override
     public void stop() {
-        if (this.timer != null) {
-            super.stop();
-        }
         if (Minecraft.getMinecraft().isCallingFromMinecraftThread() && this.leftovers != null && !this.leftovers.isEmpty()) {
-            Log.get().info("{} search tree had {} errors, moving onto the main thread to process these errors.", prefixInfo, this.leftovers.size());
+            Log.get().info("{} search index had {} errors, moving onto the main thread to process these errors.", prefixInfo, this.leftovers.size());
             this.leftovers.forEach(this::submit);
             this.leftovers = null;
         }
+        super.stop();
     }
 
 }

@@ -7,22 +7,31 @@ import java.io.PrintWriter;
 import java.util.Set;
 
 /**
- * This is more memory-efficient than {@link GeneralizedSuffixTree}
+ * This is more memory-efficient than storing each value directly in an {@link ISearchStorage}
  * when there are many values for each key.
  *
  * It stores a map of keys to a set of values.
- * The set values are shared with the internal {@link GeneralizedSuffixTree} to index and find them.
+ * The set values are shared with the backing {@link ISearchStorage} to index and find them.
  * The sets values are modified directly when values with the same key are added.
  */
 public class LimitedStringStorage<T> implements ISearchStorage<T> {
 
-    private final SetMultiMap<String, T> multiMap = new SetMultiMap<>(ReferenceOpenHashSet::new);
-    private final GeneralizedSuffixTree<Set<T>> generalizedSuffixTree = new GeneralizedSuffixTree<>();
+    private final SetMultiMap<String, T> multiMap;
+    private final ISearchStorage<Set<T>> backingStorage;
+
+    public LimitedStringStorage(ISearchStorage<Set<T>> backingStorage) {
+        this(backingStorage, new SetMultiMap<>(ReferenceOpenHashSet::new));
+    }
+
+    public LimitedStringStorage(ISearchStorage<Set<T>> backingStorage, SetMultiMap<String, T> multiMap) {
+        this.backingStorage = backingStorage;
+        this.multiMap = multiMap;
+    }
 
     @Override
     public void getSearchResults(String token, Set<T> results) {
         Set<Set<T>> intermediateResults = new ReferenceOpenHashSet<>();
-        generalizedSuffixTree.getSearchResults(token, intermediateResults);
+        backingStorage.getSearchResults(token, intermediateResults);
         for (Set<T> set : intermediateResults) {
             results.addAll(set);
         }
@@ -39,18 +48,18 @@ public class LimitedStringStorage<T> implements ISearchStorage<T> {
         multiMap.put(key, value);
         if (isNewKey) {
             Set<T> set = multiMap.get(key);
-            generalizedSuffixTree.put(key, set);
+            backingStorage.put(key, set);
         }
     }
 
     @Override
     public String statistics() {
-        return "LimitedStringStorage: " + generalizedSuffixTree.statistics();
+        return "LimitedStringStorage: " + backingStorage.statistics();
     }
 
     @Override
     public void printTree(PrintWriter out, boolean includeSuffixLinks) {
-        generalizedSuffixTree.printTree(out, includeSuffixLinks);
+        backingStorage.printTree(out, includeSuffixLinks);
     }
 
 }
