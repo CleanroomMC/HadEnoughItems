@@ -241,6 +241,7 @@ hei.gui.collapsible.editor.clear=Clear
 hei.gui.collapsible.editor.selected=%d selected
 hei.gui.collapsible.confirmDelete=Delete?
 hei.tooltip.missing_ingredients=§cMissing Ingredients:
+hei.tooltip.autocraft.wrong_container=This container cannot craft %s recipes on its own.
 
 hei.tooltip.search.title=Search Recipes
 hei.tooltip.search.info=Cycle mode by clicking. Hold §6SHIFT§r to reverse direction.

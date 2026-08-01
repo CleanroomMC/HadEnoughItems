@@ -1,13 +1,13 @@
 package mezz.jei.api.gui;
 
+import javax.annotation.Nullable;
+
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
-
-import javax.annotation.Nullable;
 
 /**
  * Represents the layout of one recipe on-screen.
@@ -64,34 +64,44 @@ public interface IRecipeLayout {
 	 */
 	void setRecipeTransferButton(int posX, int posY);
 
-    /**
-     * Moves the recipe transfer button's position relative to the recipe layout.
-     * If moveAll is true, it also moves the recipe favorite button and recipe bookmark button to be to the right of the recipe transfer button.
-	 *
-	 * @since HEI 4.29.5
-     */
-    void setRecipeTransferButton(int posX, int posY, boolean moveAll);
-
-	/**
-	 * Sets the recipe favourite button's position
-	 *
-	 * @since HEI 4.29.5
-	 */
-    void setRecipeFavoriteButton(int posX, int posY);
-
-	/**
-	 * Sets the recipe bookmark button's position
-	 *
-	 * @since HEI 4.29.5
-	 */
-    void setRecipeBookmarkButton(int posX, int posY);
-
 	/**
 	 * Adds a shapeless icon to the top right of the recipe, that shows a tooltip saying "shapeless" when hovered over.
 	 *
 	 * @since JEI 4.0.2
 	 */
 	void setShapeless();
+
+	/**
+	 * Moves the recipe transfer button's position relative to the recipe layout.
+	 * <p>
+	 * If moveAll is true, it also moves the recipe favorite button and recipe bookmark button
+	 * to the right of the recipe transfer button.
+	 *
+	 * @since HEI 4.29.5
+	 */
+	default void setRecipeTransferButton(int posX, int posY, boolean moveAll) {
+		setRecipeTransferButton(posX, posY);
+	}
+
+	/**
+	 * Sets the recipe favourite button's position.
+	 * <p>
+	 * Positioning it is optional. A layout that does not place it leaves it where HEI puts it by default.
+	 *
+	 * @since HEI 4.29.5
+	 */
+	default void setRecipeFavoriteButton(int posX, int posY) {
+	}
+
+	/**
+	 * Sets the recipe bookmark button's position.
+	 * <p>
+	 * Positioning it is optional. A layout that does not place it leaves it where HEI puts it by default.
+	 *
+	 * @since HEI 4.29.5
+	 */
+	default void setRecipeBookmarkButton(int posX, int posY) {
+	}
 
 	/**
 	 * Get all the ingredients of one class that are displayed on this recipe layout.

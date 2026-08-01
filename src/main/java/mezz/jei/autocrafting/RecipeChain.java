@@ -1,389 +1,431 @@
 package mezz.jei.autocrafting;
 
-import com.google.common.base.Preconditions;
-import com.google.common.graph.ElementOrder;
-import com.google.common.graph.MutableValueGraph;
-import com.google.common.graph.ValueGraphBuilder;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
 import mezz.jei.Internal;
-import mezz.jei.autocrafting.toposort.TopologicalSort;
 import mezz.jei.bookmarks.BookmarkItem;
-import mezz.jei.bookmarks.DummyBookmarkItem;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.util.Log;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-@SuppressWarnings("UnstableApiUsage")
+/**
+ * The dependency graph behind a recipe bookmark group.
+ * <p>
+ * Each node is one step of a chain: an ingredient, plus the recipe that makes it once one is known. An
+ * edge from a recipe to an ingredient records how much of that ingredient a single application of the
+ * recipe consumes.
+ * <p>
+ * This class only ever changes the <em>shape</em> of the chain. Everything quantitative — how much of
+ * each step is needed, what to craft, what is missing — is worked out by {@link ChainSolution} and
+ * {@link CraftingPlan} and handed back as values, so nothing here writes running totals onto the nodes
+ * the overlay is drawing.
+ */
 public class RecipeChain {
-    // noinspection
-    public final MutableValueGraph<RecipeBookmarkItem<?>, Long> graphStorage = ValueGraphBuilder.directed()
-            .allowsSelfLoops(false)
-            .nodeOrder(ElementOrder.unordered())
-            .expectedNodeCount(128)
-            .build();
+	private final RecipeGraph graph = new RecipeGraph();
+	private final RecipeBookmarkGroup group;
+	private final AliasIndex aliasIndex = new AliasIndex();
+	/** primary output -> the other outputs its recipe yields at the same time */
+	private final Map<RecipeBookmarkItem<?>, List<RecipeBookmarkItem<?>>> secondaryOutputs = new Reference2ObjectLinkedOpenHashMap<>();
 
-    public final Map<RecipeBookmarkItem<?>, List<RecipeBookmarkItem<?>>> secondaryOutputs = new Object2ObjectOpenHashMap<>();
+	@Nullable
+	private ChainSolution solution;
 
-    private final RecipeBookmarkGroup group;
-    private final Map<RecipeBookmarkItem<?>, Set<RecipeBookmarkItem<?>>> reusableEdges = new Object2ObjectOpenHashMap<>();
+	public RecipeChain(RecipeBookmarkGroup group) {
+		this.group = group;
+	}
 
-    public RecipeChain(RecipeBookmarkGroup group) {
-        this.group = group;
-    }
+	/** The current amounts, worked out on demand and held until the chain's shape changes. */
+	public ChainSolution solution() {
+		if (solution == null) {
+			solution = ChainSolution.solve(graph);
+		}
+		return solution;
+	}
 
-    public boolean addOutput(RecipeBookmarkItem<?> recipeOutput) {
-        // We need to check if it overlaps an existing node (usually an input).
-        for (RecipeBookmarkItem<?> input : graphStorage.nodes()) {
-            if (IngredientUtil.aliasesContains(input.aliases, recipeOutput.ingredient)) {
-                input.setIngredient(recipeOutput.ingredient);
-                input.populateWith(recipeOutput.recipe, recipeOutput.category);
-                expandNodeFirst(input);
-                removeDanglingNodes();
-                return true;
-            }
-        }
-        recipeOutput.selfOutputAmount = recipeOutput.outputAmount;
-        expandNodeFirst(recipeOutput); // This also can look for matching inputs!
-        return false;
-    }
+	/** What is left to do given what the player is carrying. Never cached: the inventory moves constantly. */
+	public CraftingPlan plan() {
+		return CraftingPlan.compute(graph, solution());
+	}
 
-    private void expandNodeFirst(RecipeBookmarkItem<?> requester) {
-        expandNodeFirst(requester, true);
-    }
+	/** Called whenever the chain changes, in shape or in what the player asked of it. */
+	void invalidate() {
+		this.solution = null;
+		this.group.onChainChanged();
+	}
 
-    private void expandNodeFirst(RecipeBookmarkItem<?> requester, boolean recurse) {
-        if (!requester.isPopulated()) {
-            requester.populateWithFavorite();
-            if (!requester.isPopulated()) {
-                return;
-            }
-        }
-        for (RecipeBookmarkItem<?> input : requester.inputs) {
-            // First, see if it's already in the graph under some alias.
-            RecipeBookmarkItem<?> needed = findOutputUsingAnAlias(input);
-            // If it's already in the graph, it would have been populated if possible.
-            if (needed == null) {
-                needed = new RecipeBookmarkItem<>(input.aliases); // Make a copy of the input; don't modify the original amounts!
-                this.group.addItemInternal(needed); // Don't add it as an output (as would occur with the normal addItem method).
-                if (recurse) {
-                    needed.populateWithFavorite();
-                    expandNodeFirst(needed);
-                }
+	/**
+	 * True when nothing in the chain consumes this node, so it is only here because the player asked for
+	 * it. Such a node at zero would be a row that plans nothing, which is what removing it is for.
+	 */
+	boolean isRoot(RecipeBookmarkItem<?> node) {
+		return graph.predecessors(node).isEmpty();
+	}
 
-                // Maybe this recipe is being used to make something else, so we should connect it to that.
-                RecipeBookmarkItem<?> possiblePrimaryOutput = findOutputWithSameRecipe(needed);
-                if (possiblePrimaryOutput != null) {
-                    needed.secondaryTo = possiblePrimaryOutput;
-                    secondaryOutputs.computeIfAbsent(possiblePrimaryOutput, k -> new ObjectArrayList<>())
-                            .add(needed);
-                }
-            }
-            addDependency(requester, needed, input.amount, input.reusableInCrafting);
-            needed.setGroup(group); // May not be the case if we're dragging in a new recipe.
-        }
-    }
+	/**
+	 * Adds an output the player has asked for.
+	 *
+	 * @return true if it was folded into a node that already existed rather than added as a new one
+	 */
+	public boolean addOutput(RecipeBookmarkItem<?> recipeOutput) {
+		// If a node for this same item is already present — usually as some other recipe's ingredient — the
+		// player is asking to craft it rather than supply it, so teach that node the recipe in place.
+		// Resolved before anything is changed, since expanding it will add nodes to the graph.
+		RecipeBookmarkItem<?> existing = findNodeMatching(recipeOutput.getIngredient());
+		if (existing != null) {
+			existing.setIngredient(recipeOutput.getIngredient());
+			existing.populateWith(recipeOutput.recipe, recipeOutput.category);
+			aliasIndex.reindex(existing);
+			expandNode(existing, true);
+			removeDanglingNodes();
+			invalidate();
+			return true;
+		}
 
-    private void addDependency(RecipeBookmarkItem<?> requester, RecipeBookmarkItem<?> needed, long amount, boolean reusable) {
-        if (wouldCreateCycle(requester, needed)) {
-            Log.get().warn("Skipped cyclic recipe bookmark dependency from {} to {}.", requester, needed);
-            return;
-        }
-        try {
-            graphStorage.putEdgeValue(requester, needed, amount);
-            setReusableEdge(requester, needed, reusable);
-        } catch (IllegalArgumentException e) {
-            Log.get().error("Failed to add edge from {} to {}.", requester, needed, e);
-        }
-    }
+		recipeOutput.selfOutputAmount = recipeOutput.outputAmount;
+		expandNode(recipeOutput, true);
+		invalidate();
+		return false;
+	}
 
-    private boolean wouldCreateCycle(RecipeBookmarkItem<?> requester, RecipeBookmarkItem<?> needed) {
-        if (requester.equals(needed)) {
-            return true;
-        }
-        if (!graphStorage.nodes().contains(requester) || !graphStorage.nodes().contains(needed)) {
-            return false;
-        }
-        Set<RecipeBookmarkItem<?>> visited = new ObjectOpenHashSet<>();
-        Deque<RecipeBookmarkItem<?>> pending = new ArrayDeque<>();
-        pending.add(needed);
-        while (!pending.isEmpty()) {
-            RecipeBookmarkItem<?> node = pending.removeFirst();
-            if (!visited.add(node)) {
-                continue;
-            }
-            if (node.equals(requester)) {
-                return true;
-            }
-            pending.addAll(graphStorage.successors(node));
-        }
-        return false;
-    }
+	@Nullable
+	private RecipeBookmarkItem<?> findNodeMatching(Object ingredient) {
+		for (RecipeBookmarkItem<?> node : graph.nodes()) {
+			if (IngredientUtil.aliasesContains(node.aliases(), ingredient)) {
+				return node;
+			}
+		}
+		return null;
+	}
 
-    private void setReusableEdge(RecipeBookmarkItem<?> requester, RecipeBookmarkItem<?> needed, boolean reusable) {
-        if (reusable) {
-            reusableEdges.computeIfAbsent(requester, k -> new ObjectOpenHashSet<>()).add(needed);
-            return;
-        }
-        Set<RecipeBookmarkItem<?>> inputs = reusableEdges.get(requester);
-        if (inputs != null) {
-            inputs.remove(needed);
-        }
-    }
+	/**
+	 * Links {@code requester} to a node for each ingredient its recipe needs, creating those nodes where
+	 * the chain does not have them yet.
+	 *
+	 * @param recurse whether newly created ingredient nodes should themselves be expanded
+	 */
+	private void expandNode(RecipeBookmarkItem<?> requester, boolean recurse) {
+		if (!requester.isPopulated()) {
+			requester.populateWithFavorite();
+			if (!requester.isPopulated()) {
+				return;
+			}
+		}
+		graph.addNode(requester);
+		aliasIndex.index(requester);
+		for (RecipeBookmarkItem<?> input : requester.inputs()) {
+			// The input describes what the recipe consumes; the graph node carries the chain-wide total. They
+			// must stay separate objects, and the node must not share the input's alias list.
+			RecipeBookmarkItem<?> needed = findNodeForIngredient(input);
+			if (needed == null) {
+				needed = input.asChainNode();
+				group.addItemInternal(needed);
+				graph.addNode(needed);
+				aliasIndex.index(needed);
+				if (recurse) {
+					needed.populateWithFavorite();
+					expandNode(needed, true);
+				}
 
-    private boolean isReusableEdge(RecipeBookmarkItem<?> requester, RecipeBookmarkItem<?> needed) {
-        Set<RecipeBookmarkItem<?>> inputs = reusableEdges.get(requester);
-        return inputs != null && inputs.contains(needed);
-    }
+				// This recipe may already be in the chain making something else, in which case this node is
+				// one of its by-products rather than a step in its own right.
+				RecipeBookmarkItem<?> primaryOutput = findOutputWithSameRecipe(needed);
+				if (primaryOutput != null) {
+					needed.secondaryTo = primaryOutput;
+					secondaryOutputs.computeIfAbsent(primaryOutput, k -> new ObjectArrayList<>()).add(needed);
+				}
+			}
+			addDependency(requester, needed, input.inputAmount(), input.reusableInCrafting);
+			needed.setGroup(group); // May not be set yet if the recipe was only just dragged in.
+		}
+	}
 
-    private void removeReusableEdges(RecipeBookmarkItem<?> node) {
-        reusableEdges.remove(node);
-        reusableEdges.values().forEach(inputs -> inputs.remove(node));
-    }
+	private void addDependency(RecipeBookmarkItem<?> requester, RecipeBookmarkItem<?> needed, long amount, boolean reusable) {
+		if (!graph.putEdge(requester, needed, amount, reusable)) {
+			Log.get().warn("Skipped cyclic recipe bookmark dependency from {} to {}.", requester, needed);
+		}
+	}
 
-    private Map<String, RecipeBookmarkItem<?>> getAliasMap() {
-        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
-        Map<String, RecipeBookmarkItem<?>> aliasToNode = new Object2ObjectOpenHashMap<>();
-        group.getItemsInternal().forEach(node -> ((RecipeBookmarkItem) node).aliases.forEach(alias -> aliasToNode.put(ingredientRegistry.getUniqueId(alias),
-                ((RecipeBookmarkItem) node))));
-        return aliasToNode;
-    }
+	/**
+	 * Finds the node standing for the same ingredient as {@code wanted}, matching through ore dictionary
+	 * aliases. On a match both alias lists are narrowed to their intersection, so a node reached from
+	 * several recipes ends up accepting only what all of them will take.
+	 */
+	@Nullable
+	public RecipeBookmarkItem<?> findNodeForIngredient(RecipeBookmarkItem<?> wanted) {
+		IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+		List<String> aliasIds = new ObjectArrayList<>(wanted.aliases().size());
+		for (Object alias : wanted.aliases()) {
+			aliasIds.add(ingredientRegistry.getUniqueId(alias));
+		}
+		for (String uniqueId : aliasIds) {
+			RecipeBookmarkItem<?> node = aliasIndex.get(uniqueId);
+			if (node == null) {
+				continue;
+			}
+			if (!node.foundAliases) {
+				node.foundAliases = true;
+				node.adoptAliasesOf(wanted);
+			}
+			node.retainAliases(aliasIds);
+			aliasIndex.reindex(node);
+			return node;
+		}
+		return null;
+	}
 
-    public RecipeBookmarkItem<?> findOutputUsingAnAlias(RecipeBookmarkItem<?> output) {
-        Map<String, RecipeBookmarkItem<?>> aliasToNode = getAliasMap();
-        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
-        List<String> aliasIds = output.aliases.stream().map(ingredientRegistry::getUniqueId).collect(Collectors.toList());
-        for (String uniqueId : aliasIds) {
-            RecipeBookmarkItem<?> node = aliasToNode.get(uniqueId);
-            if (node != null) {
-                if (!node.foundAliases) {
-                    node.foundAliases = true;
-                    node.aliases = (List) new ObjectArrayList<>(output.aliases);
-                    node.setIngredient(output.ingredient);
-                }
-                // Take the intersection of the two lists.
-                node.aliases.removeIf(a -> !aliasIds.contains(ingredientRegistry.getUniqueId(a)));
-                return node;
-            }
-        }
-        return null;
-    }
+	/**
+	 * The node an ingredient resolved to, without changing anything.
+	 * <p>
+	 * Used for display, so that the slot drawn under a recipe shows the ingredient the chain actually
+	 * settled on rather than whichever ore dictionary variant the recipe happened to list first.
+	 */
+	@Nullable
+	RecipeBookmarkItem<?> resolvedNodeFor(RecipeBookmarkItem<?> input) {
+		IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+		for (Object alias : input.aliases()) {
+			RecipeBookmarkItem<?> node = aliasIndex.get(ingredientRegistry.getUniqueId(alias));
+			if (node != null) {
+				return node;
+			}
+		}
+		return null;
+	}
 
-    public RecipeBookmarkItem<?> findOutputWithSameRecipe(RecipeBookmarkItem<?> output) {
-        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
-        String uniqueId = ingredientRegistry.getUniqueId(output.ingredient);
-        return (RecipeBookmarkItem<?>) group.getItemsInternal().stream()
-                .filter(node -> ((RecipeBookmarkItem) node).recipe != null && !uniqueId.equals(ingredientRegistry.getUniqueId(output.ingredient)) && ((RecipeBookmarkItem) node).recipe.equals(output.recipe))
-                .findFirst()
-                .orElse(null);
-    }
+	/**
+	 * Finds a node for a <em>different</em> item made by the same recipe as {@code output}, meaning
+	 * {@code output} falls out of that recipe as a by-product.
+	 */
+	@Nullable
+	public RecipeBookmarkItem<?> findOutputWithSameRecipe(RecipeBookmarkItem<?> output) {
+		if (output.recipe == null) {
+			return null;
+		}
+		IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+		String uniqueId = ingredientRegistry.getUniqueId(output.getIngredient());
+		for (BookmarkItem<?> item : group.getItemsInternal()) {
+			if (!(item instanceof RecipeBookmarkItem)) {
+				continue;
+			}
+			RecipeBookmarkItem<?> node = (RecipeBookmarkItem<?>) item;
+			if (node == output || node.recipe == null) {
+				continue;
+			}
+			// A by-product shares the recipe but is a different item.
+			if (node.recipe.equals(output.recipe) && !uniqueId.equals(ingredientRegistry.getUniqueId(node.getIngredient()))) {
+				return node;
+			}
+		}
+		return null;
+	}
 
-    public void calculateCrafting() {
-        for (RecipeBookmarkItem<?> node : graphStorage.nodes()) {
-            node.amount = node.selfOutputAmount;
-        }
-        TopologicalSort.topologicalSort(graphStorage, (r, r1) -> {
-            if (r.equals(r1.secondaryTo)) {
-                return 1;
-            } else if (r1.equals(r.secondaryTo)) {
-                return -1;
-            }
-            return 0; // Primary ordering still applies.
-        }).forEach(this::calculateCrafting);
-    }
+	/** The by-products produced alongside {@code primaryOutput}, if any. */
+	public List<RecipeBookmarkItem<?>> getSecondaryOutputs(RecipeBookmarkItem<?> primaryOutput) {
+		List<RecipeBookmarkItem<?>> outputs = secondaryOutputs.get(primaryOutput);
+		return outputs == null ? Collections.emptyList() : outputs;
+	}
 
-    public void calculateCrafting(RecipeBookmarkItem<?> needed) {
-        if (graphStorage.predecessors(needed).isEmpty())
-            return;
-        for (RecipeBookmarkItem<?> requester : graphStorage.predecessors(needed)) {
-            if (requester.outputAmount == 0) {
-                Log.get().warn("Requester {} is apparently not made by its own recipe? Curious.", requester);
-                continue;
-            }
-            long inputAmount = edgeValue(requester, needed);
-            if (isReusableEdge(requester, needed)) {
-                needed.amount += inputAmount;
-                continue;
-            }
-            // Divide the amount of the item used in the recipe by how many of the requested item it produces (rounding up).
-            needed.amount += ((requester.amount + requester.outputAmount - 1) / requester.outputAmount) * inputAmount;
-        }
-        if (needed.secondaryTo != null) {
-            needed.secondaryTo.amount = Math.max(needed.secondaryTo.amount, needed.amount);
-        }
-    }
+	public void removeNode(RecipeBookmarkItem<?> node) {
+		if (!graph.contains(node)) {
+			return;
+		}
+		graph.removeNode(node);
+		aliasIndex.remove(node);
+		promoteSecondaryOutputs(node);
+		detachSecondary(node);
+		removeDanglingNodes();
+		// Removing a step can leave the recipes that fed it needing to be relinked.
+		for (RecipeBookmarkItem<?> remaining : new ObjectArrayList<>(graph.nodes())) {
+			expandNode(remaining, false);
+		}
+		invalidate();
+	}
 
-    private Long edgeValue(RecipeBookmarkItem<?> nodeU, RecipeBookmarkItem<?> nodeV) {
-        Long value = graphStorage.edgeValueOrDefault(nodeU, nodeV, null);
-        if (value == null) {
-            Preconditions.checkArgument(graphStorage.nodes().contains(nodeU), "Node %s is not an element of this graph.", nodeU);
-            Preconditions.checkArgument(graphStorage.nodes().contains(nodeV), "Node %s is not an element of this graph.", nodeV);
-            throw new IllegalArgumentException(String.format("Edge connecting %s to %s is not present in this graph.", nodeU, nodeV));
-        }
-        return value;
-    }
+	/**
+	 * Detaches the by-products of a removed node, handing the role of primary to the first of them so the
+	 * rest stay grouped together.
+	 */
+	private void promoteSecondaryOutputs(RecipeBookmarkItem<?> removed) {
+		List<RecipeBookmarkItem<?>> orphaned = secondaryOutputs.remove(removed);
+		if (orphaned == null || orphaned.isEmpty()) {
+			return;
+		}
+		RecipeBookmarkItem<?> newPrimary = orphaned.remove(0);
+		newPrimary.secondaryTo = null;
+		if (orphaned.isEmpty()) {
+			return;
+		}
+		for (RecipeBookmarkItem<?> secondary : orphaned) {
+			secondary.secondaryTo = newPrimary;
+		}
+		secondaryOutputs.put(newPrimary, orphaned);
+	}
 
-    public List<RecipeBookmarkItem<?>> getDisplayOutputs() {
-        // Sort the graph in topological order, and then resort it based on the recipe wrapper.
-        return TopologicalSort.topologicalSort(graphStorage, (r, r1) -> {
-            if (r.equals(r1.secondaryTo)) {
-                return 1;
-            } else if (r1.equals(r.secondaryTo)) {
-                return -1;
-            }
-            return 0; // Primary ordering still applies.
-        });
-    }
+	/** Unlinks a by-product from the output it was listed under. */
+	private void detachSecondary(RecipeBookmarkItem<?> node) {
+		if (node.secondaryTo instanceof RecipeBookmarkItem) {
+			List<RecipeBookmarkItem<?>> siblings = secondaryOutputs.get(node.secondaryTo);
+			if (siblings != null) {
+				siblings.remove(node);
+				if (siblings.isEmpty()) {
+					secondaryOutputs.remove(node.secondaryTo);
+				}
+			}
+		}
+		node.secondaryTo = null;
+	}
 
-    public void removeNode(RecipeBookmarkItem<?> node) {
-        if (!graphStorage.nodes().contains(node)) {
-            Log.get().warn("Tried to remove node that's not in the graph: {}", node);
-            return;
-        }
-        graphStorage.removeNode(node);
-        removeReusableEdges(node);
-        List<RecipeBookmarkItem<?>> affectedSecondaries = secondaryOutputs.remove(node);
-        if (affectedSecondaries != null && !affectedSecondaries.isEmpty()) {
-            if (affectedSecondaries.size() == 1) {
-                affectedSecondaries.get(0).secondaryTo = null;
-            } else {
-                for (int i = 1; i < affectedSecondaries.size(); i++) {
-                    affectedSecondaries.get(i).secondaryTo = affectedSecondaries.get(0);
-                }
-                affectedSecondaries.remove(0);
-                secondaryOutputs.put(affectedSecondaries.get(0), affectedSecondaries);
-            }
-        }
-        // We do need to check for dead nodes now.
-        removeDanglingNodes();
-        for (RecipeBookmarkItem<?> predecessor : new ObjectOpenHashSet<>(graphStorage.nodes())) {
-            expandNodeFirst(predecessor, false);
-        }
-        // Update once more.
-        calculateCrafting();
-    }
+	/**
+	 * Drops nodes nothing asks for any more, from the group as well as the graph.
+	 * <p>
+	 * They have to leave the group too: a populated node is written to the bookmark file, so a node left
+	 * behind after the chain stopped needing it would be loaded back in on the next launch and rebuild the
+	 * fragment the player had just done away with.
+	 */
+	private void removeDanglingNodes() {
+		ChainSolution current = ChainSolution.solve(graph);
+		List<RecipeBookmarkItem<?>> dangling = new ObjectArrayList<>();
+		for (RecipeBookmarkItem<?> node : graph.nodes()) {
+			// Something the player asked for stays even at zero; it is theirs to scroll back up.
+			if (node.selfOutputAmount == 0L && current.requiredOf(node) == 0L) {
+				dangling.add(node);
+			}
+		}
+		for (RecipeBookmarkItem<?> node : dangling) {
+			graph.removeNode(node);
+			aliasIndex.remove(node);
+			promoteSecondaryOutputs(node);
+			detachSecondary(node);
+			group.removeItemInternal(node);
+		}
+	}
 
-    public void removeDanglingNodes() {
-        calculateCrafting();
-        List<RecipeBookmarkItem> nodesToRemove = new ArrayList<>();
-        for (RecipeBookmarkItem otherNode : graphStorage.nodes()) {
-            if (otherNode.amount == 0) {
-                nodesToRemove.add(otherNode);
-            }
-        }
-        for (RecipeBookmarkItem otherNode : nodesToRemove) {
-            graphStorage.removeNode(otherNode);
-            removeReusableEdges(otherNode);
-        }
-    }
+	/** Rebuilds every edge from the group's saved items, after bookmarks are loaded from disk. */
+	public void rebuildGraph() {
+		aliasIndex.clear();
+		for (BookmarkItem<?> item : group.getItemsInternal()) {
+			if (item instanceof RecipeBookmarkItem) {
+				RecipeBookmarkItem<?> node = (RecipeBookmarkItem<?>) item;
+				graph.addNode(node);
+				aliasIndex.index(node);
+			}
+		}
+		for (BookmarkItem<?> item : group.getItemsInternal()) {
+			if (!(item instanceof RecipeBookmarkItem)) {
+				continue;
+			}
+			RecipeBookmarkItem<?> requester = (RecipeBookmarkItem<?>) item;
+			requester.populateSelf(); // Finds the recipe's inputs again and sets their aliases.
+			for (RecipeBookmarkItem<?> input : requester.inputs()) {
+				RecipeBookmarkItem<?> needed = findNodeForIngredient(input);
+				if (needed == null) {
+					Log.get().warn("Failed to get connections for {}", input);
+					needed = input.asChainNode();
+					graph.addNode(needed);
+					aliasIndex.index(needed);
+				}
+				addDependency(requester, needed, input.inputAmount(), input.reusableInCrafting);
+			}
+		}
+		rebuildSecondaryOutputs();
+		invalidate();
+	}
 
-    public void calculateMissingIngredients(Stack<RecipeBookmarkItem<?>> recipeList, List<BookmarkItem<?>> missing) {
-        for (RecipeBookmarkItem<?> node : graphStorage.nodes()) {
-            node.amount = node.selfOutputAmount;
-        }
+	/**
+	 * Works out afresh which saved outputs are by-products of another, after a load.
+	 * <p>
+	 * Deliberately one-directional: each output looks only at the ones already settled ahead of it, so the
+	 * first of a recipe's outputs is its primary and the rest hang off that one. Letting every output scan
+	 * the whole group instead made two outputs of the same recipe each name the other as its primary, and
+	 * since the overlay draws only primaries, both then vanished on the next launch.
+	 */
+	private void rebuildSecondaryOutputs() {
+		secondaryOutputs.clear();
+		IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+		List<RecipeBookmarkItem<?>> settled = new ObjectArrayList<>();
+		for (BookmarkItem<?> item : group.getItemsInternal()) {
+			if (!(item instanceof RecipeBookmarkItem)) {
+				continue;
+			}
+			RecipeBookmarkItem<?> output = (RecipeBookmarkItem<?>) item;
+			output.secondaryTo = null;
+			if (output.recipe == null) {
+				continue;
+			}
+			String uniqueId = ingredientRegistry.getUniqueId(output.getIngredient());
+			for (RecipeBookmarkItem<?> earlier : settled) {
+				// Only ever attach to a primary, so by-products never form a chain of their own.
+				if (earlier.secondaryTo == null
+					&& earlier.recipe.equals(output.recipe)
+					&& !uniqueId.equals(ingredientRegistry.getUniqueId(earlier.getIngredient()))) {
+					output.secondaryTo = earlier;
+					secondaryOutputs.computeIfAbsent(earlier, k -> new ObjectArrayList<>()).add(output);
+					break;
+				}
+			}
+			settled.add(output);
+		}
+	}
 
-        IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
-        InventoryPlayer inv = Minecraft.getMinecraft().player.inventory;
-        Map<String, Long> invCounts = new Object2LongOpenHashMap<>(inv.getSizeInventory() * 2);
-        for (int i = 0; i < inv.getSizeInventory(); i++) {
-            addStackToCounts(inv.getStackInSlot(i), ingredientRegistry, invCounts);
-        }
+	/**
+	 * Maps every alias of every node to that node, so a node can be found by any ingredient it accepts
+	 * without rescanning the group.
+	 * <p>
+	 * The keys a node occupies are tracked alongside it, because alias lists get narrowed as the chain
+	 * discovers what all the recipes involved will actually take. Where two nodes share an alias the most
+	 * recently indexed one wins, matching how a full rescan would have resolved it.
+	 */
+	private static final class AliasIndex {
+		private final Map<String, RecipeBookmarkItem<?>> nodesByAlias = new Object2ObjectLinkedOpenHashMap<>();
+		private final Map<RecipeBookmarkItem<?>, List<String>> aliasesByNode = new Reference2ObjectLinkedOpenHashMap<>();
 
-        Container openContainer = Minecraft.getMinecraft().player.openContainer;
-        if (openContainer != null) {
-            for (Slot slot : openContainer.inventorySlots) {
-                // The crafting grid is cleared before each autocrafting step, and its contents are returned to the player.
-                // Count those inputs here so that an item already in the grid is not crafted unnecessarily first.
-                if (slot.inventory instanceof InventoryCrafting) {
-                    addStackToCounts(slot.getStack(), ingredientRegistry, invCounts);
-                }
-            }
-        }
+		@Nullable
+		RecipeBookmarkItem<?> get(String uniqueId) {
+			return nodesByAlias.get(uniqueId);
+		}
 
-        final Map<String, BookmarkItem<?>> lookup = missing == null ? null : new HashMap<>();
-        TopologicalSort.topologicalSort(graphStorage, (r, r1) -> {
-            if (r.equals(r1.secondaryTo)) {
-                return 1;
-            } else if (r1.equals(r.secondaryTo)) {
-                return -1;
-            }
-            return 0; // Primary ordering still applies.
-        }).forEach(ingredient -> calculateMissingIngredients(ingredient, invCounts, recipeList, lookup));
-        if (missing != null) {
-            for (Map.Entry<String, BookmarkItem<?>> entry : lookup.entrySet()) {
-                missing.add(entry.getValue());
-            }
-        }
-        calculateCrafting(); // Reset the displayed amounts.
-    }
+		void index(RecipeBookmarkItem<?> node) {
+			if (!aliasesByNode.containsKey(node)) {
+				put(node);
+			}
+		}
 
-    private static void addStackToCounts(ItemStack stack, IngredientRegistry ingredientRegistry, Map<String, Long> invCounts) {
-        if (stack.isEmpty()) {
-            return;
-        }
-        String uniqueId = ingredientRegistry.getUniqueId(stack);
-        invCounts.compute(uniqueId, (k, v) -> v == null ? stack.getCount() : v + stack.getCount());
-    }
+		void reindex(RecipeBookmarkItem<?> node) {
+			remove(node);
+			put(node);
+		}
 
-    public void calculateMissingIngredients(RecipeBookmarkItem<?> needed, Map<String, Long> invCounts,
-                                            Stack<RecipeBookmarkItem<?>> recipeList, Map<String, BookmarkItem<?>> lookup) {
-        calculateCrafting(needed);
-        if (needed.amount <= 0) {
-            return;
-        }
-        String uniqueId = null;
-        if (needed.selfOutputAmount == 0) {
-            uniqueId = Internal.getIngredientRegistry().getUniqueId(needed.ingredient);
-            invCounts.computeIfPresent(uniqueId, (k, v) -> {
-                needed.amount = Math.max(0L, needed.amount - v);
-                return Math.max(0L, v - needed.amount);
-            });
-        }
-        if (recipeList != null && needed.amount > 0 && needed.category != null) {
-            // If we're preparing for autocrafting and this can be crafted, add it.
-            recipeList.add(needed.copy());
-        } else if (lookup != null && needed.amount > 0 && graphStorage.successors(needed).isEmpty()) {
-            if (uniqueId == null) {
-                uniqueId = Internal.getIngredientRegistry().getUniqueId(needed.ingredient);
-            }
-            // If we're preparing just to show the missing items, we can add it.
-            lookup.compute(uniqueId, (k, v) -> {
-                if (v == null) {
-                    final long staticAmount = (int) needed.amount;
-                    return new DummyBookmarkItem<>(needed, null, () -> staticAmount);
-                } else {
-                    v.amount += needed.amount;
-                }
-                return v;
-            });
-        }
-    }
+		private void put(RecipeBookmarkItem<?> node) {
+			IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+			List<String> keys = new ObjectArrayList<>(node.aliases().size());
+			for (Object alias : node.aliases()) {
+				String uniqueId = ingredientRegistry.getUniqueId(alias);
+				nodesByAlias.put(uniqueId, node);
+				keys.add(uniqueId);
+			}
+			aliasesByNode.put(node, keys);
+		}
 
-    public void rebuildGraph() {
-        for (BookmarkItem<?> node : group.getItemsInternal()) {
-            if (node instanceof RecipeBookmarkItem) {
-                RecipeBookmarkItem<?> requester = (RecipeBookmarkItem<?>) node;
-                requester.populateSelf(this); // This looks for new inputs and sets input aliases.
-                for (RecipeBookmarkItem<?> input : requester.inputs) {
-                    RecipeBookmarkItem<?> other = findOutputUsingAnAlias(input);
-                    if (other == null && input.inputs != null) {
-                        Log.get().warn("Failed to get connections for {}", input);
-                    }
-                    RecipeBookmarkItem<?> needed = other != null ? other : new RecipeBookmarkItem<>(input.aliases);
-                    addDependency(requester, needed, input.amount, input.reusableInCrafting);
-                }
-            }
-        }
-    }
+		void remove(RecipeBookmarkItem<?> node) {
+			List<String> keys = aliasesByNode.remove(node);
+			if (keys == null) {
+				return;
+			}
+			for (String key : keys) {
+				// Only give up a key still pointing at this node; another node may have taken it over.
+				if (nodesByAlias.get(key) == node) {
+					nodesByAlias.remove(key);
+				}
+			}
+		}
 
+		void clear() {
+			nodesByAlias.clear();
+			aliasesByNode.clear();
+		}
+	}
 }

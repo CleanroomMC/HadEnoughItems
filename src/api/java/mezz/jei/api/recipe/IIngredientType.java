@@ -1,11 +1,11 @@
 package mezz.jei.api.recipe;
 
+import java.util.Collection;
+
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.api.ingredients.VanillaTypes;
-
-import java.util.Collection;
 
 /**
  * A type of ingredient (i.e. ItemStack, FluidStack, etc) handled by JEI.
