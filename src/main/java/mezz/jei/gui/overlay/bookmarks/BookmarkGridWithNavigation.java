@@ -227,12 +227,12 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 
 		@Override
 		public boolean hasNext() {
-			return getPageNumber() < getPageCount() - 1;
+			return getPageCount() > 1;
 		}
 
 		@Override
 		public boolean hasPrevious() {
-			return getPageNumber() > 0;
+			return getPageCount() > 1;
 		}
 
 		@Override
