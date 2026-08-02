@@ -280,7 +280,6 @@ public class BookmarkList implements IIngredientGridSource {
 		return false;
 	}
 
-
 	private boolean addToLists(BookmarkItem<?> ingredient, boolean addToFront) { // false = stackT ingredient, boolean addToFront) {
 		return getAddingGroup(addToFront).addItem(ingredient, addToFront);
 	}

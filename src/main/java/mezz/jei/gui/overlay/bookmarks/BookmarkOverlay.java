@@ -44,7 +44,7 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 		this.bookmarkList = bookmarkList;
 		this.bookmarkButton = BookmarkButton.create(this, bookmarkList, guiHelper);
 		this.contents = new BookmarkGridWithNavigation(bookmarkList, guiScreenHelper, GridAlignment.RIGHT);
-		bookmarkList.addListener(() -> contents.updateLayout(false));
+		bookmarkList.addListener(contents::updateLayoutForBookmarkListChange);
 		bookmarkList.setGroupOrganizer(contents.getBookmarkGroupOrganizer());
 	}
 
