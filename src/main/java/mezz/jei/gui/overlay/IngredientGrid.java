@@ -29,7 +29,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -59,9 +59,26 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		return this.guiIngredientSlots.getMaxSize();
 	}
 
-	public boolean updateBounds(Rectangle availableArea, int minWidth, Collection<Rectangle> exclusionAreas) {
+    public void clearLayout() {
+        this.area = new Rectangle();
+        this.guiIngredientSlots.clear();
+    }
+
+    boolean updateBoundsForNavigation(Rectangle availableArea, int minWidth, Collection<Rectangle> exclusionAreas) {
+        return updateBounds(availableArea, minWidth, exclusionAreas, false);
+    }
+
+    public boolean updateBounds(Rectangle availableArea, int minWidth, Collection<Rectangle> exclusionAreas) {
+        return updateBounds(availableArea, minWidth, exclusionAreas, true);
+    }
+
+    private boolean updateBounds(Rectangle availableArea, int minWidth, Collection<Rectangle> exclusionAreas, boolean requireFreeSlot) {
+        clearLayout();
 		final int columns = Math.min(availableArea.width / INGREDIENT_WIDTH, Config.getMaxColumns());
 		final int rows = availableArea.height / INGREDIENT_HEIGHT;
+        if (rows <= 0 || columns < Config.smallestNumColumns) {
+            return false;
+        }
 
 		final int ingredientsWidth = columns * INGREDIENT_WIDTH;
 		final int width = Math.max(ingredientsWidth, minWidth);
@@ -76,11 +93,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		final int xOffset = x + Math.max(0, (width - ingredientsWidth) / 2);
 
 		this.area = new Rectangle(x, y, width, height);
-		this.guiIngredientSlots.clear();
-
-		if (rows == 0 || columns < Config.smallestNumColumns) {
-			return false;
-		}
+        boolean hasFreeSlot = false;
 
 		for (int row = 0; row < rows; row++) {
 			List<IngredientListSlot> ingredientRow = new ArrayList<>();
@@ -91,10 +104,17 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 				Rectangle stackArea = ingredientListSlot.getArea();
 				final boolean blocked = MathUtil.intersects(exclusionAreas, stackArea);
 				ingredientListSlot.setBlocked(blocked);
+                if (!blocked) {
+                    hasFreeSlot = true;
+                }
 				ingredientRow.add(ingredientListSlot);
 			}
 			this.guiIngredientSlots.add(ingredientRow);
 		}
+        if (requireFreeSlot && !hasFreeSlot) {
+            clearLayout();
+            return false;
+        }
 		return true;
 	}
 

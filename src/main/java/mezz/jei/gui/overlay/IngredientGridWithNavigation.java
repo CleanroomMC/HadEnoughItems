@@ -6,8 +6,13 @@ import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.PageNavigation;
 import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.gui.navigation.NavigationLayout;
 import mezz.jei.gui.recipes.RecipesGui;
-import mezz.jei.input.*;
+import mezz.jei.input.IClickedIngredient;
+import mezz.jei.input.IMouseHandler;
+import mezz.jei.input.IPaged;
+import mezz.jei.input.IShowsRecipeFocuses;
+import mezz.jei.input.MouseHelper;
 import mezz.jei.render.IngredientListBatchRenderer;
 import mezz.jei.render.IngredientListSlot;
 import mezz.jei.render.IngredientRenderer;
@@ -20,7 +25,7 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -60,35 +65,54 @@ public class IngredientGridWithNavigation implements IShowsRecipeFocuses, IMouse
 		this.navigation.updatePageState();
 	}
 
-	public boolean updateBounds(Rectangle availableArea, Set<Rectangle> guiExclusionAreas, int minWidth) {
-		Rectangle estimatedNavigationArea = new Rectangle(
-			availableArea.x,
-			availableArea.y,
-			availableArea.width,
-			NAVIGATION_HEIGHT
-		);
-		Rectangle movedNavigationArea = MathUtil.moveDownToAvoidIntersection(guiExclusionAreas, estimatedNavigationArea);
-		int navigationMaxY = movedNavigationArea.y + movedNavigationArea.height;
-		Rectangle boundsWithoutNavigation = new Rectangle(
-			availableArea.x,
-			navigationMaxY,
-			availableArea.width,
-			availableArea.height - navigationMaxY
-		);
-		boolean gridHasRoom = this.ingredientGrid.updateBounds(boundsWithoutNavigation, minWidth, guiExclusionAreas);
-		if (!gridHasRoom) {
-			return false;
-		}
-		Rectangle displayArea = this.ingredientGrid.getArea();
-		Rectangle navigationArea = new Rectangle(displayArea.x, movedNavigationArea.y, displayArea.width, NAVIGATION_HEIGHT);
-		this.navigation.updateBounds(navigationArea);
-		this.area = displayArea.union(navigationArea);
-		return true;
-	}
+    public boolean updateBounds(Rectangle availableArea, Set<Rectangle> guiExclusionAreas, int minWidth) {
+        clearLayout();
 
-	public void invalidateBuffer() {
-		this.ingredientGrid.invalidateBuffer();
-	}
+        Rectangle initialContentArea = new Rectangle(
+            availableArea.x,
+            availableArea.y + NAVIGATION_HEIGHT,
+            availableArea.width,
+            availableArea.height - NAVIGATION_HEIGHT
+        );
+        if (!this.ingredientGrid.updateBoundsForNavigation(initialContentArea, minWidth, guiExclusionAreas)) {
+            return false;
+        }
+
+        int maximumNavigationWidth = this.ingredientGrid.getArea().width;
+        NavigationLayout.Result layout = NavigationLayout.calculate(
+            availableArea,
+            guiExclusionAreas,
+            NavigationLayout.Alignment.RIGHT,
+            NAVIGATION_HEIGHT,
+            minWidth,
+            maximumNavigationWidth
+        );
+        if (layout == null) {
+            clearLayout();
+            return false;
+        }
+
+        if (!this.ingredientGrid.updateBounds(layout.getContentArea(), minWidth, guiExclusionAreas)) {
+            clearLayout();
+            return false;
+        }
+
+        Rectangle displayArea = this.ingredientGrid.getArea();
+        Rectangle navigationArea = layout.getNavigationArea();
+        this.navigation.updateBounds(navigationArea);
+        this.area = displayArea.union(navigationArea);
+        return true;
+    }
+
+    private void clearLayout() {
+        this.area = new Rectangle();
+        this.navigation.updateBounds(new Rectangle());
+        this.ingredientGrid.clearLayout();
+    }
+
+    public void invalidateBuffer() {
+        this.ingredientGrid.invalidateBuffer();
+    }
 
 	public Rectangle getArea() {
 		return this.area;
