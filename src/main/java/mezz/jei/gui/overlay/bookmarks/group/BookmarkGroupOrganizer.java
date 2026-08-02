@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nullable;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +52,17 @@ public class BookmarkGroupOrganizer {
 
 	public void updateBounds(Rectangle availableArea) {
 		this.area = availableArea;
+	}
+
+	public void clearLayout() {
+		this.area = new Rectangle();
+		this.groups.clear();
+		this.hoveredGroupId = -1;
+		this.missingIngredients = 0;
+		this.craftingBlocker = null;
+		this.missingIngredientRenderer.clear();
+		this.prevMouseY = 0;
+		stopDrag();
 	}
 
 	public void setBookmarkGroupIds(List<Integer> bookmarkGroupIds) {

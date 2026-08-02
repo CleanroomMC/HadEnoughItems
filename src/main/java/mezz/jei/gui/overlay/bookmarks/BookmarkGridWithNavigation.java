@@ -8,6 +8,7 @@ import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.PageNavigation;
 import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.gui.navigation.NavigationLayout;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IIngredientGridSource;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
@@ -16,14 +17,13 @@ import mezz.jei.input.IMouseHandler;
 import mezz.jei.input.IPaged;
 import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.render.BookmarkListBatchRenderer;
-import mezz.jei.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nullable;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -93,36 +93,58 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 	}
 
 	public boolean updateBounds(Rectangle availableArea, Set<Rectangle> guiExclusionAreas, int minWidth) {
-		Rectangle estimatedNavigationArea = new Rectangle(
-				availableArea.x,
-				availableArea.y,
-				availableArea.width,
-				NAVIGATION_HEIGHT
+		clearLayout();
+
+		int bookmarkTabWidth = Config.areRecipeBookmarksEnabled() ? BOOKMARK_TAB_WIDTH : 0;
+		Rectangle initialContentArea = new Rectangle(
+			availableArea.x + bookmarkTabWidth,
+			availableArea.y + NAVIGATION_HEIGHT,
+			availableArea.width - bookmarkTabWidth,
+			availableArea.height - NAVIGATION_HEIGHT
 		);
-		Rectangle movedNavigationArea = MathUtil.moveDownToAvoidIntersection(guiExclusionAreas, estimatedNavigationArea);
-		int navigationMaxY = movedNavigationArea.y + movedNavigationArea.height;
-		Rectangle boundsWithoutNavigation = new Rectangle(
-				availableArea.x + (Config.areRecipeBookmarksEnabled() ? BOOKMARK_TAB_WIDTH : 0),
-				navigationMaxY,
-				availableArea.width - (Config.areRecipeBookmarksEnabled() ? BOOKMARK_TAB_WIDTH : 0),
-				availableArea.height - navigationMaxY
-		);
-		Rectangle groupOrganizerBounds = new Rectangle(
-				availableArea.x,
-				navigationMaxY,
-				availableArea.width,
-				availableArea.height - navigationMaxY
-		);
-		boolean gridHasRoom = this.bookmarkGrid.updateBounds(boundsWithoutNavigation, minWidth, guiExclusionAreas);
-		if (!gridHasRoom) {
+		if (!this.bookmarkGrid.updateBoundsForNavigation(initialContentArea, minWidth, guiExclusionAreas)) {
 			return false;
 		}
+
+		int maximumNavigationWidth = this.bookmarkGrid.getArea().width;
+		NavigationLayout.Result layout = NavigationLayout.calculate(
+			availableArea,
+			guiExclusionAreas,
+			NavigationLayout.Alignment.LEFT,
+			NAVIGATION_HEIGHT,
+			minWidth,
+			maximumNavigationWidth
+		);
+		if (layout == null) {
+			clearLayout();
+			return false;
+		}
+
+		Rectangle contentArea = layout.getContentArea();
+		Rectangle gridContentArea = new Rectangle(
+			contentArea.x + bookmarkTabWidth,
+			contentArea.y,
+			contentArea.width - bookmarkTabWidth,
+			contentArea.height
+		);
+		if (!this.bookmarkGrid.updateBounds(gridContentArea, minWidth, guiExclusionAreas)) {
+			clearLayout();
+			return false;
+		}
+
 		Rectangle displayArea = this.bookmarkGrid.getArea();
-		Rectangle navigationArea = new Rectangle(2, movedNavigationArea.y, displayArea.width, NAVIGATION_HEIGHT);
+		Rectangle navigationArea = layout.getNavigationArea();
 		this.navigation.updateBounds(navigationArea);
-		this.groupOrganizer.updateBounds(groupOrganizerBounds);
+		this.groupOrganizer.updateBounds(contentArea);
 		this.area = displayArea.union(navigationArea);
 		return true;
+	}
+
+	private void clearLayout() {
+		this.area = new Rectangle();
+		this.navigation.updateBounds(new Rectangle());
+		this.bookmarkGrid.clearLayout();
+		this.groupOrganizer.clearLayout();
 	}
 
 	public Rectangle getArea() {
