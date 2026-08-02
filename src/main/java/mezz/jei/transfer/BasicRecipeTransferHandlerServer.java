@@ -1,6 +1,5 @@
 package mezz.jei.transfer;
 
-import mezz.jei.Internal;
 import mezz.jei.JustEnoughItems;
 import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
 import mezz.jei.network.packets.PacketCraftUpdate;
@@ -291,7 +290,7 @@ public final class BasicRecipeTransferHandlerServer {
 			if (slotNumber >= 0 && slotNumber < container.inventorySlots.size()) {
 				Slot slot = container.getSlot(slotNumber);
 				ItemStack slotStack = slot.getStack();
-				if (!slotStack.isEmpty() && Internal.getStackHelper().isEquivalent(itemStack, slotStack)) {
+				if (ItemStack.areItemsEqual(itemStack, slotStack) && ItemStack.areItemStackTagsEqual(itemStack, slotStack)) {
 					return slot;
 				}
 			}
