@@ -227,12 +227,12 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 
 		@Override
 		public boolean hasNext() {
-			return true;
+			return getPageNumber() < getPageCount() - 1;
 		}
 
 		@Override
 		public boolean hasPrevious() {
-			return true;
+			return getPageNumber() > 0;
 		}
 
 		@Override
@@ -259,4 +259,3 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 		}
 	}
 }
-
