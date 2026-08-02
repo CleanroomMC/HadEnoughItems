@@ -224,6 +224,9 @@ public class RecipeRegistry implements IRecipeRegistry {
 		ErrorUtil.checkNotNull(recipe, "recipe");
 		ErrorUtil.checkNotNull(recipeCategoryUid, "recipeCategoryUid");
 		ErrorUtil.assertMainThread();
+		if (Config.isRecipeCategoryDisabled(recipeCategoryUid)) {
+			return;
+		}
 
 		IRecipeCategory recipeCategory = getRecipeCategory(recipeCategoryUid);
 		if (recipeCategory == null) {
@@ -248,15 +251,18 @@ public class RecipeRegistry implements IRecipeRegistry {
 				return;
 			}
 		}
+		if (Config.isRecipeCategoryDisabled(recipeCategoryUid)) {
+			return;
+		}
+
+		IRecipeCategory recipeCategory = getRecipeCategory(recipeCategoryUid);
+		if (recipeCategory == null) {
+			Log.get().error("No recipe category registered for recipeCategoryUid: {}", recipeCategoryUid);
+			return;
+		}
 
 		IRecipeWrapper recipeWrapper = getRecipeWrapper(recipe, recipeClass, recipeCategoryUid);
 		if (recipeWrapper != null) {
-			IRecipeCategory recipeCategory = getRecipeCategory(recipeCategoryUid);
-			if (recipeCategory == null) {
-				Log.get().error("No recipe category registered for recipeCategoryUid: {}", recipeCategoryUid);
-				return;
-			}
-
 			addRecipe(recipe, recipeWrapper, recipeCategory);
 		} else {
 			Log.get().debug("No recipe wrapper for recipe: {}", ErrorUtil.getNameForRecipe(recipe));

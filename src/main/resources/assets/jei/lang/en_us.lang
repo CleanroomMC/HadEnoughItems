@@ -207,6 +207,8 @@ config.hei.collapsible.collapsedClickAction.FIRST_ITEM=First Item
 
 config.jei.category.categoryUidOrder=Category UID Order
 config.jei.category.categoryUidOrder.comment=Determines the display order of recipe categories in HEI. Categories listed earlier appear first in the HEI interface.
+config.jei.category.disabledRecipeCategoryUids=Disabled Recipe Category UIDs
+config.jei.category.disabledRecipeCategoryUids.comment=Recipe category UIDs that HEI should skip loading. A game restart is required after changing this list.
 
 hei.generic.ticks=%d Ticks
 
