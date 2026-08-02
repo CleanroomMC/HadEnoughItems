@@ -53,6 +53,7 @@ public class ConfigValues {
 	public boolean skipShowingProgressBar = false;
 	public boolean hideBottomRightCornerConfigButton = false;
     public boolean hideBottomLeftCornerBookmarkButton = false;
+	// public boolean hideePageNavigationOnOnePage
 
     // category
 	public List<String> categoryUidOrder = new ArrayList<>();
