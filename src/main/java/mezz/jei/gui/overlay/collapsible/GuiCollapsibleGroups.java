@@ -50,11 +50,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	private static final int BTN_NEW = 1;
 	private static final int BTN_PREV_PAGE = 2;
 	private static final int BTN_NEXT_PAGE = 3;
-	private static final int BTN_TOGGLE_BASE = 100;
-	private static final int BTN_CONFIGURE_BASE = 200;
-	private static final int BTN_DELETE_BASE = 300;
-	private static final int BTN_DELETE_CONFIRM_BASE = 400;
-	private static final int BTN_DELETE_CANCEL_BASE = 500;
+	private static final int BTN_GROUP_ACTION = 4;
 
 	private final GuiScreen parentScreen;
 	private final List<GroupCardEntry> cardEntries = new ArrayList<>();
@@ -63,6 +59,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	/** Index into {@code cardEntries} of the custom group awaiting delete confirmation, or -1. */
 	private int pendingDeleteIdx = -1;
 	@Nullable private IIngredientListElement<?> tooltipElement = null;
+	private boolean rebuildPageButtonsPending = false;
 
 	// Drag-to-scroll state for card preview boxes
 	private int dragCardAbsIdx = -1;
@@ -150,7 +147,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 
 	private void rebuildPageButtons() {
 		// Remove old card-specific and page buttons
-		buttonList.removeIf(b -> b.id >= BTN_PREV_PAGE);
+		buttonList.removeIf(b -> b.id == BTN_PREV_PAGE || b.id == BTN_NEXT_PAGE || b instanceof GroupActionButton);
 
 		int startIdx = currentPage * cardsPerPage;
 		int endIdx = Math.min(startIdx + cardsPerPage, cardEntries.size());
@@ -170,21 +167,21 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			String toggleLabel = card.enabled
 				? Translator.translateToLocal("hei.gui.collapsible.enabled")
 				: Translator.translateToLocal("hei.gui.collapsible.disabled");
-			this.buttonList.add(new GuiButton(BTN_TOGGLE_BASE + i, btnX, btnY, 52, 20, toggleLabel));
+			this.buttonList.add(new GroupActionButton(GroupAction.TOGGLE, i, btnX, btnY, 52, 20, toggleLabel));
 
 			if (card.source == GroupSource.CUSTOM) {
 				if (i == pendingDeleteIdx) {
 					// Confirm row: ✔ Yes / ✗ No
-					this.buttonList.add(new GuiButton(BTN_DELETE_CONFIRM_BASE + i, btnX, btnY + 22, 24, 20,
+					this.buttonList.add(new GroupActionButton(GroupAction.DELETE_CONFIRM, i, btnX, btnY + 22, 24, 20,
 						"\u2714")); // ✔ checkmark
-					this.buttonList.add(new GuiButton(BTN_DELETE_CANCEL_BASE + i, btnX + 26, btnY + 22, 26, 20,
+					this.buttonList.add(new GroupActionButton(GroupAction.DELETE_CANCEL, i, btnX + 26, btnY + 22, 26, 20,
 						"\u2716")); // ✗ cancel
 				} else {
 					// Configure button
-					this.buttonList.add(new GuiButton(BTN_CONFIGURE_BASE + i, btnX, btnY + 22, 24, 20,
+					this.buttonList.add(new GroupActionButton(GroupAction.CONFIGURE, i, btnX, btnY + 22, 24, 20,
 						"\u270E")); // pencil unicode
 					// Delete button
-					this.buttonList.add(new GuiButton(BTN_DELETE_BASE + i, btnX + 26, btnY + 22, 26, 20,
+					this.buttonList.add(new GroupActionButton(GroupAction.DELETE, i, btnX + 26, btnY + 22, 26, 20,
 						"\u2716")); // cross unicode
 				}
 			}
@@ -216,19 +213,24 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		if (button.id == BTN_PREV_PAGE) {
 			currentPage = Math.max(0, currentPage - 1);
 			pendingDeleteIdx = -1;
-			rebuildPageButtons();
+			rebuildPageButtonsPending = true;
 			return;
 		}
 		if (button.id == BTN_NEXT_PAGE) {
 			currentPage = Math.min(totalPages - 1, currentPage + 1);
 			pendingDeleteIdx = -1;
-			rebuildPageButtons();
+			rebuildPageButtonsPending = true;
 			return;
 		}
 
+		if (!(button instanceof GroupActionButton)) {
+			return;
+		}
+		GroupActionButton groupButton = (GroupActionButton) button;
+		int idx = groupButton.groupIndex;
+
 		// Toggle
-		if (button.id >= BTN_TOGGLE_BASE && button.id < BTN_CONFIGURE_BASE) {
-			int idx = button.id - BTN_TOGGLE_BASE;
+		if (groupButton.action == GroupAction.TOGGLE) {
 			if (idx >= 0 && idx < cardEntries.size()) {
 				GroupCardEntry card = cardEntries.get(idx);
 				card.enabled = !card.enabled;
@@ -243,14 +245,13 @@ public class GuiCollapsibleGroups extends GuiScreen {
 					filter.notifyListenersOfChange();
 				}
 
-				rebuildPageButtons();
+				rebuildPageButtonsPending = true;
 			}
 			return;
 		}
 
 		// Configure
-		if (button.id >= BTN_CONFIGURE_BASE && button.id < BTN_DELETE_BASE) {
-			int idx = button.id - BTN_CONFIGURE_BASE;
+		if (groupButton.action == GroupAction.CONFIGURE) {
 			if (idx >= 0 && idx < cardEntries.size()) {
 				GroupCardEntry card = cardEntries.get(idx);
 				if (card.source == GroupSource.CUSTOM) {
@@ -268,18 +269,16 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		}
 
 		// Delete — first click: arm confirmation
-		if (button.id >= BTN_DELETE_BASE && button.id < BTN_DELETE_CONFIRM_BASE) {
-			int idx = button.id - BTN_DELETE_BASE;
+		if (groupButton.action == GroupAction.DELETE) {
 			if (idx >= 0 && idx < cardEntries.size() && cardEntries.get(idx).source == GroupSource.CUSTOM) {
 				pendingDeleteIdx = idx;
-				rebuildPageButtons();
+				rebuildPageButtonsPending = true;
 			}
 			return;
 		}
 
 		// Delete confirmed — execute the actual removal
-		if (button.id >= BTN_DELETE_CONFIRM_BASE && button.id < BTN_DELETE_CANCEL_BASE) {
-			int idx = button.id - BTN_DELETE_CONFIRM_BASE;
+		if (groupButton.action == GroupAction.DELETE_CONFIRM) {
 			pendingDeleteIdx = -1;
 			if (idx >= 0 && idx < cardEntries.size()) {
 				GroupCardEntry card = cardEntries.get(idx);
@@ -297,7 +296,7 @@ public class GuiCollapsibleGroups extends GuiScreen {
 						}
 
 						rebuildCards();
-						rebuildPageButtons();
+						rebuildPageButtonsPending = true;
 					}
 				}
 			}
@@ -305,9 +304,9 @@ public class GuiCollapsibleGroups extends GuiScreen {
 		}
 
 		// Delete cancelled
-		if (button.id >= BTN_DELETE_CANCEL_BASE) {
+		if (groupButton.action == GroupAction.DELETE_CANCEL) {
 			pendingDeleteIdx = -1;
-			rebuildPageButtons();
+			rebuildPageButtonsPending = true;
 		}
 	}
 
@@ -498,6 +497,10 @@ public class GuiCollapsibleGroups extends GuiScreen {
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		super.mouseClicked(mouseX, mouseY, mouseButton);
+		if (rebuildPageButtonsPending) {
+			rebuildPageButtonsPending = false;
+			rebuildPageButtons();
+		}
 		if (mouseButton == 0) {
 			dragCardAbsIdx = -1;
 			int slotSize = PREVIEW_SIZE + 2;
@@ -608,6 +611,25 @@ public class GuiCollapsibleGroups extends GuiScreen {
 			this.enabled = enabled;
 			this.previewItems = previewItems;
 			this.itemCount = itemCount;
+		}
+	}
+
+	private enum GroupAction {
+		TOGGLE,
+		CONFIGURE,
+		DELETE,
+		DELETE_CONFIRM,
+		DELETE_CANCEL
+	}
+
+	private static class GroupActionButton extends GuiButton {
+		private final GroupAction action;
+		private final int groupIndex;
+
+		private GroupActionButton(GroupAction action, int groupIndex, int x, int y, int width, int height, String text) {
+			super(BTN_GROUP_ACTION, x, y, width, height, text);
+			this.action = action;
+			this.groupIndex = groupIndex;
 		}
 	}
 }
