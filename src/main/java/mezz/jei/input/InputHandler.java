@@ -304,11 +304,10 @@ public class InputHandler {
 			return true;
 		}
 
-		if (handleGlobalKeybinds(eventKey)) {
-			return true;
-		}
-
 		if (!isContainerTextFieldFocused()) {
+			if (handleGlobalKeybinds(eventKey)) {
+				return true;
+			}
 			if (KeyBindings.toggleOverlay.isActiveAndMatches(eventKey)) {
 				Config.toggleOverlayEnabled();
 				return true;
