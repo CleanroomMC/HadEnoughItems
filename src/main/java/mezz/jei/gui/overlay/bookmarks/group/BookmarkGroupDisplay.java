@@ -4,6 +4,7 @@ import mezz.jei.Internal;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.bookmarks.BookmarkGroup;
 import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 
 import java.awt.*;
@@ -43,8 +44,10 @@ public class BookmarkGroupDisplay implements IGhostIngredientHandler.Target {
 			if (group.addItem(item, toFront)) {
 				if (!Config.isBookmarkOverlayEnabled())
 					Config.toggleBookmarkEnabled();
-				Internal.getBookmarkList().saveBookmarks();
-				Internal.getBookmarkList().notifyListenersOfChange();
+				BookmarkList bookmarkList = Internal.getBookmarkList();
+				bookmarkList.notifyListenersOfAddition(item);
+				bookmarkList.saveBookmarks();
+				bookmarkList.notifyListenersOfChange();
 			}
 		}
 	}

@@ -3,35 +3,47 @@ package mezz.jei.render;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2LongMap;
+import it.unimi.dsi.fastutil.objects.Reference2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
 import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.input.ClickedIngredient;
+import net.minecraft.client.Minecraft;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
+	private static final long BOOKMARK_ADD_ANIMATION_DURATION_MS = 500;
+
 	private final BookmarkGroupOrganizer groupOrganizer;
 	private final Set<BookmarkItem> bookmarkExpandedItems = new ObjectOpenHashSet<>();
 	private final List<Runnable> bookmarkCollapseListeners = new ArrayList<>();
-	private List<IIngredientListElement> cachedDisplayElements = Collections.emptyList();
-	private IntList cachedDisplayGroupIndices = new IntArrayList();
 	private final Map<CollapsedGroupRenderer, BookmarkItem> collapsedRendererToBookmark = new Reference2ObjectOpenHashMap<>();
 	private final Map<IIngredientListElement, BookmarkItem> expandedElementToBookmark = new Reference2ObjectOpenHashMap<>();
+	private final Reference2LongMap<BookmarkItem<?>> bookmarkAddAnimations = new Reference2LongOpenHashMap<>();
+	private final Map<IngredientRenderer<?>, BookmarkItem<?>> ingredientRendererToBookmark = new Reference2ObjectOpenHashMap<>();
 
-	public BookmarkListBatchRenderer(BookmarkGroupOrganizer groupOrganizer) {
+	private List<IIngredientListElement> cachedDisplayElements = Collections.emptyList();
+	private IntList cachedDisplayGroupIndices = new IntArrayList();
+	private boolean renderingAnimationFrame;
+
+	public BookmarkListBatchRenderer(BookmarkGroupOrganizer groupOrganizer, BookmarkList bookmarkList) {
 		super();
 		this.groupOrganizer = groupOrganizer;
+		bookmarkList.addAdditionListener(this::animateBookmarkAddition);
 	}
 
 	public void toggleBookmarkItemExpanded(BookmarkItem item) {
@@ -154,8 +166,12 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
 
 	@Override
 	public void setCollapsed(int startIndex, List<IIngredientListElement> collapsedList) {
+		ingredientRendererToBookmark.clear();
+		collapsedRendererToBookmark.clear();
+		expandedElementToBookmark.clear();
 		if (!Config.areRecipeBookmarksEnabled()) {
 			super.setCollapsed(startIndex, collapsedList);
+			trackBookmarkRenderersFromSlots();
 			return;
 		}
 
@@ -166,8 +182,6 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
 		collapsedStackIndexed.clear();
 		expandedElementToGroup.clear();
 		expandedGroupSlots.clear();
-		collapsedRendererToBookmark.clear();
-		expandedElementToBookmark.clear();
 		maxSize = 0;
 		size = 0;
 
@@ -270,6 +284,10 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
 					collapsedRendererToBookmark.put(renderer, bookmarkItem);
 				} else {
 					set(ingredientListSlot, displayItem);
+					BookmarkItem<?> renderedBookmark = ingredient instanceof BookmarkItem
+						? (BookmarkItem<?>) ingredient
+						: expandedElementToBookmark.get(displayItem);
+					trackIngredientRenderer(ingredientListSlot, renderedBookmark);
 					CollapsedGroupIngredient parentCollapsed = itemToCollapsed.get(displayItem);
 					if (parentCollapsed != null) {
 						collapsedStackIndexed.put(slotIndex, parentCollapsed);
@@ -286,6 +304,79 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
 
 		groupOrganizer.setBookmarkGroupIds(groupIndices);
 		invalidateBuffer();
+	}
+
+	@Override
+	public void render(Minecraft minecraft) {
+		if (renderingAnimationFrame) {
+			super.render(minecraft);
+			return;
+		}
+		updateAnimationScales();
+		renderingAnimationFrame = true;
+		try {
+			super.render(minecraft);
+		} finally {
+			renderingAnimationFrame = false;
+		}
+	}
+
+	private void animateBookmarkAddition(BookmarkItem<?> bookmarkItem) {
+		bookmarkAddAnimations.put(bookmarkItem, Minecraft.getSystemTime());
+	}
+
+	private void trackBookmarkRenderersFromSlots() {
+		for (List<IngredientListSlot> row : slots) {
+			for (IngredientListSlot slot : row) {
+				IngredientRenderer<?> renderer = slot.getIngredientRenderer();
+				if (renderer != null && renderer.getElement().getIngredient() instanceof BookmarkItem) {
+					ingredientRendererToBookmark.put(renderer, (BookmarkItem<?>) renderer.getElement().getIngredient());
+				}
+			}
+		}
+	}
+
+	private void trackIngredientRenderer(IngredientListSlot slot, @Nullable BookmarkItem<?> bookmarkItem) {
+		IngredientRenderer<?> renderer = slot.getIngredientRenderer();
+		if (renderer != null && bookmarkItem != null) {
+			ingredientRendererToBookmark.put(renderer, bookmarkItem);
+		}
+	}
+
+	private void updateAnimationScales() {
+		if (bookmarkAddAnimations.isEmpty()) {
+			return;
+		}
+
+		long now = Minecraft.getSystemTime();
+		bookmarkAddAnimations.entrySet().removeIf(entry -> now - entry.getValue() >= BOOKMARK_ADD_ANIMATION_DURATION_MS);
+		boolean visibleAnimation = false;
+
+		if (!bookmarkAddAnimations.isEmpty()) {
+			for (Map.Entry<IngredientRenderer<?>, BookmarkItem<?>> entry : ingredientRendererToBookmark.entrySet()) {
+				Long startTime = bookmarkAddAnimations.get(entry.getValue());
+				float scale = startTime == null ? 1.0F : getPopScale(now - startTime);
+				entry.getKey().setRenderScale(scale);
+				visibleAnimation |= startTime != null;
+			}
+			for (Map.Entry<CollapsedGroupRenderer, BookmarkItem> entry : collapsedRendererToBookmark.entrySet()) {
+				Long startTime = bookmarkAddAnimations.get(entry.getValue());
+				float scale = startTime == null ? 1.0F : getPopScale(now - startTime);
+				entry.getKey().setRenderScale(scale);
+				visibleAnimation |= startTime != null;
+			}
+		}
+
+		if (visibleAnimation || !bookmarkAddAnimations.isEmpty()) {
+			invalidateBuffer();
+		}
+	}
+
+	private static float getPopScale(long elapsedMs) {
+		float progress = Math.min(1.0F, Math.max(0.0F, elapsedMs / (float) BOOKMARK_ADD_ANIMATION_DURATION_MS));
+		float shifted = progress - 1.0F;
+		float overshoot = 1.70158F;
+		return 1.0F + (overshoot + 1.0F) * shifted * shifted * shifted + overshoot * shifted * shifted;
 	}
 
 	/**

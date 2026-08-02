@@ -35,8 +35,10 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 	public static final CollapsedGroupRenderer INSTANCE = new CollapsedGroupRenderer(null);
 
 	private final CollapsedGroupIngredient collapsedStack;
+
 	private Rectangle area = new Rectangle(0, 0, 16, 16);
 	private int padding;
+	private float renderScale = 1.0F;
 
 	public CollapsedGroupRenderer(CollapsedGroupIngredient collapsedStack) {
 		this.collapsedStack = collapsedStack;
@@ -58,12 +60,33 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		return area;
 	}
 
+	public void setRenderScale(float renderScale) {
+		this.renderScale = renderScale;
+	}
+
+	protected void beginRenderTransform() {
+		GlStateManager.pushMatrix();
+		if (renderScale == 1.0F) {
+			return;
+		}
+		float centerX = area.x + area.width / 2.0F;
+		float centerY = area.y + area.height / 2.0F;
+		GlStateManager.translate(centerX, centerY, 0.0F);
+		GlStateManager.scale(renderScale, renderScale, renderScale);
+		GlStateManager.translate(-centerX, -centerY, 0.0F);
+	}
+
 	/** Grid overlay render - uses this instance's stack and area+padding. */
 	public void render(Minecraft minecraft) {
 		if (collapsedStack == null || collapsedStack.isEmpty()) {
 			return;
 		}
-		renderAt(minecraft, collapsedStack, area.x + padding, area.y + padding);
+		beginRenderTransform();
+		try {
+			renderAt(minecraft, collapsedStack, area.x + padding, area.y + padding);
+		} finally {
+			GlStateManager.popMatrix();
+		}
 	}
 
 	/**

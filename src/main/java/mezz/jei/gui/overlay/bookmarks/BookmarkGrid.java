@@ -1,6 +1,7 @@
 package mezz.jei.gui.overlay.bookmarks;
 
 import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IngredientGrid;
@@ -24,8 +25,8 @@ public class BookmarkGrid extends IngredientGrid {
 	private final GridAlignment alignment;
 	private Rectangle area = new Rectangle();
 
-	public BookmarkGrid(GridAlignment alignment, BookmarkGroupOrganizer groupOrganizer) {
-		super(new BookmarkListBatchRenderer(groupOrganizer), alignment);
+	public BookmarkGrid(GridAlignment alignment, BookmarkGroupOrganizer groupOrganizer, BookmarkList bookmarkList) {
+		super(new BookmarkListBatchRenderer(groupOrganizer, bookmarkList), alignment);
 		this.alignment = alignment;
 	}
 

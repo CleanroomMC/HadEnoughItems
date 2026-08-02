@@ -3,6 +3,7 @@ package mezz.jei.gui.overlay.bookmarks;
 import it.unimi.dsi.fastutil.ints.IntList;
 import mezz.jei.Internal;
 import mezz.jei.bookmarks.BookmarkItem;
+import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.PageNavigation;
@@ -44,9 +45,9 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 	private BookmarkGroupOrganizer groupOrganizer;
 	private Rectangle area = new Rectangle();
 
-	public BookmarkGridWithNavigation(IIngredientGridSource ingredientSource, GuiScreenHelper guiScreenHelper, GridAlignment alignment) {
+	public BookmarkGridWithNavigation(BookmarkList ingredientSource, GuiScreenHelper guiScreenHelper, GridAlignment alignment) {
 		this.groupOrganizer = new BookmarkGroupOrganizer();
-		this.bookmarkGrid = new BookmarkGrid(alignment, groupOrganizer);
+		this.bookmarkGrid = new BookmarkGrid(alignment, groupOrganizer, ingredientSource);
 		this.ingredientSource = ingredientSource;
 		this.bookmarkCount = ingredientSource.size();
 		this.guiScreenHelper = guiScreenHelper;

@@ -37,6 +37,7 @@ public class IngredientRenderer<T> {
 	protected final IIngredientListElement<T> element;
 	protected Rectangle area = DEFAULT_AREA;
 	protected int padding;
+	private float renderScale = 1.0F;
 
 	public IngredientRenderer(IIngredientListElement<T> element) {
 		this.element = element;
@@ -58,17 +59,42 @@ public class IngredientRenderer<T> {
 		return area;
 	}
 
-	public void renderSlow() {
-		if (Config.isEditModeEnabled()) {
-			renderEditMode(element, area, padding);
-		}
+	public void setRenderScale(float renderScale) {
+		this.renderScale = renderScale;
+	}
 
+	protected boolean beginRenderTransform() {
+		if (renderScale == 1.0F) {
+			return false;
+		}
+		float centerX = area.x + area.width / 2.0F;
+		float centerY = area.y + area.height / 2.0F;
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(centerX, centerY, 0.0F);
+		GlStateManager.scale(renderScale, renderScale, renderScale);
+		GlStateManager.translate(-centerX, -centerY, 0.0F);
+		return true;
+	}
+
+	protected void endRenderTransform(boolean transformed) {
+		if (transformed) {
+			GlStateManager.popMatrix();
+		}
+	}
+
+	public void renderSlow() {
+		boolean transformed = beginRenderTransform();
 		try {
+			if (Config.isEditModeEnabled()) {
+				renderEditMode(element, area, padding);
+			}
 			IIngredientRenderer<T> ingredientRenderer = element.getIngredientRenderer();
 			T ingredient = element.getIngredient();
 			ingredientRenderer.render(Minecraft.getMinecraft(), area.x + padding, area.y + padding, ingredient);
 		} catch (RuntimeException | LinkageError e) {
 			throw ErrorUtil.createRenderIngredientException(e, element.getIngredient());
+		} finally {
+			endRenderTransform(transformed);
 		}
 	}
 
