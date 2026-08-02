@@ -9,6 +9,7 @@ import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.api.gui.IGlobalGuiHandler;
 import mezz.jei.api.gui.IGuiScreenHandler;
+import mezz.jei.api.gui.ISlotIngredientProvider;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
@@ -112,7 +113,8 @@ public class JeiStarter {
 		List<IGlobalGuiHandler> globalGuiHandlers = modRegistry.getGlobalGuiHandlers();
 		Map<Class, IGuiScreenHandler> guiScreenHandlers = modRegistry.getGuiScreenHandlers();
 		Map<Class, IGhostIngredientHandler> ghostIngredientHandlers = modRegistry.getGhostIngredientHandlers();
-		GuiScreenHelper guiScreenHelper = new GuiScreenHelper(ingredientRegistry, globalGuiHandlers, advancedGuiHandlers, ghostIngredientHandlers, guiScreenHandlers);
+		Map<Class, ISlotIngredientProvider> slotIngredientProviders = modRegistry.getSlotIngredientProviders();
+		GuiScreenHelper guiScreenHelper = new GuiScreenHelper(ingredientRegistry, globalGuiHandlers, advancedGuiHandlers, ghostIngredientHandlers, slotIngredientProviders, guiScreenHandlers);
 		GhostIngredientDragManager ghostIngredientDragManager = new GhostIngredientDragManager(guiScreenHelper, ingredientRegistry);
 		IngredientListOverlay ingredientListOverlay = new IngredientListOverlay(ingredientFilter, ingredientRegistry, guiScreenHelper, ghostIngredientDragManager);
 

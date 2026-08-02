@@ -31,7 +31,8 @@ public class GuiContainerWrapper implements IShowsRecipeFocuses {
 			ItemStack stack = slotUnderMouse.getStack();
 			if (!stack.isEmpty()) {
 				Rectangle slotArea = new Rectangle(slotUnderMouse.xPos, slotUnderMouse.yPos, 16, 16);
-				return ClickedIngredient.create(stack, slotArea);
+				Object ingredient = guiScreenHelper.getSlotIngredient(guiContainer, slotUnderMouse, stack);
+				return ClickedIngredient.create(ingredient, slotArea);
 			}
 		}
 		return guiScreenHelper.getPluginsIngredientUnderMouse(guiContainer, mouseX, mouseY);

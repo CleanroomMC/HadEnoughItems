@@ -23,6 +23,7 @@ import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.api.gui.IGlobalGuiHandler;
 import mezz.jei.api.gui.IGuiScreenHandler;
+import mezz.jei.api.gui.ISlotIngredientProvider;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IIngredientType;
@@ -60,6 +61,7 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 	private final List<IGlobalGuiHandler> globalGuiHandlers = new ArrayList<>();
 	private final Map<Class, IGuiScreenHandler> guiScreenHandlers = new Reference2ObjectOpenHashMap<>();
 	private final Map<Class, IGhostIngredientHandler> ghostIngredientHandlers = new Reference2ObjectOpenHashMap<>();
+	private final Map<Class, ISlotIngredientProvider> slotIngredientProviders = new Reference2ObjectOpenHashMap<>();
 	@Deprecated
 	private final List<Object> unsortedRecipes = new ArrayList<>();
 	private final ListMultiMap<String, Object> recipes = new ListMultiMap<>();
@@ -240,6 +242,14 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 	}
 
 	@Override
+	public <T extends GuiContainer> void addSlotIngredientProvider(Class<T> guiClass, ISlotIngredientProvider<T> provider) {
+		ErrorUtil.checkNotNull(guiClass, "guiClass");
+		Preconditions.checkArgument(GuiContainer.class.isAssignableFrom(guiClass), "guiClass must inherit from GuiContainer");
+		ErrorUtil.checkNotNull(provider, "provider");
+		this.slotIngredientProviders.put(guiClass, provider);
+	}
+
+	@Override
 	@Deprecated
 	public void addDescription(List<ItemStack> itemStacks, String... descriptionKeys) {
 		addIngredientInfo(itemStacks, VanillaTypes.ITEM, descriptionKeys);
@@ -326,6 +336,10 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 
 	public Map<Class, IGhostIngredientHandler> getGhostIngredientHandlers() {
 		return ghostIngredientHandlers;
+	}
+
+	public Map<Class, ISlotIngredientProvider> getSlotIngredientProviders() {
+		return slotIngredientProviders;
 	}
 
 	public RecipeRegistry createRecipeRegistry(IngredientRegistry ingredientRegistry) {
