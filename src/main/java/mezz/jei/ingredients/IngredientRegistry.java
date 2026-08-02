@@ -275,14 +275,14 @@ public class IngredientRegistry implements IIngredientRegistry {
 				List<IIngredientListElement<V>> matchingElements = ingredientFilter.findMatchingElements(element);
 				if (!matchingElements.isEmpty()) {
 					for (IIngredientListElement<V> matchingElement : matchingElements) {
-						blacklist.removeIngredientFromBlacklist(matchingElement.getIngredient(), ingredientHelper);
+						blacklist.removeIngredientFromRuntimeBlacklist(matchingElement.getIngredient(), ingredientHelper);
 						ingredientFilter.updateHiddenState(matchingElement);
 					}
 					if (Config.isDebugModeEnabled()) {
 						Log.get().debug("Updated ingredient: {}", ingredientHelper.getErrorInfo(element.getIngredient()));
 					}
 				} else {
-					blacklist.removeIngredientFromBlacklist(element.getIngredient(), ingredientHelper);
+					blacklist.removeIngredientFromRuntimeBlacklist(element.getIngredient(), ingredientHelper);
 					ingredientsToAdd.add(element);
 					if (Config.isDebugModeEnabled()) {
 						Log.get().debug("Added ingredient: {}", ingredientHelper.getErrorInfo(element.getIngredient()));
@@ -376,7 +376,7 @@ public class IngredientRegistry implements IIngredientRegistry {
 					Log.get().debug("Removed ingredient: {}", ingredientHelper.getErrorInfo(element.getIngredient()));
 				}
 				for (IIngredientListElement<V> matchingElement : matchingElements) {
-					blacklist.addIngredientToBlacklist(matchingElement.getIngredient(), ingredientHelper);
+					blacklist.addIngredientToRuntimeBlacklist(matchingElement.getIngredient(), ingredientHelper);
 					matchingElement.setVisible(false);
 				}
 			}

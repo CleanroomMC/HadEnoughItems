@@ -85,6 +85,9 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	}
 
 	public void addIngredients(NonNullList<IIngredientListElement> ingredients) {
+		for (IIngredientListElement<?> ingredient : ingredients) {
+			updateHiddenState(ingredient);
+		}
 		ingredients.sort(IngredientListElementComparator.INSTANCE);
 		this.elementSearch.addAll(ingredients);
 		invalidateCache();
@@ -260,6 +263,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			rebuild = false;
 			this.afterBlock = true;
 		}
+		updateHidden();
 	}
 
 	@SubscribeEvent
@@ -283,7 +287,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public <V> void updateHiddenState(IIngredientListElement<V> element) {
 		V ingredient = element.getIngredient();
 		IIngredientHelper<V> ingredientHelper = element.getIngredientHelper();
-		boolean visible = !blacklist.isIngredientBlacklistedByApi(ingredient, ingredientHelper) &&
+		boolean visible = !blacklist.isIngredientBlacklistedByApiOrRuntime(ingredient, ingredientHelper) &&
 			ingredientHelper.isIngredientOnServer(ingredient) &&
 			(Config.isEditModeEnabled() || !Config.isIngredientOnConfigBlacklist(ingredient, ingredientHelper));
 		if (element.isVisible() != visible) {
@@ -561,6 +565,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	public void replaceBlacklist(IngredientBlacklistInternal blacklist) {
 		this.blacklist = blacklist;
+		updateHidden();
 	}
 
 	public void notifyListenersOfChange() {
