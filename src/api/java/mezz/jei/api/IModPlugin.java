@@ -67,7 +67,7 @@ public interface IModPlugin {
 	/**
 	 * Register advanced ingredient-search behavior.
 	 *
-	 * @since HEI 4.33.0
+	 * @since HEI 5.0.0
 	 */
 	default void registerAdvancedSearch(IAdvancedSearchRegistry registry) {
 
