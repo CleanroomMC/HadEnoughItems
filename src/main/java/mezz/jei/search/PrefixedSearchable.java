@@ -1,6 +1,8 @@
 package mezz.jei.search;
 
 import mezz.jei.config.Config;
+import mezz.jei.api.search.ISearchIndex;
+import mezz.jei.api.search.ISearchIndexBuilder;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.util.LoggedTimer;
@@ -14,26 +16,26 @@ import java.util.Set;
 
 public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>>, IBuildable {
 
-    protected final ISearchStorageBuilder<IIngredientListElement<?>> searchStorageBuilder;
+    protected final ISearchIndexBuilder<IIngredientListElement<?>> searchIndexBuilder;
     protected final PrefixInfo prefixInfo;
 
     /**
      * Null until {@link #build()} bakes the builder's contents.
-     * Submits that arrive afterwards go straight to the storage, which handles them itself.
+     * Submits that arrive afterwards go straight to the index, which handles them itself.
      */
     @Nullable
-    protected volatile ISearchStorage<IIngredientListElement<?>> searchStorage;
+    protected volatile ISearchIndex<IIngredientListElement<?>> searchIndex;
 
     protected LoggedTimer timer;
 
-    public PrefixedSearchable(ISearchStorageBuilder<IIngredientListElement<?>> searchStorageBuilder, PrefixInfo prefixInfo) {
-        this.searchStorageBuilder = searchStorageBuilder;
+    public PrefixedSearchable(ISearchIndexBuilder<IIngredientListElement<?>> searchIndexBuilder, PrefixInfo prefixInfo) {
+        this.searchIndexBuilder = searchIndexBuilder;
         this.prefixInfo = prefixInfo;
     }
 
     @Nullable
-    public ISearchStorage<IIngredientListElement<?>> getSearchStorage() {
-        return searchStorage;
+    public ISearchIndex<IIngredientListElement<?>> getSearchIndex() {
+        return searchIndex;
     }
 
     public Collection<String> getStrings(IIngredientListElement<?> element) {
@@ -51,12 +53,12 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
             return;
         }
         Collection<String> strings = prefixInfo.getStrings(ingredient);
-        ISearchStorage<IIngredientListElement<?>> storage = this.searchStorage;
+        ISearchIndex<IIngredientListElement<?>> index = this.searchIndex;
         for (String string : strings) {
-            if (storage == null) {
-                searchStorageBuilder.put(string, ingredient);
+            if (index == null) {
+                searchIndexBuilder.put(string, ingredient);
             } else {
-                storage.put(string, ingredient);
+                index.put(string, ingredient);
             }
         }
     }
@@ -105,28 +107,28 @@ public class PrefixedSearchable implements ISearchable<IIngredientListElement<?>
 
     @Override
     public void getSearchResults(String token, Set<IIngredientListElement<?>> results) {
-        ISearchStorage<IIngredientListElement<?>> storage = this.searchStorage;
-        if (storage != null) {
-            storage.getSearchResults(token, results);
+        ISearchIndex<IIngredientListElement<?>> index = this.searchIndex;
+        if (index != null) {
+            index.getSearchResults(token, results);
         }
     }
 
     @Override
     public void getAllElements(Set<IIngredientListElement<?>> results) {
-        ISearchStorage<IIngredientListElement<?>> storage = this.searchStorage;
-        if (storage != null) {
-            storage.getAllElements(results);
+        ISearchIndex<IIngredientListElement<?>> index = this.searchIndex;
+        if (index != null) {
+            index.getAllElements(results);
         }
     }
 
     /**
-     * Bakes everything submitted so far into the search storage. Idempotent:
-     * once built, later submits are handled by the storage itself.
+     * Bakes everything submitted so far into the search index. Idempotent:
+     * once built, later submits are handled by the index itself.
      */
     @Override
     public void build() {
-        if (this.searchStorage == null) {
-            this.searchStorage = this.searchStorageBuilder.build();
+        if (this.searchIndex == null) {
+            this.searchIndex = this.searchIndexBuilder.build();
         }
     }
 

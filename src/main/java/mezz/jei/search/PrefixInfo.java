@@ -2,33 +2,31 @@ package mezz.jei.search;
 
 import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
+import mezz.jei.api.search.ISearchIndexBuilder;
+import mezz.jei.api.search.ISearchIndexBuilderFactory;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.util.StringUtil;
 import mezz.jei.util.Translator;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 public class PrefixInfo implements Comparable<PrefixInfo> {
 
     public static final PrefixInfo NO_PREFIX;
 
     private static final Char2ObjectMap<PrefixInfo> instances = new Char2ObjectArrayMap<>(6);
-    private static final Supplier<ISearchStorageBuilder<IIngredientListElement<?>>> BAKED = BakedSubstringIndexBuilder::new;
-    private static final Supplier<ISearchStorageBuilder<IIngredientListElement<?>>> LIMITED_BAKED =
-            () -> new LimitedStringStorageBuilder<IIngredientListElement<?>>(BakedSubstringIndexBuilder::new);
 
     static {
         NO_PREFIX = new PrefixInfo('\0', -1, true, "default", () -> Config.SearchMode.ENABLED, i -> Collections.singleton(Translator.toLowercaseWithLocale(i.getDisplayName())),
-                BAKED);
-        addPrefix(new PrefixInfo('#', 0, true, false, "tooltip", Config::getTooltipSearchMode, IIngredientListElement::getTooltipStrings, BAKED));
+                false);
+        addPrefix(new PrefixInfo('#', 0, true, false, "tooltip", Config::getTooltipSearchMode, IIngredientListElement::getTooltipStrings, false));
         addPrefix(new PrefixInfo('&', 1, false, "resource_id", Config::getResourceIdSearchMode,
-                e -> Collections.singleton(Translator.toLowercaseWithLocale(e.getResourceId())), BAKED));
-        addPrefix(new PrefixInfo('^', 2, true, "color", Config::getColorSearchMode, IIngredientListElement::getColorStrings, LIMITED_BAKED));
-        addPrefix(new PrefixInfo('$', 3, false, "oredict", Config::getOreDictSearchMode, IIngredientListElement::getOreDictStrings, LIMITED_BAKED));
-        addPrefix(new PrefixInfo('@', 4, false, "mod_name", Config::getModNameSearchMode, IIngredientListElement::getModNameStrings, LIMITED_BAKED));
-        addPrefix(new PrefixInfo('%', 5, true, "creative_tab", Config::getCreativeTabSearchMode, IIngredientListElement::getCreativeTabsStrings, LIMITED_BAKED));
+                e -> Collections.singleton(Translator.toLowercaseWithLocale(e.getResourceId())), false));
+        addPrefix(new PrefixInfo('^', 2, true, "color", Config::getColorSearchMode, IIngredientListElement::getColorStrings, true));
+        addPrefix(new PrefixInfo('$', 3, false, "oredict", Config::getOreDictSearchMode, IIngredientListElement::getOreDictStrings, true));
+        addPrefix(new PrefixInfo('@', 4, false, "mod_name", Config::getModNameSearchMode, IIngredientListElement::getModNameStrings, true));
+        addPrefix(new PrefixInfo('%', 5, true, "creative_tab", Config::getCreativeTabSearchMode, IIngredientListElement::getCreativeTabsStrings, true));
     }
 
     private static void addPrefix(PrefixInfo info) {
@@ -49,15 +47,15 @@ public class PrefixInfo implements Comparable<PrefixInfo> {
     private final String desc;
     private final IModeGetter modeGetter;
     private final IStringsGetter stringsGetter;
-    private final Supplier<ISearchStorageBuilder<IIngredientListElement<?>>> storage;
+    private final boolean limitedStringIndex;
 
     public PrefixInfo(char prefix, int priority, boolean potentialDialecticInclusion, String desc, IModeGetter modeGetter, IStringsGetter stringsGetter,
-                      Supplier<ISearchStorageBuilder<IIngredientListElement<?>>> storage) {
-        this(prefix, priority, potentialDialecticInclusion, true, desc, modeGetter, stringsGetter, storage);
+                      boolean limitedStringIndex) {
+        this(prefix, priority, potentialDialecticInclusion, true, desc, modeGetter, stringsGetter, limitedStringIndex);
     }
 
     public PrefixInfo(char prefix, int priority, boolean potentialDialecticInclusion, boolean async, String desc, IModeGetter modeGetter, IStringsGetter stringsGetter,
-                      Supplier<ISearchStorageBuilder<IIngredientListElement<?>>> storage) {
+                      boolean limitedStringIndex) {
         this.prefix = prefix;
         this.priority = priority;
         this.potentialDialecticInclusion = potentialDialecticInclusion;
@@ -65,7 +63,7 @@ public class PrefixInfo implements Comparable<PrefixInfo> {
         this.desc = desc;
         this.modeGetter = modeGetter;
         this.stringsGetter = stringsGetter;
-        this.storage = storage;
+        this.limitedStringIndex = limitedStringIndex;
     }
 
     public char getPrefix() {
@@ -92,8 +90,11 @@ public class PrefixInfo implements Comparable<PrefixInfo> {
         return modeGetter.getMode();
     }
 
-    public ISearchStorageBuilder<IIngredientListElement<?>> createStorageBuilder() {
-        return this.storage.get();
+    public ISearchIndexBuilder<IIngredientListElement<?>> createIndexBuilder(ISearchIndexBuilderFactory factory) {
+        if (limitedStringIndex) {
+            return new LimitedStringIndexBuilder<>(factory, desc);
+        }
+        return factory.create(desc);
     }
 
     public Collection<String> getStrings(IIngredientListElement<?> element) {

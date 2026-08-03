@@ -1,8 +1,10 @@
 package mezz.jei.search;
 
+import mezz.jei.api.search.ISearchIndex;
+import mezz.jei.api.search.ISearchIndexBuilder;
 import mezz.jei.search.bakedsubstring.BakedSubstringIndex;
 
-public class BakedSubstringIndexBuilder<T> implements ISearchStorageBuilder<T> {
+public class BakedSubstringIndexBuilder<T> implements ISearchIndexBuilder<T> {
 
     private final BakedSubstringIndex.Builder<T> builder = BakedSubstringIndex.builder();
 
@@ -12,8 +14,8 @@ public class BakedSubstringIndexBuilder<T> implements ISearchStorageBuilder<T> {
     }
 
     @Override
-    public ISearchStorage<T> build() {
-        return new BakedSubstringIndexSearchStorage<>(builder.build());
+    public ISearchIndex<T> build() {
+        return new BakedSubstringIndexSearchIndex<>(builder.build());
     }
 
 }

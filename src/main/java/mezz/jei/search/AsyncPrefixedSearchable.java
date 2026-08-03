@@ -1,6 +1,7 @@
 package mezz.jei.search;
 
 import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.api.search.ISearchIndexBuilder;
 import mezz.jei.util.Log;
 import mezz.jei.util.LoggedTimer;
 import net.minecraft.client.Minecraft;
@@ -41,8 +42,8 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
     private boolean firstBuild = true;
     private List<IIngredientListElement> leftovers; // strictly written by service thread and read by main thread
 
-    public AsyncPrefixedSearchable(ISearchStorageBuilder<IIngredientListElement<?>> searchStorageBuilder, PrefixInfo prefixInfo) {
-        super(searchStorageBuilder, prefixInfo);
+    public AsyncPrefixedSearchable(ISearchIndexBuilder<IIngredientListElement<?>> searchIndexBuilder, PrefixInfo prefixInfo) {
+        super(searchIndexBuilder, prefixInfo);
     }
 
     @Override
