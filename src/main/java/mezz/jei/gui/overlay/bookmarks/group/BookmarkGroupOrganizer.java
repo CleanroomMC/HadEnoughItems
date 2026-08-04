@@ -245,9 +245,7 @@ public class BookmarkGroupOrganizer {
 
 	public <I> List<IGhostIngredientHandler.Target<I>> getTargets(I ingredient) {
 		List<IGhostIngredientHandler.Target<I>> targets = new ArrayList<>();
-		Object groupedIngredient = ingredient instanceof BookmarkItem
-			? ((BookmarkItem<?>) ingredient).getIngredient()
-			: ingredient;
+		Object groupedIngredient = ingredient instanceof BookmarkItem ? ((BookmarkItem<?>) ingredient).getIngredient() : ingredient;
 		for (BookmarkGroupDisplay groupDisplay : groups) {
 			if (groupDisplay.group instanceof RecipeBookmarkGroup ^ groupedIngredient instanceof RecipeBookmarkItem) {
 				continue;

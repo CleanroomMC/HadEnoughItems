@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.34.0] - 2026-08-04
+
+### Added
+- New API to allow ghost ingredient handler targets to be aware of the mouse's current position
+- `holdToDragGhostIngredients` configuration to allow actual dragging of ingredients, defaulted off
+- Positional insertion when dragging ingredients into bookmark groups
+
+### Fixed
+- Issues with ingredients not being able to be dragged to the bookmark grid
+- Issues with dragging from the bookmark panel
+- Atlas bleed shown in certain cases when arrows are being drawn
+
 ## [4.33.0] - 2026-08-04
 
 ### Added
