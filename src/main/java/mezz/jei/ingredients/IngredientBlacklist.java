@@ -1,5 +1,6 @@
 package mezz.jei.ingredients;
 
+import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientBlacklist;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRegistry;
@@ -20,6 +21,7 @@ public class IngredientBlacklist implements IIngredientBlacklist {
 
 		IIngredientHelper<V> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
 		internal.addIngredientToBlacklist(ingredient, ingredientHelper);
+		refreshIngredientFilter();
 	}
 
 	@Override
@@ -28,6 +30,7 @@ public class IngredientBlacklist implements IIngredientBlacklist {
 
 		IIngredientHelper<V> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
 		internal.removeIngredientFromBlacklist(ingredient, ingredientHelper);
+		refreshIngredientFilter();
 	}
 
 	@Override
@@ -44,5 +47,13 @@ public class IngredientBlacklist implements IIngredientBlacklist {
 
 		IIngredientHelper<V> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
 		return internal.isIngredientBlacklistedByApi(ingredient, ingredientHelper);
+	}
+
+	private static void refreshIngredientFilter() {
+		if (Internal.hasIngredientFilter()) {
+			IngredientFilter ingredientFilter = Internal.getIngredientFilter();
+			ingredientFilter.updateHidden();
+			ingredientFilter.notifyListenersOfChange();
+		}
 	}
 }

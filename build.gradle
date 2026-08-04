@@ -2,9 +2,9 @@
  * It is advised that you do not edit anything in the build.gradle; unless you are sure of what you are doing
  */
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+import org.jetbrains.changelog.Changelog
 import org.jetbrains.gradle.ext.Gradle
-
-import java.time.LocalDate
 
 plugins {
     id 'java'
@@ -12,8 +12,8 @@ plugins {
     id 'maven-publish'
     id 'com.diffplug.spotless' version '6.19.0' apply false
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.7'
-    id 'com.gtnewhorizons.retrofuturagradle' version '1.4.5'
-    id 'com.matthewprenger.cursegradle' version '1.4.0' apply false
+    id 'com.gtnewhorizons.retrofuturagradle' version '2.0.2'
+    id 'net.darkhax.curseforgegradle' version '1.2.+' apply false
     id 'com.modrinth.minotaur' version '2.+' apply false
     id 'org.jetbrains.changelog' version '2.2.0'
 }
@@ -43,6 +43,7 @@ setDefaultProperty 'minecraft_username', true, 'Developer'
 setDefaultProperty 'extra_jvm_args', false, ''
 setDefaultProperty 'extra_tweak_classes', false, ''
 setDefaultProperty 'change_minecraft_sources', false, false
+setDefaultProperty 'publish_to_curseforge', true, false
 
 version = propertyString('mod_version')
 group = propertyString('root_package')
@@ -251,11 +252,6 @@ test {
     })
 }
 
-changelog {
-    header.set("[${propertyString('mod_version')}] - ${LocalDate.now().format("yyyy-MM-dd")}")
-    headerParserRegex.set(~/(\d+\.\d+)/)
-}
-
 if (propertyBool('spotless')) {
     apply plugin: 'com.diffplug.spotless'
     // noinspection GroovyAssignabilityCheck
@@ -289,6 +285,19 @@ if (propertyBool('spotless')) {
             simple().indentWithSpaces(6)
         }
     }
+}
+
+String parserChangelog() {
+    if (!file('CHANGELOG.md').exists()) {
+        throw new GradleException('publish_with_changelog is true, but CHANGELOG.md does not exist in the workspace!')
+    }
+    String parsedChangelog = changelog.renderItem(
+            changelog.get(propertyString('mod_version')).withHeader(false).withEmptySections(false),
+            Changelog.OutputType.MARKDOWN)
+    if (parsedChangelog.isEmpty()) {
+        throw new GradleException('publish_with_changelog is true, but the changelog for the latest version is empty!')
+    }
+    return parsedChangelog
 }
 
 tasks.register('generateMixinJson') {
@@ -341,6 +350,15 @@ tasks.named('injectTags', InjectTagsTask).configure {
 idea.project.settings {
     taskTriggers {
         afterSync 'cleanroomAfterSync'
+    }
+}
+
+if (propertyBool('publish_to_curseforge')) {
+    assertProperty 'curseforge_project_id'
+    apply plugin: 'net.darkhax.curseforgegradle'
+    tasks.register('curseforge', TaskPublishCurseForge) {
+        group 'publishing'
+        description "Uploads CurseForge project ${propertyString('curseforge_project_id')}"
     }
 }
 

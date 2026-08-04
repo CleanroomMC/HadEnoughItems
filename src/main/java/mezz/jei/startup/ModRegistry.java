@@ -23,6 +23,7 @@ import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.api.gui.IGlobalGuiHandler;
 import mezz.jei.api.gui.IGuiScreenHandler;
+import mezz.jei.api.gui.ISlotIngredientProvider;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IIngredientType;
@@ -60,6 +61,7 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 	private final List<IGlobalGuiHandler> globalGuiHandlers = new ArrayList<>();
 	private final Map<Class, IGuiScreenHandler> guiScreenHandlers = new Reference2ObjectOpenHashMap<>();
 	private final Map<Class, IGhostIngredientHandler> ghostIngredientHandlers = new Reference2ObjectOpenHashMap<>();
+	private final Map<Class, ISlotIngredientProvider> slotIngredientProviders = new Reference2ObjectOpenHashMap<>();
 	@Deprecated
 	private final List<Object> unsortedRecipes = new ArrayList<>();
 	private final ListMultiMap<String, Object> recipes = new ListMultiMap<>();
@@ -92,12 +94,15 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 		for (IRecipeCategory recipeCategory : recipeCategories) {
 			String uid = recipeCategory.getUid();
 			Preconditions.checkNotNull(uid, "Recipe category UID cannot be null %s", recipeCategory);
+			if (Config.isRecipeCategoryDisabled(uid)) {
+				Log.get().info("Skipping disabled recipe category {}", uid);
+				continue;
+			}
 			if (!recipeCategoryUids.add(uid)) {
 				throw new IllegalArgumentException("A RecipeCategory with UID \"" + uid + "\" has already been registered.");
 			}
+			this.recipeCategories.add(recipeCategory);
 		}
-
-		Collections.addAll(this.recipeCategories, recipeCategories);
 	}
 
 	@Override
@@ -129,6 +134,9 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 	public void addRecipes(Collection<?> recipes, String recipeCategoryUid) {
 		ErrorUtil.checkNotNull(recipes, "recipes");
 		ErrorUtil.checkNotNull(recipeCategoryUid, "recipeCategoryUid");
+		if (Config.isRecipeCategoryDisabled(recipeCategoryUid)) {
+			return;
+		}
 //		Preconditions.checkArgument(this.recipeCategoryUids.contains(recipeCategoryUid), "No recipe category has been registered for recipeCategoryUid %s", recipeCategoryUid);
 		if (!this.recipeCategoryUids.contains(recipeCategoryUid)) {
 			Log.get().warn("No recipe category has been registered for recipeCategoryUid {}", recipeCategoryUid);
@@ -146,6 +154,9 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 		Preconditions.checkArgument(!recipeClass.equals(Object.class), "Recipe handlers must handle a specific class, not Object.class");
 		ErrorUtil.checkNotNull(recipeWrapperFactory, "recipeWrapperFactory");
 		ErrorUtil.checkNotNull(recipeCategoryUid, "recipeCategoryUid");
+		if (Config.isRecipeCategoryDisabled(recipeCategoryUid)) {
+			return;
+		}
 
 		IRecipeHandler<T> recipeHandler = new IRecipeHandler<T>() {
 			@Override
@@ -183,7 +194,17 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 		ErrorUtil.checkNotNull(guiContainerClass, "guiContainerClass");
 		ErrorUtil.checkNotEmpty(recipeCategoryUids, "recipeCategoryUids");
 
-		RecipeClickableArea recipeClickableArea = new RecipeClickableArea(yPos, yPos + height, xPos, xPos + width, recipeCategoryUids);
+		List<String> enabledCategoryUids = new ArrayList<>();
+		for (String recipeCategoryUid : recipeCategoryUids) {
+			ErrorUtil.checkNotNull(recipeCategoryUid, "recipeCategoryUid");
+			if (!Config.isRecipeCategoryDisabled(recipeCategoryUid)) {
+				enabledCategoryUids.add(recipeCategoryUid);
+			}
+		}
+		if (enabledCategoryUids.isEmpty()) {
+			return;
+		}
+		RecipeClickableArea recipeClickableArea = new RecipeClickableArea(yPos, yPos + height, xPos, xPos + width, enabledCategoryUids.toArray(new String[0]));
 		this.recipeClickableAreas.put(guiContainerClass, recipeClickableArea);
 	}
 
@@ -194,7 +215,9 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 
 		for (String recipeCategoryUid : recipeCategoryUids) {
 			ErrorUtil.checkNotNull(recipeCategoryUid, "recipeCategoryUid");
-			this.recipeCatalysts.put(recipeCategoryUid, catalystIngredient);
+			if (!Config.isRecipeCategoryDisabled(recipeCategoryUid)) {
+				this.recipeCatalysts.put(recipeCategoryUid, catalystIngredient);
+			}
 		}
 	}
 
@@ -237,6 +260,14 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 		Preconditions.checkArgument(!ghostIngredientGuiBlacklist.contains(guiClass), "you cannot add a ghost ingredient handler for the following Guis, it would interfere with using HEI: %s", ghostIngredientGuiBlacklist);
 		ErrorUtil.checkNotNull(handler, "handler");
 		this.ghostIngredientHandlers.put(guiClass, handler);
+	}
+
+	@Override
+	public <T extends GuiContainer> void addSlotIngredientProvider(Class<T> guiClass, ISlotIngredientProvider<T> provider) {
+		ErrorUtil.checkNotNull(guiClass, "guiClass");
+		Preconditions.checkArgument(GuiContainer.class.isAssignableFrom(guiClass), "guiClass must inherit from GuiContainer");
+		ErrorUtil.checkNotNull(provider, "provider");
+		this.slotIngredientProviders.put(guiClass, provider);
 	}
 
 	@Override
@@ -295,7 +326,7 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 		ErrorUtil.checkNotEmpty(outputs, "outputs");
 		Preconditions.checkArgument(rightInputs.size() == outputs.size(), "Input and output sizes must match.");
 
-		AnvilRecipeWrapper anvilRecipeWrapper = new AnvilRecipeWrapper(Collections.singletonList(leftInput), rightInputs, outputs);
+		AnvilRecipeWrapper anvilRecipeWrapper = new AnvilRecipeWrapper(ImmutableList.of(leftInput), rightInputs, outputs);
 		addRecipes(Collections.singletonList(anvilRecipeWrapper), VanillaRecipeCategoryUid.ANVIL);
 	}
 
@@ -326,6 +357,10 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 
 	public Map<Class, IGhostIngredientHandler> getGhostIngredientHandlers() {
 		return ghostIngredientHandlers;
+	}
+
+	public Map<Class, ISlotIngredientProvider> getSlotIngredientProviders() {
+		return slotIngredientProviders;
 	}
 
 	public RecipeRegistry createRecipeRegistry(IngredientRegistry ingredientRegistry) {

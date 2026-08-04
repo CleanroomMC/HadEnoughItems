@@ -223,6 +223,7 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 	}
 
 	private void updateRecipes() {
+		final int generation = searchCount.incrementAndGet();
 		final IRecipeCategory recipeCategory = getSelectedRecipeCategory();
 		IFocus<?> focus = state.getFocus();
 		final List<IRecipeWrapper> allRecipes;
@@ -250,7 +251,6 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 
 		final boolean isInput = searchMode == IRecipesGui.RecipeSearchMode.INPUT || searchMode == IRecipesGui.RecipeSearchMode.BOTH;
 		final boolean isOutput = searchMode == IRecipesGui.RecipeSearchMode.OUTPUT || searchMode == IRecipesGui.RecipeSearchMode.BOTH;
-		final int generation = searchCount.incrementAndGet();
 
 		searchExecutor.submit(() -> {
 			if (searchCount.get() > generation) {

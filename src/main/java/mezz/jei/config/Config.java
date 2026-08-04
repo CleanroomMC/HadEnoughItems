@@ -393,6 +393,10 @@ public final class Config {
 		return values.categoryUidOrder;
 	}
 
+	public static boolean isRecipeCategoryDisabled(String recipeCategoryUid) {
+		return values.disabledRecipeCategoryUids.contains(recipeCategoryUid);
+	}
+
 	@Nullable
 	public static LocalizedConfiguration getConfig() {
 		return config;
@@ -644,6 +648,15 @@ public final class Config {
 
 		String[] categoryUidOrder = config.getStringList("categoryUidOrder", CATEGORY_CATEGORY, defaultValues.categoryUidOrder.toArray(new String[]{}));
 		values.categoryUidOrder = Arrays.asList(categoryUidOrder);
+
+		String[] disabledRecipeCategoryUids = config.getStringList("disabledRecipeCategoryUids", CATEGORY_CATEGORY, new String[]{});
+		values.disabledRecipeCategoryUids.clear();
+		for (String uid : disabledRecipeCategoryUids) {
+			uid = uid.trim();
+			if (!uid.isEmpty()) {
+				values.disabledRecipeCategoryUids.add(uid);
+			}
+		}
 
 		final boolean configChanged = config.hasChanged();
 		if (configChanged) {

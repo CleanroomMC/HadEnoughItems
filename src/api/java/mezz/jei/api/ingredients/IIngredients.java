@@ -1,12 +1,12 @@
 package mezz.jei.api.ingredients;
 
+import java.util.List;
+
 import mezz.jei.api.gui.IGuiIngredientGroup;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
-
-import java.util.List;
 
 /**
  * This holds a recipe's inputs and outputs in a standardized format.

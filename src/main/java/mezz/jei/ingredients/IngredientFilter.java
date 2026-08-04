@@ -3,7 +3,6 @@ package mezz.jei.ingredients;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.HashMultimap;
@@ -25,6 +24,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mezz.jei.api.IIngredientFilter;
 import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.search.ISearchIndexBuilderFactory;
 import mezz.jei.config.Config;
 import mezz.jei.config.EditModeToggleEvent;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -33,8 +33,6 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Translator;
 
 public class IngredientFilter implements IIngredientFilter, IIngredientGridSource {
-	public static final Pattern QUOTE_PATTERN = Pattern.compile("\"");
-	public static final Pattern FILTER_SPLIT_PATTERN = Pattern.compile("(-?\".*?(?:\"|$)|\\S+)");
 
 	public static boolean firstBuild = true;
 	public static boolean rebuild = false;
@@ -43,6 +41,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	private final List<Runnable> collapsedStateListeners = new ArrayList<>();
 
 	private IngredientBlacklistInternal blacklist;
+	private final ISearchIndexBuilderFactory searchIndexBuilderFactory;
 	private IElementSearch elementSearch;
 	private List<IIngredientListElement> ingredientListCached = Collections.emptyList();
 	private List<IIngredientListElement> collapsedListCached = Collections.emptyList();
@@ -76,9 +75,11 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	private boolean afterBlock = false;
 	@Nullable private List<Runnable> delegatedActions;
 
-	public IngredientFilter(IngredientBlacklistInternal blacklist, NonNullList<IIngredientListElement> ingredients) {
+	public IngredientFilter(IngredientBlacklistInternal blacklist, NonNullList<IIngredientListElement> ingredients,
+			ISearchIndexBuilderFactory searchIndexBuilderFactory) {
 		this.blacklist = blacklist;
-		this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
+		this.searchIndexBuilderFactory = searchIndexBuilderFactory;
+		this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch(searchIndexBuilderFactory);
 		this.elementSearch.addAll(ingredients);
 		firstBuild = false;
 	}
@@ -87,7 +88,14 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		this.elementSearch.logStatistics();
 	}
 
+	public ISearchIndexBuilderFactory getSearchIndexBuilderFactory() {
+		return searchIndexBuilderFactory;
+	}
+
 	public void addIngredients(NonNullList<IIngredientListElement> ingredients) {
+		for (IIngredientListElement<?> ingredient : ingredients) {
+			updateHiddenState(ingredient);
+		}
 		ingredients.sort(IngredientListElementComparator.INSTANCE);
 		this.elementSearch.addAll(ingredients);
 		invalidateCache();
@@ -252,7 +260,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			rebuild = true;
 			this.afterBlock = false;
 			NonNullList<IIngredientListElement> ingredients = NonNullList.from(null, this.elementSearch.getAllIngredients().toArray(new IIngredientListElement[0]));
-			this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
+			this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch(searchIndexBuilderFactory);
 			ingredients.sort(IngredientListElementComparator.INSTANCE);
 			this.elementSearch.addAll(ingredients);
 			// make sure search tree finishes building before gameplay resumes
@@ -263,6 +271,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			rebuild = false;
 			this.afterBlock = true;
 		}
+		updateHidden();
 	}
 
 	@SubscribeEvent
@@ -286,7 +295,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	public <V> void updateHiddenState(IIngredientListElement<V> element) {
 		V ingredient = element.getIngredient();
 		IIngredientHelper<V> ingredientHelper = element.getIngredientHelper();
-		boolean visible = !blacklist.isIngredientBlacklistedByApi(ingredient, ingredientHelper) &&
+		boolean visible = !blacklist.isIngredientBlacklistedByApiOrRuntime(ingredient, ingredientHelper) &&
 			ingredientHelper.isIngredientOnServer(ingredient) &&
 			(Config.isEditModeEnabled() || !Config.isIngredientOnConfigBlacklist(ingredient, ingredientHelper));
 		if (element.isVisible() != visible) {
@@ -371,10 +380,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		if (filterText.isEmpty()) {
 			return new ArrayList<>(getAllVisibleIngredients());
 		}
-		List<SearchToken> tokens = Arrays.stream(filterText.split("\\|"))
-				.map(SearchToken::parseSearchToken)
-				.filter(s -> !s.search.isEmpty())
-				.collect(Collectors.toList());
+		List<SearchToken> tokens = SearchToken.parseSearchTokens(filterText);
 		if (tokens.isEmpty()) {
 			return new ArrayList<>(getAllVisibleIngredients());
 		}
@@ -567,6 +573,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	public void replaceBlacklist(IngredientBlacklistInternal blacklist) {
 		this.blacklist = blacklist;
+		updateHidden();
 	}
 
 	public void notifyListenersOfChange() {

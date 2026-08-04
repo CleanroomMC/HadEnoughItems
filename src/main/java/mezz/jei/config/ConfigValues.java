@@ -54,8 +54,9 @@ public class ConfigValues {
 	public boolean hideBottomRightCornerConfigButton = false;
     public boolean hideBottomLeftCornerBookmarkButton = false;
 
-    // category
+	// category
 	public List<String> categoryUidOrder = new ArrayList<>();
+	public Set<String> disabledRecipeCategoryUids = new HashSet<>();
 
 	// collapsible groups
 	public boolean collapsibleGroupsEnabled = true;

@@ -122,7 +122,7 @@ public class ForgeModIdHelper extends AbstractModIdHelper {
 			return true;
 		}
 		if (ingredient instanceof BookmarkItem) {
-			return this.skipAddingModName(((BookmarkItem<?>) ingredient).ingredient);
+			return this.skipAddingModName(((BookmarkItem<?>) ingredient).getIngredient());
 		}
 		return false;
 	}

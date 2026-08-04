@@ -51,13 +51,16 @@ key.jei.toggleCheatMode=Toggle Cheat Mode
 key.jei.toggleEditMode=Toggle Hide/Edit Mode
 key.jei.previousPage=Show Previous Page
 key.jei.nextPage=Show Next Page
-key.hei.previousPage=Show Previous Recipe Category
-key.hei.nextPage=Show Next Recipe Category
-key.jei.bookmark=Add/Remove a Bookmarked Ingredient
-key.hei.bookmarkToTop=Add a Bookmarked Ingredient to the top
-key.hei.recipeBookmark=Add/Remove a Bookmarked Recipe
+key.hei.previousCategory=Show Previous Recipe Category
+key.hei.nextCategory=Show Next Recipe Category
+key.jei.bookmark=Bookmark Ingredient/Recipe (Append)
+key.hei.bookmarkToTop=Bookmark Ingredient/Recipe (Prepend)
+key.hei.bookmarkNewGroup=Bookmark to New Group (Append)
+key.hei.bookmarkNewGroupToTop=Bookmark to New Group (Prepend)
 key.hei.toggleBookmarkOverlay=Show/Hide Bookmarked Ingredients
-key.hei.crafting=Autocraft Selected Bookmarked Recipes
+key.hei.crafting=Autocraft Bookmarked Recipe
+key.hei.moveGroupUp=Move Bookmark Group Up
+key.hei.moveGroupDown=Move Bookmark Group Down
 
 # Config
 config.jei.default=Default
@@ -204,6 +207,8 @@ config.hei.collapsible.collapsedClickAction.FIRST_ITEM=First Item
 
 config.jei.category.categoryUidOrder=Category UID Order
 config.jei.category.categoryUidOrder.comment=Determines the display order of recipe categories in HEI. Categories listed earlier appear first in the HEI interface.
+config.jei.category.disabledRecipeCategoryUids=Disabled Recipe Category UIDs
+config.jei.category.disabledRecipeCategoryUids.comment=Recipe category UIDs that HEI should skip loading. A game restart is required after changing this list.
 
 hei.generic.ticks=%d Ticks
 
@@ -219,7 +224,8 @@ hei.tooltip.item_group=§7Item Group
 hei.tooltip.recipe_group=§7Recipe Group
 hei.tooltip.press_alt=§7Press §fALT§7 to see Actions
 hei.tooltip.organizer.1=§6CTRL + LEFT CLICK§7: Move Bookmarks Between Groups
-hei.tooltip.organizer.2=§6UP§r or §6DOWN§7: Move Group Up or Down
+hei.tooltip.organizer.2=§6%s§r or §6%s§7: Move Group Up or Down
+hei.tooltip.organizer.5=§6%s§7 on this tab: Delete Group
 hei.tooltip.organizer.3=§6CTRL + SCROLL§7: Change Final Output
 hei.tooltip.organizer.4=§6%s§7: Autocraft
 
@@ -241,6 +247,7 @@ hei.gui.collapsible.editor.clear=Clear
 hei.gui.collapsible.editor.selected=%d selected
 hei.gui.collapsible.confirmDelete=Delete?
 hei.tooltip.missing_ingredients=§cMissing Ingredients:
+hei.tooltip.autocraft.wrong_container=This container cannot craft %s recipes on its own.
 
 hei.tooltip.search.title=Search Recipes
 hei.tooltip.search.info=Cycle mode by clicking. Hold §6SHIFT§r to reverse direction.

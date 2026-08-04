@@ -8,6 +8,7 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
 import mezz.jei.collect.Table;
+import mezz.jei.config.Config;
 import mezz.jei.config.Constants;
 import mezz.jei.startup.StackHelper;
 import mezz.jei.transfer.BasicRecipeTransferHandler;
@@ -46,6 +47,9 @@ public class RecipeTransferRegistry implements IRecipeTransferRegistry {
 	@Override
 	public <C extends Container> void addRecipeTransferHandler(IRecipeTransferInfo<C> recipeTransferInfo) {
 		ErrorUtil.checkNotNull(recipeTransferInfo, "recipeTransferInfo");
+		if (Config.isRecipeCategoryDisabled(recipeTransferInfo.getRecipeCategoryUid())) {
+			return;
+		}
 
 		IRecipeTransferHandler<C> recipeTransferHandler = new BasicRecipeTransferHandler<>(stackHelper, handlerHelper, recipeTransferInfo);
 		addRecipeTransferHandler(recipeTransferHandler, recipeTransferInfo.getRecipeCategoryUid());
@@ -55,6 +59,9 @@ public class RecipeTransferRegistry implements IRecipeTransferRegistry {
 	public void addRecipeTransferHandler(IRecipeTransferHandler<?> recipeTransferHandler, String recipeCategoryUid) {
 		ErrorUtil.checkNotNull(recipeTransferHandler, "recipeTransferHandler");
 		ErrorUtil.checkNotNull(recipeCategoryUid, "recipeCategoryUid");
+		if (Config.isRecipeCategoryDisabled(recipeCategoryUid)) {
+			return;
+		}
 
 		Class<?> containerClass = recipeTransferHandler.getContainerClass();
 		this.recipeTransferHandlers.put(containerClass, recipeCategoryUid, recipeTransferHandler);

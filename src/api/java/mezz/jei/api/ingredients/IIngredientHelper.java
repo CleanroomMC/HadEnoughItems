@@ -81,7 +81,7 @@ public interface IIngredientHelper<V> {
 	/**
 	 * Entirely unique ID for use in comparing, blacklisting, and looking up ingredients by count, NBT, and any other possible variation.
 	 *
-	 * @since JEI 3.11.0
+	 * @since HEI 4.29.0
 	 */
 	default int getHash(V ingredient) {
 		return getUniqueId(ingredient).hashCode();

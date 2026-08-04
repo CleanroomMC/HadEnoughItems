@@ -126,24 +126,26 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 	}
 
 	private static void addModIdStrings(Set<String> modNames, String modId) {
-		String modIdNoSpaces = SPACE_PATTERN.matcher(modId).replaceAll("");
-		modNames.add(modId);
-		modNames.add(modIdNoSpaces);
+		String modIdLowercase = Translator.toLowercaseWithLocale(modId);
+		modNames.add(modIdLowercase);
+		modNames.add(SPACE_PATTERN.matcher(modIdLowercase).replaceAll(""));
 	}
 
 	private static void addModNameStrings(Set<String> modNames, String modName) {
-		String modNameLowercase = modName.toLowerCase(Locale.ENGLISH);
-		String modNameNoSpaces = SPACE_PATTERN.matcher(modNameLowercase).replaceAll("");
-		modNames.add(modNameNoSpaces);
+		String modNameLowercase = Translator.toLowercaseWithLocale(modName);
+		modNames.add(modNameLowercase);
+		modNames.add(SPACE_PATTERN.matcher(modNameLowercase).replaceAll(""));
 	}
 
 	@Override
 	public final List<String> getTooltipStrings() {
 		String modId = this.modIds instanceof String ? (String) this.modIds : ((String[]) this.modIds)[0];
 		String modName = this.modNames instanceof String ? (String) this.modNames : ((String[]) this.modNames)[0];
-		String modNameLowercase = modName.toLowerCase(Locale.ENGLISH);
+		String modIdLowercase = Translator.toLowercaseWithLocale(modId);
+		String modNameLowercase = Translator.toLowercaseWithLocale(modName);
 		String displayNameLowercase = Translator.toLowercaseWithLocale(this.getDisplayName());
-		return IngredientInformation.getTooltipStrings(ingredient, ingredientRenderer, ImmutableSet.of(modId, modNameLowercase, displayNameLowercase, this.getResourceId()));
+		String resourceIdLowercase = Translator.toLowercaseWithLocale(this.getResourceId());
+		return IngredientInformation.getTooltipStrings(ingredient, ingredientRenderer, ImmutableSet.of(modIdLowercase, modNameLowercase, displayNameLowercase, resourceIdLowercase));
 	}
 
 	@Override

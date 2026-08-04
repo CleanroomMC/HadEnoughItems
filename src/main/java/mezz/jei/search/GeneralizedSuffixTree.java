@@ -56,7 +56,7 @@ import java.util.Set;
  * This kind of "implicit path" is important in the testAndSplit method.
  * <p>
  */
-public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
+public class GeneralizedSuffixTree<T> implements IPrintableSearchIndex<T> {
     /**
      * The root of the suffix tree
      */
