@@ -227,6 +227,9 @@ public class InputHandler {
 			}
 			IIngredientListElement<?> element = ((IGhostIngredientDragSource) gui).getElementUnderMouse();
 			if (element != null) {
+				if (element.getIngredient() instanceof BookmarkItem) {
+					return ((BookmarkItem<?>) element.getIngredient()).getSavedElement();
+				}
 				return element;
 			}
 		}
