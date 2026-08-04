@@ -226,7 +226,7 @@ hei.tooltip.press_alt=§7按住 §fALT§7 查看操作
 hei.tooltip.organizer.1=§6CTRL + 左键点击§7：在分组间移动书签
 hei.tooltip.organizer.2=§6%s§r 或 §6%s§7：调整分组位置
 hei.tooltip.organizer.5=§6%s§7：删除此书签分组
-hei.tooltip.organizer.3=§6CTRL + 滚轮§7：更改最终产物
+hei.tooltip.organizer.3=§6CTRL + 滚轮§7：更改最终产出
 hei.tooltip.organizer.4=§6%s§7：自动合成
 
 hei.gui.collapsible.title=管理分组
