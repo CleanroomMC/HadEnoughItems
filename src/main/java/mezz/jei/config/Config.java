@@ -365,6 +365,10 @@ public final class Config {
 		return values.mouseClickToSeeRecipes;
 	}
 
+	public static boolean holdToDragGhostIngredients() {
+		return values.holdToDragGhostIngredients;
+	}
+
 	public static boolean getTooltipShowRecipeBy() {
 		return values.tooltipShowRecipeBy;
 	}
@@ -571,6 +575,8 @@ public final class Config {
 		values.bufferIngredientRenders = config.getBoolean(CATEGORY_RENDERING, "bufferIngredientRenders", defaultValues.bufferIngredientRenders);
 
 		values.mouseClickToSeeRecipes = config.getBoolean(CATEGORY_MISC, "mouseClickToSeeRecipes", defaultValues.mouseClickToSeeRecipes);
+
+		values.holdToDragGhostIngredients = config.getBoolean(CATEGORY_MISC, "holdToDragGhostIngredients", defaultValues.holdToDragGhostIngredients);
 
 		values.tooltipShowRecipeBy = config.getBoolean(CATEGORY_MISC, "tooltipShowRecipeBy", defaultValues.tooltipShowRecipeBy);
 

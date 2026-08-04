@@ -33,6 +33,7 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -114,7 +115,7 @@ public class InputHandler {
 			event.setCanceled(true);
 	}
 
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
 	public void onGuiMouseEvent(GuiScreenEvent.MouseInputEvent.Pre event) {
 		GuiScreen guiScreen = event.getGui();
 		Minecraft minecraft = guiScreen.mc;
@@ -132,14 +133,14 @@ public class InputHandler {
 		final int eventButton = Mouse.getEventButton();
 		if (eventButton > -1) {
 			if (Mouse.getEventButtonState()) {
-				if (!clickHandled.contains(eventButton)) {
-					cancelEvent = handleMouseClick(guiScreen, eventButton, mouseX, mouseY);
-					if (cancelEvent) {
-						clickHandled.add(eventButton);
-					}
+				clickHandled.remove(eventButton);
+				cancelEvent = handleMouseClick(guiScreen, eventButton, mouseX, mouseY);
+				if (cancelEvent) {
+					clickHandled.add(eventButton);
 				}
 			} else {
-				cancelEvent = handleMouseRelease(guiScreen, mouseX, mouseY) || clickHandled.remove(eventButton);
+				boolean wasClickHandled = clickHandled.remove(eventButton);
+				cancelEvent = handleMouseRelease(guiScreen, mouseX, mouseY) || wasClickHandled;
 			}
 		} else if (Mouse.getEventDWheel() != 0) {
 			cancelEvent = handleMouseScroll(Mouse.getEventDWheel(), mouseX, mouseY);
@@ -149,6 +150,9 @@ public class InputHandler {
 
 	private boolean handleMouseRelease(GuiScreen guiScreen, int mouseX, int mouseY) {
 		final int eventButton = Mouse.getEventButton();
+		if (ghostIngredientDragManager.handleMouseReleased(eventButton, mouseX, mouseY)) {
+			return true;
+		}
 		if (leftAreaDispatcher.handleMouseReleased(mouseX, mouseY, eventButton)) {
 			return true;
 		}
@@ -174,15 +178,16 @@ public class InputHandler {
 			return true;
 		}
 
-		if (ingredientListOverlay.handleMouseClicked(mouseX, mouseY, mouseButton)) {
-			return true;
-		}
-		if (leftAreaDispatcher.handleMouseClicked(mouseX, mouseY, mouseButton)) {
+		IIngredientListElement<?> listElement = getElementUnderMouse();
+		if (this.ghostIngredientDragManager.handleMouseClicked(guiScreen.mc, guiScreen, clicked, listElement, mouseButton, mouseX, mouseY)) {
 			return true;
 		}
 
-		IIngredientListElement<?> listElement = getElementUnderMouse();
-		if (this.ghostIngredientDragManager.handleMouseClicked(guiScreen.mc, guiScreen, clicked, listElement, mouseX, mouseY)) {
+		if (ingredientListOverlay.handleMouseClicked(mouseX, mouseY, mouseButton)) {
+			return true;
+		}
+
+		if (leftAreaDispatcher.handleMouseClicked(mouseX, mouseY, mouseButton)) {
 			return true;
 		}
 

@@ -23,6 +23,8 @@ public class GhostIngredientDrag<T> {
 	private final T ingredient;
 	@Nullable
 	private final Rectangle origin;
+	@Nullable
+	private IGhostIngredientHandler.AwareTarget<T> activeAwareTarget;
 
 	public GhostIngredientDrag(IGhostIngredientHandler<?> handler, List<Target<T>> targets, IIngredientRenderer<T> ingredientRenderer, T ingredient, @Nullable Rectangle origin) {
 		this.handler = handler;
@@ -33,6 +35,7 @@ public class GhostIngredientDrag<T> {
 	}
 
 	public void drawTargets(int mouseX, int mouseY) {
+		updateAwareTarget(mouseX, mouseY);
 		if (handler.shouldHighlightTargets()) {
 			@SuppressWarnings("unchecked")
 			List<Target<Object>> targets = (List<Target<Object>>) (Object) this.targets;
@@ -93,17 +96,50 @@ public class GhostIngredientDrag<T> {
 		for (Target<T> target : targets) {
 			Rectangle area = target.getArea();
 			if (area.contains(mouseX, mouseY)) {
-				target.accept(ingredient);
+				clearAwareTarget();
+				if (target instanceof IGhostIngredientHandler.AwareTarget) {
+					((IGhostIngredientHandler.AwareTarget<T>) target).accept(ingredient, mouseX, mouseY);
+				} else {
+					target.accept(ingredient);
+				}
 				handler.onComplete();
 				return true;
 			}
 		}
+		clearAwareTarget();
 		handler.onComplete();
 		return false;
 	}
 
 	public void stop() {
+		clearAwareTarget();
 		handler.onComplete();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void updateAwareTarget(int mouseX, int mouseY) {
+		IGhostIngredientHandler.AwareTarget<T> hoveredTarget = null;
+		for (Target<T> target : targets) {
+			if (target.getArea().contains(mouseX, mouseY) && target instanceof IGhostIngredientHandler.AwareTarget) {
+				hoveredTarget = (IGhostIngredientHandler.AwareTarget<T>) target;
+				break;
+			}
+		}
+
+		if (activeAwareTarget != hoveredTarget) {
+			clearAwareTarget();
+			activeAwareTarget = hoveredTarget;
+		}
+		if (activeAwareTarget != null) {
+			activeAwareTarget.onDrag(ingredient, mouseX, mouseY);
+		}
+	}
+
+	private void clearAwareTarget() {
+		if (activeAwareTarget != null) {
+			activeAwareTarget.onDragComplete();
+			activeAwareTarget = null;
+		}
 	}
 
 	public IIngredientRenderer<T> getIngredientRenderer() {

@@ -159,7 +159,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 	}
 
 	public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
-		if (!this.guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY)) {
+		if (!this.guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY) && !this.groupOrganizer.isInsertionPreviewActive()) {
 			this.bookmarkGrid.drawTooltips(minecraft, mouseX, mouseY);
 			this.groupOrganizer.drawTooltips(minecraft, mouseX, mouseY);
 		}

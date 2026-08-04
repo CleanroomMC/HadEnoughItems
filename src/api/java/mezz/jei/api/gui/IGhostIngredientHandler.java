@@ -52,6 +52,43 @@ public interface IGhostIngredientHandler<T extends GuiScreen> {
 		return false;
 	}
 
+	/**
+	 * @since HEI 4.34.0
+	 */
+	interface AwareTarget<I> extends Target<I> {
+
+		/**
+		 * Called while an ingredient is being dragged over the target.
+		 *
+		 * @since HEI 4.34.0
+		 */
+		default void onDrag(I ingredient, int mouseX, int mouseY) { }
+
+		/**
+		 * Called when an ingredient is no longer being dragged over the target.
+		 *
+		 * @since HEI 4.34.0
+		 */
+		default void onDragComplete() { }
+
+		/**
+		 * Called with the ingredient when it is dropped on the target.
+		 *
+		 * @since HEI 4.34.0
+		 */
+		void accept(I ingredient, int mouseX, int mouseY);
+
+		/**
+		 * Call {@link #accept(Object, int, int)} instead.
+		 *
+		 * @since HEI 4.34.0
+		 */
+		@Deprecated
+		@Override
+		default void accept(I ingredient) { }
+
+	}
+
 	interface Target<I> extends Consumer<I> {
 		/**
 		 * @return the area (in screen coordinates) where the ingredient can be dropped.

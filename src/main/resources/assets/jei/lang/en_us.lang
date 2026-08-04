@@ -173,6 +173,9 @@ config.jei.advanced.addBookmarksToFront.comment=When enabled, adds new bookmarks
 config.jei.misc.mouseClickToSeeRecipes=Mouse Click to See Recipes/Usages
 config.jei.misc.mouseClickToSeeRecipes.comment=Disable to disallow mouse clicks to see recipes and usages when hovering over an ingredient
 
+config.jei.misc.holdToDragGhostIngredients=Hold Mouse Button to Drag Ghost Ingredients
+config.jei.misc.holdToDragGhostIngredients.comment=When enabled, hold the initiating mouse button while dragging and release it to drop. When disabled, click once to pick up and click again to drop.
+
 config.jei.misc.tooltipShowRecipeBy=Show `Recipe By` in tooltip
 config.jei.misc.tooltipShowRecipeBy.comment=Show when a recipe has been changed by adding it to the item's tooltip
 
