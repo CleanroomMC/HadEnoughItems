@@ -18,7 +18,7 @@ if (propertyBool('publish_to_maven')) {
         publications {
             mavenJava(MavenPublication) {
                 from components.java // Publish with standard artifacts
-                setGroupId(propertyString('root_package')) // Publish with root package as maven group propertyString('mod_name').toLowerCase().replaceAll(' ', '_')
+                setGroupId(propertyString('root_package'))// Publish with root package as maven group
                 setArtifactId(propertyString('mod_id')) // Publish artifacts with mod id as the artifact id
 
                 // Custom artifact:
@@ -60,11 +60,8 @@ if (propertyBool('publish_to_curseforge')) {
             mainFile.addEnvironment 'Server'
         }
         if (propertyBool('publish_with_changelog')) {
-            String parsedChangelog = parseChangelog()
-            if (parsedChangelog != null) {
-                mainFile.changelog = parsedChangelog
-                mainFile.changelogType = 'markdown'
-            }
+            mainFile.changelog = parserChangelog()
+            mainFile.changelogType = 'markdown'
         }
         if (propertyBool('use_mixins')) {
             mainFile.addRequirement 'mixin-booter'
@@ -101,29 +98,11 @@ if (propertyBool('publish_to_modrinth')) {
             }
         }
         if (propertyBool('publish_with_changelog')) {
-            String parsedChangelog = parseChangelog()
-            if (parsedChangelog != null) {
-                changelog = parsedChangelog
-            }
+            changelog = parserChangelog()
         }
         if (propertyBool('modrinth_sync_readme')) {
             syncBodyFrom = file('README.md').text
             tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
         }
     }
-}
-
-private String parseChangelog() {
-    if (propertyBool('publish_with_changelog')) {
-        if (!file('CHANGELOG.md').exists()) {
-            throw new GradleException('publish_with_changelog is true, but CHANGELOG.md does not exist in the workspace!')
-        }
-        String parsedChangelog = changelog.renderItem(changelog.getLatest().withHeader(false).withEmptySections(false),
-                org.jetbrains.changelog.Changelog.OutputType.MARKDOWN)
-        if (parsedChangelog.isEmpty()) {
-            throw new GradleException('publish_with_changelog is true, but the changelog for the latest version is empty!')
-        }
-        return parsedChangelog
-    }
-    return null
 }

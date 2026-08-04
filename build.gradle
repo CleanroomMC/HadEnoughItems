@@ -3,9 +3,8 @@
  */
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
 import net.darkhax.curseforgegradle.TaskPublishCurseForge
+import org.jetbrains.changelog.Changelog
 import org.jetbrains.gradle.ext.Gradle
-
-import java.time.LocalDate
 
 plugins {
     id 'java'
@@ -253,11 +252,6 @@ test {
     })
 }
 
-changelog {
-    header.set("[${propertyString('mod_version')}] - ${LocalDate.now().format("yyyy-MM-dd")}")
-    headerParserRegex.set(~/(\d+\.\d+)/)
-}
-
 if (propertyBool('spotless')) {
     apply plugin: 'com.diffplug.spotless'
     // noinspection GroovyAssignabilityCheck
@@ -291,6 +285,19 @@ if (propertyBool('spotless')) {
             simple().indentWithSpaces(6)
         }
     }
+}
+
+String parserChangelog() {
+    if (!file('CHANGELOG.md').exists()) {
+        throw new GradleException('publish_with_changelog is true, but CHANGELOG.md does not exist in the workspace!')
+    }
+    String parsedChangelog = changelog.renderItem(
+            changelog.get(propertyString('mod_version')).withHeader(false).withEmptySections(false),
+            Changelog.OutputType.MARKDOWN)
+    if (parsedChangelog.isEmpty()) {
+        throw new GradleException('publish_with_changelog is true, but the changelog for the latest version is empty!')
+    }
+    return parsedChangelog
 }
 
 tasks.register('generateMixinJson') {
