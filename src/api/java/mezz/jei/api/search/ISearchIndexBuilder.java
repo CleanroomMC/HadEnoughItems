@@ -10,7 +10,7 @@ package mezz.jei.api.search;
  * </p>
  *
  * @param <T> the type of values stored in the search index
- * @since HEI 5.0.0
+ * @since HEI 4.33.0
  */
 public interface ISearchIndexBuilder<T> {
 
@@ -19,7 +19,7 @@ public interface ISearchIndexBuilder<T> {
 	 *
 	 * @param key the searchable string
 	 * @param value the indexed value
-	 * @since HEI 5.0.0
+	 * @since HEI 4.33.0
 	 */
 	void put(String key, T value);
 
@@ -31,7 +31,7 @@ public interface ISearchIndexBuilder<T> {
 	 * index has been built.
 	 * </p>
 	 *
-	 * @since HEI 5.0.0
+	 * @since HEI 4.33.0
 	 */
 	ISearchIndex<T> build();
 }

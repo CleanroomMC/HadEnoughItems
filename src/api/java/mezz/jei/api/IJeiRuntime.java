@@ -38,7 +38,7 @@ public interface IJeiRuntime {
 	/**
 	 * Get the factory used to build HEI's ingredient search indices.
 	 *
-	 * @since HEI 5.0.0
+	 * @since HEI 4.33.0
 	 */
 	ISearchIndexBuilderFactory getSearchIndexBuilderFactory();
 

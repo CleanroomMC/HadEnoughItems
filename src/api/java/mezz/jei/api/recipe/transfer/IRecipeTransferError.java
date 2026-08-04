@@ -41,7 +41,7 @@ public interface IRecipeTransferError {
 	 * <p>
 	 * Nullable as it is a later addition to the API.
 	 *
-	 * @since HEI 5.0.0
+	 * @since HEI 4.33.0
 	 * @return reason of why the error has occurred
 	 */
 	@Nullable

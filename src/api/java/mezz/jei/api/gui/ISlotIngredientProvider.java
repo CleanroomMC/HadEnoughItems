@@ -16,7 +16,7 @@ import net.minecraft.item.ItemStack;
  * An {@link IAdvancedGuiHandler} cannot be used for this: it is only consulted when the mouse is not over a
  * slot with something in it.
  *
- * @since HEI 5.0.0
+ * @since HEI 4.33.0
  */
 public interface ISlotIngredientProvider<T extends GuiContainer> {
 	/**
@@ -25,7 +25,7 @@ public interface ISlotIngredientProvider<T extends GuiContainer> {
 	 * @param stack        what the slot currently holds, never empty
 	 *
 	 * @return the ingredient this slot really represents, or null to use {@code stack} as-is
-	 * @since HEI 5.0.0
+	 * @since HEI 4.33.0
 	 */
 	@Nullable
 	Object getSlotIngredient(T guiContainer, Slot slot, ItemStack stack);

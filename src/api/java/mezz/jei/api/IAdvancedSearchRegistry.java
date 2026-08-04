@@ -9,7 +9,7 @@ import mezz.jei.api.search.ISearchIndexFactory;
  * The advanced search registry is passed to mod plugins in
  * {@link IModPlugin#registerAdvancedSearch(IAdvancedSearchRegistry)}.
  *
- * @since HEI 5.0.0
+ * @since HEI 4.33.0
  */
 public interface IAdvancedSearchRegistry {
 
@@ -24,7 +24,7 @@ public interface IAdvancedSearchRegistry {
 	 * If multiple plugins replace the index, the last replacement is used.
 	 * </p>
 	 *
-	 * @since HEI 5.0.0
+	 * @since HEI 4.33.0
 	 */
 	void replaceIndex(ISearchIndexFactory searchIndexFactory);
 
@@ -44,7 +44,7 @@ public interface IAdvancedSearchRegistry {
 	 * runtime additions. If multiple plugins replace the index, the last replacement is used.
 	 * </p>
 	 *
-	 * @since HEI 5.0.0
+	 * @since HEI 4.33.0
 	 */
 	void replaceIndexBuilder(ISearchIndexBuilderFactory searchIndexBuilderFactory);
 }

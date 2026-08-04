@@ -1,6 +1,6 @@
 # Changelog
 
-## [5.0.0] - 2026-08-04
+## [4.33.0] - 2026-08-04
 
 ### Added
 - Better keybind selection for adding bookmarks
