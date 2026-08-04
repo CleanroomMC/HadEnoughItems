@@ -49,15 +49,18 @@ key.jei.showUses=显示用途
 key.jei.recipeBack=显示上个查看的配方
 key.jei.toggleCheatMode=切换作弊模式
 key.jei.toggleEditMode=切换隐藏/编辑模式
-key.jei.previousCategory=上一页
+key.jei.previousPage=上一页
 key.jei.nextPage=下一页
 key.hei.previousCategory=上一配方分类
 key.hei.nextCategory=下一配方分类
-key.jei.bookmark=添加/移除原料书签
-key.hei.bookmarkToTop=添加原料书签至顶部
-key.hei.recipeBookmark=显示/隐藏加入书签的配方
+key.jei.bookmark=添加原料/配方书签（末项）
+key.hei.bookmarkToTop=添加原料/配方书签（首项）
+key.hei.bookmarkNewGroup=添加书签到新分组（末项）
+key.hei.bookmarkNewGroupToTop=添加书签到新分组（首项）
 key.hei.toggleBookmarkOverlay=显示/隐藏加入书签的原料
-key.hei.crafting=自动合成选中的书签配方
+key.hei.crafting=自动合成书签配方
+key.hei.moveGroupUp=上移书签分组
+key.hei.moveGroupDown=下移书签分组
 
 # Config
 config.jei.default=默认
@@ -204,6 +207,8 @@ config.hei.collapsible.collapsedClickAction.FIRST_ITEM=首个物品
 
 config.jei.category.categoryUidOrder=分类 UID 排序
 config.jei.category.categoryUidOrder.comment=决定 HEI 中配方分类的显示顺序。列在前面的分类将优先在 HEI 界面中显示。
+config.jei.category.disabledRecipeCategoryUids=已禁用的配方分类 UID
+config.jei.category.disabledRecipeCategoryUids.comment=HEI 应跳过加载的配方分类 UID。更改此列表后需要重启游戏。
 
 hei.generic.ticks=%d 刻
 
@@ -219,7 +224,8 @@ hei.tooltip.item_group=§7物品组
 hei.tooltip.recipe_group=§7配方组
 hei.tooltip.press_alt=§7按住 §fALT§7 查看操作
 hei.tooltip.organizer.1=§6CTRL + 左键点击§7：在分组间移动书签
-hei.tooltip.organizer.2=§6上§r 或 §6下§7：调整分组位置
+hei.tooltip.organizer.2=§6%s§r 或 §6%s§7：调整分组位置
+hei.tooltip.organizer.5=§6%s§7：删除此书签分组
 hei.tooltip.organizer.3=§6CTRL + 滚轮§7：更改最终产物
 hei.tooltip.organizer.4=§6%s§7：自动合成
 
@@ -241,6 +247,7 @@ hei.gui.collapsible.editor.clear=清除
 hei.gui.collapsible.editor.selected=%d 已选择
 hei.gui.collapsible.confirmDelete=删除？
 hei.tooltip.missing_ingredients=§c缺失原料：
+hei.tooltip.autocraft.wrong_container=该容器无法自行合成 %s 配方。
 
 hei.tooltip.search.title=搜索配方
 hei.tooltip.search.info=点击切换模式。按住 §6SHIFT§r 反向切换。
