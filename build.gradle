@@ -2,6 +2,7 @@
  * It is advised that you do not edit anything in the build.gradle; unless you are sure of what you are doing
  */
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
 import org.jetbrains.gradle.ext.Gradle
 
 import java.time.LocalDate
@@ -13,7 +14,7 @@ plugins {
     id 'com.diffplug.spotless' version '6.19.0' apply false
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.7'
     id 'com.gtnewhorizons.retrofuturagradle' version '2.0.2'
-    id 'com.matthewprenger.cursegradle' version '1.4.0' apply false
+    id 'net.darkhax.curseforgegradle' version '1.2.+' apply false
     id 'com.modrinth.minotaur' version '2.+' apply false
     id 'org.jetbrains.changelog' version '2.2.0'
 }
@@ -43,6 +44,7 @@ setDefaultProperty 'minecraft_username', true, 'Developer'
 setDefaultProperty 'extra_jvm_args', false, ''
 setDefaultProperty 'extra_tweak_classes', false, ''
 setDefaultProperty 'change_minecraft_sources', false, false
+setDefaultProperty 'publish_to_curseforge', true, false
 
 version = propertyString('mod_version')
 group = propertyString('root_package')
@@ -341,6 +343,15 @@ tasks.named('injectTags', InjectTagsTask).configure {
 idea.project.settings {
     taskTriggers {
         afterSync 'cleanroomAfterSync'
+    }
+}
+
+if (propertyBool('publish_to_curseforge')) {
+    assertProperty 'curseforge_project_id'
+    apply plugin: 'net.darkhax.curseforgegradle'
+    tasks.register('curseforge', TaskPublishCurseForge) {
+        group 'publishing'
+        description "Uploads CurseForge project ${propertyString('curseforge_project_id')}"
     }
 }
 

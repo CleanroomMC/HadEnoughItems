@@ -32,45 +32,45 @@ if (propertyBool('publish_to_maven')) {
     }
 }
 
-// Documentation here: https://github.com/matthewprenger/CurseGradle/wiki/
+// Documentation here: https://github.com/Darkhax/CurseForgeGradle
 if (propertyBool('publish_to_curseforge')) {
-    apply plugin: 'com.matthewprenger.cursegradle'
-    assertEnvironmentVariable('CURSEFORGE_TOKEN')
     assertProperty('curseforge_project_id')
     assertProperty('release_type')
     setDefaultProperty('curseforge_debug', false, false)
-    curseforge {
-        apiKey System.getenv('CURSEFORGE_TOKEN')
-        // noinspection GroovyAssignabilityCheck
-        project {
-            id = propertyString('curseforge_project_id')
-            addGameVersion 'Java 8'
-            addGameVersion 'Forge'
-            addGameVersion '1.12.2'
-            releaseType = propertyString('release_type')
-            if (propertyBool('publish_with_changelog')) {
-                String parsedChangelog = parseChangelog()
-                if (parsedChangelog != null) {
-                    changelogType = 'markdown'
-                    changelog = parsedChangelog
-                }
+    setDefaultProperty('client_side', false, true)
+    setDefaultProperty('server_side', false, true)
+    if (!propertyBool('client_side') && !propertyBool('server_side')) {
+        throw new GradleException('At least one of client_side and server_side must be true!')
+    }
+    tasks.named('curseforge') {
+        apiToken = System.getenv('CURSEFORGE_TOKEN') == null ? "" : System.getenv('CURSEFORGE_TOKEN')
+        debugMode = propertyBool('curseforge_debug')
+        dependsOn tasks.reobfJar
+        def mainFile = upload(propertyString('curseforge_project_id'), tasks.reobfJar)
+        mainFile.displayName = "${propertyString('mod_name')} ${propertyString('mod_version')}"
+        mainFile.releaseType = propertyString('release_type')
+        mainFile.addJavaVersion 'Java 8'
+        mainFile.addModLoader 'Forge'
+        mainFile.addGameVersion '1.12.2'
+        // CurseForge requires at least one version from the environment group
+        if (propertyBool('client_side')) {
+            mainFile.addEnvironment 'Client'
+        }
+        if (propertyBool('server_side')) {
+            mainFile.addEnvironment 'Server'
+        }
+        if (propertyBool('publish_with_changelog')) {
+            String parsedChangelog = parseChangelog()
+            if (parsedChangelog != null) {
+                mainFile.changelog = parsedChangelog
+                mainFile.changelogType = 'markdown'
             }
-            mainArtifact tasks.reobfJar, {
-                displayName "${propertyString('mod_name')} ${propertyString('mod_version')}"
-                if (propertyBool('use_mixins') || propertyBool('use_asset_mover')) {
-                    relations {
-                        if (propertyBool('use_mixins')) {
-                            requiredDependency 'mixin-booter'
-                        }
-                        if (propertyBool('use_asset_mover')) {
-                            requiredDependency 'assetmover'
-                        }
-                    }
-                }
-            }
-            options {
-                debug = propertyBool('curseforge_debug')
-            }
+        }
+        if (propertyBool('use_mixins')) {
+            mainFile.addRequirement 'mixin-booter'
+        }
+        if (propertyBool('use_asset_mover')) {
+            mainFile.addRequirement 'assetmover'
         }
     }
 }
@@ -78,18 +78,17 @@ if (propertyBool('publish_to_curseforge')) {
 // Documentation here: https://github.com/modrinth/minotaur
 if (propertyBool('publish_to_modrinth')) {
     apply plugin: 'com.modrinth.minotaur'
-    assertEnvironmentVariable('MODRINTH_TOKEN')
     assertProperty('modrinth_project_id')
     assertProperty('release_type')
     setDefaultProperty('modrinth_debug', false, false)
     modrinth {
-        token = System.getenv('MODRINTH_TOKEN')
+        token = System.getenv('MODRINTH_TOKEN') == null ? "" : System.getenv('MODRINTH_TOKEN')
         projectId = propertyString('modrinth_project_id')
         versionNumber = propertyString('mod_version')
         versionType = propertyString('release_type')
         uploadFile = tasks.reobfJar
-        gameVersions ['1.12.2']
-        loaders ['forge']
+        gameVersions = ['1.12.2']
+        loaders = ['forge']
         debugMode = propertyBool('modrinth_debug')
         if (propertyBool('use_mixins') || propertyBool('use_asset_mover')) {
             dependencies {
