@@ -54,11 +54,12 @@ public class DrawableSprite implements IDrawableStatic {
 		int height = textureHeight - maskBottom - maskTop;
 		float uSize = sprite.getMaxU() - sprite.getMinU();
 		float vSize = sprite.getMaxV() - sprite.getMinV();
-
-		float minU = sprite.getMinU() + uSize * (maskLeft / (float) textureWidth);
-		float minV = sprite.getMinV() + vSize * (maskTop / (float) textureHeight);
-		float maxU = sprite.getMaxU() - uSize * (maskRight / (float) textureWidth);
-		float maxV = sprite.getMaxV() - vSize * (maskBottom / (float) textureHeight);
+		float halfU = uSize / (2.0F * sprite.getIconWidth());
+		float halfV = vSize / (2.0F * sprite.getIconHeight());
+		float minU = sprite.getMinU() + uSize * (maskLeft / (float) textureWidth) + halfU;
+		float minV = sprite.getMinV() + vSize * (maskTop / (float) textureHeight) + halfV;
+		float maxU = sprite.getMaxU() - uSize * (maskRight / (float) textureWidth) - halfU;
+		float maxV = sprite.getMaxV() - vSize * (maskBottom / (float) textureHeight) - halfV;
 
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferBuilder = tessellator.getBuffer();
