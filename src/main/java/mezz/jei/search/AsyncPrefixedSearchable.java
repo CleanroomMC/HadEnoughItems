@@ -57,8 +57,8 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
                 for (IIngredientListElement ingredient : ingredients) {
                     try {
                         submit(ingredient);
-                    } catch (ConcurrentRuntimeException e) {
-                        Log.get().error(prefixInfo + " building failed on ingredient: " + ingredient.getDisplayName(), e);
+                    } catch (Throwable t) {
+                        Log.get().error("Building {}'s search index failed on ingredient: {}", prefixInfo, ingredient.getDisplayName(), t);
                         if (leftovers == null) {
                             this.leftovers = new ArrayList<>();
                         }
