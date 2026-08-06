@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.34.1] - 2026-08-06
+
+### Fixed
+- `IIngredientBlacklist` modification rebuilding the ingredient filter on every call
+- Resource Hogs issue, disables `asyncSearchTreeBuilding`
+
 ## [4.34.0] - 2026-08-04
 
 ### Added

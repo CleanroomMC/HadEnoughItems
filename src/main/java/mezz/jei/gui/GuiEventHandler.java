@@ -141,6 +141,7 @@ public class GuiEventHandler {
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) {
+			Internal.getIngredientFilter().refresh();
 			return;
 		}
 

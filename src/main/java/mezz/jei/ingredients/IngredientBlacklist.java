@@ -51,9 +51,7 @@ public class IngredientBlacklist implements IIngredientBlacklist {
 
 	private static void refreshIngredientFilter() {
 		if (Internal.hasIngredientFilter()) {
-			IngredientFilter ingredientFilter = Internal.getIngredientFilter();
-			ingredientFilter.updateHidden();
-			ingredientFilter.notifyListenersOfChange();
+			Internal.getIngredientFilter().requestRefresh();
 		}
 	}
 }
