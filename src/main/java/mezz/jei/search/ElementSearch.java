@@ -9,6 +9,7 @@ import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.util.Log;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 
 import java.io.FileWriter;
@@ -25,7 +26,14 @@ public class ElementSearch implements IElementSearch {
     private boolean loggedStatistics = false;
 
     public ElementSearch(ISearchIndexBuilderFactory searchIndexBuilderFactory) {
-        if (Config.isSearchTreeBuildingAsync()) {
+        boolean async = Config.isSearchTreeBuildingAsync();
+        if (Loader.isModLoaded("resourcehogs")) {
+            // Too lazy to fix this, culmination of many bugs
+            // SkyFactory players, go nag someone to fix Resource Hogs
+            // https://github.com/CleanroomMC/HadEnoughItems/issues/141
+            async = false;
+        }
+        if (async) {
             AsyncPrefixedSearchable.startService();
         }
 
@@ -36,9 +44,7 @@ public class ElementSearch implements IElementSearch {
 
         for (PrefixInfo prefixInfo : PrefixInfo.all()) {
             indexBuilder = prefixInfo.createIndexBuilder(searchIndexBuilderFactory);
-            searchable = Config.isSearchTreeBuildingAsync() && prefixInfo.isAsyncable() ?
-                    new AsyncPrefixedSearchable(indexBuilder, prefixInfo) :
-                    new PrefixedSearchable(indexBuilder, prefixInfo);
+            searchable = async && prefixInfo.isAsyncable() ? new AsyncPrefixedSearchable(indexBuilder, prefixInfo) : new PrefixedSearchable(indexBuilder, prefixInfo);
             this.prefixedSearchables.put(prefixInfo, searchable);
             this.combinedSearchables.addSearchable(searchable);
         }
