@@ -47,6 +47,8 @@ public class RecipeFavoriteButton extends GuiIconButton {
 	}
 
 	private void setSupportedIngredients(RecipeLayout layout) {
+		favoriteSlots.clear();
+		selectedSlot = 0;
 		Function<Map, Stream<IGuiIngredient<?>>> filter = (map) -> map.values().stream()
 				.filter(ing -> ing != null && ((IGuiIngredient<?>) ing).getDisplayedIngredient() != null && !((IGuiIngredient<?>) ing).isInput());
 		supportedIngredients = Internal.getIngredientRegistry().getCraftableIngredientTypes().stream()
@@ -80,12 +82,16 @@ public class RecipeFavoriteButton extends GuiIconButton {
 	}
 
 	protected boolean onMouseClicked(Minecraft mc, int mouseX, int mouseY) {
+		Object displayedIngredient = getDisplayedIngredient();
+		if (displayedIngredient == null) {
+			return false;
+		}
 		if (GuiScreen.isShiftKeyDown() && isIconToggledOn()) {
 			FavoriteRecipes.removeFavorite(recipe);
 			favoriteSlots.clear();
 			return true;
 		}
-		FavoriteRecipes.toggleFavorite(supportedIngredients.get(selectedSlot).getDisplayedIngredient(), recipe, category);
+		FavoriteRecipes.toggleFavorite(displayedIngredient, recipe, category);
 		if (favoriteSlots.contains(selectedSlot)) { // We also have to update it in this GUI.
 			favoriteSlots.remove(selectedSlot);
 		} else {
@@ -97,6 +103,9 @@ public class RecipeFavoriteButton extends GuiIconButton {
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		super.drawButton(mc, mouseX, mouseY, partialTicks);
+		if (supportedIngredients.isEmpty()) {
+			return;
+		}
 		if (!isMouseOver() && (!visible || !layout.getRecipeBookmarkButton().isMouseOver())) {
 			return;
 		}
@@ -124,6 +133,9 @@ public class RecipeFavoriteButton extends GuiIconButton {
 
 	@Nullable
 	public Object getDisplayedIngredient() {
+		if (selectedSlot < 0 || selectedSlot >= supportedIngredients.size()) {
+			return null;
+		}
 		return supportedIngredients.get(selectedSlot).getDisplayedIngredient();
 	}
 }
