@@ -20,10 +20,10 @@ public final class ChainSolution {
 	private static final ChainSolution EMPTY = new ChainSolution(new Reference2LongOpenHashMap<>(), Collections.emptyList());
 
 	/**
-	 * Orders a by-product after the output it is produced alongside, leaving everything else to the
-	 * graph's own insertion-stable ordering.
+	 * Orders a by-product before the output it is produced alongside, so its demand can be transferred
+	 * to the primary before that primary propagates demand to the recipe's inputs.
 	 */
-	static final Comparator<RecipeBookmarkItem<?>> SECONDARY_OUTPUTS_LAST = (left, right) -> {
+	static final Comparator<RecipeBookmarkItem<?>> SECONDARY_OUTPUTS_FIRST = (left, right) -> {
 		if (left == right.secondaryTo) {
 			return 1;
 		}
@@ -50,7 +50,7 @@ public final class ChainSolution {
 	 * Works out the total needed of every node.
 	 */
 	static ChainSolution solve(RecipeGraph graph) {
-		List<RecipeBookmarkItem<?>> order = graph.topologicalOrder(SECONDARY_OUTPUTS_LAST);
+		List<RecipeBookmarkItem<?>> order = graph.topologicalOrder(SECONDARY_OUTPUTS_FIRST);
 		if (order.isEmpty()) {
 			return EMPTY;
 		}
@@ -110,8 +110,15 @@ public final class ChainSolution {
 		if (needed.secondaryTo instanceof RecipeBookmarkItem) {
 			// A by-product comes out in step with its primary, so the primary has to cover the larger demand.
 			RecipeBookmarkItem<?> primary = (RecipeBookmarkItem<?>) needed.secondaryTo;
-			required.put(primary, Math.max(required.getLong(primary), total));
+			required.put(primary, Math.max(required.getLong(primary), outputNeededFromPrimary(needed, primary, total)));
 		}
+	}
+
+	static long outputNeededFromPrimary(RecipeBookmarkItem<?> secondary, RecipeBookmarkItem<?> primary, long secondaryDemand) {
+		if (secondary.outputAmount <= 0L || primary.outputAmount <= 0L) {
+			return secondaryDemand;
+		}
+		return craftsFor(secondaryDemand, secondary.outputAmount) * primary.outputAmount;
 	}
 
 	/** Times a recipe yielding {@code perCraft} must run to produce at least {@code required}. */
@@ -137,6 +144,10 @@ public final class ChainSolution {
 	 * overshoot what is strictly needed.
 	 */
 	public long producedOf(RecipeBookmarkItem<?> node) {
+		if (node.secondaryTo instanceof RecipeBookmarkItem) {
+			RecipeBookmarkItem<?> primary = (RecipeBookmarkItem<?>) node.secondaryTo;
+			return craftsOf(primary) * node.outputAmount;
+		}
 		if (node.outputAmount == 0L) {
 			return required.getLong(node);
 		}

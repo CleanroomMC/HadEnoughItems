@@ -110,6 +110,12 @@ public final class CraftingPlan {
 			if (stillNeeded <= 0L) {
 				continue;
 			}
+			if (node.secondaryTo instanceof RecipeBookmarkItem) {
+				RecipeBookmarkItem<?> primary = (RecipeBookmarkItem<?>) node.secondaryTo;
+				long primaryDemand = ChainSolution.outputNeededFromPrimary(node, primary, stillNeeded);
+				netNeeded.put(primary, Math.max(netNeeded.getLong(primary), primaryDemand));
+				continue;
+			}
 
 			if (node.category != null && node.recipe != null) {
 				steps.add(new Step(node, ChainSolution.craftsFor(stillNeeded, node.outputAmount)));

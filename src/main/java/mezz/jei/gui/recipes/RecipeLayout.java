@@ -433,11 +433,14 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		}
 		BookmarkList bookmarkList = Internal.getBookmarkList();
 		RecipeBookmarkGroup group = new RecipeBookmarkGroup(bookmarkList.nextId());
-		RecipeBookmarkItem<?> recipeBookmarkItem = new RecipeBookmarkItem<>(displayedIngredient);
-		recipeBookmarkItem.setGroup(group);
-		recipeBookmarkItem.populateWith(recipeWrapper, recipeCategory);
-		// Added last so that expanding the chain does not overwrite the recipe chosen above.
-		group.addItem(recipeBookmarkItem);
+		List<RecipeBookmarkItem<?>> recipeOutputs = RecipeBookmarkItem.createRecipeOutputs(displayedIngredient, recipeWrapper, recipeCategory);
+		if (recipeOutputs.isEmpty()) {
+			return false;
+		}
+		for (RecipeBookmarkItem<?> recipeOutput : recipeOutputs) {
+			// Added after population so expanding the chain cannot replace the recipe chosen above.
+			group.addItem(recipeOutput);
+		}
 		return bookmarkList.add(group, addToFront);
 	}
 }

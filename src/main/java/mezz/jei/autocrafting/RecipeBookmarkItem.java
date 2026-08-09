@@ -81,6 +81,47 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 		this.secondaryTo = other.secondaryTo;
 	}
 
+	/**
+	 * Builds one bookmark node for every distinct output declared by a recipe,
+	 * keeping the output selected in the recipe GUI first so it remains the primary output of the bookmark row.
+	 * <p>
+	 * A slot's inner list may be a rotating list of subtypes, or it may enumerate the possible stack sizes
+	 * of a chance output. Consequently, it shouldn't be flattened and treated as several outputs.
+	 * Each distinct ingredient is added once and {@link #populateWith} works out its amount per logical slot.
+	 */
+	public static List<RecipeBookmarkItem<?>> createRecipeOutputs(Object selectedOutput, IRecipeWrapper recipe, IRecipeCategory<?> category) {
+		Ingredients ingredients = new Ingredients();
+		recipe.getIngredients(ingredients);
+		List<RecipeBookmarkItem<?>> outputs = new ObjectArrayList<>();
+		addRecipeOutput(outputs, selectedOutput, recipe, category, ingredients);
+		for (IIngredientType<?> type : ingredients.getOutputIngredients().keySet()) {
+			for (List<?> outputSlot : ingredients.getOutputs(type)) {
+				for (Object output : outputSlot) {
+					addRecipeOutput(outputs, output, recipe, category, ingredients);
+				}
+			}
+		}
+		return outputs;
+	}
+
+	private static void addRecipeOutput(List<RecipeBookmarkItem<?>> outputs, Object ingredient, IRecipeWrapper recipe,
+										IRecipeCategory<?> category, Ingredients ingredients) {
+		IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
+		if (ingredient == null || !ingredientRegistry.isValidIngredient(ingredient) || !ingredientRegistry.isIngredientCraftable(ingredient)) {
+			return;
+		}
+		for (RecipeBookmarkItem<?> output : outputs) {
+			if (IngredientUtil.equals(output.getIngredient(), ingredient)) {
+				return;
+			}
+		}
+		RecipeBookmarkItem<Object> output = new RecipeBookmarkItem<>(ingredient);
+		output.populateWith(recipe, category, ingredients);
+		if (output.isPopulated()) {
+			outputs.add(output);
+		}
+	}
+
 	public void populateWithFavorite() {
 		if (recipe != null) {
 			return;
@@ -118,27 +159,55 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 	}
 
 	public void populateWith(IRecipeWrapper recipe, IRecipeCategory<?> category) {
+		Ingredients ingredients = new Ingredients();
+		recipe.getIngredients(ingredients);
+		populateWith(recipe, category, ingredients);
+	}
+
+	private void populateWith(IRecipeWrapper recipe, IRecipeCategory<?> category, Ingredients ingredients) {
 		if (!Internal.getIngredientRegistry().isIngredientCraftable(getIngredient())) {
 			return;
 		}
 		this.recipe = recipe;
 		this.category = category;
-		Ingredients ingredients = new Ingredients();
-		this.recipe.getIngredients(ingredients);
 		this.inputs = new ObjectArrayList<>();
 		for (IIngredientType<?> type : ingredients.getInputIngredients().keySet()) {
 			List<List> typeInputs = (List) ingredients.getInputs(type);
 			List<Boolean> reusableInputs = type == VanillaTypes.ITEM ? getReusableInputs((List) typeInputs) : null;
 			populateInputType(typeInputs, reusableInputs);
 		}
-		this.outputAmount = 0L;
+		this.outputAmount = getOutputAmount(ingredients);
+	}
+
+	/**
+	 * Returns the amount produced in one recipe without adding together rotating variants.
+	 * <p>
+	 * When a mod represents a chance output as {@code [1x dust, 2x dust]}, the safest useful value is the
+	 * smallest positive amount in that slot which would be 1x, and not 1x + 2x = 3x.
+	 * Deterministic outputs retain their real stack size
+	 * and two separate slots containing the same ingredient still contribute independently.
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private long getOutputAmount(Ingredients ingredients) {
 		I ingredient = getIngredient();
-		for (Object other :
-				ingredients.getOutputIngredients().get(Internal.getIngredientRegistry().getIngredientType(ingredient))) {
-			if (IngredientUtil.equals(ingredient, other)) {
-				this.outputAmount += IngredientUtil.getCount(other);
+		IIngredientType<I> ingredientType = Internal.getIngredientRegistry().getIngredientType(ingredient);
+		if (ingredientType == null) {
+			return 1L;
+		}
+		long total = 0L;
+		for (List outputSlot : ingredients.getOutputs(ingredientType)) {
+			long slotAmount = Long.MAX_VALUE;
+			for (Object candidate : outputSlot) {
+				if (candidate != null && IngredientUtil.equals(ingredient, candidate)) {
+					long candidateAmount = IngredientUtil.getCount(candidate);
+					slotAmount = Math.min(slotAmount, Math.max(1L, candidateAmount));
+				}
+			}
+			if (slotAmount != Long.MAX_VALUE) {
+				total += slotAmount;
 			}
 		}
+		return Math.max(1L, total);
 	}
 
 	/**
@@ -346,7 +415,15 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 	}
 
 	public boolean isExplicitlyRequested() {
-		return selfOutputAmount > 0L;
+		return requestOwner().selfOutputAmount > 0L;
+	}
+
+	private RecipeBookmarkItem<?> requestOwner() {
+		RecipeBookmarkItem<?> owner = this;
+		while (owner.secondaryTo instanceof RecipeBookmarkItem) {
+			owner = (RecipeBookmarkItem<?>) owner.secondaryTo;
+		}
+		return owner;
 	}
 
 	@Override
@@ -360,13 +437,21 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 			return;
 		}
 		BookmarkGroup owner = getGroup();
+		RecipeBookmarkItem<?> requestOwner = requestOwner();
+		long ownerOutputAmount = Math.max(1L, requestOwner.outputAmount);
+		long selectedOutputAmount = Math.max(1L, this.outputAmount);
+		long requestedCrafts = ChainSolution.craftsFor(requestOwner.selfOutputAmount, ownerOutputAmount);
 		// A step something else in the chain needs may be taken down to zero — that just means no extra
 		// beyond what the chain works out. A step nothing needs may not: it is a row the player put there,
 		// and zero of it is not an amount, it is a removal.
-		long floor = owner instanceof RecipeBookmarkGroup && ((RecipeBookmarkGroup) owner).isChainRoot(this) ? 1L : 0L;
-		// Snap to a multiple of the step first, so repeated scrolling lands on round numbers.
-		long snapped = (this.selfOutputAmount / delta) * delta;
-		this.selfOutputAmount = Math.max(floor, snapped + delta);
+		long floorCrafts = owner instanceof RecipeBookmarkGroup && ((RecipeBookmarkGroup) owner).isChainRoot(requestOwner) ? 1L : 0L;
+		long craftStep = Math.max(1L, (Math.abs(delta) + selectedOutputAmount - 1L) / selectedOutputAmount);
+		if (delta < 0L) {
+			craftStep = -craftStep;
+		}
+		long snappedCrafts = (requestedCrafts / craftStep) * craftStep;
+		long newCrafts = Math.max(floorCrafts, snappedCrafts + craftStep);
+		requestOwner.selfOutputAmount = newCrafts * ownerOutputAmount;
 
 		if (owner instanceof RecipeBookmarkGroup) {
 			((RecipeBookmarkGroup) owner).onRequestedAmountChanged();
