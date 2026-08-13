@@ -4,16 +4,19 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import mezz.jei.Internal;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiIngredient;
+import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.gui.elements.GuiIconButton;
+import mezz.jei.ingredients.Ingredients;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,16 +25,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RecipeFavoriteButton extends GuiIconButton {
-	private final IRecipeWrapper recipe;
-	private final IRecipeCategory<?> category;
-	private List<IGuiIngredient<?>> supportedIngredients;
-	private final Set<Integer> favoriteSlots = new IntOpenHashSet();
-	private int selectedSlot = 0;
-	private RecipeLayout layout;
-
 	private static final Color selectedColor = new Color(0.0f, 0.0f, 1.0f, 0.3f);
 	private static final Color favoritedColor = new Color(0.0f, 1.0f, 0.0f, 0.3f);
 
+	private final IRecipeWrapper recipe;
+	private final IRecipeCategory<?> category;
+	private final Set<Integer> favoriteSlots = new IntOpenHashSet();
+
+	private List<IGuiIngredient<?>> supportedIngredients = Collections.emptyList();
+	@Nullable
+	private Object declaredOutput;
+	private int selectedSlot = 0;
+	private RecipeLayout layout;
 
 	public RecipeFavoriteButton(int index, int width, int height, IDrawable offIcon, IDrawable onIcon, IRecipeWrapper recipe, IRecipeCategory<?> category, RecipeLayout layout) {
 		super(index, null, null); // We're going to replace these, but it doesn't let me pass in lambdas referring to the object yet.
@@ -43,7 +48,6 @@ public class RecipeFavoriteButton extends GuiIconButton {
 		this.width = width;
 		this.height = height;
 		this.layout = layout;
-		setSupportedIngredients(layout);
 	}
 
 	private void setSupportedIngredients(RecipeLayout layout) {
@@ -55,12 +59,33 @@ public class RecipeFavoriteButton extends GuiIconButton {
 				.map(t -> layout.getIngredientsGroup(t).getGuiIngredients())
 				.flatMap(filter)
 				.collect(Collectors.toList());
+		declaredOutput = supportedIngredients.isEmpty() ? getFirstDeclaredOutput() : null;
 		supportedIngredients.forEach(ing -> {
 			if (FavoriteRecipes.isFavoriteFor(recipe, ing.getDisplayedIngredient())) {
 				favoriteSlots.add(supportedIngredients.indexOf(ing));
 			}
 		});
-		this.enabled = this.visible = !supportedIngredients.isEmpty();
+		this.enabled = this.visible = !supportedIngredients.isEmpty() || declaredOutput != null;
+	}
+
+	/**
+	 * Recipe wrappers are the source of truth for recipe outputs. Some categories incorrectly mark their
+	 * output GUI slots as inputs, so fall back to the wrapper when there is no selectable output slot.
+	 */
+	@Nullable
+	private Object getFirstDeclaredOutput() {
+		Ingredients ingredients = new Ingredients();
+		recipe.getIngredients(ingredients);
+		for (IIngredientType<?> type : Internal.getIngredientRegistry().getCraftableIngredientTypes()) {
+			for (List<?> outputSlot : ingredients.getOutputs(type)) {
+				for (Object output : outputSlot) {
+					if (output != null && Internal.getIngredientRegistry().isValidIngredient(output)) {
+						return output;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	public void init(RecipeLayout layout) {
@@ -74,7 +99,9 @@ public class RecipeFavoriteButton extends GuiIconButton {
 		} else {
 			tooltip.add(Translator.translateToLocal("hei.tooltip.favorite"));
 		}
-		tooltip.add(Translator.translateToLocal("hei.tooltip.favorite_scroll"));
+		if (supportedIngredients.size() > 1) {
+			tooltip.add(Translator.translateToLocal("hei.tooltip.favorite_scroll"));
+		}
 	}
 
 	protected boolean isIconToggledOn() {
@@ -118,7 +145,7 @@ public class RecipeFavoriteButton extends GuiIconButton {
 	}
 
 	public boolean handleMouseScrolled(int mouseX, int mouseY, int scrollDelta) {
-		if (!this.enabled || !this.visible || !isMouseOver()) {
+		if (!this.enabled || !this.visible || !isMouseOver() || supportedIngredients.size() <= 1) {
 			return false;
 		}
 		// Wrapping scroll
@@ -133,6 +160,9 @@ public class RecipeFavoriteButton extends GuiIconButton {
 
 	@Nullable
 	public Object getDisplayedIngredient() {
+		if (supportedIngredients.isEmpty()) {
+			return declaredOutput;
+		}
 		if (selectedSlot < 0 || selectedSlot >= supportedIngredients.size()) {
 			return null;
 		}
