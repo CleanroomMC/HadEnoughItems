@@ -1,6 +1,7 @@
 package mezz.jei.autocrafting;
 
 import mezz.jei.Internal;
+import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
 import mezz.jei.api.recipe.transfer.IRecipeCraftingHandler;
@@ -39,8 +40,20 @@ public class AutocraftingHandler implements IAutocraftingHandler {
 	 */
 	@Nullable
 	public static IRecipeTransferError isRecipeAutoCraftable(RecipeBookmarkItem<?> recipe, int craftCount) {
+		if (!recipe.isPopulated()) {
+			return RecipeTransferErrorInternal.INSTANCE;
+		}
+		IRecipeLayout recipeLayout = recipe.createLayout();
+		if (recipeLayout == null) {
+			return RecipeTransferErrorInternal.INSTANCE;
+		}
+		return isRecipeAutoCraftable(recipe, recipeLayout, craftCount);
+	}
+
+	@Nullable
+	private static IRecipeTransferError isRecipeAutoCraftable(RecipeBookmarkItem<?> recipe, IRecipeLayout recipeLayout, int craftCount) {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
-		if (player == null || player.openContainer == null || !recipe.isPopulated() || craftCount <= 0) {
+		if (player == null || player.openContainer == null || craftCount <= 0) {
 			return RecipeTransferErrorInternal.INSTANCE;
 		}
 		Container openContainer = player.openContainer;
@@ -55,7 +68,7 @@ public class AutocraftingHandler implements IAutocraftingHandler {
 
 		@SuppressWarnings("unchecked")
 		IRecipeCraftingHandler<Container> craftingHandler = (IRecipeCraftingHandler<Container>) transferHandler;
-		return craftingHandler.craft(openContainer, recipe.createLayout(), player, craftCount, false);
+		return craftingHandler.craft(openContainer, recipeLayout, player, craftCount, false);
 	}
 
 	/** Steps still to run. Empty whenever nothing is in progress. */
@@ -124,8 +137,17 @@ public class AutocraftingHandler implements IAutocraftingHandler {
 	 */
 	private boolean dispatch(PendingStep step) {
 		int craftCount = (int) Math.min(Integer.MAX_VALUE, step.remainingCrafts);
+		RecipeBookmarkItem<?> recipe = step.recipe;
+		if (!recipe.isPopulated()) {
+			return false;
+		}
+		IRecipeLayout recipeLayout = recipe.createLayout();
+		if (recipeLayout == null) {
+			Log.get().warn("Skipping autocrafting step for {} x{} because its recipe layout could not be created", recipe.getIngredient(), craftCount);
+			return false;
+		}
 		// Dry run first
-		IRecipeTransferError error = isRecipeAutoCraftable(step.recipe, craftCount);
+		IRecipeTransferError error = isRecipeAutoCraftable(recipe, recipeLayout, craftCount);
 		if (error != null) {
 			Log.get().warn("Skipping autocrafting step for {} x{}: {}", step.recipe.getIngredient(), craftCount,
 				error.getSimpleReason() != null ? error.getSimpleReason() : error.getClass().getSimpleName());
@@ -133,13 +155,25 @@ public class AutocraftingHandler implements IAutocraftingHandler {
 		}
 
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
+		if (player == null || player.openContainer == null) {
+			return false;
+		}
 		Container openContainer = player.openContainer;
+		IRecipeTransferHandler<?> transferHandler = Internal.getRuntime().getRecipeRegistry().getRecipeTransferHandler(openContainer, recipe.category);
+		if (!(transferHandler instanceof IRecipeCraftingHandler)) {
+			return false;
+		}
 		@SuppressWarnings("unchecked")
-		IRecipeCraftingHandler<Container> craftingHandler = (IRecipeCraftingHandler<Container>)
-			Internal.getRuntime().getRecipeRegistry().getRecipeTransferHandler(openContainer, step.recipe.category);
+		IRecipeCraftingHandler<Container> craftingHandler = (IRecipeCraftingHandler<Container>) transferHandler;
 
 		this.waitingForCraftResult = true;
-		craftingHandler.craft(openContainer, step.recipe.createLayout(), player, craftCount, true);
+		error = craftingHandler.craft(openContainer, recipeLayout, player, craftCount, true);
+		if (error != null) {
+			this.waitingForCraftResult = false;
+			Log.get().warn("Failed to dispatch autocrafting step for {} x{}: {}", recipe.getIngredient(), craftCount,
+				error.getSimpleReason() != null ? error.getSimpleReason() : error.getClass().getSimpleName());
+			return false;
+		}
 		return true;
 	}
 

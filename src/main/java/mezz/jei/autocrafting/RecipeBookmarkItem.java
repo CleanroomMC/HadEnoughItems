@@ -459,6 +459,7 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
+	@Nullable
 	public IRecipeLayout createLayout() {
 		return RecipeLayout.create(-1, (IRecipeCategory) category, recipe, null, 0, 0);
 	}

@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.34.3] - 2026-08-14
+
+### Fixed
+- Compatibility with More Overlays
+- Autocrafting sometimes crashing when creating recipe layout
+
+### Changed
+- Play animation for every item in a recipe bookmark when it is added
+
 ## [4.34.2] - 2026-08-14
 
 ### Fixed
