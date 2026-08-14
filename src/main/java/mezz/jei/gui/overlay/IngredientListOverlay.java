@@ -222,6 +222,10 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 		return false;
 	}
 
+	public boolean isMouseOverSearchField(int mouseX, int mouseY) {
+		return isListDisplayed() && this.searchField.isMouseOver(mouseX, mouseY);
+	}
+
 	@Override
 	@Nullable
 	public IClickedIngredient<?> getIngredientUnderMouse(int mouseX, int mouseY) {
