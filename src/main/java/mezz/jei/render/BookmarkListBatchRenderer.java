@@ -3,6 +3,7 @@ package mezz.jei.render;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.*;
+import mezz.jei.autocrafting.RecipeBookmarkGroup;
 import mezz.jei.bookmarks.BookmarkGroup;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkList;
@@ -385,7 +386,18 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
 	}
 
 	private void animateBookmarkAddition(BookmarkItem<?> bookmarkItem) {
-		bookmarkAddAnimations.put(bookmarkItem, Minecraft.getSystemTime());
+		long startTime = Minecraft.getSystemTime();
+		BookmarkGroup group = bookmarkItem.getGroup();
+		if (group instanceof RecipeBookmarkGroup) {
+			for (IIngredientListElement<?> element : group.getIngredientListElements()) {
+				Object ingredient = element.getIngredient();
+				if (ingredient instanceof BookmarkItem) {
+					bookmarkAddAnimations.put((BookmarkItem<?>) ingredient, startTime);
+				}
+			}
+		} else {
+			bookmarkAddAnimations.put(bookmarkItem, startTime);
+		}
 	}
 
 	private void trackBookmarkRenderersFromSlots() {
