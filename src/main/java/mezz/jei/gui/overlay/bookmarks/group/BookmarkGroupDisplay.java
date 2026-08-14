@@ -32,6 +32,9 @@ public class BookmarkGroupDisplay implements IGhostIngredientHandler.AwareTarget
 
 	@Override
 	public void accept(Object ingredient, int mouseX, int mouseY) {
+		if (!canAccept(ingredient)) {
+			return;
+		}
 		BookmarkList bookmarkList = Internal.getBookmarkList();
 		int insertionIndex = getInsertionIndex(mouseX, mouseY);
 		if (ingredient instanceof BookmarkItem) {
@@ -59,6 +62,23 @@ public class BookmarkGroupDisplay implements IGhostIngredientHandler.AwareTarget
 				bookmarkList.notifyListenersOfChange();
 			}
 		}
+	}
+
+	boolean canAccept(Object ingredient) {
+		if (!group.acceptsChanges()) {
+			return false;
+		}
+		BookmarkItem<?> item;
+		if (ingredient instanceof BookmarkItem) {
+			item = (BookmarkItem<?>) ingredient;
+			BookmarkGroup oldGroup = item.getGroup();
+			if (oldGroup != null && !oldGroup.acceptsChanges()) {
+				return false;
+			}
+		} else {
+			item = new BookmarkItem<>(ingredient);
+		}
+		return group.canAddItem(item);
 	}
 
 	@Override

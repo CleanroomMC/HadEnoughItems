@@ -5,9 +5,7 @@ import mezz.jei.Internal;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.autocrafting.CraftingPlan;
 import mezz.jei.autocrafting.RecipeBookmarkGroup;
-import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.bookmarks.BookmarkGroup;
-import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.config.KeyBindings;
@@ -245,12 +243,10 @@ public class BookmarkGroupOrganizer {
 
 	public <I> List<IGhostIngredientHandler.Target<I>> getTargets(I ingredient) {
 		List<IGhostIngredientHandler.Target<I>> targets = new ArrayList<>();
-		Object groupedIngredient = ingredient instanceof BookmarkItem ? ((BookmarkItem<?>) ingredient).getIngredient() : ingredient;
 		for (BookmarkGroupDisplay groupDisplay : groups) {
-			if (groupDisplay.group instanceof RecipeBookmarkGroup ^ groupedIngredient instanceof RecipeBookmarkItem) {
-				continue;
+			if (groupDisplay.canAccept(ingredient)) {
+				targets.add(groupDisplay);
 			}
-			targets.add(groupDisplay);
 		}
 		return targets;
 	}
