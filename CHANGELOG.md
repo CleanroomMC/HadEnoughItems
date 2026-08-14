@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.34.2] - 2026-08-14
+
+### Fixed
+- Crashes when recipes wrappers that have outputs as inputs are being favourited
+- Null ingredients being compared when it should short-circuit
+
 ## [4.34.1] - 2026-08-06
 
 ### Fixed
