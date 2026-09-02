@@ -113,9 +113,8 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 					displayArea.width,
 					displayArea.height - searchHeight
 				);
-				int legacySize = contents.size();
+
 				hasRoom = this.contents.updateBounds(availableContentsArea, guiExclusionAreas, 4 * BUTTON_SIZE);
-				boolean resetToFirstPage = legacySize != contents.size();
 
 				final int visibleButtonSize = Config.hideBottomRightCornerConfigButton() ? 0 : BUTTON_SIZE;
 				Rectangle searchArea;
@@ -158,7 +157,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 					visibleButtonSize,
 					visibleButtonSize
 				));
-				updateLayout(resetToFirstPage);
+				updateLayout(false);
 			}
 		}
 		if (wasDisplayed && !isListDisplayed()) {

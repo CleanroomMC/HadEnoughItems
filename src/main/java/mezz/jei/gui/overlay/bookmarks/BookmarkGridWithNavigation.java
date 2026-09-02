@@ -240,10 +240,6 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 		return groupOrganizer;
 	}
 
-	public int size() {
-		return this.bookmarkGrid.size();
-	}
-
 	private class BookmarkGridPaged implements IPaged {
 
 		@Override
