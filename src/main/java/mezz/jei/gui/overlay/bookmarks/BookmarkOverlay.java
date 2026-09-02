@@ -100,7 +100,9 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 			displayArea.width,
 			displayArea.height - (BUTTON_SIZE + 4)
 		);
+		int legacySize = contents.size();
 		boolean contentsHasRoom = this.contents.updateBounds(availableContentsArea, guiExclusionAreas, minWidth);
+		boolean resetToFirstPage = legacySize != contents.size();
 
         if (contentsHasRoom) {
             // update area to match contents size
@@ -120,7 +122,7 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
             ));
         }
 
-		this.contents.updateLayout(false);
+		this.contents.updateLayout(resetToFirstPage);
 
 		return contentsHasRoom;
 	}
