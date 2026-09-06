@@ -67,4 +67,17 @@ public interface IRecipeWrapper {
 	default boolean handleClick(Minecraft minecraft, int mouseX, int mouseY, int mouseButton) {
 		return false;
 	}
+
+	/**
+	 * Called when a player scroll on the recipe.
+	 *
+	 * @param mouseX      the X position of the mouse, relative to the recipe.
+	 * @param mouseY      the Y position of the mouse, relative to the recipe.
+	 * @param scrollDelta the delta movement of mouse wheel.
+	 * @return true if the click was handled, false otherwise
+	 * @since HEI ?
+	 */
+	default boolean handleMouseScroll(int mouseX, int mouseY, int scrollDelta) {
+		return false;
+	}
 }

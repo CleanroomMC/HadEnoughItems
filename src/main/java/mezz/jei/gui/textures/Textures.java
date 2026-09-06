@@ -17,6 +17,8 @@ public class Textures {
 	public final TextureInfo guiBackground;
 	public final TextureInfo recipeBackground;
 	public final TextureInfo searchBackground;
+	public final TextureInfo scrollbarBackground;
+	public final TextureInfo scrollbarMarker;
 
 	public final TextureInfo shapelessIcon;
 	public final TextureInfo arrowPrevious;
@@ -53,6 +55,10 @@ public class Textures {
 			.slice(16, 16, 16, 16);
 		this.searchBackground = registerGuiSprite("search_background", 20, 20)
 			.slice(4, 4, 4, 4);
+		this.scrollbarBackground = registerGuiSprite("scrollbar_background", 14, 50)
+			.slice(1, 1, 1, 1);
+		this.scrollbarMarker = registerGuiSprite("scrollbar_marker", 12, 15)
+			.slice(1, 1, 1, 1);
 		this.catalystTab = registerGuiSprite("catalyst_tab", 28, 28)
 			.slice(8, 9, 8, 8);
 
