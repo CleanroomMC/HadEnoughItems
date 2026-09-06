@@ -82,12 +82,8 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 	}
 
 	/**
-	 * Builds one bookmark node for every distinct output declared by a recipe,
-	 * keeping the output selected in the recipe GUI first so it remains the primary output of the bookmark row.
-	 * <p>
-	 * A slot's inner list may be a rotating list of subtypes, or it may enumerate the possible stack sizes
-	 * of a chance output. Consequently, it shouldn't be flattened and treated as several outputs.
-	 * Each distinct ingredient is added once and {@link #populateWith} works out its amount per logical slot.
+	 * Output lists contain alternatives for a single slot. Keep the selected variant for its slot
+	 * and the first valid variant for other slots, with the selected output first in the bookmark row.
 	 */
 	public static List<RecipeBookmarkItem<?>> createRecipeOutputs(Object selectedOutput, IRecipeWrapper recipe, IRecipeCategory<?> category) {
 		Ingredients ingredients = new Ingredients();
@@ -96,30 +92,37 @@ public class RecipeBookmarkItem<I> extends BookmarkItem<I> {
 		addRecipeOutput(outputs, selectedOutput, recipe, category, ingredients);
 		for (IIngredientType<?> type : ingredients.getOutputIngredients().keySet()) {
 			for (List<?> outputSlot : ingredients.getOutputs(type)) {
+				if (IngredientUtil.aliasesContains(outputSlot, selectedOutput)) {
+					continue;
+				}
 				for (Object output : outputSlot) {
-					addRecipeOutput(outputs, output, recipe, category, ingredients);
+					if (addRecipeOutput(outputs, output, recipe, category, ingredients)) {
+						break;
+					}
 				}
 			}
 		}
 		return outputs;
 	}
 
-	private static void addRecipeOutput(List<RecipeBookmarkItem<?>> outputs, Object ingredient, IRecipeWrapper recipe,
+	private static boolean addRecipeOutput(List<RecipeBookmarkItem<?>> outputs, Object ingredient, IRecipeWrapper recipe,
 										IRecipeCategory<?> category, Ingredients ingredients) {
 		IngredientRegistry ingredientRegistry = Internal.getIngredientRegistry();
 		if (ingredient == null || !ingredientRegistry.isValidIngredient(ingredient) || !ingredientRegistry.isIngredientCraftable(ingredient)) {
-			return;
+			return false;
 		}
 		for (RecipeBookmarkItem<?> output : outputs) {
 			if (IngredientUtil.equals(output.getIngredient(), ingredient)) {
-				return;
+				return true;
 			}
 		}
 		RecipeBookmarkItem<Object> output = new RecipeBookmarkItem<>(ingredient);
 		output.populateWith(recipe, category, ingredients);
 		if (output.isPopulated()) {
 			outputs.add(output);
+			return true;
 		}
+		return false;
 	}
 
 	public void populateWithFavorite() {
