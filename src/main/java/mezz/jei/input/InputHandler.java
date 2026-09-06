@@ -150,7 +150,7 @@ public class InputHandler {
 		if (eventButton > -1) {
 			if (Mouse.getEventButtonState()) {
 				clickHandled.remove(eventButton);
-				cancelEvent = handleMouseClick(guiScreen, eventButton, mouseX, mouseY);
+				cancelEvent = handleMouseClick(guiScreen, eventButton, mouseX, mouseY, null);
 				if (cancelEvent) {
 					clickHandled.add(eventButton);
 				}
@@ -160,12 +160,20 @@ public class InputHandler {
 			}
 		} else if (Mouse.getEventDWheel() != 0) {
 			cancelEvent = handleMouseScroll(Mouse.getEventDWheel(), mouseX, mouseY);
+		} else {
+			cancelEvent = ghostIngredientDragManager.handleMouseMoved(guiScreen, getFocusUnderMouseForClick(mouseX, mouseY));
 		}
 		return cancelEvent;
 	}
 
 	private boolean handleMouseRelease(GuiScreen guiScreen, int mouseX, int mouseY) {
 		final int eventButton = Mouse.getEventButton();
+		ghostIngredientDragManager.handleMouseMoved(guiScreen, getFocusUnderMouseForClick(mouseX, mouseY));
+		IClickedIngredient<?> pendingClick = ghostIngredientDragManager.takePendingClick(eventButton);
+		if (pendingClick != null) {
+			handleMouseClick(guiScreen, eventButton, mouseX, mouseY, pendingClick);
+			return true;
+		}
 		if (ghostIngredientDragManager.handleMouseReleased(eventButton, mouseX, mouseY)) {
 			return true;
 		}
@@ -188,14 +196,14 @@ public class InputHandler {
         return false;
 	}
 
-	private boolean handleMouseClick(GuiScreen guiScreen, int mouseButton, int mouseX, int mouseY) {
-		IClickedIngredient<?> clicked = getFocusUnderMouseForClick(mouseX, mouseY);
+	private boolean handleMouseClick(GuiScreen guiScreen, int mouseButton, int mouseX, int mouseY, @Nullable IClickedIngredient<?> pendingClick) {
+		IClickedIngredient<?> clicked = pendingClick == null ? getFocusUnderMouseForClick(mouseX, mouseY) : pendingClick;
 		if (Config.isEditModeEnabled() && clicked != null && handleClickEdit(clicked)) {
 			return true;
 		}
 
 		IIngredientListElement<?> listElement = getElementUnderMouse();
-		if (this.ghostIngredientDragManager.handleMouseClicked(guiScreen.mc, guiScreen, clicked, listElement, mouseButton, mouseX, mouseY)) {
+		if (pendingClick == null && this.ghostIngredientDragManager.handleMouseClicked(guiScreen.mc, guiScreen, clicked, listElement, mouseButton, mouseX, mouseY)) {
 			return true;
 		}
 
@@ -269,13 +277,17 @@ public class InputHandler {
 	}
 
 	private <V> boolean handleMouseClickedFocus(int mouseButton, IClickedIngredient<V> clicked) {
+		Object value = clicked.getValue();
+		if (value instanceof BookmarkItem) {
+			value = ((BookmarkItem<?>) value).getIngredient();
+		}
 		if (mouseButton == 0) {
-			IFocus<?> focus = new Focus<>(IFocus.Mode.OUTPUT, clicked.getValue());
+			IFocus<?> focus = new Focus<>(IFocus.Mode.OUTPUT, value);
 			recipesGui.show(focus);
 			clicked.onClickHandled();
 			return true;
 		} else if (mouseButton == 1) {
-			IFocus<?> focus = new Focus<>(IFocus.Mode.INPUT, clicked.getValue());
+			IFocus<?> focus = new Focus<>(IFocus.Mode.INPUT, value);
 			recipesGui.show(focus);
 			clicked.onClickHandled();
 			return true;
