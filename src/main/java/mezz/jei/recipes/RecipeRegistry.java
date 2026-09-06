@@ -620,6 +620,8 @@ public class RecipeRegistry implements IRecipeRegistry {
 		Set<T> hidden = (Set<T>) hiddenRecipes.get(recipeCategory.getUid());
 		allRecipeWrappers.removeAll(hidden);
 
+		allRecipeWrappers = new ArrayList<>(new LinkedHashSet<>(allRecipeWrappers));
+
 		return allRecipeWrappers;
 	}
 
@@ -636,6 +638,8 @@ public class RecipeRegistry implements IRecipeRegistry {
 		@SuppressWarnings("unchecked")
 		Set<T> hidden = (Set<T>) hiddenRecipes.get(recipeCategory.getUid());
 		allRecipeWrappers.removeAll(hidden);
+
+		allRecipeWrappers = new ArrayList<>(new LinkedHashSet<>(allRecipeWrappers));
 
 		return allRecipeWrappers;
 	}

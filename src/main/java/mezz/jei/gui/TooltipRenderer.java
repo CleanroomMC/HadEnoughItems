@@ -1,5 +1,6 @@
 package mezz.jei.gui;
 
+import java.util.ArrayList;
 import com.google.common.collect.Lists;
 import mezz.jei.render.IngredientListBatchRenderer;
 import net.minecraft.client.Minecraft;
@@ -44,8 +45,22 @@ public final class TooltipRenderer {
 	}
 
 	public static void drawHoveringText(ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, int maxWidth, FontRenderer font) {
+		List<String> safeTextLines = null; // assume that null string almost never happens, so allocate lazily
+        for (int i = 0, textLinesSize = textLines.size(); i < textLinesSize; i++) {
+            String textLine = textLines.get(i);
+            if (textLine == null && safeTextLines == null) {
+				safeTextLines = new ArrayList<>(textLinesSize);
+				safeTextLines.addAll(textLines.subList(0, i));
+            }
+			if (safeTextLines != null) {
+				safeTextLines.add(textLine);
+			}
+		}
+		if (safeTextLines == null) {
+			safeTextLines = textLines;
+		}
 		ScaledResolution scaledresolution = new ScaledResolution(minecraft);
-		GuiUtils.drawHoveringText(itemStack, textLines, x, y, scaledresolution.getScaledWidth(), scaledresolution.getScaledHeight(), maxWidth, font);
+		GuiUtils.drawHoveringText(itemStack, safeTextLines, x, y, scaledresolution.getScaledWidth(), scaledresolution.getScaledHeight(), maxWidth, font);
 	}
 
 	public static void drawHoveringText(ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, int maxWidth) {

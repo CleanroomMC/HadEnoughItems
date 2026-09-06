@@ -3,6 +3,7 @@ package mezz.jei.gui.recipes;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 
@@ -24,7 +25,7 @@ public class RecipeTransferButton extends GuiIconButtonSmall {
 		this.recipeLayout = recipeLayout;
 	}
 
-	public void init(@Nullable Container container, EntityPlayer player) {
+	public void update(@Nullable Container container, EntityPlayer player) {
 		if (container != null) {
 			this.recipeTransferError = RecipeTransferUtil.getTransferRecipeError(container, recipeLayout, player);
 		} else {
@@ -44,7 +45,9 @@ public class RecipeTransferButton extends GuiIconButtonSmall {
 	public void drawToolTip(Minecraft mc, int mouseX, int mouseY) {
 		if (hovered && visible) {
 			if (recipeTransferError != null) {
+				GlStateManager.pushMatrix();
 				recipeTransferError.showError(mc, mouseX, mouseY, recipeLayout, recipeLayout.getPosX(), recipeLayout.getPosY());
+				GlStateManager.popMatrix();
 			} else {
 				String tooltipTransfer = Translator.translateToLocal("jei.tooltip.transfer");
 				TooltipRenderer.drawHoveringText(mc, tooltipTransfer, mouseX, mouseY);

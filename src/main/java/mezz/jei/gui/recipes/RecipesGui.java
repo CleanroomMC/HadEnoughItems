@@ -66,6 +66,8 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	private HoverChecker titleHoverChecker = new HoverChecker(0, 0, 0, 0, 0);
 
+	private final List<RecipeTransferButton> recipeTransferButtons = new ArrayList<>();
+
 	private final GuiButton nextRecipeCategory;
 	private final GuiButton previousRecipeCategory;
 	private final GuiButton nextPage;
@@ -147,6 +149,10 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		}
 		this.xSize = 198;
 		this.ySize = this.height - 68;
+		if (this.ySize < Config.minRecipeGuiHeight) {
+			this.ySize = Config.minRecipeGuiHeight;
+		}
+
 		int extraSpace = 0;
 		final int maxHeight = Config.getMaxRecipeGuiHeight();
 		if (this.ySize > maxHeight) {
@@ -188,6 +194,21 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 		this.init = true;
 		updateLayout();
+	}
+
+	@Override
+	public void updateScreen() {
+		super.updateScreen();
+
+		if (mc != null) {
+			EntityPlayerSP player = mc.player;
+			if (player != null) {
+				Container container = getParentContainer();
+				for (RecipeTransferButton button : this.recipeTransferButtons) {
+					button.update(container, player);
+				}
+			}
+		}
 	}
 
 	private void addButtons() {
@@ -367,6 +388,9 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		if (mc == null) {
 			return;
 		}
+		if (handleButtonClick(mouseX, mouseY, mouseButton)) {
+			return;
+		}
 		if (isMouseOver(mouseX, mouseY)) {
 			boolean searchClicked = isSearchEnabled() && this.searchField.isMouseOver(mouseX, mouseY);
 			setKeyboardFocus(searchClicked);
@@ -397,6 +421,20 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		}
 
 		super.mouseClicked(mouseX, mouseY, mouseButton);
+	}
+
+	private boolean handleButtonClick(int mouseX, int mouseY, int mouseButton) throws IOException {
+		if (mouseButton != 0) {
+			return false;
+		}
+		for (GuiButton button : this.buttonList) {
+			if (button.mousePressed(mc, mouseX, mouseY)) {
+				button.playPressSound(mc.getSoundHandler());
+				this.actionPerformed(button);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -615,6 +653,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	private void addRecipeSpecificButtons(Minecraft minecraft, List<RecipeLayout> recipeLayouts) {
 		buttonList.clear();
+		recipeTransferButtons.clear();
 		addButtons();
 
 		EntityPlayer player = minecraft.player;
@@ -624,8 +663,9 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			for (RecipeLayout recipeLayout : recipeLayouts) {
 				RecipeTransferButton button = recipeLayout.getRecipeTransferButton();
 				if (button != null) {
-					button.init(container, player);
+					button.update(container, player);
 					buttonList.add(button);
+					recipeTransferButtons.add(button);
 				}
 				RecipeFavoriteButton favoriteButton = recipeLayout.getRecipeFavoriteButton();
 				if (favoriteButton != null) {
