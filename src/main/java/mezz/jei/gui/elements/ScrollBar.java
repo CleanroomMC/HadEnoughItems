@@ -39,7 +39,7 @@ public class ScrollBar {
         return area;
     }
 
-    public boolean isMouseOver(double mouseX, double mouseY) {
+    public boolean isMouseOver(int mouseX, int mouseY) {
         return area.contains(mouseX, mouseY);
     }
 
@@ -80,8 +80,8 @@ public class ScrollBar {
      * @return the updated scroll offset
      */
     public ScrollResult startDrag(
-        double mouseX,
-        double mouseY,
+        int mouseX,
+        int mouseY,
         int visibleAmount,
         int hiddenAmount,
         float scrollOffsetY
@@ -132,7 +132,7 @@ public class ScrollBar {
      * @param scrollOffsetY current scroll offset
      * @return the updated scroll offset
      */
-    public ScrollResult scroll(double mouseX, double mouseY, double scrollDelta, int visibleAmount, int hiddenAmount, float scrollOffsetY) {
+    public ScrollResult scroll(int mouseX, int mouseY, double scrollDelta, int visibleAmount, int hiddenAmount, float scrollOffsetY) {
         if (hiddenAmount <= 0 || !isMouseOver(mouseX, mouseY)) {
             return ScrollResult.notHandled(scrollOffsetY);
         }
