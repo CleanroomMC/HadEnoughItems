@@ -297,7 +297,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	}
 
 	public boolean handleMouseScroll(int mouseX, int mouseY, int scrollAmount) {
-		if (recipeWrapper.handleMouseScroll(mouseX, mouseY, scrollAmount)) {
+		if (recipeWrapper.handleMouseScroll(mouseX - posX, mouseY - posY, scrollAmount)) {
             return true;
 		}
 
