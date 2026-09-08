@@ -55,9 +55,11 @@ public class Textures {
 			.slice(16, 16, 16, 16);
 		this.searchBackground = registerGuiSprite("search_background", 20, 20)
 			.slice(4, 4, 4, 4);
-		this.scrollbarBackground = registerGuiSprite("scrollbar_background", 14, 50)
+		this.scrollbarBackground = registerGuiSprite("scrollbar_background", 64, 64)
+			.trim(0, 64 - 14, 0, 64 - 50)
 			.slice(1, 1, 1, 1);
-		this.scrollbarMarker = registerGuiSprite("scrollbar_marker", 12, 15)
+		this.scrollbarMarker = registerGuiSprite("scrollbar_marker", 16, 16)
+			.trim(0, 16 - 12, 0, 16 - 15)
 			.slice(1, 1, 1, 1);
 		this.catalystTab = registerGuiSprite("catalyst_tab", 28, 28)
 			.slice(8, 9, 8, 8);
