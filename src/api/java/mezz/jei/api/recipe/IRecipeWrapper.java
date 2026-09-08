@@ -80,4 +80,32 @@ public interface IRecipeWrapper {
 	default boolean handleMouseScroll(int mouseX, int mouseY, int scrollDelta) {
 		return false;
 	}
+
+	/**
+	 * Called when a player drags the mouse on the recipe.
+	 * Useful for implementing scrollbar dragging and other drag interactions.
+	 *
+	 * @param mouseX              the X position of the mouse, relative to the recipe.
+	 * @param mouseY              the Y position of the mouse, relative to the recipe.
+	 * @param clickedMouseButton  the mouse button that was clicked.
+	 * @param timeSinceLastClick  time since the last click, in milliseconds.
+	 * @return true if the drag was handled, false otherwise
+	 * @since HEI ?
+	 */
+	default boolean handleMouseDrag(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		return false;
+	}
+
+	/**
+	 * Called when a player releases the mouse on the recipe.
+	 *
+	 * @param mouseX the X position of the mouse, relative to the recipe.
+	 * @param mouseY the Y position of the mouse, relative to the recipe.
+	 * @param state  the mouse button that was pressed.
+	 * @return true if this action was handled, false otherwise
+	 * @since HEI ?
+	 */
+    default boolean handleMouseReleased(int mouseX, int mouseY, int state) {
+        return false;
+    }
 }

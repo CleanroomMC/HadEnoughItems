@@ -153,6 +153,31 @@ public class IngredientInfoRecipe<T> implements IRecipeWrapper {
 		return false;
 	}
 
+	@Override
+	public boolean handleMouseDrag(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		if (!scrollBar.isDragging()) {
+			return false;
+		}
+
+		int lineHeight = Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT + lineSpacing;
+		int maxVisibleLines = (IngredientInfoRecipeCategory.recipeHeight - (slotDrawable.getHeight() + 4)) / lineHeight;
+		int totalLines = description.size();
+		int hiddenAmount = Math.max(0, totalLines - maxVisibleLines);
+
+		ScrollBar.ScrollResult result = scrollBar.dragTo(mouseY, maxVisibleLines, hiddenAmount, scrollOffset);
+		if (result.isHandled()) {
+			scrollOffset = result.getScrollOffsetY();
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean handleMouseReleased(int mouseX, int mouseY, int state) {
+		scrollBar.stopDrag();
+		return false;
+	}
+
 	public ScrollBar getScrollBar() {
 		return scrollBar;
 	}

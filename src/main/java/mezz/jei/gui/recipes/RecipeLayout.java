@@ -307,6 +307,10 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		return recipeFavoriteButton.handleMouseScrolled(mouseX, mouseY, scrollAmount);
 	}
 
+	public boolean handleMouseDrag(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		return recipeWrapper.handleMouseDrag(mouseX - posX, mouseY - posY, clickedMouseButton, timeSinceLastClick);
+	}
+
 	@Override
 	public GuiItemStackGroup getItemStacks() {
 		return guiItemStackGroup;
@@ -447,4 +451,8 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		}
 		return bookmarkList.add(group, addToFront);
 	}
+
+    public boolean mouseReleased(int mouseX, int mouseY, int state) {
+        return recipeWrapper.handleMouseReleased(mouseX, mouseY, state);
+    }
 }
