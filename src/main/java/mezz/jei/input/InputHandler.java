@@ -413,6 +413,15 @@ public class InputHandler {
 		int mouseY = MouseHelper.getY();
 		IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(mouseX, mouseY);
 		if (clicked == null) {
+			// Try bookmarking the recipe when there's no ingredient
+			RecipeLayout recipe = recipesGui.getRecipeLayout(mouseX, mouseY);
+			if (recipe != null) {
+				boolean added = recipe.addToBookmarks(addToFront);
+				if (added && !Config.isBookmarkOverlayEnabled()) {
+					Config.toggleBookmarkEnabled();
+				}
+				return added;
+			}
 			return false;
 		}
 
@@ -428,10 +437,7 @@ public class InputHandler {
 		}
 
 		final boolean added;
-		RecipeLayout layout = recipesGui.getRecipeLayout(mouseX, mouseY);
-		if (layout != null) {
-			added = layout.addToBookmarks(addToFront);
-		} else if (value instanceof CollapsedGroupIngredient) {
+		if (value instanceof CollapsedGroupIngredient) {
 			added = false;
 		} else if (newGroup) {
 			added = bookmarkList.addToNewGroup(new BookmarkItem<>(value), addToFront);
