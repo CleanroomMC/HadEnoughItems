@@ -400,6 +400,32 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 	}
 
 	@Override
+	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		if (isMouseOver(mouseX, mouseY)) {
+			for (RecipeLayout recipeLayout : recipeLayouts) {
+				if (recipeLayout.handleMouseDrag(mouseX, mouseY, clickedMouseButton, timeSinceLastClick)) {
+					return;
+				}
+			}
+		}
+
+		super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+	}
+
+	@Override
+	protected void mouseReleased(int mouseX, int mouseY, int state) {
+		if (isMouseOver(mouseX, mouseY)) {
+			for (RecipeLayout recipeLayout : recipeLayouts) {
+				if (recipeLayout.mouseReleased(mouseX, mouseY, state)) {
+					return;
+				}
+			}
+		}
+
+		super.mouseReleased(mouseX, mouseY, state);
+	}
+
+	@Override
 	protected void keyTyped(char typedChar, int keyCode) {
 		if (hasKeyboardFocus() && searchField.textboxKeyTyped(typedChar, keyCode)) {
 			setSearchFilter(searchField.getText());

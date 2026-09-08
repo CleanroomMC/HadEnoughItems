@@ -297,10 +297,18 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	}
 
 	public boolean handleMouseScroll(int mouseX, int mouseY, int scrollAmount) {
+		if (recipeWrapper.handleMouseScroll(mouseX - posX, mouseY - posY, scrollAmount)) {
+            return true;
+		}
+
 		if (recipeFavoriteButton == null) {
 			return false;
 		}
 		return recipeFavoriteButton.handleMouseScrolled(mouseX, mouseY, scrollAmount);
+	}
+
+	public boolean handleMouseDrag(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		return recipeWrapper.handleMouseDrag(mouseX - posX, mouseY - posY, clickedMouseButton, timeSinceLastClick);
 	}
 
 	@Override
@@ -443,4 +451,8 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		}
 		return bookmarkList.add(group, addToFront);
 	}
+
+    public boolean mouseReleased(int mouseX, int mouseY, int state) {
+        return recipeWrapper.handleMouseReleased(mouseX, mouseY, state);
+    }
 }
