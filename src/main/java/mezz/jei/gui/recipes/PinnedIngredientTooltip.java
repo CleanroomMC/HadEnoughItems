@@ -64,6 +64,27 @@ public class PinnedIngredientTooltip {
 		preview.drawHighlight(mouseX, mouseY);
 	}
 
+	// --- Scrolling the grid ---
+
+	/** Scrolls the grid by one wheel step. Returns whether the grid consumed it. */
+	public boolean scrollBy(double scrollDelta) {
+		return preview.scrollBy(scrollDelta);
+	}
+
+	/** Starts dragging the grid's scrollbar, if it has one. Takes screen coordinates. */
+	public boolean startScrollDrag(int mouseX, int mouseY) {
+		return preview.startScrollDrag(mouseX, mouseY);
+	}
+
+	/** Continues a scrollbar drag. Takes a screen Y coordinate. */
+	public boolean dragScrollTo(int mouseY) {
+		return preview.dragScrollTo(mouseY);
+	}
+
+	public void stopScrollDrag() {
+		preview.stopScrollDrag();
+	}
+
 	/**
 	 * Remembers the screen area the tooltip was drawn into. Called right after the tooltip render,
 	 * and only the first call takes effect.

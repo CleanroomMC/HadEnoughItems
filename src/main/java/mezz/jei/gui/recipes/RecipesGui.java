@@ -380,9 +380,17 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		}
 		final int x = Mouse.getEventX() * width / mc.displayWidth;
 		final int y = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-		if (isMouseOver(x, y)) {
+		final int scrollDelta = Mouse.getEventDWheel();
 
-			int scrollDelta = Mouse.getEventDWheel();
+		// Before `isMouseOver()` because pinnedTooltip can stretch out of gui area
+		if (scrollDelta != 0
+			&& pinnedTooltip != null
+			&& pinnedTooltip.isMouseOver(x, y)
+			&& pinnedTooltip.scrollBy(scrollDelta)) {
+			return;
+		}
+
+		if (isMouseOver(x, y)) {
 			if (scrollDelta != 0) {
 				for (RecipeLayout recipeLayout : recipeLayouts) {
 					if (recipeLayout.handleMouseScroll(x, y, scrollDelta)) {
@@ -429,6 +437,10 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		if (mc == null) {
 			return;
 		}
+		// Before `isMouseOver()` because pinnedTooltip can stretch out of gui area
+		if (mouseButton == 0 && pinnedTooltip != null && pinnedTooltip.startScrollDrag(mouseX, mouseY)) {
+			return;
+		}
 		if (isMouseOver(mouseX, mouseY)) {
 			boolean searchClicked = isSearchEnabled() && this.searchField.isMouseOver(mouseX, mouseY);
 			setKeyboardFocus(searchClicked);
@@ -463,6 +475,9 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		if (clickedMouseButton == 0 && pinnedTooltip != null && pinnedTooltip.dragScrollTo(mouseY)) {
+			return;
+		}
 		if (isMouseOver(mouseX, mouseY)) {
 			for (RecipeLayout recipeLayout : recipeLayouts) {
 				if (recipeLayout.handleMouseDrag(mouseX, mouseY, clickedMouseButton, timeSinceLastClick)) {
@@ -476,6 +491,9 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	@Override
 	protected void mouseReleased(int mouseX, int mouseY, int state) {
+		if (pinnedTooltip != null) {
+			pinnedTooltip.stopScrollDrag();
+		}
 		if (isMouseOver(mouseX, mouseY)) {
 			for (RecipeLayout recipeLayout : recipeLayouts) {
 				if (recipeLayout.mouseReleased(mouseX, mouseY, state)) {

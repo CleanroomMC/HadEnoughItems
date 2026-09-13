@@ -133,14 +133,30 @@ public class ScrollBar {
      * @return the updated scroll offset
      */
     public ScrollResult scroll(int mouseX, int mouseY, double scrollDelta, int visibleAmount, int hiddenAmount, float scrollOffsetY) {
-        if (hiddenAmount <= 0 || !isMouseOver(mouseX, mouseY)) {
+        if (!isMouseOver(mouseX, mouseY)) {
+            return ScrollResult.notHandled(scrollOffsetY);
+        }
+        return scrollBy(scrollDelta, visibleAmount, hiddenAmount, scrollOffsetY);
+    }
+
+    /**
+     * Scroll by one wheel step without requiring the pointer to be over the bar, so that a whole
+     * tooltip can act as the scroll target.
+     *
+     * @param scrollDelta   scroll delta (positive = scroll down, negative = scroll up)
+     * @param visibleAmount number of visible items
+     * @param hiddenAmount  number of hidden items
+     * @param scrollOffsetY current scroll offset
+     * @return the updated scroll offset
+     */
+    public ScrollResult scrollBy(double scrollDelta, int visibleAmount, int hiddenAmount, float scrollOffsetY) {
+        if (hiddenAmount <= 0 || area.height <= 0) {
             return ScrollResult.notHandled(scrollOffsetY);
         }
 
         float step = 3.0F / area.height;
         float updatedScrollOffsetY = scrollOffsetY + (scrollDelta > 0 ? -1 : 1) * step;
-        updatedScrollOffsetY = clamp(updatedScrollOffsetY, 0, 1);
-        return ScrollResult.handled(updatedScrollOffsetY);
+        return ScrollResult.handled(clamp(updatedScrollOffsetY, 0, 1));
     }
 
     /**
