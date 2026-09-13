@@ -7,6 +7,7 @@ import mezz.jei.gui.ghost.GhostIngredientDragManager;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
 import mezz.jei.recipes.RecipeRegistry;
+import mezz.jei.runtime.JeiRuntime;
 import mezz.jei.util.LimitedLogger;
 import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
@@ -132,10 +133,19 @@ public class GuiEventHandler {
 			}
 		}
 
-		ingredientListOverlay.drawTooltips(minecraft, event.getMouseX(), event.getMouseY());
-		leftAreaDispatcher.drawTooltips(minecraft, event.getMouseX(), event.getMouseY());
+		// A pinned recipe tooltip is drawn on top of the overlays, so a pointer landing on it must
+		// not also make the overlay underneath draw a tooltip of its own.
+		if (!isPinnedRecipeTooltipHovered(event.getMouseX(), event.getMouseY())) {
+			ingredientListOverlay.drawTooltips(minecraft, event.getMouseX(), event.getMouseY());
+			leftAreaDispatcher.drawTooltips(minecraft, event.getMouseX(), event.getMouseY());
+		}
 		ghostIngredientDragManager.drawTooltips(minecraft, event.getMouseX(), event.getMouseY());
 
+	}
+
+	private static boolean isPinnedRecipeTooltipHovered(int mouseX, int mouseY) {
+		JeiRuntime runtime = Internal.getRuntime();
+		return runtime != null && runtime.getRecipesGui().isMouseOverPinnedTooltip(mouseX, mouseY);
 	}
 
 	@SubscribeEvent

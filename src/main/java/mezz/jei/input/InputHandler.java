@@ -203,16 +203,21 @@ public class InputHandler {
 		}
 
 		IIngredientListElement<?> listElement = getElementUnderMouse();
-		if (pendingClick == null && this.ghostIngredientDragManager.handleMouseClicked(guiScreen.mc, guiScreen, clicked, listElement, mouseButton, mouseX, mouseY)) {
-			return true;
-		}
+		// A click on the pinned tooltip's ingredient grid belongs to that grid. Ghost ingredient
+		// dragging also reacts to Shift and would otherwise swallow it.
+		boolean pinnedGridClick = recipesGui.isMouseOverPinnedTooltip(mouseX, mouseY);
+		if (!pinnedGridClick) {
+			if (pendingClick == null && this.ghostIngredientDragManager.handleMouseClicked(guiScreen.mc, guiScreen, clicked, listElement, mouseButton, mouseX, mouseY)) {
+				return true;
+			}
 
-		if (ingredientListOverlay.handleMouseClicked(mouseX, mouseY, mouseButton)) {
-			return true;
-		}
+			if (ingredientListOverlay.handleMouseClicked(mouseX, mouseY, mouseButton)) {
+				return true;
+			}
 
-		if (leftAreaDispatcher.handleMouseClicked(mouseX, mouseY, mouseButton)) {
-			return true;
+			if (leftAreaDispatcher.handleMouseClicked(mouseX, mouseY, mouseButton)) {
+				return true;
+			}
 		}
 
 		if (clicked != null && (Config.mouseClickToSeeRecipe() && handleMouseClickedFocus(mouseButton, clicked))) {

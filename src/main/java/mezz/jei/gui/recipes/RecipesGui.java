@@ -15,6 +15,7 @@ import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.elements.DrawableNineSliceTexture;
 import mezz.jei.gui.elements.GuiIconButtonSmall;
 import mezz.jei.gui.ingredients.GuiIngredient;
+import mezz.jei.gui.ingredients.IngredientListPreview;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.input.*;
@@ -83,6 +84,10 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	private boolean init = false;
 	private boolean openingGui = false;
+
+	/** The tooltip the player pinned in place with Shift, or null when nothing is pinned. */
+	@Nullable
+	private PinnedIngredientTooltip pinnedTooltip;
 
 	public RecipesGui(IRecipeRegistry recipeRegistry, IngredientRegistry ingredientRegistry) {
 		this.logic = new RecipeGuiLogic(recipeRegistry, this, ingredientRegistry);
@@ -187,6 +192,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		addButtons();
 
 		this.init = true;
+		pinnedTooltip = null;
 		updateLayout();
 	}
 
@@ -245,25 +251,73 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			recipeLayout.drawRecipe(mc, mouseX, mouseY);
 		}
 
+		updatePinnedTooltip(mouseX, mouseY, hoveredLayout);
+
 		GuiIngredient hoveredRecipeCatalyst = recipeCatalysts.draw(mc, mouseX, mouseY);
 
 		recipeGuiTabs.draw(mc, mouseX, mouseY);
 
-		if (hoveredLayout != null) {
-			hoveredLayout.drawOverlays(mc, mouseX, mouseY);
+		// A pinned tooltip keeps being drawn even once the mouse has left the slot, which is the
+		// whole point: the mouse has to be able to reach the grid inside it.
+		RecipeLayout overlayLayout = pinnedTooltip != null ? pinnedTooltip.getLayout() : hoveredLayout;
+		if (overlayLayout != null) {
+			overlayLayout.drawOverlays(mc, mouseX, mouseY, pinnedTooltip);
 		}
-		if (hoveredRecipeCatalyst != null) {
+		if (hoveredRecipeCatalyst != null && pinnedTooltip == null) {
 			hoveredRecipeCatalyst.drawOverlays(mc, 0, 0, mouseX, mouseY);
 		}
 
-		if (this.searchButton.isMouseOver()) {
-			TooltipRenderer.drawHoveringText(mc, searchButtonTooltip(), mouseX, mouseY);
-		}
+		// While a tooltip is pinned it is the only one on screen: stacking another on top of it would
+		// just be noise, and the pinned one is the one the player asked to keep.
+		if (pinnedTooltip == null) {
+			if (this.searchButton.isMouseOver()) {
+				TooltipRenderer.drawHoveringText(mc, searchButtonTooltip(), mouseX, mouseY);
+			}
 
-		if (!isSearchEnabled() && titleHoverChecker.checkHover(mouseX, mouseY) && !logic.hasAllCategories()) {
-			String showAllRecipesString = Translator.translateToLocal("jei.tooltip.show.all.recipes");
-			TooltipRenderer.drawHoveringText(mc, showAllRecipesString, mouseX, mouseY);
+			if (!isSearchEnabled() && titleHoverChecker.checkHover(mouseX, mouseY) && !logic.hasAllCategories()) {
+				String showAllRecipesString = Translator.translateToLocal("jei.tooltip.show.all.recipes");
+				TooltipRenderer.drawHoveringText(mc, showAllRecipesString, mouseX, mouseY);
+			}
 		}
+	}
+
+	/**
+	 * Keeps the pinned tooltip in sync with Shift and with the hovered slot. Pinning only ever
+	 * happens on hover; once pinned, the target and position are frozen until Shift is released.
+	 */
+	private void updatePinnedTooltip(int mouseX, int mouseY, @Nullable RecipeLayout hoveredLayout) {
+		if (pinnedTooltip != null && !recipeLayouts.contains(pinnedTooltip.getLayout())) {
+			// The layout was rebuilt, so the pinned slot no longer exists.
+			pinnedTooltip = null;
+		}
+		if (!GuiScreen.isShiftKeyDown()) {
+			pinnedTooltip = null;
+			return;
+		}
+		if (pinnedTooltip != null) {
+			return;
+		}
+		if (hoveredLayout == null) {
+			return;
+		}
+		GuiIngredient<?> hoveredSlot = hoveredLayout.getGuiIngredientUnderMouse(mouseX, mouseY);
+		if (hoveredSlot == null) {
+			return;
+		}
+		IngredientListPreview preview = hoveredSlot.getIngredientPreview();
+		if (preview == null) {
+			// Either the slot only accepts one ingredient, or the preview is disabled.
+			return;
+		}
+		pinnedTooltip = new PinnedIngredientTooltip(hoveredLayout, hoveredSlot, preview, mouseX, mouseY);
+	}
+
+	/**
+	 * Whether the given screen position is over the pinned tooltip. The ingredient list and bookmark
+	 * overlays draw underneath it, so they must not respond to a pointer that lands on top of it.
+	 */
+	public boolean isMouseOverPinnedTooltip(int mouseX, int mouseY) {
+		return isOpen() && pinnedTooltip != null && pinnedTooltip.isMouseOver(mouseX, mouseY);
 	}
 
 	public boolean isMouseOver(int mouseX, int mouseY) {
@@ -284,6 +338,14 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 	@Override
 	public IClickedIngredient<?> getIngredientUnderMouse(int mouseX, int mouseY) {
 		if (isOpen()) {
+			if (pinnedTooltip != null) {
+				// Checked before the bounds test below, because a pinned tooltip can stick out past
+				// the recipe background.
+				IClickedIngredient<?> pinned = pinnedTooltip.getIngredientUnderMouse(mouseX, mouseY);
+				if (pinned != null) {
+					return pinned;
+				}
+			}
 			{
 				IClickedIngredient<?> clicked = recipeCatalysts.getIngredientUnderMouse(mouseX, mouseY);
 				if (clicked != null) {
@@ -483,6 +545,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 	}
 
 	public void close() {
+		pinnedTooltip = null;
 		if (mc == null) {
 			return;
 		}
@@ -695,6 +758,8 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	@Override
 	public void onStateChange() {
+		// Any change of page, category or focus invalidates the pinned slot.
+		pinnedTooltip = null;
 		if (!openingGui) {
 			updateLayout();
 		}

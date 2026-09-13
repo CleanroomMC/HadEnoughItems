@@ -11,6 +11,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag;
@@ -128,8 +129,12 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 		this.ingredientPreviewInvalidated = true;
 	}
 
+	/**
+	 * Every ingredient this slot accepts, as a tooltip grid, or null when there is nothing to show.
+	 * Built on first request and cached until the slot is set again.
+	 */
 	@Nullable
-	private IngredientListPreview getIngredientPreview() {
+	public IngredientListPreview getIngredientPreview() {
 		if (ingredientPreviewInvalidated) {
 			ingredientPreviewInvalidated = false;
 			// A focused slot collapses displayIngredients down to the single match, which leaves
@@ -250,6 +255,10 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			int tooltipX = xOffset + mouseX;
 			int tooltipY = yOffset + mouseY;
 			IngredientListPreview preview = getIngredientPreview();
+			if (preview != null && !GuiScreen.isShiftKeyDown()) {
+				// Shift pins the tooltip, so the hint only makes sense while it is not held.
+				tooltip.add(Translator.translateToLocal("hei.tooltip.recipe.ingredient_pin"));
+			}
 			if (preview == null) {
 				if (value instanceof ItemStack) {
 					TooltipRenderer.drawHoveringText(tooltipStack, minecraft, tooltip, tooltipX, tooltipY, fontRenderer);
@@ -257,7 +266,7 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 					TooltipRenderer.drawHoveringText(minecraft, tooltip, tooltipX, tooltipY, fontRenderer);
 				}
 			} else {
-				TooltipRenderer.drawHoveringTextAndItems(
+				Rectangle bound = TooltipRenderer.drawHoveringTextAndItems(
 					tooltipStack,
 					minecraft,
 					tooltip,
@@ -268,6 +277,8 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 					fontRenderer,
 					IngredientListPreview.GRID_WIDTH
 				);
+				// Kept so a pinned tooltip knows which part of the screen it is covering.
+				preview.setTooltipBounds(bound);
 			}
 
 			GlStateManager.enableDepth();

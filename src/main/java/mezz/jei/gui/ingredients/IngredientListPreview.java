@@ -7,9 +7,13 @@ import mezz.jei.gui.overlay.IngredientGrid;
 import mezz.jei.ingredients.IngredientListElement;
 import mezz.jei.render.IngredientListBatchRenderer;
 import mezz.jei.render.IngredientListSlot;
+import mezz.jei.render.IngredientRenderer;
 import mezz.jei.startup.IModIdHelper;
+import net.minecraft.client.renderer.GlStateManager;
 
 import javax.annotation.Nullable;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,6 +40,9 @@ public class IngredientListPreview {
 	private final IngredientListBatchRenderer renderer;
 	private final List<IngredientListSlot> slots;
 	private final int totalCount;
+	/** Where the tooltip was last drawn, so a pinned tooltip can claim the screen area it covers. */
+	@Nullable
+	private Rectangle tooltipBounds;
 
 	/**
 	 * Wraps the given ingredients into a preview, or returns null when there is nothing worth showing.
@@ -108,5 +115,41 @@ public class IngredientListPreview {
 	/** How many ingredients the slot accepts, which may exceed the number actually displayed. */
 	public int getTotalCount() {
 		return totalCount;
+	}
+
+	/**
+	 * Records the screen rectangle the tooltip was drawn into. Only a pinned tooltip needs this, to
+	 * know which part of the screen it is covering.
+	 */
+	public void setTooltipBounds(@Nullable Rectangle tooltipBounds) {
+		this.tooltipBounds = tooltipBounds;
+	}
+
+	@Nullable
+	public Rectangle getTooltipBounds() {
+		return tooltipBounds;
+	}
+
+	/**
+	 * Highlights the grid cell under the given screen position. Needed by the pinned tooltip, where
+	 * the mouse travels over the grid while the tooltip itself stays put.
+	 */
+	public void drawHighlight(int screenMouseX, int screenMouseY) {
+		Point origin = renderer.getRenderOrigin();
+		if (origin == null) {
+			return;
+		}
+		IngredientListSlot slot = renderer.getSlotAtScreen(screenMouseX, screenMouseY);
+		if (slot == null) {
+			return;
+		}
+		IngredientRenderer<?> slotRenderer = slot.getIngredientRenderer();
+		if (slotRenderer == null) {
+			return;
+		}
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(origin.x, origin.y, 300.0F);
+		slotRenderer.drawHighlight();
+		GlStateManager.popMatrix();
 	}
 }
