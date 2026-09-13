@@ -60,7 +60,7 @@ public class Textures {
 			.slice(1, 1, 1, 1);
 		this.scrollbarMarker = registerGuiSprite("scrollbar_marker", 16, 16)
 			.trim(0, 16 - 12, 0, 16 - 15)
-			.slice(1, 1, 1, 1);
+			.slice(1, 1, 1, 2);
 		this.catalystTab = registerGuiSprite("catalyst_tab", 28, 28)
 			.slice(8, 9, 8, 8);
 
