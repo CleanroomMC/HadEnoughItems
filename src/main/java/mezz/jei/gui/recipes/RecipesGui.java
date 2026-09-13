@@ -312,14 +312,6 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		pinnedTooltip = new PinnedIngredientTooltip(hoveredLayout, hoveredSlot, preview, mouseX, mouseY);
 	}
 
-	/**
-	 * Whether the given screen position is over the pinned tooltip. The ingredient list and bookmark
-	 * overlays draw underneath it, so they must not respond to a pointer that lands on top of it.
-	 */
-	public boolean isMouseOverPinnedTooltip(int mouseX, int mouseY) {
-		return isOpen() && pinnedTooltip != null && pinnedTooltip.isMouseOver(mouseX, mouseY);
-	}
-
 	@Nullable
 	public Rectangle getPinnedTooltipBounds() {
 		if (!isOpen() || pinnedTooltip == null) {
