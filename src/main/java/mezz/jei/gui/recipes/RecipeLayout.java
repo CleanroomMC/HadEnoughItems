@@ -275,6 +275,8 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		}
 
 		if (pinnedHere) {
+			// The tooltip has been drawn by now, so the screen area it took is known.
+			pinned.captureBounds();
 			// The highlight goes first so that the hovered ingredient's own tooltip, drawn from the
 			// real mouse position, ends up on top.
 			pinned.drawHighlight(mouseX, mouseY);

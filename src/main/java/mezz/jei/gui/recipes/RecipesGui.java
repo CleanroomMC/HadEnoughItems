@@ -320,6 +320,14 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		return isOpen() && pinnedTooltip != null && pinnedTooltip.isMouseOver(mouseX, mouseY);
 	}
 
+	@Nullable
+	public Rectangle getPinnedTooltipBounds() {
+		if (!isOpen() || pinnedTooltip == null) {
+			return null;
+		}
+		return pinnedTooltip.getBounds();
+	}
+
 	public boolean isMouseOver(int mouseX, int mouseY) {
 		if (mc != null && mc.currentScreen == this) {
 			if ((mouseX >= guiLeft) && (mouseY >= guiTop) && (mouseX < guiLeft + xSize) && (mouseY < guiTop + ySize)) {
