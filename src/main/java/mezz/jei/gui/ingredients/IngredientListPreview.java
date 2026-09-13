@@ -89,13 +89,13 @@ public class IngredientListPreview {
 		return new IngredientListPreview(elements);
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	private IngredientListPreview(List<IIngredientListElement<?>> elements) {
 		this.elements = elements;
 		this.scrollable = elements.size() > MAX_VISIBLE;
 
-		List<IngredientListSlot> slots = new ObjectArrayList<>(MAX_VISIBLE);
-		for (int i = 0; i < MAX_VISIBLE; i++) {
+		int displaySize = Math.min(MAX_VISIBLE, elements.size());
+		List<IngredientListSlot> slots = new ObjectArrayList<>(displaySize);
+		for (int i = 0; i < displaySize; i++) {
 			slots.add(new IngredientListSlot(0, 0, IngredientGrid.INGREDIENT_PADDING));
 		}
 		this.slots = Collections.unmodifiableList(slots);
@@ -108,7 +108,9 @@ public class IngredientListPreview {
 		this.renderer = new PreviewRenderer();
 		// One flat row of slots: moveSlotsToFit wraps it into the grid.
 		this.renderer.add(slots);
-		this.renderer.set(0, (List<IIngredientListElement>) (List<?>) visibleElements());
+		@SuppressWarnings({"unchecked", "rawtypes"})
+		List<IIngredientListElement> castedVisibleElements = (List<IIngredientListElement>) (List<?>) visibleElements();
+		this.renderer.set(0, castedVisibleElements);
 	}
 
 	public IngredientListBatchRenderer getRenderer() {
