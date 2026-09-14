@@ -55,32 +55,18 @@ public final class TooltipRenderer {
 	}
 
 	public static void drawHoveringTextAndItems(Minecraft minecraft, List<String> textLines, List<IngredientListBatchRenderer> itemLines, int x, int y) {
-		drawHoveringTextAndItems(ItemStack.EMPTY, minecraft, textLines, itemLines, x, y, -1, minecraft.fontRenderer, -1);
+		drawHoveringTextAndItems(ItemStack.EMPTY, minecraft, textLines, itemLines, x, y, -1, minecraft.fontRenderer);
 	}
 
 	/**
 	 * Draws the standard Minecraft tooltip, but allows extra {@link IngredientListBatchRenderer} lines
 	 * to be rendered as item grids below the text lines.
 	 *
-	 * @param itemGridMaxWidth the width the item grids are laid out into, or -1 to let them use the
-	 *                         available screen space. Pass a multiple of
-	 *                         {@link mezz.jei.gui.overlay.IngredientGrid#INGREDIENT_WIDTH} to force a
-	 *                         fixed number of columns.
 	 * @return the screen rectangle the tooltip occupies, or null if the tooltip was cancelled by
 	 *         {@link RenderTooltipEvent.Pre}.
 	 */
 	@Nullable
-	public static Rectangle drawHoveringTextAndItems(
-		ItemStack stack,
-		Minecraft minecraft,
-		List<String> lines,
-		List<IngredientListBatchRenderer> itemLines,
-		int mouseX,
-		int mouseY,
-		int maxTextWidth,
-		FontRenderer font,
-		int itemGridMaxWidth
-	) {
+	public static Rectangle drawHoveringTextAndItems(ItemStack stack, Minecraft minecraft, List<String> lines, List<IngredientListBatchRenderer> itemLines, int mouseX, int mouseY, int maxTextWidth, FontRenderer font) {
 		// Almost a copy from GuiUtils.drawHoveringText, but also allowing IngredientListBatchRenderer lines.
 
 		ScaledResolution scaledresolution = new ScaledResolution(minecraft);
@@ -152,34 +138,22 @@ public final class TooltipRenderer {
 			}
 			tooltipTextWidth = wrappedTooltipWidth;
 			lines = wrappedTextLines;
-		}
 
-		// This part is particularly different. We try to wrap any IngredientListBatchRenderer lines
-		// based on the available width. It has to happen before tooltipX is finalized, because an
-		// item grid can be wider than the text above it.
-		if (!itemLines.isEmpty()) {
-			int gridMaxWidth = itemGridMaxWidth > 0
-				? itemGridMaxWidth
-				: (needsWrap ? tooltipTextWidth : screenWidth / 2);
-			for (IngredientListBatchRenderer renderer : itemLines) {
-				renderer.moveSlotsToFit(gridMaxWidth); // This is cached, fortunately.
-				tooltipTextWidth = Math.max(tooltipTextWidth, renderer.getWidth());
-			}
-		}
-
-		if (needsWrap) {
 			if (mouseX > screenWidth / 2) {
 				tooltipX = mouseX - 16 - tooltipTextWidth;
 			} else {
 				tooltipX = mouseX + 12;
 			}
-		}
 
-		// An item grid can be wider than the text above it, so re-check the placement now that
-		// tooltipTextWidth accounts for the grids.
-		if (tooltipX + tooltipTextWidth + 4 > screenWidth) {
-			int flippedX = mouseX - 16 - tooltipTextWidth;
-			tooltipX = flippedX >= 4 ? flippedX : Math.max(4, screenWidth - tooltipTextWidth - 4);
+			// This part is particularly different. We try to wrap any IngredientListBatchRenderer lines based on the wrappedTooltipWidth.
+			for (IngredientListBatchRenderer renderer : itemLines) {
+				renderer.moveSlotsToFit(wrappedTooltipWidth);
+			}
+		} else {
+			for (IngredientListBatchRenderer renderer : itemLines) {
+				renderer.moveSlotsToFit(screenWidth / 2); // This is cached, fortunately.
+				tooltipTextWidth = Math.max(tooltipTextWidth, renderer.getWidth());
+			}
 		}
 
 		int tooltipY = mouseY - 12;

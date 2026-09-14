@@ -269,6 +269,16 @@ public class IngredientListPreview {
 			super(false);
 		}
 
+		/**
+		 * The tooltip lays the grids out into whatever width it has available, which would let the
+		 * number of columns depend on the screen size. This grid is a fixed {@value #COLUMNS}-column
+		 * one instead, and it is narrow enough to always fit.
+		 */
+		@Override
+		public void moveSlotsToFit(int maxWidth) {
+			super.moveSlotsToFit(GRID_WIDTH);
+		}
+
 		@Override
 		public int getWidth() {
 			return super.getWidth() + (scrollable ? ScrollBar.WIDTH : 0);

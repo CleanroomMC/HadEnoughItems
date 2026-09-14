@@ -274,8 +274,7 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 					tooltipX,
 					tooltipY,
 					-1,
-					fontRenderer,
-					IngredientListPreview.GRID_WIDTH
+					fontRenderer
 				);
 				// Kept so a pinned tooltip knows which part of the screen it is covering.
 				preview.setTooltipBounds(bound);
