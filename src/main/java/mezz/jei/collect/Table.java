@@ -1,8 +1,8 @@
 package mezz.jei.collect;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -45,6 +45,13 @@ public class Table<R, C, V> {
 
 	public void clear() {
 		table.clear();
+	}
+
+	/**
+	 * @return An immutable view of rows in this table
+	 */
+	public Set<R> viewRows() {
+		return this.table.keySet();
 	}
 
 	public ImmutableTable<R, C, V> toImmutable() {

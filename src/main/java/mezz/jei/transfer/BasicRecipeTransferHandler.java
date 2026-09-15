@@ -19,11 +19,14 @@ import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.function.ToIntFunction;
 
 public class BasicRecipeTransferHandler<C extends Container> implements IRecipeCraftingHandler<C> {
 	private final StackHelper stackHelper;
 	private final IRecipeTransferHandlerHelper handlerHelper;
 	private final IRecipeTransferInfo<C> transferHelper;
+	@Nullable
+	private ToIntFunction<C> toOutputSlotOverride = null;
 
 	public BasicRecipeTransferHandler(StackHelper stackHelper, IRecipeTransferHandlerHelper handlerHelper, IRecipeTransferInfo<C> transferHelper) {
 		this.stackHelper = stackHelper;
@@ -34,6 +37,10 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeC
 	@Override
 	public Class<C> getContainerClass() {
 		return transferHelper.getContainerClass();
+	}
+
+	public void setToOutputSlotOverride(@Nullable ToIntFunction<C> toOutputSlotOverride) {
+		this.toOutputSlotOverride = toOutputSlotOverride;
 	}
 
 	@Nullable
@@ -126,7 +133,9 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeC
 		IntList inventorySlotIndexes = new IntArrayList(inventorySlots.keySet());
 		Collections.sort(inventorySlotIndexes);
 
-		int outputSlot = transferHelper.getOutputSlot();
+		int outputSlot = toOutputSlotOverride != null
+			? toOutputSlotOverride.applyAsInt(container)
+			: transferHelper.getOutputSlot();
 
 		// check that the slots exist and can be altered
 		for (Int2IntMap.Entry entry : matchingItemsResult.matchingItemsCasted.int2IntEntrySet()) {

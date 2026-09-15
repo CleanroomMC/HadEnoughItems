@@ -1,5 +1,6 @@
 package mezz.jei.recipes;
 
+import mezz.jei.util.Log;
 import net.minecraft.inventory.Container;
 
 import com.google.common.collect.ImmutableTable;
@@ -15,8 +16,12 @@ import mezz.jei.transfer.BasicRecipeTransferHandler;
 import mezz.jei.transfer.BasicRecipeTransferInfo;
 import mezz.jei.util.ErrorUtil;
 
+import java.util.Map;
+import java.util.function.ToIntFunction;
+
 public class RecipeTransferRegistry implements IRecipeTransferRegistry {
 	private final Table<Class, String, IRecipeTransferHandler> recipeTransferHandlers = Table.hashBasedTable();
+	private final Table<Class<?>, String, ToIntFunction<?>> outputSlotProviders = Table.hashBasedTable();
 	private final StackHelper stackHelper;
 	private final IRecipeTransferHandlerHelper handlerHelper;
 
@@ -75,7 +80,39 @@ public class RecipeTransferRegistry implements IRecipeTransferRegistry {
 		this.recipeTransferHandlers.put(containerClass, Constants.UNIVERSAL_RECIPE_TRANSFER_UID, recipeTransferHandler);
 	}
 
+	@Override
+	public <C extends Container> void attachOutputSlotProvider(
+		Class<C> containerClass,
+		String recipeCategoryUid,
+		ToIntFunction<C> toOutputSlot
+	) {
+		ErrorUtil.checkNotNull(containerClass, "containerClass");
+		ErrorUtil.checkNotNull(recipeCategoryUid, "recipeCategoryUid");
+		ErrorUtil.checkNotNull(toOutputSlot, "toOutputSlot");
+
+		this.outputSlotProviders.put(containerClass, recipeCategoryUid, toOutputSlot);
+	}
+
+	@SuppressWarnings("rawtypes")
 	public ImmutableTable<Class, String, IRecipeTransferHandler> getRecipeTransferHandlers() {
+
+		for (Class<?> containerClass : outputSlotProviders.viewRows()) {
+			Map<String, ToIntFunction<?>> handlersByCategory = outputSlotProviders.getRow(containerClass);
+			for (Map.Entry<String, ToIntFunction<?>> entry : handlersByCategory.entrySet()) {
+				String recipeCategoryId = entry.getKey();
+				ToIntFunction<?> toOutput = entry.getValue();
+
+				IRecipeTransferHandler<?> handler = recipeTransferHandlers.get(containerClass, recipeCategoryId);
+				if (handler instanceof BasicRecipeTransferHandler) {
+					((BasicRecipeTransferHandler<?>) handler).setToOutputSlotOverride((ToIntFunction) toOutput);
+				} else if (handler == null) {
+					Log.get().error("Unable to attach output slot provider for type '{}' and category '{}', because no recipe transfer handler is found", containerClass, recipeCategoryId);
+				} else {
+					Log.get().error("Unable to attach output slot provider for type '{}' and category '{}', because recipe transfer handler is customized", containerClass, recipeCategoryId);
+				}
+			}
+		}
+
 		return recipeTransferHandlers.toImmutable();
 	}
 }
