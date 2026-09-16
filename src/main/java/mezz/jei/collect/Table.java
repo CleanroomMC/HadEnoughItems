@@ -47,10 +47,7 @@ public class Table<R, C, V> {
 		table.clear();
 	}
 
-	/**
-	 * @return An immutable view of rows in this table
-	 */
-	public Set<R> viewRows() {
+	public Set<R> rowKeySet() {
 		return this.table.keySet();
 	}
 

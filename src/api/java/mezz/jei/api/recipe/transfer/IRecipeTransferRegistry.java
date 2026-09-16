@@ -6,8 +6,6 @@ import mezz.jei.api.IModRegistry;
 import mezz.jei.api.IRecipeRegistry;
 import mezz.jei.api.recipe.IRecipeCategory;
 
-import java.util.function.ToIntFunction;
-
 /**
  * Register recipe transfer handlers here to give JEI the information it needs to transfer recipes into the crafting area.
  * Get the instance from {@link IModRegistry#getRecipeTransferRegistry()}.
@@ -44,24 +42,25 @@ public interface IRecipeTransferRegistry {
 
 	/**
 	 * Helper method for adding autocrafting support for mods with transfer handler already registered but
-	 * with no output slot specified. This method exists only for adding autocrafting support for outdated
-	 * mods that added recipe transfer support based on JEI instead of HEI. Mods should use {@link
+	 * with no output slot specified. Providing a negative value for {@code outputSlot} will block any other
+	 * overrides for specified class and uid.
+	 * <p>
+	 * This method exists only for adding autocrafting support for outdated mods that added recipe transfer
+	 * support based on JEI instead of HEI. Mods should use {@link
 	 * #addRecipeTransferHandlerWithOutput(Class, String, int, int, int, int, int)} when possible
 	 * <p>
 	 * Will not work if recipe transfer handler for such containerClass+recipeCategoryUid does not exist or
-	 * the handler is not registered thorough {@link #addRecipeTransferHandler(Class, String, int, int, int, int) basic method}
+	 * the handler is not registered through {@link #addRecipeTransferHandler(Class, String, int, int, int,
+	 * int) basic method}
 	 *
 	 * @param containerClass    the class of the container that this recipe transfer handler is for
 	 * @param recipeCategoryUid the recipe categories that this container can use
-	 * @param toOutputSlot      a function mapping container to index of output slot
+	 * @param outputSlot        the output slot that resulting items may be taken from for autocrafting.
+	 *                          Negative value will block any other possible overrides
 	 * @since HEI ?
 	 */
-    default <C extends Container> void attachOutputSlotProvider(Class<C> containerClass, String recipeCategoryUid, ToIntFunction<C> toOutputSlot) {
+    default <C extends Container> void overrideOutputSlot(Class<C> containerClass, String recipeCategoryUid, int outputSlot) {
     }
-
-	default <C extends Container> void attachOutputSlotProvider(Class<C> containerClass, String recipeCategoryUid, int outputSlot) {
-		attachOutputSlotProvider(containerClass, recipeCategoryUid, ignored -> outputSlot);
-	}
 
     /**
 	 * Advanced method for adding a recipe transfer handler.

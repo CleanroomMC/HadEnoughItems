@@ -17,11 +17,10 @@ import mezz.jei.transfer.BasicRecipeTransferInfo;
 import mezz.jei.util.ErrorUtil;
 
 import java.util.Map;
-import java.util.function.ToIntFunction;
 
 public class RecipeTransferRegistry implements IRecipeTransferRegistry {
 	private final Table<Class, String, IRecipeTransferHandler> recipeTransferHandlers = Table.hashBasedTable();
-	private final Table<Class<?>, String, ToIntFunction<?>> outputSlotProviders = Table.hashBasedTable();
+	private final Table<Class<?>, String, Integer> outputSlotOverrides = Table.hashBasedTable();
 	private final StackHelper stackHelper;
 	private final IRecipeTransferHandlerHelper handlerHelper;
 
@@ -81,34 +80,37 @@ public class RecipeTransferRegistry implements IRecipeTransferRegistry {
 	}
 
 	@Override
-	public <C extends Container> void attachOutputSlotProvider(
-		Class<C> containerClass,
-		String recipeCategoryUid,
-		ToIntFunction<C> toOutputSlot
-	) {
+	public <C extends Container> void overrideOutputSlot(Class<C> containerClass, String recipeCategoryUid, int outputSlot) {
 		ErrorUtil.checkNotNull(containerClass, "containerClass");
 		ErrorUtil.checkNotNull(recipeCategoryUid, "recipeCategoryUid");
-		ErrorUtil.checkNotNull(toOutputSlot, "toOutputSlot");
 
-		this.outputSlotProviders.put(containerClass, recipeCategoryUid, toOutputSlot);
+		Integer existed = outputSlotOverrides.get(containerClass, recipeCategoryUid);
+		if (existed == null || existed >= 0) {
+			this.outputSlotOverrides.put(containerClass, recipeCategoryUid, outputSlot);
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
 	public ImmutableTable<Class, String, IRecipeTransferHandler> getRecipeTransferHandlers() {
 
-		for (Class<?> containerClass : outputSlotProviders.viewRows()) {
-			Map<String, ToIntFunction<?>> handlersByCategory = outputSlotProviders.getRow(containerClass);
-			for (Map.Entry<String, ToIntFunction<?>> entry : handlersByCategory.entrySet()) {
+		for (Class<?> containerClass : outputSlotOverrides.rowKeySet()) {
+			Map<String, Integer> handlersByCategory = outputSlotOverrides.getRow(containerClass);
+			for (Map.Entry<String, Integer> entry : handlersByCategory.entrySet()) {
 				String recipeCategoryId = entry.getKey();
-				ToIntFunction<?> toOutput = entry.getValue();
+				int outputSlotOverride = entry.getValue();
 
 				IRecipeTransferHandler<?> handler = recipeTransferHandlers.get(containerClass, recipeCategoryId);
 				if (handler instanceof BasicRecipeTransferHandler) {
-					((BasicRecipeTransferHandler<?>) handler).setToOutputSlotOverride((ToIntFunction) toOutput);
+					if (outputSlotOverride < 0) {
+						Log.get().info("Output slot override blocked for type '{}' and category '{}'", containerClass, recipeCategoryId);
+						continue;
+					}
+
+					((BasicRecipeTransferHandler<?>) handler).overrideOutputSlot(outputSlotOverride);
 				} else if (handler == null) {
-					Log.get().error("Unable to attach output slot provider for type '{}' and category '{}', because no recipe transfer handler is found", containerClass, recipeCategoryId);
+					Log.get().error("Unable to override output slot for type '{}' and category '{}', because no recipe transfer handler is found", containerClass, recipeCategoryId);
 				} else {
-					Log.get().error("Unable to attach output slot provider for type '{}' and category '{}', because recipe transfer handler is customized", containerClass, recipeCategoryId);
+					Log.get().error("Unable to override output slot for type '{}' and category '{}', because recipe transfer handler is customized", containerClass, recipeCategoryId);
 				}
 			}
 		}

@@ -36,22 +36,22 @@ public class ModSupportPlugin implements IModPlugin {
 
         toAttachOutput = findContainerClass("fastbench", "shadows.fastbench.gui.ContainerFastBench");
         if (toAttachOutput != null) {
-            recipeTransferRegistry.attachOutputSlotProvider(toAttachOutput, VanillaRecipeCategoryUid.CRAFTING, 0);
+            recipeTransferRegistry.overrideOutputSlot(toAttachOutput, VanillaRecipeCategoryUid.CRAFTING, 0);
         }
 
         toAttachOutput = findContainerClass("fastbench", "shadows.fastbench.gui.ClientContainerFastBench");
         if (toAttachOutput != null) {
-            recipeTransferRegistry.attachOutputSlotProvider(toAttachOutput, VanillaRecipeCategoryUid.CRAFTING, 0);
+            recipeTransferRegistry.overrideOutputSlot(toAttachOutput, VanillaRecipeCategoryUid.CRAFTING, 0);
         }
 
         toAttachOutput = findContainerClass("tconstruct", "slimeknights.tconstruct.tools.common.inventory.ContainerCraftingStation");
         if (toAttachOutput != null) {
-            recipeTransferRegistry.attachOutputSlotProvider(toAttachOutput, VanillaRecipeCategoryUid.CRAFTING, 0);
+            recipeTransferRegistry.overrideOutputSlot(toAttachOutput, VanillaRecipeCategoryUid.CRAFTING, 0);
         }
 
         toAttachOutput = findContainerClass("projecte", "moze_intel.projecte.gameObjs.container.PhilosStoneContainer");
         if (toAttachOutput != null) {
-            recipeTransferRegistry.attachOutputSlotProvider(toAttachOutput, VanillaRecipeCategoryUid.CRAFTING, 0);
+            recipeTransferRegistry.overrideOutputSlot(toAttachOutput, VanillaRecipeCategoryUid.CRAFTING, 0);
         }
     }
 
