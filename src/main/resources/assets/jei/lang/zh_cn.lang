@@ -173,6 +173,9 @@ config.jei.misc.mouseClickToSeeRecipes.comment=禁用后，鼠标悬停在原料
 config.jei.misc.tooltipShowRecipeBy=在提示框中显示配方来源
 config.jei.misc.tooltipShowRecipeBy.comment=当配方被修改时，会在物品的提示框中显示来源信息
 
+config.jei.misc.recipeIngredientPreviewEnabled=在提示框中显示原料格的全部条目
+config.jei.misc.recipeIngredientPreviewEnabled.comment=当原料格可接受多种输入时，在提示框中以网格列出
+
 config.jei.misc.showHiddenIngredientsInCreative=在创造模式下显示被隐藏的原料
 config.jei.misc.showHiddenIngredientsInCreative.comment=当玩家处于创造模式时，显示被用户隐藏的原料
 
@@ -217,6 +220,7 @@ hei.tooltip.recipe_bookmark=书签配方
 
 hei.tooltip.item_group=§7物品组
 hei.tooltip.recipe_group=§7配方组
+hei.tooltip.recipe.ingredient_pin=§7按住 §fSHIFT§7 固定此提示框
 hei.tooltip.press_alt=§7按住 §fALT§7 查看操作
 hei.tooltip.organizer.1=§6CTRL + 左键点击§7：在分组间移动书签
 hei.tooltip.organizer.2=§6上§r 或 §6下§7：调整分组位置

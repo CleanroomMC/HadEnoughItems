@@ -12,6 +12,8 @@ import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiUtils;
 
+import javax.annotation.Nullable;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +58,15 @@ public final class TooltipRenderer {
 		drawHoveringTextAndItems(ItemStack.EMPTY, minecraft, textLines, itemLines, x, y, -1, minecraft.fontRenderer);
 	}
 
-	public static void drawHoveringTextAndItems(ItemStack stack, Minecraft minecraft, List<String> lines, List<IngredientListBatchRenderer> itemLines, int mouseX, int mouseY, int maxTextWidth, FontRenderer font) {
+	/**
+	 * Draws the standard Minecraft tooltip, but allows extra {@link IngredientListBatchRenderer} lines
+	 * to be rendered as item grids below the text lines.
+	 *
+	 * @return the screen rectangle the tooltip occupies, or null if the tooltip was cancelled by
+	 *         {@link RenderTooltipEvent.Pre}.
+	 */
+	@Nullable
+	public static Rectangle drawHoveringTextAndItems(ItemStack stack, Minecraft minecraft, List<String> lines, List<IngredientListBatchRenderer> itemLines, int mouseX, int mouseY, int maxTextWidth, FontRenderer font) {
 		// Almost a copy from GuiUtils.drawHoveringText, but also allowing IngredientListBatchRenderer lines.
 
 		ScaledResolution scaledresolution = new ScaledResolution(minecraft);
@@ -64,7 +74,7 @@ public final class TooltipRenderer {
 		int screenHeight = scaledresolution.getScaledHeight();
 		RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(stack, lines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
 		if (MinecraftForge.EVENT_BUS.post(event)) {
-			return;
+			return null;
 		}
 		mouseX = event.getX();
 		mouseY = event.getY();
@@ -190,6 +200,7 @@ public final class TooltipRenderer {
 
 		MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, lines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));
 		int tooltipTop = tooltipY;
+		Rectangle tooltipRect = new Rectangle(tooltipX, tooltipTop, tooltipTextWidth, tooltipHeight);
 
 		for (int lineNumber = 0; lineNumber < lines.size(); ++lineNumber) {
 			font.drawStringWithShadow(lines.get(lineNumber), (float) tooltipX, (float) tooltipY, -1);
@@ -202,9 +213,24 @@ public final class TooltipRenderer {
 		for (IngredientListBatchRenderer line : itemLines) {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(tooltipX, tooltipY, 300.0F);
+			line.setRenderOrigin(tooltipX, tooltipY);
 			line.render(minecraft);
 			GlStateManager.popMatrix();
 			tooltipY += line.getHeight();
+		}
+
+		// Rendering an item grid (`line.render(minecraft)`) leaves potentially changed state.
+		// Restore the state to what the text pass was using so that PostText listeners and
+		// whatever the caller draws afterward are unaffected.
+		// `GlStateManager.pushAttrib()` not working btw
+		if (!itemLines.isEmpty()) {
+			GlStateManager.disableLighting();
+			GlStateManager.disableDepth();
+			GlStateManager.disableBlend();
+			GlStateManager.disableAlpha();
+			GlStateManager.disableRescaleNormal();
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderHelper.disableStandardItemLighting();
 		}
 
 		MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(stack, lines, tooltipX, tooltipTop, font, tooltipTextWidth, tooltipHeight));
@@ -213,5 +239,7 @@ public final class TooltipRenderer {
 		GlStateManager.enableDepth();
 		RenderHelper.enableStandardItemLighting();
 		GlStateManager.enableRescaleNormal();
+
+		return tooltipRect;
 	}
 }

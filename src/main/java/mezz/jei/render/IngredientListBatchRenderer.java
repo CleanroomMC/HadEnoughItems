@@ -23,6 +23,7 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.Gui;
 
 import javax.annotation.Nullable;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,6 +52,12 @@ public class IngredientListBatchRenderer {
 	private int width;
 	private int maxWidth;
 	private int height;
+	/**
+	 * Where this renderer was last drawn on screen. Slot areas are relative to it, so it is what
+	 * lets a grid rendered inside a tooltip be hit-tested with screen coordinates.
+	 */
+	@Nullable
+	private Point renderOrigin;
 
 
 	public IngredientListBatchRenderer() {
@@ -301,6 +308,41 @@ public class IngredientListBatchRenderer {
 			yPos += INGREDIENT_HEIGHT;
 		}
 		this.height = yPos;
+	}
+
+	/**
+	 * Records where this renderer is being drawn, so a grid rendered inside a tooltip can later be
+	 * hit-tested with screen coordinates. Set by {@link mezz.jei.gui.TooltipRenderer} before rendering.
+	 */
+	public void setRenderOrigin(int x, int y) {
+		this.renderOrigin = new Point(x, y);
+	}
+
+	@Nullable
+	public Point getRenderOrigin() {
+		return renderOrigin;
+	}
+
+	/**
+	 * Returns the slot under the given screen position, or null if this renderer has not been laid
+	 * out into a tooltip yet.
+	 */
+	@Nullable
+	public IngredientListSlot getSlotAtScreen(int mouseX, int mouseY) {
+		Point origin = this.renderOrigin;
+		if (origin == null) {
+			return null;
+		}
+		int localX = mouseX - origin.x;
+		int localY = mouseY - origin.y;
+		for (List<IngredientListSlot> row : slots) {
+			for (IngredientListSlot slot : row) {
+				if (slot.isMouseOver(localX, localY)) {
+					return slot;
+				}
+			}
+		}
+		return null;
 	}
 
 	@Nullable

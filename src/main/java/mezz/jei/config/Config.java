@@ -373,6 +373,13 @@ public final class Config {
 		return values.tooltipShowRecipeBy;
 	}
 
+	/**
+	 * Whether a recipe slot's tooltip lists every ingredient that slot accepts.
+	 */
+	public static boolean isRecipeIngredientPreviewEnabled() {
+		return values.recipeIngredientPreviewEnabled;
+	}
+
 	public static boolean getShowHiddenIngredientsInCreative() {
 		return values.showHiddenIngredientsInCreative;
 	}
@@ -579,6 +586,8 @@ public final class Config {
 		values.holdToDragGhostIngredients = config.getBoolean(CATEGORY_MISC, "holdToDragGhostIngredients", defaultValues.holdToDragGhostIngredients);
 
 		values.tooltipShowRecipeBy = config.getBoolean(CATEGORY_MISC, "tooltipShowRecipeBy", defaultValues.tooltipShowRecipeBy);
+
+		values.recipeIngredientPreviewEnabled = config.getBoolean(CATEGORY_MISC, "recipeIngredientPreviewEnabled", defaultValues.recipeIngredientPreviewEnabled);
 
 		{
 			boolean prev = values.showHiddenIngredientsInCreative;

@@ -11,6 +11,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag;
@@ -24,6 +25,7 @@ import mezz.jei.api.gui.ITooltipCallback;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.recipe.IFocus;
+import mezz.jei.config.Config;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.IngredientRegistry;
@@ -51,6 +53,9 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	private ITooltipCallback<T> tooltipCallback;
 	@Nullable
 	private IDrawable background;
+	@Nullable
+	private IngredientListPreview ingredientPreview;
+	private boolean ingredientPreviewInvalidated = true;
 
 	private boolean enabled;
 
@@ -117,6 +122,28 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			this.allIngredients.addAll(ingredients);
 		}
 		enabled = !this.displayIngredients.isEmpty();
+
+		// The preview is built lazily on first hover: only one slot is ever hovered at a time, so
+		// wrapping every ingredient of every slot up front would be wasted work.
+		this.ingredientPreview = null;
+		this.ingredientPreviewInvalidated = true;
+	}
+
+	/**
+	 * Every ingredient this slot accepts, as a tooltip grid, or null when there is nothing to show.
+	 * Built on first request and cached until the slot is set again.
+	 */
+	@Nullable
+	public IngredientListPreview getIngredientPreview() {
+		if (ingredientPreviewInvalidated) {
+			ingredientPreviewInvalidated = false;
+			// A focused slot collapses displayIngredients down to the single match, which leaves
+			// fewer than two entries and so yields no preview.
+			ingredientPreview = Config.isRecipeIngredientPreviewEnabled()
+				? IngredientListPreview.create(displayIngredients, ingredientHelper, ingredientRenderer, ForgeModIdHelper.getInstance())
+				: null;
+		}
+		return ingredientPreview;
 	}
 
 	private List<T> filterOutHidden(List<T> ingredients) {
@@ -213,7 +240,9 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			}
 
 			FontRenderer fontRenderer = ingredientRenderer.getFontRenderer(minecraft, value);
+			ItemStack tooltipStack = ItemStack.EMPTY;
 			if (value instanceof ItemStack) {
+				tooltipStack = (ItemStack) value;
 				//noinspection unchecked
 				Collection<ItemStack> itemStacks = (Collection<ItemStack>) this.allIngredients;
 				String oreDictEquivalent = Internal.getStackHelper().getOreDictEquivalent(itemStacks);
@@ -221,9 +250,34 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 					final String acceptsAny = String.format(oreDictionaryIngredient, oreDictEquivalent);
 					tooltip.add(TextFormatting.GRAY + acceptsAny);
 				}
-				TooltipRenderer.drawHoveringText((ItemStack) value, minecraft, tooltip, xOffset + mouseX, yOffset + mouseY, fontRenderer);
+			}
+
+			int tooltipX = xOffset + mouseX;
+			int tooltipY = yOffset + mouseY;
+			IngredientListPreview preview = getIngredientPreview();
+			if (preview != null && !GuiScreen.isShiftKeyDown()) {
+				// Shift pins the tooltip, so the hint only makes sense while it is not held.
+				tooltip.add(Translator.translateToLocal("hei.tooltip.recipe.ingredient_pin"));
+			}
+			if (preview == null) {
+				if (value instanceof ItemStack) {
+					TooltipRenderer.drawHoveringText(tooltipStack, minecraft, tooltip, tooltipX, tooltipY, fontRenderer);
+				} else {
+					TooltipRenderer.drawHoveringText(minecraft, tooltip, tooltipX, tooltipY, fontRenderer);
+				}
 			} else {
-				TooltipRenderer.drawHoveringText(minecraft, tooltip, xOffset + mouseX, yOffset + mouseY, fontRenderer);
+				Rectangle bound = TooltipRenderer.drawHoveringTextAndItems(
+					tooltipStack,
+					minecraft,
+					tooltip,
+					Collections.singletonList(preview.getRenderer()),
+					tooltipX,
+					tooltipY,
+					-1,
+					fontRenderer
+				);
+				// Kept so a pinned tooltip knows which part of the screen it is covering.
+				preview.setTooltipBounds(bound);
 			}
 
 			GlStateManager.enableDepth();
