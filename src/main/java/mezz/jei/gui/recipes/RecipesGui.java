@@ -475,9 +475,9 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
-		if (clickedMouseButton == 0 && pinnedTooltip != null && pinnedTooltip.dragScrollTo(mouseY)) {
-			return;
-		}
+        if (clickedMouseButton == 0 && pinnedTooltip != null && pinnedTooltip.dragScrollTo(mouseY)) {
+            return;
+        }
 		if (isMouseOver(mouseX, mouseY)) {
 			for (RecipeLayout recipeLayout : recipeLayouts) {
 				if (recipeLayout.handleMouseDrag(mouseX, mouseY, clickedMouseButton, timeSinceLastClick)) {
@@ -491,9 +491,9 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	@Override
 	protected void mouseReleased(int mouseX, int mouseY, int state) {
-		if (pinnedTooltip != null) {
-			pinnedTooltip.stopScrollDrag();
-		}
+        if (pinnedTooltip != null) {
+            pinnedTooltip.stopScrollDrag();
+        }
 		if (isMouseOver(mouseX, mouseY)) {
 			for (RecipeLayout recipeLayout : recipeLayouts) {
 				if (recipeLayout.mouseReleased(mouseX, mouseY, state)) {
