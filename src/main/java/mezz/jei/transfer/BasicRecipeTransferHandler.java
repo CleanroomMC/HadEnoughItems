@@ -24,6 +24,7 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeC
 	private final StackHelper stackHelper;
 	private final IRecipeTransferHandlerHelper handlerHelper;
 	private final IRecipeTransferInfo<C> transferHelper;
+	private int outputSlotOverride = -1;
 
 	public BasicRecipeTransferHandler(StackHelper stackHelper, IRecipeTransferHandlerHelper handlerHelper, IRecipeTransferInfo<C> transferHelper) {
 		this.stackHelper = stackHelper;
@@ -34,6 +35,10 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeC
 	@Override
 	public Class<C> getContainerClass() {
 		return transferHelper.getContainerClass();
+	}
+
+	public void overrideOutputSlot(int outputSlotOverride) {
+		this.outputSlotOverride = outputSlotOverride;
 	}
 
 	@Nullable
@@ -126,7 +131,7 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeC
 		IntList inventorySlotIndexes = new IntArrayList(inventorySlots.keySet());
 		Collections.sort(inventorySlotIndexes);
 
-		int outputSlot = transferHelper.getOutputSlot();
+		int outputSlot = outputSlotOverride >= 0 ? outputSlotOverride : transferHelper.getOutputSlot();
 
 		// check that the slots exist and can be altered
 		for (Int2IntMap.Entry entry : matchingItemsResult.matchingItemsCasted.int2IntEntrySet()) {
