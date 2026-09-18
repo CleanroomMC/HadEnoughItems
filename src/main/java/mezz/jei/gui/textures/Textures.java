@@ -17,6 +17,8 @@ public class Textures {
 	public final TextureInfo guiBackground;
 	public final TextureInfo recipeBackground;
 	public final TextureInfo searchBackground;
+	public final TextureInfo scrollbarBackground;
+	public final TextureInfo scrollbarMarker;
 
 	public final TextureInfo shapelessIcon;
 	public final TextureInfo arrowPrevious;
@@ -53,15 +55,19 @@ public class Textures {
 			.slice(16, 16, 16, 16);
 		this.searchBackground = registerGuiSprite("search_background", 20, 20)
 			.slice(4, 4, 4, 4);
+		this.scrollbarBackground = registerGuiSprite("scrollbar_background", 64, 64)
+			.trim(0, 64 - 14, 0, 64 - 50)
+			.slice(1, 1, 1, 1);
+		this.scrollbarMarker = registerGuiSprite("scrollbar_marker", 16, 16)
+			.trim(0, 16 - 12, 0, 16 - 15)
+			.slice(1, 1, 1, 2);
 		this.catalystTab = registerGuiSprite("catalyst_tab", 28, 28)
 			.slice(8, 9, 8, 8);
 
 		this.shapelessIcon = registerGuiSprite("icons/shapeless_icon", 36, 36)
 			.trim(1, 2, 1, 1);
-		this.arrowPrevious = registerGuiSprite("icons/arrow_previous", 9, 9)
-			.trim(0, 0, 1, 1);
-		this.arrowNext = registerGuiSprite("icons/arrow_next", 9, 9)
-			.trim(0, 0, 1, 1);
+		this.arrowPrevious = registerGuiSprite("icons/arrow_previous", 9, 9);
+		this.arrowNext = registerGuiSprite("icons/arrow_next", 9, 9);
 		this.recipeTransfer = registerGuiSprite("icons/recipe_transfer", 7, 7);
 		this.favoriteDisabled = registerGuiSprite("icons/favorite_disabled", 7, 7);
 		this.favoriteEnabled = registerGuiSprite("icons/favorite_enabled", 7, 7);

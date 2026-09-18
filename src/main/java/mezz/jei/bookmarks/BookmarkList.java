@@ -228,9 +228,35 @@ public class BookmarkList implements IIngredientGridSource {
 		if (file == null || !file.exists()) {
 			return;
 		}
-		List<String> ingredientJsonStrings;
+		List<String> ingredientJsonStrings = new ArrayList<>();
 		try (FileReader reader = new FileReader(file)) {
-			ingredientJsonStrings = IOUtils.readLines(reader);
+			String contents = IOUtils.toString(reader);
+			boolean quoted = false;
+			boolean escaped = false;
+			int start = 0;
+			for (int i = 0; i < contents.length(); i++) {
+				char character = contents.charAt(i);
+				if (quoted) {
+					if (escaped) {
+						escaped = false;
+					} else if (character == '\\') {
+						escaped = true;
+					} else if (character == '"') {
+						quoted = false;
+					}
+				} else if (character == '"') {
+					quoted = true;
+				} else if (character == '\n' || character == '\r') {
+					// NBT strings can contain literal line breaks, including blank book pages.
+					if (i > start) {
+						ingredientJsonStrings.add(contents.substring(start, i));
+					}
+					start = i + 1;
+				}
+			}
+			if (start < contents.length()) {
+				ingredientJsonStrings.add(contents.substring(start));
+			}
 		} catch (IOException e) {
 			Log.get().error("Failed to load bookmarks from file {}", file, e);
 			return;

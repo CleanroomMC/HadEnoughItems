@@ -214,19 +214,35 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 
 	@Override
 	public void drawOverlays(Minecraft minecraft, int mouseX, int mouseY) {
+		drawOverlays(minecraft, mouseX, mouseY, null);
+	}
+
+	/**
+	 * @param pinned the tooltip the player pinned by holding Shift, or null when nothing is pinned.
+	 *               A pinned tooltip keeps the position it had when it was pinned, leaving the mouse
+	 *               free to travel over the ingredient grid inside it.
+	 */
+	public void drawOverlays(Minecraft minecraft, int mouseX, int mouseY, @Nullable PinnedIngredientTooltip pinned) {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableLighting();
 		GlStateManager.enableAlpha();
 
-		final int recipeMouseX = mouseX - posX;
-		final int recipeMouseY = mouseY - posY;
+		int recipeMouseX = mouseX - posX;
+		int recipeMouseY = mouseY - posY;
 
-		GuiIngredient hoveredIngredient = null;
-		for (GuiIngredientGroup guiIngredientGroup : guiIngredientGroups.values()) {
+		GuiIngredient<?> hoveredIngredient = null;
+		for (GuiIngredientGroup<?> guiIngredientGroup : guiIngredientGroups.values()) {
 			hoveredIngredient = guiIngredientGroup.getHoveredIngredient(posX, posY, mouseX, mouseY);
 			if (hoveredIngredient != null) {
 				break;
 			}
+		}
+		final boolean pinnedHere = pinned != null && pinned.getLayout() == this;
+		if (pinnedHere) {
+			hoveredIngredient = pinned.getSlot();
+			// The slot positions its tooltip from these, so the pinned position freezes it in place.
+			recipeMouseX = pinned.getScreenMouseX() - posX;
+			recipeMouseY = pinned.getScreenMouseY() - posY;
 		}
 		if (recipeTransferButton != null) {
 			recipeTransferButton.drawToolTip(minecraft, mouseX, mouseY);
@@ -256,6 +272,15 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			if (tooltipStrings != null && !tooltipStrings.isEmpty()) {
 				TooltipRenderer.drawHoveringText(minecraft, tooltipStrings, mouseX, mouseY);
 			}
+		}
+
+		if (pinnedHere) {
+			// The tooltip has been drawn by now, so the screen area it took is known.
+			pinned.captureBounds();
+			// The highlight goes first so that the hovered ingredient's own tooltip, drawn from the
+			// real mouse position, ends up on top.
+			pinned.drawHighlight(mouseX, mouseY);
+			pinned.drawHoveredIngredientTooltip(minecraft, mouseX, mouseY);
 		}
 
 		GlStateManager.disableAlpha();
@@ -297,10 +322,18 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	}
 
 	public boolean handleMouseScroll(int mouseX, int mouseY, int scrollAmount) {
+		if (recipeWrapper.handleMouseScroll(mouseX - posX, mouseY - posY, scrollAmount)) {
+            return true;
+		}
+
 		if (recipeFavoriteButton == null) {
 			return false;
 		}
 		return recipeFavoriteButton.handleMouseScrolled(mouseX, mouseY, scrollAmount);
+	}
+
+	public boolean handleMouseDrag(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		return recipeWrapper.handleMouseDrag(mouseX - posX, mouseY - posY, clickedMouseButton, timeSinceLastClick);
 	}
 
 	@Override
@@ -443,4 +476,8 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		}
 		return bookmarkList.add(group, addToFront);
 	}
+
+    public boolean mouseReleased(int mouseX, int mouseY, int state) {
+        return recipeWrapper.handleMouseReleased(mouseX, mouseY, state);
+    }
 }

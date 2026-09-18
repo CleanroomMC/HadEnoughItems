@@ -33,6 +33,7 @@ import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiHelper;
+import mezz.jei.gui.PinnedTooltipGuiHandler;
 import mezz.jei.gui.overlay.GuiProperties;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.plugins.jei.debug.DebugGhostIngredientHandler;
@@ -89,6 +90,7 @@ public class JEIInternalPlugin implements IModPlugin {
 		ingredientRegistry = registry.getIngredientRegistry();
 		registry.addGuiScreenHandler(GuiContainer.class, GuiProperties::create);
 		registry.addGuiScreenHandler(RecipesGui.class, GuiProperties::create);
+		registry.addGlobalGuiHandlers(PinnedTooltipGuiHandler.INSTANCE);
 
 		if (Config.isDebugModeEnabled()) {
 			registry.addIngredientInfo(Arrays.asList(
