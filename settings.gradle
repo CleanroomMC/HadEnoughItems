@@ -9,6 +9,10 @@ pluginManagement {
                 includeGroup 'com.gtnewhorizons.retrofuturagradle'
             }
         }
+        maven {
+            name 'CleanroomMC Maven'
+            url 'https://maven.cleanroommc.com'
+        }
         gradlePluginPortal()
         mavenCentral()
         mavenLocal()

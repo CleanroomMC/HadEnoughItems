@@ -376,7 +376,7 @@ public class GeneralizedSuffixTree<T> implements IPrintableSearchIndex<T> {
 
     /**
      * Print the tree for use by graphviz.
-     * To view, run the command: `dot -Tpng -O <filename>.dot`
+     * To view, run the command: {@code dot -Tpng -O <filename>.dot}
      */
     @Override
     public void printTree(PrintWriter out, boolean includeSuffixLinks) {

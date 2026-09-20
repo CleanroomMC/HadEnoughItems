@@ -24,7 +24,7 @@ public final class CommandUtil {
 	}
 
 	/**
-	 * /give <player> <item> [amount] [data] [dataTag]
+	 * {@code /give <player> <item> [amount] [data] [dataTag]}
 	 * {@link GuiContainerCreative} has special client-side handling for itemStacks, just give the item on the client
 	 */
 	public static void giveStack(ItemStack itemStack, int mouseButton) {
