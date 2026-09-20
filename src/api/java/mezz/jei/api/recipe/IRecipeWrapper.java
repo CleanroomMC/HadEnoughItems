@@ -75,7 +75,7 @@ public interface IRecipeWrapper {
 	 * @param mouseY      the Y position of the mouse, relative to the recipe.
 	 * @param scrollDelta the delta movement of mouse wheel.
 	 * @return true if the click was handled, false otherwise
-	 * @since HEI 4.44.0
+	 * @since HEI 4.35.0
 	 */
 	default boolean handleMouseScroll(int mouseX, int mouseY, int scrollDelta) {
 		return false;
@@ -90,7 +90,7 @@ public interface IRecipeWrapper {
 	 * @param clickedMouseButton  the mouse button that was clicked.
 	 * @param timeSinceLastClick  time since the last click, in milliseconds.
 	 * @return true if the drag was handled, false otherwise
-	 * @since HEI 4.44.0
+	 * @since HEI 4.35.0
 	 */
 	default boolean handleMouseDrag(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
 		return false;
@@ -103,7 +103,7 @@ public interface IRecipeWrapper {
 	 * @param mouseY the Y position of the mouse, relative to the recipe.
 	 * @param state  the mouse button that was pressed.
 	 * @return true if this action was handled, false otherwise
-	 * @since HEI 4.44.0
+	 * @since HEI 4.35.0
 	 */
     default boolean handleMouseReleased(int mouseX, int mouseY, int state) {
         return false;
