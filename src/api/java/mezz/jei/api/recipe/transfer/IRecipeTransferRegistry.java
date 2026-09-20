@@ -57,7 +57,7 @@ public interface IRecipeTransferRegistry {
 	 * @param recipeCategoryUid the recipe categories that this container can use
 	 * @param outputSlot        the output slot that resulting items may be taken from for autocrafting.
 	 *                          Negative value will block any other possible overrides
-	 * @since HEI ?
+	 * @since HEI 4.44.0
 	 */
     default <C extends Container> void overrideOutputSlot(Class<C> containerClass, String recipeCategoryUid, int outputSlot) {
     }

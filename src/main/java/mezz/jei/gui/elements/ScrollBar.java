@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
  * A scrollbar widget for scrolling through content.
  * Ported and adapted from JEI for use in HEI.
  *
- * @since HEI ?
+ * @since HEI 4.44.0
  */
 public class ScrollBar {
 
