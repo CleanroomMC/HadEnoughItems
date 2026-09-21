@@ -111,6 +111,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		if (this.afterBlock) {
 			runnable.run();
 			invalidateCache();
+			buildCache();
 		} else {
 			if (this.delegatedActions == null) {
 				this.delegatedActions = new ArrayList<>();
@@ -188,7 +189,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 				}
 				for (Map.Entry<String, CollapsibleGroup> entry : wildcardEntries) {
 					String prefix = entry.getKey();
-					if (uid.equals(prefix) || uid.startsWith(prefix + ":")) {
+					if (uid.equals(prefix) || (uid.length() > prefix.length() && uid.charAt(prefix.length()) == ':' && uid.startsWith(prefix))) {
 						groupMembershipCache.put(element, entry.getValue());
 						gtoc.put(entry.getValue(), element);
 					}
@@ -290,6 +291,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		for (IIngredientListElement<?> element : this.elementSearch.getAllIngredients()) {
 			updateHiddenState(element);
 		}
+		buildCache();
 	}
 
 	public void requestRefresh() {
