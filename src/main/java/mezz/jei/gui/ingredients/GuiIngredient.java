@@ -157,11 +157,8 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			if (ingredient == null || ingredientRegistry.isIngredientVisible(ingredient, ingredientFilter)) {
 				visible.add(ingredient);
 			}
-			if (visible.size() > 100) {
-				return visible;
-			}
 		}
-		if (visible.size() > 0) {
+		if (!visible.isEmpty()) {
 			return visible;
 		}
 		return ingredients;
