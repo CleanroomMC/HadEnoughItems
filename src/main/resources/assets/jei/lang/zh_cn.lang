@@ -150,7 +150,7 @@ gui.jei.category.itemInformation=信息
 # DEBUG (for debug mode, do not need translation)
 # description.jei.wooden.door.1=Wooden Doors allow you to block monsters from entering your building.\nTesting sentences.
 # description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and visa versa.
-# description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits.
+# description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits. There should also be some extra long text for testing new scroll bar functionality, if there's no text inside or extra text outside recipe area, it's not working properly.
 
 # New HEI lang keys
 config.jei.rendering=渲染
@@ -172,6 +172,9 @@ config.jei.advanced.addBookmarksToFront.comment=启用后，将新书签添加�
 
 config.jei.misc.mouseClickToSeeRecipes=鼠标点击查看配方/用途
 config.jei.misc.mouseClickToSeeRecipes.comment=禁用后，鼠标悬停在原料上时将无法通过点击查看其配方和用途
+
+config.jei.misc.holdToDragGhostIngredients=按住鼠标按键拖动幽灵原料
+config.jei.misc.holdToDragGhostIngredients.comment=启用后，拖动过程中需按住发起拖拽的鼠标按键，松开即可放下。禁用后，单击一次拾取，再次单击放下。
 
 config.jei.misc.tooltipShowRecipeBy=在提示框中显示配方来源
 config.jei.misc.tooltipShowRecipeBy.comment=当配方被修改时，会在物品的提示框中显示来源信息
