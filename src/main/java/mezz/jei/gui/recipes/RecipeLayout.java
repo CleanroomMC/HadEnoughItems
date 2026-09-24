@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import mezz.jei.Internal;
+import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.config.Config;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiFluidStackGroup;
@@ -32,6 +33,7 @@ import mezz.jei.gui.ingredients.GuiFluidStackGroup;
 import mezz.jei.gui.ingredients.GuiIngredient;
 import mezz.jei.gui.ingredients.GuiIngredientGroup;
 import mezz.jei.gui.ingredients.GuiItemStackGroup;
+import mezz.jei.gui.ingredients.RecipeIdTooltipCallback;
 import mezz.jei.ingredients.Ingredients;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.LegacyUtil;
@@ -39,6 +41,7 @@ import mezz.jei.util.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
 public class RecipeLayout implements IRecipeLayoutDrawable {
@@ -67,6 +70,10 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	@Nullable
 	private ShapelessIcon shapelessIcon;
 	private final DrawableNineSliceTexture recipeBorder;
+	@Nullable
+	private String recipeCategoryModId;
+	@Nullable
+	private ResourceLocation recipeId;
 
 	private int posX;
 	private int posY;
@@ -78,6 +85,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			IIngredients ingredients = new Ingredients();
 			recipeWrapper.getIngredients(ingredients);
 			recipeCategory.setRecipe(recipeLayout, recipeWrapper, ingredients);
+			recipeLayout.addRecipeIdTooltip();
 			return recipeLayout;
 		} catch (RuntimeException | LinkageError e) {
 			Log.get().error("Error caught from Recipe Category: {}", recipeCategory.getClass().getCanonicalName(), e);
@@ -480,4 +488,23 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
     public boolean mouseReleased(int mouseX, int mouseY, int state) {
         return recipeWrapper.handleMouseReleased(mouseX, mouseY, state);
     }
+
+	@Override
+	public void setRecipeId(String recipeCategoryModId, @Nullable ResourceLocation recipeId) {
+		this.recipeCategoryModId = recipeCategoryModId;
+		this.recipeId = recipeId;
+	}
+
+	private void addRecipeIdTooltip() {
+		if (recipeId != null) {
+			String recipeModId = recipeId.getNamespace();
+			boolean recipeCategoryIdDifferent = !recipeModId.equals(recipeCategoryModId);
+
+			for (GuiIngredientGroup guiIngredientGroup : guiIngredientGroups.values()) {
+				IIngredientHelper ingredientHelper = guiIngredientGroup.getIngredientHelper();
+				RecipeIdTooltipCallback tooltipCallback = new RecipeIdTooltipCallback(recipeId, recipeCategoryIdDifferent, ingredientHelper);
+				guiIngredientGroup.addTooltipCallbackAfter(tooltipCallback);
+			}
+		}
+	}
 }
