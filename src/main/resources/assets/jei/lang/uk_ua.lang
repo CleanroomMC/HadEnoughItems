@@ -9,94 +9,127 @@ jei.tooltip.transfer=Переміщення предметів
 jei.tooltip.recipe.ore.dict=Приймає будь-які: %s
 jei.tooltip.item.colors=Кольори: %s
 jei.tooltip.shapeless.recipe=Безформний рецепт
-jei.tooltip.cheat.mode.button.enabled=Режим шахрайства
-jei.tooltip.cheat.mode.how.to.disable.hotkey=Аби перемкнути, натисніть %s.
-jei.tooltip.cheat.mode.how.to.disable.no.hotkey=Затисніть %s-та натисніть тут для перемикання.
-jei.tooltip.recipe.by=Рецепт з: %s
-jei.tooltip.recipe.id=ID рецепту: %s
-jei.tooltip.not.enough.space=Тут недостатньо місця для показу списку.
-jei.tooltip.ingredient.list.disabled=HEI вимкнуто.
-jei.tooltip.ingredient.list.disabled.how.to.fix=Для активації натисніть %s.
+jei.tooltip.cheat.mode.button.enabled=Режим читів увімкнено
+jei.tooltip.cheat.mode.how.to.disable.hotkey=Натисніть %s для перемикання.
+jei.tooltip.cheat.mode.how.to.disable.no.hotkey=Затисніть %s і клікніть тут для перемикання.
+jei.tooltip.recipe.by=Рецепт від: %s
+jei.tooltip.recipe.id=ID рецепта: %s
+jei.tooltip.not.enough.space=Тут недостатньо місця для відображення HEI.
+jei.tooltip.ingredient.list.disabled=Оверлей HEI вимкнено.
+jei.tooltip.ingredient.list.disabled.how.to.fix=Натисніть %s, щоб увімкнути.
+jei.tooltip.bookmarks=Закладки HEI
+jei.tooltip.bookmarks.usage.nokey=Призначте клавішу для закладок HEI у налаштуваннях керування.
+jei.tooltip.bookmarks.usage.key=Наведіть курсор на предмет і натисніть «%s», щоб додати в закладки.
+jei.tooltip.bookmarks.not.enough.space=Тут недостатньо місця для відображення закладок.
+
+# Collapsible Groups
+hei.tooltip.collapsed.expand=Alt+Клік для розгортання
+hei.tooltip.collapsed.expand.firstItem=Alt+Клік для першого предмета
+hei.tooltip.collapsed.collapse=Alt+Клік для згортання
+hei.tooltip.config.expandCollapseAll=Alt+Клік для перемикання груп
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Відсутні предмети
-jei.tooltip.error.recipe.transfer.inventory.full=Інвентар заповнений
+jei.tooltip.error.recipe.transfer.inventory.full=Інвентар переповнений
 jei.tooltip.error.recipe.transfer.unknown=Невідома помилка, дивіться звіти
-jei.tooltip.error.recipe.transfer.no.server=На сервері повинен бути встановлений HEI
-jei.tooltip.error.recipe.transfer.too.large.player.inventory=Рецепт занадто великий для сітки крафту 2x2.
-jei.tooltip.error.crash=Помилка підказки, дивіться звіти
+jei.tooltip.error.recipe.transfer.no.server=На сервері має бути встановлений HEI
+jei.tooltip.error.recipe.transfer.too.large.player.inventory=Рецепт занадто великий для сітки крафту гравця 2x2.
+jei.tooltip.error.crash=Помилка спливаючої підказки, дивіться звіти
 
 # Error Messages
-jei.chat.error.command.too.long=HEI потрібно встановити на сервер, щоб використовувати цю команду, вона занадто довга для надсилання.
-jei.chat.error.no.cheat.permission.1=У вас нема дозволу на використання режиму шахрая в HEI.
-jei.chat.error.no.cheat.permission.2=Дозвіл видається гравцям, які можуть використовувати команду /give або знаходяться в креативі.
+jei.chat.error.command.too.long=HEI має бути встановлений на сервері для обробки цієї команди, вона занадто довга для надсилання.
+jei.chat.error.no.cheat.permission.1=У вас немає дозволу на використання режиму читів HEI.
+jei.chat.error.no.cheat.permission.2=Дозвіл надається гравцям з доступом до /give або тим, хто перебуває у творчому режимі.
 
 # Key Bindings
-key.jei.toggleOverlay=Перемкнути перекривання предметів
-key.jei.focusSearch=Обрати рядок пошуку
-key.jei.showRecipe=Показувати рецепти предметів
-key.jei.showUses=Показувати використання предметів
-key.jei.recipeBack=Показувати минулу сторінку рецептів
-key.jei.toggleCheatMode=Перемкнути режим шахрайства
-key.jei.previousPage=Показати попередню сторінку
-key.jei.nextPage=Показати наступну сторінку
+key.jei.toggleOverlay=Показати/приховати HEI
+key.jei.focusSearch=Вибрати рядок пошуку
+key.jei.showRecipe=Показати рецепт
+key.jei.showUses=Показати використання
+key.jei.recipeBack=Попередній переглянутий рецепт
+key.jei.toggleCheatMode=Перемкнути режим читів
+key.jei.toggleEditMode=Перемкнути режим приховування/редагування
+key.jei.previousPage=Попередня сторінка
+key.jei.nextPage=Наступна сторінка
+key.hei.previousCategory=Попередня категорія рецептів
+key.hei.nextCategory=Наступна категорія рецептів
+key.jei.bookmark=Додати інгредієнт/рецепт у закладки (в кінець)
+key.hei.bookmarkToTop=Додати інгредієнт/рецепт у закладки (на початок)
+key.hei.bookmarkNewGroup=Додати в нову групу закладок (в кінець)
+key.hei.bookmarkNewGroupToTop=Додати в нову групу закладок (на початок)
+key.hei.toggleBookmarkOverlay=Показати/приховати закладки
+key.hei.crafting=Автокрафт рецепта із закладок
+key.hei.moveGroupUp=Перемістити групу закладок вгору
+key.hei.moveGroupDown=Перемістити групу закладок вниз
 
 # Config
-config.jei.default=По замовчуванню
-config.jei.valid=Дійсний
+config.jei.default=За замовчуванням
+config.jei.valid=Доступно
 
 config.jei.title=Конфігурація %MODNAME
 
 config.jei.mode=Режим
-config.jei.mode.comment=Зміна режиму HEI.
-config.jei.mode.cheatItemsEnabled=Режим шахрайства
-config.jei.mode.cheatItemsEnabled.comment=Давати предмети замість показу рецепта.
-config.jei.mode.editEnabled=Режим редагування
-config.jei.mode.editEnabled.comment=Сховайте предмети в списку простим натисканням клавіші.
+config.jei.mode.comment=Зміна режиму роботи HEI.
+config.jei.mode.cheatItemsEnabled=Режим читів
+config.jei.mode.cheatItemsEnabled.comment=Видавати предмети замість показу рецепта.
+config.jei.mode.editEnabled=Режим приховування предметів
+config.jei.mode.editEnabled.comment=Приховувати та показувати предмети кліком по них у списку.
 
 config.jei.interface=Інтерфейс
-config.jei.interface.comment=Налаштування, які відповідають за інтерфейс користувача
-config.jei.interface.overlayEnabled=Доступність списку предметів
-config.jei.interface.overlayEnabled.comment=Показувати список предметів при відкриванні інтерфейсу
+config.jei.interface.comment=Параметри інтерфейсу користувача.
+config.jei.interface.overlayEnabled=Відображати список предметів
+config.jei.interface.overlayEnabled.comment=Показувати список предметів поруч із відкритим інтерфейсом.
+config.jei.interface.bookmarkOverlayEnabled=Відображати закладки
+config.jei.interface.bookmarkOverlayEnabled.comment=Показувати список закладок поруч із відкритим інтерфейсом.
+config.jei.interface.recipeBookmarksEnabled=Увімкнути закладки рецептів
+config.jei.interface.recipeBookmarksEnabled.comment=Додавання та видалення груп закладок для рецептів.
+config.jei.interface.autocraftingEnabled=Увімкнути автокрафт
+config.jei.interface.autocraftingEnabled.comment=ТІЛЬКИ ЯКЩО ввімкнено закладки рецептів: дозволяє виконання автокрафту через них.
 
-config.jei.search=Пошук
-config.jei.search.comment=Налаштування, які відповідають за пошук.
-config.jei.search.modNameSearchMode=@Ім'яМоду
-config.jei.search.modNameSearchMode.comment=Режим пошуку за іменем мода(префікс: @)
-config.jei.search.tooltipSearchMode=#СпливаючаПідказка
-config.jei.search.tooltipSearchMode.comment=Режим пошуку по спливаючій підказці (префікс: #)
+config.jei.search=Параметри пошуку
+config.jei.search.comment=Параметри рядка пошуку.
+config.jei.search.modNameSearchMode=@НазваМода
+config.jei.search.modNameSearchMode.comment=Режим пошуку за назвою мода (префікс: @)
+config.jei.search.tooltipSearchMode=#Підказка
+config.jei.search.tooltipSearchMode.comment=Режим пошуку за спливаючою підказкою (префікс: #)
 config.jei.search.oreDictSearchMode=$СловникРуд
-config.jei.search.oreDictSearchMode.comment=Режим пошуку за іменем в словнику руд (префікс: $)
+config.jei.search.oreDictSearchMode.comment=Режим пошуку за назвою у словнику руд (префікс: $)
 config.jei.search.creativeTabSearchMode=%%ТворчаВкладка
-config.jei.search.creativeTabSearchMode.comment=Режим пошуку за іменем творчої вкладки (префікс: %)
+config.jei.search.creativeTabSearchMode.comment=Режим пошуку за назвою творчої вкладки (префікс: %)
 config.jei.search.colorSearchMode=^Колір
-config.jei.search.colorSearchMode.comment=Режим пошуку по кольору предмета (префікс: ^)
-config.jei.search.resourceIdSearchMode=&Ідентифікатор
-config.jei.search.resourceIdSearchMode.comment=Режим пошуку по ідентифікатору (префікс: &)
+config.jei.search.colorSearchMode.comment=Режим пошуку за кольором предмета (префікс: ^)
+config.jei.search.resourceIdSearchMode=&IDРесурсу
+config.jei.search.resourceIdSearchMode.comment=Режим пошуку за ідентифікатором ресурсу (префікс: &)
 
-config.jei.advanced=Додаткові
-config.jei.advanced.comment=Додаткові налаштування функцій HEI.
-config.jei.advanced.itemBlacklist=Чорний список для предметів
-config.jei.advanced.itemBlacklist.comment=Список предметів, які не будуть показуватись у списку предметів HEI. Формат: modId[:name[:meta]]. Режим редагування буде автоматично додавати записи сюди, або видаляти.
-config.jei.advanced.colorSearchEnabled=Пошук по кольору
-config.jei.advanced.colorSearchEnabled.comment=Шукати предмети по кольору і показувати доступні кольори предметів у спливаючій підказці в списку предметів.
-config.jei.advanced.debugModeEnabled=Режим зневадження
-config.jei.advanced.debugModeEnabled.comment=Використовується розробниками HEI, додає тисячі тестових предметів і декілька тестових рецептів.
+config.jei.advanced=Розширені
+config.jei.advanced.comment=Розширені параметри налаштування роботи HEI.
+config.jei.advanced.itemBlacklist=Чорний список предметів
+config.jei.advanced.itemBlacklist.comment=Список предметів, які не відображатимуться у списку HEI. Формат: modId[:name[:meta]]. Режим приховування автоматично додаватиме або видалятиме записи звідси.
+config.jei.advanced.colorSearchEnabled=Увімкнути пошук за кольором
+config.jei.advanced.colorSearchEnabled.comment=Шукати предмети за кольором і показувати доступні кольори у підказках списку предметів.
+config.jei.advanced.debugModeEnabled=Режим налагодження
+config.jei.advanced.debugModeEnabled.comment=Корисно лише для розробників HEI: додає тестові предмети та кілька налагоджувальних рецептів.
 config.jei.advanced.centerSearchBarEnabled=Рядок пошуку по центру
-config.jei.advanced.centerSearchBarEnabled.comment=Перемістити рядок пошуку HEI в центр нижньої частини екрану.
-config.jei.advanced.modNameFormat=Формат назви моду
-config.jei.advanced.modNameFormat.comment=Як потрібно відформатувати назву мода для підказок HEI. Залиште пустим, щоб вимкнути.
-config.jei.advanced.maxColumns=Максимальна ширина
-config.jei.advanced.maxColumns.comment=Максимальна ширина списку інгредієнтів.
-config.jei.advanced.maxRecipeGuiHeight=Максимальна висота
-config.jei.advanced.maxRecipeGuiHeight.comment=Максимальна висота вікна рецептів.
-config.jei.advanced.giveMode=Режим отримання предметів
-config.jei.advanced.giveMode.comment=Виберіть, повинен HEI давати предмети напряму в інвентар (inventory) чи набирати їх за допомогою мишки (mouse_pickup).
+config.jei.advanced.centerSearchBarEnabled.comment=Перемістити рядок пошуку HEI в центр нижньої частини екрана.
+config.jei.advanced.modNameFormat=Формат назви мода
+config.jei.advanced.modNameFormat.comment=Форматування назви мода у підказках HEI. Залиште порожнім для вимкнення.
+config.jei.advanced.maxColumns=Максимальна ширина оверлею
+config.jei.advanced.maxColumns.comment=Максимальна ширина списку інгредієнтів (у стовпцях).
+config.jei.advanced.maxRecipeGuiHeight=Максимальна висота інтерфейсу рецепта
+config.jei.advanced.maxRecipeGuiHeight.comment=Максимальна висота вікна рецепта.
+config.jei.advanced.giveMode=Режим видачі предметів
+config.jei.advanced.giveMode.comment=Спосіб отримання предметів: напряму в інвентар (inventory) або взяття курсором миші (mouse_pickup).
+config.jei.advanced.optimizeMemoryUsage=Оптимізувати використання пам'яті
+config.jei.advanced.optimizeMemoryUsage.comment=Увімкнути оптимізацію використання оперативної пам'яті HEI.
+config.jei.advanced.ultraLowMemoryUsage=Режим наднизького використання пам'яті
+config.jei.advanced.ultraLowMemoryUsage.comment=Увімкнути режим ультранизького використання пам'яті (може суттєво уповільнити пошук).
+config.jei.advanced.recipeBookmarkGroupColor=Колір групи закладок рецептів
+config.jei.advanced.recipeBookmarkGroupColor.comment=Колір групи закладок рецептів у форматі RGBA.
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=Режим редагування списку предметів HEI:
-gui.jei.editMode.description.hide=%CTRL+ЛКМ, щоб сховати.
-gui.jei.editMode.description.hide.wild=%CTRL+ПКМ, щоб сховати по шаблону.
+gui.jei.editMode.description=Режим приховування предметів HEI:
+gui.jei.editMode.description.hide=%CTRL+Клік, щоб приховати
+gui.jei.editMode.description.hide.wild=%CTRL+ПКМ, щоб приховати за шаблоном
 
 # PC/Linux Control Key
 key.jei.ctrl=CTRL
@@ -104,52 +137,130 @@ key.jei.ctrl=CTRL
 key.jei.ctrl.mac=CMD
 
 # Recipe Categories
-gui.jei.category.craftingTable=Крафт
+gui.jei.category.craftingTable=Верстак
 gui.jei.category.smelting=Плавка
-gui.jei.category.smelting.experience=Досвід: %s
+gui.jei.category.smelting.experience=%s досвіду
 gui.jei.category.fuel=Паливо
 gui.jei.category.fuel.smeltCount.single=Плавить 1 предмет
-gui.jei.category.fuel.smeltCount=Плавить %s предмети(-ів)
-gui.jei.category.brewing=Зіллє-варіння
+gui.jei.category.fuel.smeltCount=Плавить предметів: %s
+gui.jei.category.brewing=Зіллєваріння
 gui.jei.category.brewing.steps=Кроки: %s
-gui.jei.category.itemInformation=Опис
+gui.jei.category.itemInformation=Інформація
 
 # DEBUG (for debug mode, do not need translation)
 description.jei.wooden.door.1=Wooden Doors allow you to block monsters from entering your building.\nTesting sentences.
 description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and visa versa.
 description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits.
 
-config.jei.misc.hideBottomLeftCornerBookmarkButton=Приховати кнопку закладки в лівому нижньому куті
-config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Чи приховувати кнопку закладки в лівому нижньому куті
+# New HEI lang keys
+config.jei.rendering=Рендеринг
+config.jei.rendering.comment=Параметри конфігурації рендерингу
+config.jei.misc=Різне
+config.jei.misc.comment=Різні додаткові параметри
+
+config.jei.search.searchAdvancedTooltips=Пошук за розширеними підказками
+config.jei.search.searchAdvancedTooltips.comment=Включає розширені спливаючі підказки у дерева пошуку [ПЕРЕЗАВАНТАЖИТЬ ДЕРЕВА ПОШУКУ]
+
+config.jei.search.searchStrippedDiacritics=Пошук без діакритичних знаків
+config.jei.search.searchStrippedDiacritics.comment=Включає версію рядків без діакритичних знаків у дерева пошуку [ПЕРЕЗАВАНТАЖИТЬ ДЕРЕВА ПОШУКУ]
+
+config.jei.advanced.asyncSearchTreeBuilding=Асинхронна побудова дерева пошуку
+config.jei.advanced.asyncSearchTreeBuilding.comment=Будує дерева пошуку паралельно у кількох потоках. Вимкніть, якщо спостерігається високе навантаження на процесор під час завантаження HEI.
+
+config.jei.advanced.addBookmarksToFront=Додавати нові закладки на початок
+config.jei.advanced.addBookmarksToFront.comment=Якщо увімкнено, нові закладки додаються на самий початок списку закладок.
+
+config.jei.misc.mouseClickToSeeRecipes=Клік миші для перегляду рецептів/використань
+config.jei.misc.mouseClickToSeeRecipes.comment=Вимкніть, щоб заборонити кліки миші для перегляду рецептів і способів використання при наведенні на інгредієнт.
+
+config.jei.misc.holdToDragGhostIngredients=Утримувати кнопку миші для перетягування фантомних предметів
+config.jei.misc.holdToDragGhostIngredients.comment=Якщо увімкнено, утримуйте кнопку миші під час перетягування та відпустіть для розміщення. Якщо вимкнено: один клік бере предмет, повторний — розміщує.
+
+config.jei.misc.tooltipShowRecipeBy=Показувати «Рецепт від» у підказці
+config.jei.misc.tooltipShowRecipeBy.comment=Показувати сповіщення у підказці предмета, коли рецепт було змінено.
+
+config.jei.misc.recipeIngredientPreviewEnabled=Показувати всі інгредієнти слота в підказці
+config.jei.misc.recipeIngredientPreviewEnabled.comment=При наведенні на слот рецепта, який приймає декілька варіантів предметів, відображає їх сіткою у спливаючій підказці.
+
+config.jei.misc.showHiddenIngredientsInCreative=Показувати приховані предмети в творчому режимі
+config.jei.misc.showHiddenIngredientsInCreative.comment=Показувати приховані користувачем предмети, якщо гравець перебуває у творчому режимі.
+
+config.jei.misc.skipShowingProgressBar=Пропускати індикатор прогресу
+config.jei.misc.skipShowingProgressBar.comment=Пропускати показ індикаторів прогресу завантаження HEI (може заощадити кілька секунд).
+
+config.jei.rendering.bufferIngredientRenders=Буферизація рендерингу інгредієнтів
+config.jei.rendering.bufferIngredientRenders.comment=Зупиняє часті виклики малювання предметів через буфер рендерингу, підвищуючи FPS у меню у 2-3 рази (анімації та блиск зачарувань можуть відображатися некоректно).
+
+config.jei.interface.defaultFluidContainerItem=Контейнер для рідини за замовчуванням
+config.jei.interface.defaultFluidContainerItem.comment=Предмет за замовчуванням для наповнення рідиною при кліку по рідині в меню (формат: item_name@meta).
+
+config.jei.misc.hideBottomRightCornerConfigButton=Приховати кнопку конфігурації в правому нижньому куті
+config.jei.misc.hideBottomRightCornerConfigButton.comment=Чи приховувати кнопку налаштувань у правому нижньому куті.
+
+config.jei.misc.hideBottomLeftCornerBookmarkButton=Приховати кнопку закладок у лівому нижньому куті
+config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Чи приховувати кнопку закладок у лівому нижньому куті.
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Клік для розгортання
-hei.tooltip.collapsed.expand.firstItem=Alt+Клік для першого предмета
-hei.tooltip.collapsed.collapse=Alt+Клік для згортання
-hei.tooltip.config.expandCollapseAll=Alt+Клік перемкнути групи
-
-config.hei.collapsible=Згортувані групи
-config.hei.collapsible.comment=Налаштування згортання груп інгредієнтів в один слот у списку інгредієнтів.
-config.hei.collapsible.collapsibleGroupsEnabled=Увімкнути згортувані групи
-config.hei.collapsible.collapsibleGroupsEnabled.comment=Коли увімкнено, групи пов'язаних інгредієнтів (зілля, зачаровані книги тощо) згортаються в один слот. Alt+Клік по групі для розгортання або згортання.
-config.hei.collapsible.collapseOnClose=Згорнути при закритті
-config.hei.collapsible.collapseOnClose.comment=Згортає відкриті групи при закритті HEI.
-config.hei.collapsible.collapsedClickAction=Дія кліку за замовчуванням
-config.hei.collapsible.collapsedClickAction.comment=Змінює дію одиничного кліку, інший варіант стає дією Alt+Клік. Відкрити групу відкриває групу. Перший предмет застосовує дію до першого предмета в групі.
+config.hei.collapsible=Згортані групи
+config.hei.collapsible.comment=Параметри об'єднання груп інгредієнтів в один слот у списку.
+config.hei.collapsible.collapsibleGroupsEnabled=Увімкнути згортані групи
+config.hei.collapsible.collapsibleGroupsEnabled.comment=Якщо увімкнено, групи схожих інгредієнтів (зілля, зачаровані книги тощо) згортаються в один слот. Alt+Клік по групі згортає або розгортає її.
+config.hei.collapsible.collapseOnClose=Згортати при закритті
+config.hei.collapsible.collapseOnClose.comment=Автоматично згортати відкриті групи при закритті HEI.
+config.hei.collapsible.collapsedClickAction=Дія за замовчуванням для згорнутої групи
+config.hei.collapsible.collapsedClickAction.comment=Змінює дію звичайного кліку на протилежну до Alt+Клік. «Відкрити групу» розгортає список, «Перший предмет» застосовує дію до першого елемента групи.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Відкрити групу
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Перший предмет
 
-# Group Management GUI
-hei.gui.collapsible.title=Управління групами
+config.jei.category.categoryUidOrder=Порядок категорій за UID
+config.jei.category.categoryUidOrder.comment=Визначає черговість категорій рецептів у HEI. Категорії з початку списку відображаються першими.
+config.jei.category.disabledRecipeCategoryUids=Вимкнені категорії рецептів за UID
+config.jei.category.disabledRecipeCategoryUids.comment=UID категорій рецептів, які HEI не повинен завантажувати. Після зміни потрібен перезапуск гри.
+
+hei.generic.ticks=%d тактів
+
+hei.command.load_bookmarks.failure=Список закладок не знайдено, сталася критична помилка.
+hei.command.load_bookmarks.success=Завантажено %d закладок.
+
+hei.tooltip.unfavorite=Видалити рецепт з обраного
+hei.tooltip.favorite=Додати рецепт до обраного
+hei.tooltip.favorite_scroll=Прокрутіть колесо миші для зміни обраного предмета
+hei.tooltip.recipe_bookmark=Додати рецепт у закладки
+
+hei.tooltip.item_group=§7Група предметів
+hei.tooltip.recipe_group=§7Група рецептів
+hei.tooltip.recipe.ingredient_pin=§7Утримуйте §fSHIFT§7, щоб закріпити цю підказку
+hei.tooltip.press_alt=§7Натисніть §fALT§7 для перегляду дій
+hei.tooltip.organizer.1=§6CTRL + ЛКМ§7: Перемістити закладки між групами
+hei.tooltip.organizer.2=§6%s§r або §6%s§7: Перемістити групу вгору або вниз
+hei.tooltip.organizer.5=§6%s§7 на цій вкладці: Видалити групу
+hei.tooltip.organizer.3=§6CTRL + Прокрутка§7: Змінити кінцевий вихід
+hei.tooltip.organizer.4=§6%s§7: Автокрафт
+
+hei.gui.collapsible.title=Керування групами
 hei.gui.collapsible.back=Назад
 hei.gui.collapsible.newGroup=Нова група
 hei.gui.collapsible.title.tooltip=Увімкнення/вимкнення вбудованих груп та створення користувацьких груп.
 hei.gui.collapsible.enabled=Увімкнено
 hei.gui.collapsible.disabled=Вимкнено
 hei.gui.collapsible.customGroup=Користувацька
+hei.gui.collapsible.modGroup=Мод
 hei.gui.collapsible.defaultGroup=За замовчуванням
-hei.gui.collapsible.itemCount=%d предметів
+hei.gui.collapsible.itemCount=Предметів: %d
 hei.gui.collapsible.editor.title=Вибрані предмети
 hei.gui.collapsible.editor.name=Назва
+hei.gui.collapsible.editor.color=Колір
 hei.gui.collapsible.editor.save=Зберегти
-hei.gui.collapsible.editor.selected=%d вибрано
+hei.gui.collapsible.editor.clear=Очистити
+hei.gui.collapsible.editor.selected=Вибрано: %d
+hei.gui.collapsible.confirmDelete=Видалити?
+hei.tooltip.missing_ingredients=§cВідсутні інгредієнти:
+hei.tooltip.autocraft.wrong_container=Цей контейнер не може створювати рецепти %s самостійно.
+
+hei.tooltip.search.title=Пошук рецептів
+hei.tooltip.search.info=Клік для перемикання режиму. Утримуйте §6SHIFT§r для зміни напрямку.
+hei.tooltip.search.mode.none=Пошук вимкнено
+hei.tooltip.search.mode.both=Пошук за входами та виходами
+hei.tooltip.search.mode.input=Пошук тільки за інгредієнтами (вхід)
+hei.tooltip.search.mode.output=Пошук тільки за результатами (вихід)
+hei.tooltip.search.note=Рецепти можуть визначати вхідні та вихідні дані нестандартно!
