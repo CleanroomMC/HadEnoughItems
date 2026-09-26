@@ -134,7 +134,7 @@ public class IngredientRenderer<T> {
 		IIngredientHelper<V> ingredientHelper = element.getIngredientHelper();
 
 		if (Config.isIngredientOnConfigBlacklist(ingredient, ingredientHelper)) {
-			GuiScreen.drawRect(area.x + padding, area.y + padding, area.x + 16 + padding, area.y + 16 + padding, BLACKLIST_COLOR);
+			GuiScreen.drawRect(area.x + padding, area.y + padding, area.x + area.width - padding, area.y + area.height - padding, BLACKLIST_COLOR);
 			GlStateManager.color(1f, 1f, 1f, 1f);
 		}
 	}
