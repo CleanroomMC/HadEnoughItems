@@ -3,8 +3,8 @@ jei.tooltip.config=Конфигурация HEI
 jei.tooltip.show.recipes=Показать рецепты
 jei.tooltip.show.all.recipes=Показать все рецепты
 jei.tooltip.delete.item=Нажмите, чтобы удалить
-jei.tooltip.liquid.amount.with.capacity=%,d / %,d мБ
-jei.tooltip.liquid.amount=%,d мБ
+jei.tooltip.liquid.amount.with.capacity=%,d / %,d мB
+jei.tooltip.liquid.amount=%,d мB
 jei.tooltip.transfer=Перемещение предметов
 jei.tooltip.recipe.ore.dict=Принимает любые: %s
 jei.tooltip.item.colors=Цвета: %s
@@ -23,10 +23,10 @@ jei.tooltip.bookmarks.usage.key=Наведите курсор на предме�
 jei.tooltip.bookmarks.not.enough.space=Здесь недостаточно места для отображения закладок.
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Клик для раскрытия
-hei.tooltip.collapsed.expand.firstItem=Alt+Клик для первого предмета
-hei.tooltip.collapsed.collapse=Alt+Клик для сворачивания
-hei.tooltip.config.expandCollapseAll=Alt+Клик для переключения групп
+hei.tooltip.collapsed.expand=Alt+ЛКМ для раскрытия
+hei.tooltip.collapsed.expand.firstItem=Alt+ЛКМ для первого предмета
+hei.tooltip.collapsed.collapse=Alt+ЛКМ для сворачивания
+hei.tooltip.config.expandCollapseAll=Alt+ЛКМ для переключения групп
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Отсутствуют предметы
@@ -39,7 +39,7 @@ jei.tooltip.error.crash=Ошибка всплывающей подсказки, 
 # Error Messages
 jei.chat.error.command.too.long=HEI должен быть установлен на сервере для обработки этой команды, она слишком длинная для отправки.
 jei.chat.error.no.cheat.permission.1=У вас нет прав для использования режима читов HEI.
-jei.chat.error.no.cheat.permission.2=Разрешение выдается игрокам с доступом к /give или находящимся в творческом режиме.
+jei.chat.error.no.cheat.permission.2=Разрешение выдаётся игрокам с доступом к /give или находящимся в творческом режиме.
 
 # Key Bindings
 key.jei.toggleOverlay=Показать/скрыть HEI
@@ -94,7 +94,7 @@ config.jei.search.tooltipSearchMode=#Подсказка
 config.jei.search.tooltipSearchMode.comment=Режим поиска по всплывающей подсказке (префикс: #)
 config.jei.search.oreDictSearchMode=$СловарьРуд
 config.jei.search.oreDictSearchMode.comment=Режим поиска по Ore Dictionary (префикс: $)
-config.jei.search.creativeTabSearchMode=%%ВкладкаТворчества
+config.jei.search.creativeTabSearchMode=%%ТворческаяВкладка
 config.jei.search.creativeTabSearchMode.comment=Режим поиска по названию творческой вкладки (префикс: %)
 config.jei.search.colorSearchMode=^Цвет
 config.jei.search.colorSearchMode.comment=Режим поиска по цвету (префикс: ^)
@@ -128,7 +128,7 @@ config.jei.advanced.recipeBookmarkGroupColor.comment=Цвет группы за�
 
 # Hide Ingredients Mode
 gui.jei.editMode.description=Режим скрытия предметов HEI:
-gui.jei.editMode.description.hide=%CTRL+Клик, чтобы скрыть
+gui.jei.editMode.description.hide=%CTRL+ПКМ, чтобы скрыть
 gui.jei.editMode.description.hide.wild=%CTRL+ПКМ, чтобы скрыть по шаблону
 
 # PC/Linux Control Key
@@ -149,7 +149,7 @@ gui.jei.category.itemInformation=Информация
 
 # DEBUG (for debug mode, do not need translation)
 description.jei.wooden.door.1=Деревянные двери позволяют блокировать проникновение монстров в ваше здание.\nПроверка предложений.
-description.jei.wooden.door.2=Клик по двери меняет ее состояние с открытого на закрытое и наоборот.
+description.jei.wooden.door.2=ПКМ по двери меняет ее состояние с открытого на закрытое и наоборот.
 description.jei.wooden.door.3=Деревянные двери можно открывать/закрывать с помощью цепей редстоуна.
 
 # New HEI lang keys
@@ -170,7 +170,7 @@ config.jei.advanced.asyncSearchTreeBuilding.comment=Строит деревья 
 config.jei.advanced.addBookmarksToFront=Добавлять новые закладки в начало
 config.jei.advanced.addBookmarksToFront.comment=Если включено, новые закладки добавляются в самое начало списка.
 
-config.jei.misc.mouseClickToSeeRecipes=Клик мыши для просмотра рецептов/применений
+config.jei.misc.mouseClickToSeeRecipes=ЛКМ для просмотра рецептов/применений
 config.jei.misc.mouseClickToSeeRecipes.comment=Отключите, чтобы запретить клики мыши для открытия рецептов и применений при наведении на предмет.
 
 config.jei.misc.holdToDragGhostIngredients=Удерживать кнопку мыши для перетаскивания фантомных предметов
@@ -203,11 +203,11 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Скрывать ли
 config.hei.collapsible=Сворачиваемые группы
 config.hei.collapsible.comment=Параметры объединения групп предметов в один слот списка.
 config.hei.collapsible.collapsibleGroupsEnabled=Включить сворачиваемые группы
-config.hei.collapsible.collapsibleGroupsEnabled.comment=Если включено, схожие предметы (зелья, зачарованные книги и т.д.) сворачиваются в один слот. Alt+Клик по группе сворачивает или разворачивает ее.
+config.hei.collapsible.collapsibleGroupsEnabled.comment=Если включено, схожие предметы (зелья, зачарованные книги и т.д.) сворачиваются в один слот. Alt+ЛКМ по группе сворачивает или разворачивает ее.
 config.hei.collapsible.collapseOnClose=Сворачивать при закрытии
 config.hei.collapsible.collapseOnClose.comment=Автоматически сворачивать открытые группы при закрытии интерфейса HEI.
 config.hei.collapsible.collapsedClickAction=Действие по умолчанию для свернутой группы
-config.hei.collapsible.collapsedClickAction.comment=Меняет местами действие обычного клика и Alt+Клика. «Открыть группу» разворачивает список, «Первый предмет» применяет действие к первому элементу группы.
+config.hei.collapsible.collapsedClickAction.comment=Меняет местами действие обычного клика и Alt+ЛКМ. «Открыть группу» разворачивает список, «Первый предмет» применяет действие к первому элементу группы.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Открыть группу
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Первый предмет
 
@@ -239,7 +239,7 @@ hei.tooltip.organizer.4=§6%s§7: Автокрафт
 hei.gui.collapsible.title=Управление группами
 hei.gui.collapsible.back=Назад
 hei.gui.collapsible.newGroup=Новая группа
-hei.gui.collapsible.title.tooltip=Включение/отключение встроенных групп и создание собственных групп.
+hei.gui.collapsible.title.tooltip=Включение/отключение встроенных групп и создание пользовательских групп.
 hei.gui.collapsible.enabled=Включено
 hei.gui.collapsible.disabled=Отключено
 hei.gui.collapsible.customGroup=Пользовательская
@@ -254,10 +254,10 @@ hei.gui.collapsible.editor.clear=Очистить
 hei.gui.collapsible.editor.selected=Выбрано: %d
 hei.gui.collapsible.confirmDelete=Удалить?
 hei.tooltip.missing_ingredients=§cОтсутствующие ингредиенты:
-hei.tooltip.autocraft.wrong_container=Этот контейнер не может крафтить рецепты %s самостоятельно.
+hei.tooltip.autocraft.wrong_container=Этот контейнер не может использовать рецепты %s самостоятельно.
 
 hei.tooltip.search.title=Поиск рецептов
-hei.tooltip.search.info=Клик для переключения режима. Удерживайте §6SHIFT§r для смены направления.
+hei.tooltip.search.info=ЛКМ для переключения режима. Удерживайте §6SHIFT§r для смены направления.
 hei.tooltip.search.mode.none=Поиск отключен
 hei.tooltip.search.mode.both=Поиск по входам и выходам
 hei.tooltip.search.mode.input=Поиск только по ингредиентам (вход)
