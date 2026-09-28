@@ -48,6 +48,12 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	private final CycleTimer cycleTimer;
 	final List<T> displayIngredients = new ArrayList<>(); // ingredients, taking focus into account
 	private final List<T> allIngredients = new ArrayList<>(); // all ingredients, ignoring focus
+    /**
+     * For {@link #getDisplayedIngredient()}. Not stored in {@link #displayIngredients} because it's
+     * reserved for tooltip rendering.
+     */
+    @Nullable
+    private T focusedMatch;
 	final IIngredientRenderer<T> ingredientRenderer;
 	final IIngredientHelper<T> ingredientHelper;
 	private List<ITooltipCallback<T>> tooltipCallbacks = Collections.emptyList();
@@ -100,6 +106,9 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	@Nullable
 	@Override
 	public T getDisplayedIngredient() {
+		if (focusedMatch != null) {
+			return focusedMatch;
+		}
 		return cycleTimer.getCycledItem(displayIngredients);
 	}
 
@@ -111,6 +120,8 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	public void set(@Nullable List<T> ingredients, @Nullable IFocus<T> focus) {
 		this.displayIngredients.clear();
 		this.allIngredients.clear();
+		this.focusedMatch = null;
+
 		List<T> displayIngredients;
 		if (ingredients == null) {
 			displayIngredients = Collections.emptyList();
@@ -120,11 +131,9 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 
 		T match = getMatch(displayIngredients, focus);
 		if (match != null) {
-			this.displayIngredients.add(match);
-		} else {
-			displayIngredients = filterOutHidden(displayIngredients);
-			this.displayIngredients.addAll(displayIngredients);
+			this.focusedMatch = match;
 		}
+		this.displayIngredients.addAll(filterOutHidden(displayIngredients));
 
 		if (ingredients != null) {
 			this.allIngredients.addAll(ingredients);
