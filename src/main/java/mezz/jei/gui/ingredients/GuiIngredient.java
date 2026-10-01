@@ -45,10 +45,10 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	private final int yPadding;
 
 	private final CycleTimer cycleTimer;
-	private final List<T> displayIngredients = new ArrayList<>(); // ingredients, taking focus into account
+	final List<T> displayIngredients = new ArrayList<>(); // ingredients, taking focus into account
 	private final List<T> allIngredients = new ArrayList<>(); // all ingredients, ignoring focus
-	private final IIngredientRenderer<T> ingredientRenderer;
-	private final IIngredientHelper<T> ingredientHelper;
+	final IIngredientRenderer<T> ingredientRenderer;
+	final IIngredientHelper<T> ingredientHelper;
 	@Nullable
 	private ITooltipCallback<T> tooltipCallback;
 	@Nullable
@@ -83,6 +83,14 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 
 	public Rectangle getRect() {
 		return rect;
+	}
+
+	public int getXPadding() {
+		return xPadding;
+	}
+
+	public int getYPadding() {
+		return yPadding;
 	}
 
 	public boolean isMouseOver(int xOffset, int yOffset, int mouseX, int mouseY) {
@@ -140,7 +148,7 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			// A focused slot collapses displayIngredients down to the single match, which leaves
 			// fewer than two entries and so yields no preview.
 			ingredientPreview = Config.isRecipeIngredientPreviewEnabled()
-				? IngredientListPreview.create(displayIngredients, ingredientHelper, ingredientRenderer, ForgeModIdHelper.getInstance())
+				? IngredientListPreview.create(this)
 				: null;
 		}
 		return ingredientPreview;
