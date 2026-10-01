@@ -67,8 +67,6 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	private HoverChecker titleHoverChecker = new HoverChecker(0, 0, 0, 0, 0);
 
-	private final List<RecipeTransferButton> recipeTransferButtons = new ArrayList<>();
-
 	private final GuiButton nextRecipeCategory;
 	private final GuiButton previousRecipeCategory;
 	private final GuiButton nextPage;
@@ -200,21 +198,6 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		this.init = true;
 		pinnedTooltip = null;
 		updateLayout();
-	}
-
-	@Override
-	public void updateScreen() {
-		super.updateScreen();
-
-		if (mc != null) {
-			EntityPlayerSP player = mc.player;
-			if (player != null) {
-				Container container = getParentContainer();
-				for (RecipeTransferButton button : this.recipeTransferButtons) {
-					button.update(container, player);
-				}
-			}
-		}
 	}
 
 	private void addButtons() {
@@ -761,7 +744,6 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 
 	private void addRecipeSpecificButtons(Minecraft minecraft, List<RecipeLayout> recipeLayouts) {
 		buttonList.clear();
-		recipeTransferButtons.clear();
 		addButtons();
 
 		EntityPlayer player = minecraft.player;
@@ -771,9 +753,8 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			for (RecipeLayout recipeLayout : recipeLayouts) {
 				RecipeTransferButton button = recipeLayout.getRecipeTransferButton();
 				if (button != null) {
-					button.update(container, player);
+					button.init(container, player);
 					buttonList.add(button);
-					recipeTransferButtons.add(button);
 				}
 				RecipeFavoriteButton favoriteButton = recipeLayout.getRecipeFavoriteButton();
 				if (favoriteButton != null) {
