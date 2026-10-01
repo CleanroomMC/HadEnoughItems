@@ -35,7 +35,20 @@ public class PinnedIngredientTooltip {
 	@Nullable
 	private Rectangle bounds;
 
-	public PinnedIngredientTooltip(RecipeLayout layout, GuiIngredient<?> slot, IngredientListPreview preview, int screenMouseX, int screenMouseY) {
+	@Nullable
+	public static PinnedIngredientTooltip create(RecipeLayout source, int mouseX, int mouseY) {
+		GuiIngredient<?> guiIngredient = source.getGuiIngredientUnderMouse(mouseX, mouseY);
+		if (guiIngredient == null) {
+			return null;
+		}
+		IngredientListPreview preview = guiIngredient.getIngredientPreview();
+		if (preview == null) {
+			return null;
+		}
+		return new PinnedIngredientTooltip(source, guiIngredient, preview, mouseX, mouseY);
+	}
+
+	protected PinnedIngredientTooltip(RecipeLayout layout, GuiIngredient<?> slot, IngredientListPreview preview, int screenMouseX, int screenMouseY) {
 		this.layout = layout;
 		this.slot = slot;
 		this.preview = preview;
@@ -60,8 +73,27 @@ public class PinnedIngredientTooltip {
 		return screenMouseY;
 	}
 
-	public void drawHighlight(int mouseX, int mouseY) {
+	public void drawOverlays(Minecraft mc, int mouseX, int mouseY) {
+		slot.drawOverlays(
+			mc,
+			layout.getPosX(),
+			layout.getPosY(),
+			screenMouseX - layout.getPosX(),
+			screenMouseY - layout.getPosY()
+		);
+
+		// after rendering tooltip
+		this.bounds = preview.getTooltipBounds();
+
 		preview.drawHighlight(mouseX, mouseY);
+
+		IngredientListSlot slot = preview.getRenderer().getSlotAtScreen(mouseX, mouseY);
+		if (slot != null) {
+			IngredientRenderer<?> slotRenderer = slot.getIngredientRenderer();
+			if (slotRenderer != null) {
+				slotRenderer.drawTooltip(mc, mouseX, mouseY);
+			}
+		}
 	}
 
 	// --- Scrolling the grid ---
@@ -85,20 +117,6 @@ public class PinnedIngredientTooltip {
 		preview.stopScrollDrag();
 	}
 
-	/**
-	 * Remembers the screen area the tooltip was drawn into. Called right after the tooltip render,
-	 * and only the first call takes effect.
-	 */
-	public void captureBounds() {
-		if (bounds != null) {
-			return;
-		}
-		Rectangle current = preview.getTooltipBounds();
-		if (current != null) {
-			bounds = new Rectangle(current);
-		}
-	}
-
 	@Nullable
 	public Rectangle getBounds() {
 		return bounds == null ? null : new Rectangle(bounds);
@@ -109,21 +127,6 @@ public class PinnedIngredientTooltip {
 	 */
 	public boolean isMouseOver(int mouseX, int mouseY) {
 		return bounds != null && bounds.contains(mouseX, mouseY);
-	}
-
-	/**
-	 * Draws the tooltip of the grid ingredient under the pointer, next to the pointer, exactly the
-	 * way hovering that ingredient anywhere else would.
-	 */
-	public void drawHoveredIngredientTooltip(Minecraft minecraft, int mouseX, int mouseY) {
-		IngredientListSlot slot = preview.getRenderer().getSlotAtScreen(mouseX, mouseY);
-		if (slot == null) {
-			return;
-		}
-		IngredientRenderer<?> slotRenderer = slot.getIngredientRenderer();
-		if (slotRenderer != null) {
-			slotRenderer.drawTooltip(minecraft, mouseX, mouseY);
-		}
 	}
 
 	/**
