@@ -1,5 +1,33 @@
 # Changelog
 
+## 4.35.1 - 2026-10-07
+
+## Feature
+
+- Improve Russian translations for JEI tooltips *[PR by [@GitNell](https://github.com/GitNell) in [#254](https://github.com/CleanroomMC/HadEnoughItems/pull/254)]*
+- Implement Config button position settings *[PR by [@atferrys](https://github.com/atferrys) in [#262](https://github.com/CleanroomMC/HadEnoughItems/pull/262)]*
+- Add border to pinned tooltip *[PR by [@ZZZank](https://github.com/ZZZank) in [#257](https://github.com/CleanroomMC/HadEnoughItems/pull/257)]*
+- Remove amount limit when creating GuiIngredient *[PR by [@ZZZank](https://github.com/ZZZank) in [#256](https://github.com/CleanroomMC/HadEnoughItems/pull/256)]*
+- **api**: Expose "recipe by:" id tooltip callback *[PR by [@jbredwards](https://github.com/jbredwards) in [#258](https://github.com/CleanroomMC/HadEnoughItems/pull/258)]*
+
+## Bug Fix
+
+- Tooltip preview for GuiIngredients bigger than 16*16 *[PR by [@ZZZank](https://github.com/ZZZank) in [#260](https://github.com/CleanroomMC/HadEnoughItems/pull/260)]*
+
+## Other
+
+- Revert "Close #2951 Update recipe transfer handlers every tick" *[PR by [@ZZZank](https://github.com/ZZZank) in [#261](https://github.com/CleanroomMC/HadEnoughItems/pull/261)]*
+    *[Fixes issue #2951]*
+
+## First-time Contributors
+
+- **[@GitNell](https://github.com/GitNell) made their first contribution!**
+- **[@atferrys](https://github.com/atferrys) made their first contribution!**
+- **[@jbredwards](https://github.com/jbredwards) made their first contribution!**
+- **[@github-actions[bot]](https://github.com/github-actions[bot]) made their first contribution!**
+
+**Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/4.35.0...4.35.1
+
 ## 4.35.0 - 2026-09-20
 
 ## Build and Dependencies
@@ -2280,7 +2308,7 @@
 - Fix reloading for CraftTweaker & Crafting Harmonics #537 #547 *[commit by [@mezz](https://github.com/mezz) in [ef2f5b9](https://github.com/CleanroomMC/HadEnoughItems/commit/ef2f5b96a724618df964adecde44b4e2a890b58e)]*
 - Brazillian portuguese translation *[commit by [@JCMais](https://github.com/JCMais) in [04db141](https://github.com/CleanroomMC/HadEnoughItems/commit/04db14110427894979cece943a2c914730a36c20)]*
 - Close #259 Support recipe tranfer to player 2x2 inventory *[commit by [@mezz](https://github.com/mezz) in [6eb539f](https://github.com/CleanroomMC/HadEnoughItems/commit/6eb539f9f00ea94df820491ca52ea5e157e275ab)]*
-    *[Fixes issue #259]*
+    *[Fixes issue #259 by @MomentariyModder]*
 - Move JEI loading to FMLLoadCompleteEvent *[commit by [@mezz](https://github.com/mezz) in [e238a19](https://github.com/CleanroomMC/HadEnoughItems/commit/e238a1935aca99f1f217dc945d6727d188533d09)]*
 - Update README with link to Developer WIki *[commit by [@mezz](https://github.com/mezz) in [a41e7be](https://github.com/CleanroomMC/HadEnoughItems/commit/a41e7bea50ce10a2547f5706eaae7829c5b560b6)]*
 - Simplify README *[commit by [@mezz](https://github.com/mezz) in [1e01262](https://github.com/CleanroomMC/HadEnoughItems/commit/1e012620b5675366cb8ca75383f118261d2fee21)]*
@@ -2975,7 +3003,7 @@
 ## Other
 
 - Fix #263 Show recipes that use a crafting category item first *[commit by [@mezz](https://github.com/mezz) in [713d9c5](https://github.com/CleanroomMC/HadEnoughItems/commit/713d9c58e7f56d1d22ec2601cce352457d2dc18f)]*
-    *[Fixes issue #263]*
+    *[Fixes issue #263 by @MagmaSlime123]*
 
 **Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/v3.3.1...v3.3.2
 
@@ -3029,7 +3057,7 @@
 
 - Fix Recipes Gui not always showing "Show All Recipes" tooltip properly *[commit by [@mezz](https://github.com/mezz) in [9c8eff6](https://github.com/CleanroomMC/HadEnoughItems/commit/9c8eff6195c005cba16ad84a9f73941c174efb02)]*
 - Close #255 API to open the Recipes Gui for items, fluids, and categories *[commit by [@mezz](https://github.com/mezz) in [1779fc2](https://github.com/CleanroomMC/HadEnoughItems/commit/1779fc2112964d92ae265e09769f4b47e72b7144)]*
-    *[Fixes issue #255]*
+    *[Fixes issue #255 by @GitNell]*
 - Update ISSUE_TEMPLATE.md *[commit by [@mezz](https://github.com/mezz) in [02b0e30](https://github.com/CleanroomMC/HadEnoughItems/commit/02b0e30a9cb0156d19dadf8cda0f803cb2797f5b)]*
 
 **Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/v3.2.11...v3.2.12
