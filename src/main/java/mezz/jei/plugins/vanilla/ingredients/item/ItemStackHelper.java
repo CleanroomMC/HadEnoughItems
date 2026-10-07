@@ -76,6 +76,12 @@ public class ItemStackHelper implements IIngredientHelper<ItemStack> {
 	}
 
 	@Override
+	public String getFullUniqueId(ItemStack ingredient) {
+		ErrorUtil.checkNotEmpty(ingredient);
+		return stackHelper.getUniqueIdentifierForStack(ingredient, StackHelper.UidMode.FULL);
+	}
+
+	@Override
 	public int getHash(ItemStack ingredient) {
 		Integer cachedHash = hashCache.get(ingredient);
 		if (cachedHash != null) {

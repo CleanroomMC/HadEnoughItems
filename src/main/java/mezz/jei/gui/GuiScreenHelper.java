@@ -22,14 +22,16 @@ public class GuiScreenHelper {
 	private final List<IGlobalGuiHandler> globalGuiHandlers;
 	private final List<IAdvancedGuiHandler<?>> advancedGuiHandlers;
 	private final Map<Class, IGhostIngredientHandler> ghostIngredientHandlers;
+	private final Map<Class, ISlotIngredientProvider> slotIngredientProviders;
 	private final Map<Class, IGuiScreenHandler> guiScreenHandlers;
 	private Set<Rectangle> guiExclusionAreas = Collections.emptySet();
 
-	public GuiScreenHelper(IngredientRegistry ingredientRegistry, List<IGlobalGuiHandler> globalGuiHandlers, List<IAdvancedGuiHandler<?>> advancedGuiHandlers, Map<Class, IGhostIngredientHandler> ghostIngredientHandlers, Map<Class, IGuiScreenHandler> guiScreenHandlers) {
+	public GuiScreenHelper(IngredientRegistry ingredientRegistry, List<IGlobalGuiHandler> globalGuiHandlers, List<IAdvancedGuiHandler<?>> advancedGuiHandlers, Map<Class, IGhostIngredientHandler> ghostIngredientHandlers, Map<Class, ISlotIngredientProvider> slotIngredientProviders, Map<Class, IGuiScreenHandler> guiScreenHandlers) {
 		this.ingredientRegistry = ingredientRegistry;
 		this.globalGuiHandlers = globalGuiHandlers;
 		this.advancedGuiHandlers = advancedGuiHandlers;
 		this.ghostIngredientHandlers = ghostIngredientHandlers;
+		this.slotIngredientProviders = slotIngredientProviders;
 		this.guiScreenHandlers = guiScreenHandlers;
 	}
 
@@ -142,6 +144,32 @@ public class GuiScreenHelper {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * @return what the slot really holds, according to whichever provider claims this gui, or {@code stack}
+	 * itself when none does.
+	 */
+	public <T extends GuiContainer> Object getSlotIngredient(T guiContainer, Slot slot, ItemStack stack) {
+		ISlotIngredientProvider provider = slotIngredientProviders.get(guiContainer.getClass());
+		if (provider == null) {
+			for (Map.Entry<Class, ISlotIngredientProvider> entry : slotIngredientProviders.entrySet()) {
+				if (entry.getKey().isInstance(guiContainer)) {
+					provider = entry.getValue();
+					break;
+				}
+			}
+		}
+
+		if (provider != null) {
+			@SuppressWarnings("unchecked")
+			Object ingredient = ((ISlotIngredientProvider<T>) provider).getSlotIngredient(guiContainer, slot, stack);
+			if (ingredient != null) {
+				return ingredient;
+			}
+		}
+
+		return stack;
 	}
 
 	@Nullable

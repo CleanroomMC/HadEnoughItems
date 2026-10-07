@@ -9,6 +9,7 @@ import mezz.jei.config.Config;
 
 public class IngredientBlacklistInternal {
 	private final Set<String> ingredientBlacklist = new ObjectOpenHashSet<>();
+	private final Set<String> runtimeIngredientBlacklist = new ObjectOpenHashSet<>();
 
 	public <V> void addIngredientToBlacklist(V ingredient, IIngredientHelper<V> ingredientHelper) {
 		String uniqueName = ingredientHelper.getUniqueId(ingredient);
@@ -20,8 +21,18 @@ public class IngredientBlacklistInternal {
 		ingredientBlacklist.remove(uniqueName);
 	}
 
+	public <V> void addIngredientToRuntimeBlacklist(V ingredient, IIngredientHelper<V> ingredientHelper) {
+		String uniqueName = ingredientHelper.getUniqueId(ingredient);
+		runtimeIngredientBlacklist.add(uniqueName);
+	}
+
+	public <V> void removeIngredientFromRuntimeBlacklist(V ingredient, IIngredientHelper<V> ingredientHelper) {
+		String uniqueName = ingredientHelper.getUniqueId(ingredient);
+		runtimeIngredientBlacklist.remove(uniqueName);
+	}
+
 	public <V> boolean isIngredientBlacklisted(V ingredient, IIngredientHelper<V> ingredientHelper) {
-		return isIngredientBlacklistedByApi(ingredient, ingredientHelper) ||
+		return isIngredientBlacklistedByApiOrRuntime(ingredient, ingredientHelper) ||
 			Config.isIngredientOnConfigBlacklist(ingredient, ingredientHelper);
 	}
 
@@ -30,6 +41,18 @@ public class IngredientBlacklistInternal {
 
 		for (String uid : uids) {
 			if (ingredientBlacklist.contains(uid)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public <V> boolean isIngredientBlacklistedByApiOrRuntime(V ingredient, IIngredientHelper<V> ingredientHelper) {
+		List<String> uids = IngredientInformation.getUniqueIdsWithWildcard(ingredientHelper, ingredient);
+
+		for (String uid : uids) {
+			if (ingredientBlacklist.contains(uid) || runtimeIngredientBlacklist.contains(uid)) {
 				return true;
 			}
 		}

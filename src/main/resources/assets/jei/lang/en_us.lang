@@ -51,11 +51,16 @@ key.jei.toggleCheatMode=Toggle Cheat Mode
 key.jei.toggleEditMode=Toggle Hide/Edit Mode
 key.jei.previousPage=Show Previous Page
 key.jei.nextPage=Show Next Page
-key.jei.bookmark=Add/Remove a Bookmarked Ingredient
-key.hei.bookmarkToTop=Add a Bookmarked Ingredient to the top
-key.hei.recipeBookmark=Add/Remove a Bookmarked Recipe
+key.hei.previousCategory=Show Previous Recipe Category
+key.hei.nextCategory=Show Next Recipe Category
+key.jei.bookmark=Bookmark Ingredient/Recipe (Append)
+key.hei.bookmarkToTop=Bookmark Ingredient/Recipe (Prepend)
+key.hei.bookmarkNewGroup=Bookmark to New Group (Append)
+key.hei.bookmarkNewGroupToTop=Bookmark to New Group (Prepend)
 key.hei.toggleBookmarkOverlay=Show/Hide Bookmarked Ingredients
-key.hei.crafting=Autocraft Selected Bookmarked Recipes
+key.hei.crafting=Autocraft Bookmarked Recipe
+key.hei.moveGroupUp=Move Bookmark Group Up
+key.hei.moveGroupDown=Move Bookmark Group Down
 
 # Config
 config.jei.default=Default
@@ -145,7 +150,7 @@ gui.jei.category.itemInformation=Information
 # DEBUG (for debug mode, do not need translation)
 description.jei.wooden.door.1=Wooden Doors allow you to block monsters from entering your building.\nTesting sentences.
 description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and visa versa.
-description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits.
+description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits. There should also be some extra long text for testing new scroll bar functionality, if there's no text inside or extra text outside recipe area, it's not working properly.
 
 # New HEI lang keys
 config.jei.rendering=Rendering
@@ -168,8 +173,14 @@ config.jei.advanced.addBookmarksToFront.comment=When enabled, adds new bookmarks
 config.jei.misc.mouseClickToSeeRecipes=Mouse Click to See Recipes/Usages
 config.jei.misc.mouseClickToSeeRecipes.comment=Disable to disallow mouse clicks to see recipes and usages when hovering over an ingredient
 
+config.jei.misc.holdToDragGhostIngredients=Hold Mouse Button to Drag Ghost Ingredients
+config.jei.misc.holdToDragGhostIngredients.comment=When enabled, hold the initiating mouse button while dragging and release it to drop. When disabled, click once to pick up and click again to drop.
+
 config.jei.misc.tooltipShowRecipeBy=Show `Recipe By` in tooltip
 config.jei.misc.tooltipShowRecipeBy.comment=Show when a recipe has been changed by adding it to the item's tooltip
+
+config.jei.misc.recipeIngredientPreviewEnabled=Show All Slot Ingredients in Tooltips
+config.jei.misc.recipeIngredientPreviewEnabled.comment=When hovering a recipe slot that accepts more than one ingredient, list them all as a grid in the tooltip
 
 config.jei.misc.showHiddenIngredientsInCreative=Show Hidden Ingredients in Creative Mode
 config.jei.misc.showHiddenIngredientsInCreative.comment=Show user-hidden ingredients when the player is in creative mode
@@ -183,8 +194,8 @@ config.jei.rendering.bufferIngredientRenders.comment=Stops extremely frequent in
 config.jei.interface.defaultFluidContainerItem=Default Fluid Container Item
 config.jei.interface.defaultFluidContainerItem.comment=Default item to use to fill up fluids when clicking on a fluid ingredient in the menu, (format: item_name@meta)
 
-config.jei.misc.hideBottomRightCornerConfigButton=Hide Bottom-Right Corner Config Button
-config.jei.misc.hideBottomRightCornerConfigButton.comment=Whether to hide the bottom-right corner config button
+config.jei.misc.configButtonPosition=Config Button Position
+config.jei.misc.configButtonPosition.comment=Where to place the config button. Left, Right, or Hidden.
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Hide Bottom-Left Corner Bookmark Button
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Whether to hide the bottom-left corner bookmark button
@@ -208,6 +219,8 @@ config.hei.collapsible.collapsedClickAction.FIRST_ITEM=First Item
 
 config.jei.category.categoryUidOrder=Category UID Order
 config.jei.category.categoryUidOrder.comment=Determines the display order of recipe categories in HEI. Categories listed earlier appear first in the HEI interface.
+config.jei.category.disabledRecipeCategoryUids=Disabled Recipe Category UIDs
+config.jei.category.disabledRecipeCategoryUids.comment=Recipe category UIDs that HEI should skip loading. A game restart is required after changing this list.
 
 hei.generic.ticks=%d Ticks
 
@@ -221,9 +234,11 @@ hei.tooltip.recipe_bookmark=Bookmark Recipe
 
 hei.tooltip.item_group=§7Item Group
 hei.tooltip.recipe_group=§7Recipe Group
+hei.tooltip.recipe.ingredient_pin=§7Hold §fSHIFT§7 to pin this tooltip
 hei.tooltip.press_alt=§7Press §fALT§7 to see Actions
 hei.tooltip.organizer.1=§6CTRL + LEFT CLICK§7: Move Bookmarks Between Groups
-hei.tooltip.organizer.2=§6UP§r or §6DOWN§7: Move Group Up or Down
+hei.tooltip.organizer.2=§6%s§r or §6%s§7: Move Group Up or Down
+hei.tooltip.organizer.5=§6%s§7 on this tab: Delete Group
 hei.tooltip.organizer.3=§6CTRL + SCROLL§7: Change Final Output
 hei.tooltip.organizer.4=§6%s§7: Autocraft
 
@@ -239,7 +254,18 @@ hei.gui.collapsible.defaultGroup=Default
 hei.gui.collapsible.itemCount=%d items
 hei.gui.collapsible.editor.title=Selected Items
 hei.gui.collapsible.editor.name=Name
+hei.gui.collapsible.editor.color=Color
 hei.gui.collapsible.editor.save=Save
+hei.gui.collapsible.editor.clear=Clear
 hei.gui.collapsible.editor.selected=%d selected
 hei.gui.collapsible.confirmDelete=Delete?
 hei.tooltip.missing_ingredients=§cMissing Ingredients:
+hei.tooltip.autocraft.wrong_container=This container cannot craft %s recipes on its own.
+
+hei.tooltip.search.title=Search Recipes
+hei.tooltip.search.info=Cycle mode by clicking. Hold §6SHIFT§r to reverse direction.
+hei.tooltip.search.mode.none=Not searching
+hei.tooltip.search.mode.both=Searching both Inputs and Outputs
+hei.tooltip.search.mode.input=Searching only Inputs
+hei.tooltip.search.mode.output=Searching only Outputs
+hei.tooltip.search.note=Recipes may not encode Inputs or Outputs as you may expect!

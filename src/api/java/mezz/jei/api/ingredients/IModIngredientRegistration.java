@@ -1,9 +1,9 @@
 package mezz.jei.api.ingredients;
 
+import java.util.Collection;
+
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.recipe.IIngredientType;
-
-import java.util.Collection;
 
 /**
  * Allows registration of new types of ingredients, beyond the basic ItemStack and FluidStack.
@@ -32,12 +32,15 @@ public interface IModIngredientRegistration {
 
 	/**
 	 * Mark a type of ingredient as being craftable.
-	 * This is accessed in {@link IIngredientRegistry#getCraftableIngredientTypes()} to determine which types of ingredients can be hashed, have favorite recipes, and be autocrafted.
+	 * <p>
+	 * Craftable types are reported by {@link IIngredientRegistry#getCraftableIngredientTypes()} and are the only
+	 * types that can be hashed, have favourite recipes, and be autocrafted.
 	 *
 	 * @param ingredientType The type of the ingredient.
-	 * @since JEI 4.29.0
+	 * @since HEI 4.29.0
 	 */
-	<V> void markAsCraftable(IIngredientType<V> ingredientType);
+	default <V> void markAsCraftable(IIngredientType<V> ingredientType) {
+	}
 
 	/**
 	 * Register a new type of ingredient.

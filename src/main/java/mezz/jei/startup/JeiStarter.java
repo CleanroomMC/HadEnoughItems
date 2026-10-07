@@ -9,6 +9,9 @@ import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.api.gui.IGlobalGuiHandler;
 import mezz.jei.api.gui.IGuiScreenHandler;
+import mezz.jei.api.gui.ISlotIngredientProvider;
+import mezz.jei.api.search.ISearchIndexBuilder;
+import mezz.jei.api.search.ISearchIndexBuilderFactory;
 import mezz.jei.autocrafting.favorites.FavoriteRecipes;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
@@ -30,7 +33,9 @@ import mezz.jei.input.InputHandler;
 import mezz.jei.plugins.vanilla.VanillaPlugin;
 import mezz.jei.recipes.RecipeRegistry;
 import mezz.jei.runtime.JeiHelpers;
+import mezz.jei.runtime.AdvancedSearchRegistry;
 import mezz.jei.runtime.JeiRuntime;
+import mezz.jei.search.BakedSubstringIndexBuilder;
 import mezz.jei.runtime.SubtypeRegistry;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
@@ -89,12 +94,21 @@ public class JeiStarter {
 		timer.stop();
 
 		IngredientFilter ingredientFilter;
+		ISearchIndexBuilderFactory searchIndexBuilderFactory;
 		if (recipesOnly && Internal.hasIngredientFilter()) {
 			ingredientFilter = Internal.getIngredientFilter();
 			ingredientFilter.replaceBlacklist(blacklist);
+			searchIndexBuilderFactory = ingredientFilter.getSearchIndexBuilderFactory();
 		} else {
+			timer.start("Registering advanced search");
+			AdvancedSearchRegistry advancedSearchRegistry = new AdvancedSearchRegistry(createDefaultSearchIndexBuilderFactory());
+			registerAdvancedSearches(plugins, advancedSearchRegistry);
+			searchIndexBuilderFactory = advancedSearchRegistry.getSearchIndexBuilderFactory();
+			timer.stop();
+
 			timer.start("Building ingredient filter and search trees");
-			ingredientFilter = new IngredientFilter(blacklist, IngredientListElementFactory.createBaseList(ingredientRegistry, modIdHelper));
+			ingredientFilter = new IngredientFilter(blacklist, IngredientListElementFactory.createBaseList(ingredientRegistry, modIdHelper),
+					searchIndexBuilderFactory);
 			Internal.setIngredientFilter(ingredientFilter);
 			timer.stop();
 		}
@@ -112,13 +126,15 @@ public class JeiStarter {
 		List<IGlobalGuiHandler> globalGuiHandlers = modRegistry.getGlobalGuiHandlers();
 		Map<Class, IGuiScreenHandler> guiScreenHandlers = modRegistry.getGuiScreenHandlers();
 		Map<Class, IGhostIngredientHandler> ghostIngredientHandlers = modRegistry.getGhostIngredientHandlers();
-		GuiScreenHelper guiScreenHelper = new GuiScreenHelper(ingredientRegistry, globalGuiHandlers, advancedGuiHandlers, ghostIngredientHandlers, guiScreenHandlers);
+		Map<Class, ISlotIngredientProvider> slotIngredientProviders = modRegistry.getSlotIngredientProviders();
+		GuiScreenHelper guiScreenHelper = new GuiScreenHelper(ingredientRegistry, globalGuiHandlers, advancedGuiHandlers, ghostIngredientHandlers, slotIngredientProviders, guiScreenHandlers);
 		GhostIngredientDragManager ghostIngredientDragManager = new GhostIngredientDragManager(guiScreenHelper, ingredientRegistry);
 		IngredientListOverlay ingredientListOverlay = new IngredientListOverlay(ingredientFilter, ingredientRegistry, guiScreenHelper, ghostIngredientDragManager);
 
 		BookmarkOverlay bookmarkOverlay = new BookmarkOverlay(bookmarkList, jeiHelpers.getGuiHelper(), guiScreenHelper);
 		RecipesGui recipesGui = new RecipesGui(recipeRegistry, ingredientRegistry);
-		JeiRuntime jeiRuntime = new JeiRuntime(recipeRegistry, ingredientListOverlay, bookmarkOverlay, recipesGui, ingredientFilter);
+		JeiRuntime jeiRuntime = new JeiRuntime(recipeRegistry, ingredientListOverlay, bookmarkOverlay, recipesGui, ingredientFilter,
+				searchIndexBuilderFactory);
 		Internal.setRuntime(jeiRuntime);
 		timer.stop();
 
@@ -336,6 +352,28 @@ public class JeiStarter {
 				}
 			}
 			ProgressManager.pop(progressBar);
+		}
+	}
+
+	private static ISearchIndexBuilderFactory createDefaultSearchIndexBuilderFactory() {
+		return new ISearchIndexBuilderFactory() {
+			@Override
+			public <T> ISearchIndexBuilder<T> create() {
+				return new BakedSubstringIndexBuilder<>();
+			}
+		};
+	}
+
+	private static void registerAdvancedSearches(List<IModPlugin> plugins, AdvancedSearchRegistry registry) {
+		Iterator<IModPlugin> iterator = plugins.iterator();
+		while (iterator.hasNext()) {
+			IModPlugin plugin = iterator.next();
+			try {
+				plugin.registerAdvancedSearch(registry);
+			} catch (RuntimeException | LinkageError e) {
+				Log.get().error("Failed to register advanced search for mod plugin: {}", plugin.getClass(), e);
+				iterator.remove();
+			}
 		}
 	}
 

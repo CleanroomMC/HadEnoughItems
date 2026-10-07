@@ -14,6 +14,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
@@ -30,15 +31,14 @@ import java.util.List;
  * plus a semi-transparent background to distinguish it from normal items.
  */
 public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGroupIngredient> {
-	private static final int COLLAPSED_BG_COLOR = 0x33FFFFFF;
-	private static final int COLLAPSED_BORDER_COLOR = 0x55AAAAFF;
-
-	/** Singleton registered with the ingredient type system — {@code collapsedStack} is null. */
+	/** Singleton registered with the ingredient type system - {@code collapsedStack} is null. */
 	public static final CollapsedGroupRenderer INSTANCE = new CollapsedGroupRenderer(null);
 
 	private final CollapsedGroupIngredient collapsedStack;
+
 	private Rectangle area = new Rectangle(0, 0, 16, 16);
 	private int padding;
+	private float renderScale = 1.0F;
 
 	public CollapsedGroupRenderer(CollapsedGroupIngredient collapsedStack) {
 		this.collapsedStack = collapsedStack;
@@ -60,51 +60,81 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		return area;
 	}
 
-	/** Grid overlay render — uses this instance's stack and area+padding. */
+	public void setRenderScale(float renderScale) {
+		this.renderScale = renderScale;
+	}
+
+	protected void beginRenderTransform() {
+		GlStateManager.pushMatrix();
+		if (renderScale == 1.0F) {
+			return;
+		}
+		float centerX = area.x + area.width / 2.0F;
+		float centerY = area.y + area.height / 2.0F;
+		GlStateManager.translate(centerX, centerY, 0.0F);
+		GlStateManager.scale(renderScale, renderScale, renderScale);
+		GlStateManager.translate(-centerX, -centerY, 0.0F);
+	}
+
+	/** Grid overlay render - uses this instance's stack and area+padding. */
 	public void render(Minecraft minecraft) {
 		if (collapsedStack == null || collapsedStack.isEmpty()) {
 			return;
 		}
-		renderAt(minecraft, collapsedStack, area.x + padding, area.y + padding);
+		beginRenderTransform();
+		try {
+			renderAt(minecraft, collapsedStack, area.x + padding, area.y + padding);
+		} finally {
+			GlStateManager.popMatrix();
+		}
 	}
 
 	/**
-	 * Stateless render at an arbitrary position — shared by the instance render and
+	 * Stateless render at an arbitrary position - shared by the instance render and
 	 * the {@link IIngredientRenderer} contract.
 	 * For groups with 2+ items, mimics REI's stacked-card icon: each item is rendered at
-	 * 0.75× scale (12 px), offset 4 px so both stay entirely within the 16×16 slot area.
+	 * 0.75x scale (12 px), offset 4 px so both stay entirely within the 16x16 slot area.
 	 *   Back  item (upper-right): screen origin (x+4, y+0), occupies (x+4..x+16, y..y+12)
 	 *   Front item (lower-left) : screen origin (x+0, y+4), occupies (x..x+12, y+4..y+16)
-	 * Count badge is drawn at 0.75× scale in orange in the bottom-right corner.
+	 * Count badge is drawn at 0.75x scale in orange in the bottom-right corner.
 	 */
 	private static void renderAt(Minecraft minecraft, CollapsedGroupIngredient ingredient, int x, int y) {
-		List<IIngredientListElement<?>> ingredients = ingredient.getIngredients();
+		List<IIngredientListElement<?>> ingredients = ingredient.getDisplayIngredients();
 		if (ingredients.isEmpty()) {
 			return;
 		}
 
+		GlStateManager.disableLighting();
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(
+				GlStateManager.SourceFactor.SRC_ALPHA,
+				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+				GlStateManager.SourceFactor.ONE,
+				GlStateManager.DestFactor.ZERO
+		);
 		// Draw background tint to visually distinguish collapsed groups
-		GuiScreen.drawRect(x, y, x + 16, y + 16, COLLAPSED_BG_COLOR);
+		GuiScreen.drawRect(x, y, x + 16, y + 16, ingredient.getBackgroundColor());
+		GlStateManager.disableBlend();
 
 		if (ingredients.size() == 1) {
 			// Single item: render at full size
 			renderElementAt(minecraft, ingredients.get(0), x, y, 1.0f);
 		} else {
-			// 0.75 scale → 12 px icon.
-			// Back  (upper-right): origin at (x+4, y+0) → occupies x+4..x+16, y..y+12
-			// Front (lower-left) : origin at (x+0, y+4) → occupies x..x+12,   y+4..y+16
+			// 0.75 scale -> 12 px icon.
+			// Back  (upper-right): origin at (x+4, y+0) -> occupies x+4..x+16, y..y+12
+			// Front (lower-left) : origin at (x+0, y+4) -> occupies x..x+12,   y+4..y+16
 			RenderItem renderItem = minecraft.getRenderItem();
 			renderElementAt(minecraft, ingredients.get(1), x + 4, y + 0, 0.75f); // back
 			// Elevate zLevel so the front item's depth values are naturally in front of the
 			// back item's geometry. Using GL_LEQUAL (normal) keeps the front item's own
-			// internal face culling intact — GL_ALWAYS would break tile-entity models.
+			// internal face culling intact - GL_ALWAYS would break tile-entity models.
 			float prevZLevel = renderItem.zLevel;
 			renderItem.zLevel += 100;
 			renderElementAt(minecraft, ingredients.get(0), x + 0, y + 4, 0.75f); // front
 			renderItem.zLevel = prevZLevel;
 		}
 
-		// Count badge: 0.75× scale, orange, right-aligned at the bottom of the slot
+		// Count badge: 0.75x scale, orange, right-aligned at the bottom of the slot
 		int count = ingredient.size();
 		if (count > 1) {
 			FontRenderer fontRenderer = minecraft.fontRenderer;
@@ -114,8 +144,8 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 			GlStateManager.disableBlend();
 			final float badgeScale = 0.75f;
 			// Convert desired screen position to scaled-coordinate space.
-			// Screen right edge: x+16 → scaled coord (x+16)/badgeScale
-			// Screen top of text: y+10 → scaled coord (y+10)/badgeScale
+			// Screen right edge: x+16 -> scaled coord (x+16)/badgeScale
+			// Screen top of text: y+10 -> scaled coord (y+10)/badgeScale
 			int textWidth = fontRenderer.getStringWidth(countStr);
 			int scaledRight = (int) ((x + 16) / badgeScale);
 			int scaledTop  = (int) ((y + 10) / badgeScale);
@@ -126,7 +156,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 			GlStateManager.enableDepth();
 		}
 
-		drawCollapsedBorder(x, y);
+		drawCollapsedBorder(x, y, ingredient.getBorderColor());
 	}
 
 	/**
@@ -136,27 +166,47 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 	private static void renderElementAt(Minecraft minecraft, IIngredientListElement<?> element, int x, int y, float scale) {
 		Object ingredient = element.getIngredient();
 		try {
+			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x, y, 0);
-			GlStateManager.scale(scale, scale, scale);
-			if (ingredient instanceof ItemStack) {
-				minecraft.getRenderItem().renderItemAndEffectIntoGUI((ItemStack) ingredient, 0, 0);
-			} else {
-				renderIngredient(minecraft, 0, 0, element);
+			try {
+				GlStateManager.translate(x, y, 0);
+				GlStateManager.scale(scale, scale, scale);
+				if (ingredient instanceof ItemStack) {
+					minecraft.getRenderItem().renderItemAndEffectIntoGUI((ItemStack) ingredient, 0, 0);
+				} else {
+					renderIngredient(minecraft, 0, 0, element);
+				}
+			} finally {
+				GlStateManager.popMatrix();
 			}
-			GlStateManager.popMatrix();
 		} catch (RuntimeException | LinkageError ignored) {
-			GlStateManager.popMatrix();
+			discardStartedBuffer();
 		}
 	}
 
-	private static void drawCollapsedBorder(int x, int y) {
+	private static void discardStartedBuffer() {
+		try {
+			Tessellator.getInstance().draw();
+		} catch (RuntimeException | LinkageError ignored) {
+		}
+	}
+
+	private static void drawCollapsedBorder(int x, int y, int borderColor) {
+		GlStateManager.disableLighting();
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(
+				GlStateManager.SourceFactor.SRC_ALPHA,
+				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+				GlStateManager.SourceFactor.ONE,
+				GlStateManager.DestFactor.ZERO
+		);
 		// Small triangle indicator in the top-left corner to show it's collapsible
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
-		GuiScreen.drawRect(x, y, x + 4, y + 1, COLLAPSED_BORDER_COLOR);
-		GuiScreen.drawRect(x, y, x + 1, y + 4, COLLAPSED_BORDER_COLOR);
+		GuiScreen.drawRect(x, y, x + 4, y + 1, borderColor);
+		GuiScreen.drawRect(x, y + 1, x + 1, y + 4, borderColor);
 		GlStateManager.enableDepth();
+		GlStateManager.disableBlend();
 	}
 
 	// --- IIngredientRenderer<CollapsedStack> implementation ---
@@ -188,7 +238,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 	}
 
 	public void drawTooltip(Minecraft minecraft, int mouseX, int mouseY) {
-		List<IIngredientListElement<?>> ingredients = collapsedStack.getIngredients();
+		List<IIngredientListElement<?>> ingredients = collapsedStack.getDisplayIngredients();
 		if (ingredients.isEmpty()) return;
 
 		// Single-item group (e.g. search filtered to one result): show the item's native tooltip
@@ -299,7 +349,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 	}
 
 	/**
-	 * Returns the CollapsedStack as the clicked ingredient — registered as IIngredientType
+	 * Returns the CollapsedStack as the clicked ingredient - registered as IIngredientType
 	 * for addon compatibility. Recipe lookups are delegated via translateFocus on the helper.
 	 */
 	@Nullable
@@ -308,7 +358,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		if (ingredients.isEmpty()) {
 			return null;
 		}
-		// Return CollapsedStack directly — it is a registered IIngredientType
+		// Return CollapsedStack directly - it is a registered IIngredientType
 		return ClickedIngredient.create(collapsedStack, area);
 	}
 

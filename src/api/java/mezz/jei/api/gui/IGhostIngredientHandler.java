@@ -38,6 +38,57 @@ public interface IGhostIngredientHandler<T extends GuiScreen> {
 		return true;
 	}
 
+	/**
+	 * Called when a player starts to move a ghost ingredient while holding SHIFT.
+	 * In most cases this should insert the ingredient into one of the highlighted targets.
+	 * This is called before {@link #getTargets(GuiScreen, Object, boolean)} starts
+	 * the drag process, and if this returns true the normal logic will not be run.
+	 *
+	 * @return true if some operation occurred and the normal targeting
+	 * and drag logic should be skipped
+	 * @since HEI 4.30.2
+	 */
+	default <I> boolean quickMove(T gui, I ingredient) {
+		return false;
+	}
+
+	/**
+	 * @since HEI 4.34.0
+	 */
+	interface AwareTarget<I> extends Target<I> {
+
+		/**
+		 * Called while an ingredient is being dragged over the target.
+		 *
+		 * @since HEI 4.34.0
+		 */
+		default void onDrag(I ingredient, int mouseX, int mouseY) { }
+
+		/**
+		 * Called when an ingredient is no longer being dragged over the target.
+		 *
+		 * @since HEI 4.34.0
+		 */
+		default void onDragComplete() { }
+
+		/**
+		 * Called with the ingredient when it is dropped on the target.
+		 *
+		 * @since HEI 4.34.0
+		 */
+		void accept(I ingredient, int mouseX, int mouseY);
+
+		/**
+		 * Call {@link #accept(Object, int, int)} instead.
+		 *
+		 * @since HEI 4.34.0
+		 */
+		@Deprecated
+		@Override
+		default void accept(I ingredient) { }
+
+	}
+
 	interface Target<I> extends Consumer<I> {
 		/**
 		 * @return the area (in screen coordinates) where the ingredient can be dropped.

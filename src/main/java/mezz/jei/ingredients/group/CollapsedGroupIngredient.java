@@ -28,6 +28,9 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 	// Registered as IIngredientType for addon compatibility — addons expect every grid item to have a type
 	public static final IIngredientType<CollapsedGroupIngredient> TYPE = () -> CollapsedGroupIngredient.class;
 
+	public static final int BACKGROUND_COLOR_SMOKE = 0x33555555; // subtle smoke background
+	public static final int BORDER_COLOR_SMOKE = 0xCC888888; // medium smoke border
+
 	public enum GroupSource {
 		DEFAULT,
 		MOD,
@@ -38,19 +41,26 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 	private final String langKey;
 	/** Identifies who registered this group. */
 	private final GroupSource source;
-	private final List<IIngredientListElement<?>> elements;
+	private final List<IIngredientListElement<?>> filterElements;
 	private final Set<String> uids;
+	private final int backgroundColor;
+	private final int borderColor;
+
+	private List<IIngredientListElement<?>> elements;
 	/** Matches against the raw ingredient object (any type). */
 	private boolean expanded;
 	private boolean visible = true;
 
-	public CollapsedGroupIngredient(String id, String langKey, Set<String> uids, GroupSource source) {
+	public CollapsedGroupIngredient(String id, String langKey, int backgroundColor, int borderColor, Set<String> uids, GroupSource source) {
 		this.id = id;
 		this.langKey = langKey;
 		this.uids = uids;
 		this.source = source;
 		this.expanded = false;
 		this.elements = new ArrayList<>(uids.size());
+		this.filterElements = new ArrayList<>(uids.size());
+		this.backgroundColor = backgroundColor;
+		this.borderColor = borderColor;
 	}
 
 	public String getId() {
@@ -63,6 +73,14 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 
 	public GroupSource getSource() {
 		return source;
+	}
+
+	public int getBackgroundColor() {
+		return backgroundColor;
+	}
+
+	public int getBorderColor() {
+		return borderColor;
 	}
 
 	public boolean isExpanded() {
@@ -103,20 +121,42 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 		return elements;
 	}
 
+	public List<IIngredientListElement<?>> getFilterIngredients() {
+		return filterElements;
+	}
+
+	public void setStableIngredients(List<IIngredientListElement<?>> stableIngredients) {
+		this.elements = stableIngredients;
+	}
+
 	public void addIngredient(IIngredientListElement<?> element) {
-		elements.add(element);
+		filterElements.add(element);
 	}
 
 	public void clearIngredients() {
-		elements.clear();
+		filterElements.clear();
+	}
+
+	/**
+	 * Returns the ingredient list that should be displayed in the current context.
+	 * When a search filter is active ({@code filterElements} is non-empty), returns
+	 * only the matched subset so the count badge and icons reflect the search results.
+	 * Falls back to the full stable list when no filter is applied (e.g. bookmarks).
+	 */
+	public List<IIngredientListElement<?>> getDisplayIngredients() {
+		return filterElements.isEmpty() ? elements : filterElements;
 	}
 
 	public int size() {
-		return elements.size();
+		return getDisplayIngredients().size();
 	}
 
 	public boolean isEmpty() {
 		return elements.isEmpty();
+	}
+
+	public boolean isFilterEmpty() {
+		return filterElements.isEmpty();
 	}
 
 	@Override

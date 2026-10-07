@@ -26,7 +26,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.List;
 import java.util.Set;
 
@@ -82,6 +82,10 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 		return Config.isOverlayEnabled() && this.guiProperties != null && this.hasRoom;
 	}
 
+	private boolean isConfigButtonDisplayed() {
+		return Config.getConfigButtonPosition() != Config.ButtonPosition.HIDDEN && this.guiProperties != null;
+	}
+
 	private static Rectangle getDisplayArea(IGuiProperties guiProperties) {
 		final int x = guiProperties.getGuiLeft() + guiProperties.getGuiXSize() + BORDER_PADDING;
 		final int y = BORDER_PADDING;
@@ -106,6 +110,11 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 				final boolean searchBarCentered = isSearchBarCentered(guiProperties);
 				final int searchHeight = searchBarCentered ? 0 : SEARCH_HEIGHT + BORDER_PADDING;
 
+				final Config.ButtonPosition buttonPosition = Config.getConfigButtonPosition();
+				int configButtonX = buttonPosition == Config.ButtonPosition.RIGHT ?
+					guiProperties.getScreenWidth() - BUTTON_SIZE - BORDER_PADDING : BORDER_PADDING;
+				int configButtonY = guiProperties.getScreenHeight() - BUTTON_SIZE - 2 * BORDER_PADDING;
+
 				Set<Rectangle> guiExclusionAreas = guiScreenHelper.getGuiExclusionAreas();
 				Rectangle availableContentsArea = new Rectangle(
 					displayArea.x,
@@ -116,59 +125,43 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 
 				hasRoom = this.contents.updateBounds(availableContentsArea, guiExclusionAreas, 4 * BUTTON_SIZE);
 
-				// update area to match contents size
-				Rectangle contentsArea = this.contents.getArea();
-				displayArea.x = contentsArea.x;
-				displayArea.width = contentsArea.width;
+				final int visibleButtonSize = buttonPosition == Config.ButtonPosition.HIDDEN ? 0 : BUTTON_SIZE;
+				Rectangle searchArea;
+				if (hasRoom) {
+                    // update area to match contents size
+					Rectangle contentsArea = this.contents.getArea();
+					displayArea.x = contentsArea.x;
+					displayArea.width = contentsArea.width;
 
-				if (Config.hideBottomRightCornerConfigButton()) {
-					if (searchBarCentered && isListDisplayed())
-						searchField.updateBounds(new Rectangle(
-							guiProperties.getGuiLeft(),
-							guiProperties.getScreenHeight() - SEARCH_HEIGHT - BORDER_PADDING,
-							guiProperties.getGuiXSize() + 1,
-							SEARCH_HEIGHT
-						));
-					else
-						searchField.updateBounds(new Rectangle(
-							displayArea.x,
-							displayArea.y + displayArea.height - SEARCH_HEIGHT - BORDER_PADDING,
-							displayArea.width + 1,
-							SEARCH_HEIGHT
-						));
-				}
-				else {
-					if (searchBarCentered && isListDisplayed())
-						searchField.updateBounds(new Rectangle(
-							guiProperties.getGuiLeft(),
-							guiProperties.getScreenHeight() - SEARCH_HEIGHT - BORDER_PADDING,
-							guiProperties.getGuiXSize() - BUTTON_SIZE + 1,
-							SEARCH_HEIGHT
-						));
-					else
-						searchField.updateBounds(new Rectangle(
-							displayArea.x,
-							displayArea.y + displayArea.height - SEARCH_HEIGHT - BORDER_PADDING,
-							displayArea.width - BUTTON_SIZE + 1,
-							SEARCH_HEIGHT
-						));
-				}
-
-				if (Config.hideBottomRightCornerConfigButton()) {
-					this.configButton.updateBounds(new Rectangle(
-							searchField.x + searchField.width - 1,
-							searchField.y,
-							0,
-							0
-					));
+					boolean centerSearchBar = searchBarCentered && isListDisplayed();
+					int searchX = centerSearchBar ? guiProperties.getGuiLeft() : displayArea.x;
+					int searchY = centerSearchBar ?
+						guiProperties.getScreenHeight() - SEARCH_HEIGHT - BORDER_PADDING :
+						displayArea.y + displayArea.height - SEARCH_HEIGHT - BORDER_PADDING;
+					int availableSearchWidth = centerSearchBar ? guiProperties.getGuiXSize() : displayArea.width;
+					if (buttonPosition == Config.ButtonPosition.RIGHT) {
+						availableSearchWidth = Math.max(0, availableSearchWidth - visibleButtonSize + 1);
+					}
+					searchArea = new Rectangle(
+						searchX,
+						searchY,
+						availableSearchWidth,
+						SEARCH_HEIGHT
+					);
+					if (buttonPosition == Config.ButtonPosition.RIGHT) {
+						configButtonX = searchArea.x + searchArea.width - 1;
+						configButtonY = searchArea.y;
+					}
 				} else {
-					this.configButton.updateBounds(new Rectangle(
-							searchField.x + searchField.width - 1,
-							searchField.y,
-							BUTTON_SIZE,
-							BUTTON_SIZE
-					));
+					searchArea = new Rectangle();
 				}
+				this.searchField.updateBounds(searchArea);
+				this.configButton.updateBounds(new Rectangle(
+					configButtonX,
+					configButtonY,
+					visibleButtonSize,
+					visibleButtonSize
+				));
 				updateLayout(false);
 			}
 		}
@@ -188,23 +181,19 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 				GlStateManager.disableLighting();
 				this.searchField.drawTextBox();
 				this.contents.draw(minecraft, mouseX, mouseY, partialTicks);
-                if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
-                    this.configButton.draw(minecraft, mouseX, mouseY, partialTicks);
-                }
-            } else if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
-                this.configButton.draw(minecraft, mouseX, mouseY, partialTicks);
-            }
+			}
+			if (isConfigButtonDisplayed()) {
+				this.configButton.draw(minecraft, mouseX, mouseY, partialTicks);
+			}
 		}
 	}
 
 	public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
-		if (isListDisplayed()) {
-            if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
-                this.configButton.drawTooltips(minecraft, mouseX, mouseY);
-            }
-			this.contents.drawTooltips(minecraft, mouseX, mouseY);
-		} else if (this.guiProperties != null) {
+		if (isConfigButtonDisplayed()) {
 			this.configButton.drawTooltips(minecraft, mouseX, mouseY);
+		}
+		if (isListDisplayed()) {
+			this.contents.drawTooltips(minecraft, mouseX, mouseY);
 		}
 	}
 
@@ -220,15 +209,23 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 
 	@Override
 	public boolean isMouseOver(int mouseX, int mouseY) {
+		if (guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY)) {
+			return false;
+		}
+		if (isConfigButtonDisplayed() && this.configButton.isMouseOver(mouseX, mouseY)) {
+			return true;
+		}
 		if (isListDisplayed()) {
 			if (Config.isCenterSearchBarEnabled() && searchField.isMouseOver(mouseX, mouseY)) {
 				return true;
 			}
 			return displayArea.contains(mouseX, mouseY);
-		} else if (this.guiProperties != null) {
-			return this.configButton.isMouseOver(mouseX, mouseY);
 		}
 		return false;
+	}
+
+	public boolean isMouseOverSearchField(int mouseX, int mouseY) {
+		return isListDisplayed() && this.searchField.isMouseOver(mouseX, mouseY);
 	}
 
 	@Override
@@ -251,13 +248,10 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 
 	@Override
 	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
+		if (isConfigButtonDisplayed() && this.configButton.handleMouseClick(mouseX, mouseY)) {
+			return true;
+		}
 		if (isListDisplayed()) {
-            if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
-                if (this.configButton.handleMouseClick(mouseX, mouseY)) {
-                    return true;
-                }
-            }
-
 			if (!isMouseOver(mouseX, mouseY)) {
 				setKeyboardFocus(false);
 				return false;
@@ -298,10 +292,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 					}
 				}
 			}
-        } else if (this.guiProperties != null
-                && (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled())) {
-            return this.configButton.handleMouseClick(mouseX, mouseY);
-        }
+		}
 		return false;
 	}
 

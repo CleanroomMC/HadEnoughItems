@@ -49,13 +49,22 @@ public class PageNavigation {
 	}
 
 	public void draw(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
-		if (this.paged.hasNext()) {
+		boolean next = this.paged.hasNext();
+		boolean previous = this.paged.hasPrevious();
+		if (hideOnSinglePage) {
+			if (next) {
+				nextButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
+			}
+			if (previous) {
+				backButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
+			}
+		} else {
+			nextButton.enabled = next;
+			backButton.enabled = previous;
 			nextButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
-		}
-		if (this.paged.hasPrevious()) {
 			backButton.drawButton(minecraft, mouseX, mouseY, partialTicks);
 		}
-		if (!hideOnSinglePage) {
+		if (!hideOnSinglePage || next || previous) {
 			minecraft.fontRenderer.drawString(pageNumDisplayString, pageNumDisplayX, pageNumDisplayY, Color.white.getRGB(), true);
 		}
 	}

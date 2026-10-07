@@ -1,12 +1,14 @@
 package mezz.jei.api.ingredients;
 
-import com.google.common.collect.ImmutableList;
-import mezz.jei.api.IModRegistry;
-import mezz.jei.api.recipe.IIngredientType;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import net.minecraft.item.ItemStack;
 
-import java.util.Collection;
-import java.util.List;
+import mezz.jei.api.IModRegistry;
+import mezz.jei.api.recipe.IIngredientType;
 
 /**
  * The IIngredientRegistry is provided by JEI and has some useful functions related to recipe ingredients.
@@ -95,18 +97,25 @@ public interface IIngredientRegistry {
 	<V> IIngredientType<V> getIngredientType(Class<? extends V> ingredientClass);
 
 	/**
-	 * Returns a list of all the craftable ingredient types.
+	 * Returns the ingredient types that plugins have marked as craftable.
+	 * <p>
+	 * Types opt in with {@link IModIngredientRegistration#markAsCraftable(IIngredientType)}.
+	 * Only these types can be hashed, favourited, and autocrafted.
 	 *
 	 * @since HEI 4.29.0
 	 */
-	ImmutableList<IIngredientType> getCraftableIngredientTypes();
+	default Set<IIngredientType<?>> getCraftableIngredientTypes() {
+		return Collections.emptySet();
+	}
 
-    /**
-     * A helper method that returns true if the ingredient is craftable.
-     *
-     * @since HEI 4.29.5
-     */
-    boolean isIngredientCraftable(Object ingredient);
+	/**
+	 * Returns true if the given ingredient's type has been marked craftable.
+	 *
+	 * @since HEI 4.29.5
+	 */
+	default boolean isIngredientCraftable(Object ingredient) {
+		return false;
+	}
 
 	/**
 	 * Returns an unmodifiable collection of all the ingredients known to JEI, of the specified class.

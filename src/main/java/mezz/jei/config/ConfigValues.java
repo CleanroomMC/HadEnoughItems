@@ -48,16 +48,19 @@ public class ConfigValues {
 
 	// misc
 	public boolean mouseClickToSeeRecipes = true;
+	public boolean holdToDragGhostIngredients = false;
 	public boolean tooltipShowRecipeBy = true;
+	public boolean recipeIngredientPreviewEnabled = true;
 	public boolean showHiddenIngredientsInCreative = false;
 	public boolean skipShowingProgressBar = false;
-	public boolean hideBottomRightCornerConfigButton = false;
+	public Config.ButtonPosition configButtonPosition = Config.ButtonPosition.RIGHT;
     public boolean hideBottomLeftCornerBookmarkButton = false;
 	public boolean enableHistoryPanel = true;
 	public boolean isHistoryPanelOnLeft = true;
 
-    // category
+	// category
 	public List<String> categoryUidOrder = new ArrayList<>();
+	public Set<String> disabledRecipeCategoryUids = new HashSet<>();
 
 	// collapsible groups
 	public boolean collapsibleGroupsEnabled = true;

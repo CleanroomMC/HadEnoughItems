@@ -3,12 +3,12 @@ package mezz.jei.ingredients;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 import mezz.jei.Internal;
 import mezz.jei.ingredients.group.CollapsibleGroup;
 import mezz.jei.ingredients.group.CollapsedGroupIngredient;
@@ -24,6 +24,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mezz.jei.api.IIngredientFilter;
 import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.search.ISearchIndexBuilderFactory;
 import mezz.jei.config.Config;
 import mezz.jei.config.EditModeToggleEvent;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -32,8 +33,6 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Translator;
 
 public class IngredientFilter implements IIngredientFilter, IIngredientGridSource {
-	public static final Pattern QUOTE_PATTERN = Pattern.compile("\"");
-	public static final Pattern FILTER_SPLIT_PATTERN = Pattern.compile("(-?\".*?(?:\"|$)|\\S+)");
 
 	public static boolean firstBuild = true;
 	public static boolean rebuild = false;
@@ -42,6 +41,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	private final List<Runnable> collapsedStateListeners = new ArrayList<>();
 
 	private IngredientBlacklistInternal blacklist;
+	private final ISearchIndexBuilderFactory searchIndexBuilderFactory;
 	private IElementSearch elementSearch;
 	private List<IIngredientListElement> ingredientListCached = Collections.emptyList();
 	private List<IIngredientListElement> collapsedListCached = Collections.emptyList();
@@ -65,18 +65,21 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	@Nullable private Multimap<IIngredientListElement<?>, CollapsibleGroup> groupMembershipCache = null;
 	/**
 	 * Reverse of {@link #groupMembershipCache}: maps each {@link CollapsibleGroup} to the
-	 * visible elements that belong to it. Built alongside {@code groupMembershipCache} via
-	 * {@link Multimaps#invertFrom} at no extra cost; used by {@link #withGroupNameMatches}
-	 * to look up group members directly instead of scanning all visible ingredients.
+	 * visible elements that belong to it. Built directly during the sorted
+	 * {@code allVisibleIngredientsCache} traversal to preserve sort order; used by
+	 * {@link #withGroupNameMatches} to look up group members directly instead of scanning
+	 * all visible ingredients.
 	 */
 	@Nullable private Multimap<CollapsibleGroup, IIngredientListElement<?>> groupToElementsCache = null;
-
-	private boolean afterBlock = false;
 	@Nullable private List<Runnable> delegatedActions;
+	private boolean afterBlock = false;
+	private boolean refreshRequested = false;
 
-	public IngredientFilter(IngredientBlacklistInternal blacklist, NonNullList<IIngredientListElement> ingredients) {
+	public IngredientFilter(IngredientBlacklistInternal blacklist, NonNullList<IIngredientListElement> ingredients,
+			ISearchIndexBuilderFactory searchIndexBuilderFactory) {
 		this.blacklist = blacklist;
-		this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
+		this.searchIndexBuilderFactory = searchIndexBuilderFactory;
+		this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch(searchIndexBuilderFactory);
 		this.elementSearch.addAll(ingredients);
 		firstBuild = false;
 	}
@@ -85,7 +88,14 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		this.elementSearch.logStatistics();
 	}
 
+	public ISearchIndexBuilderFactory getSearchIndexBuilderFactory() {
+		return searchIndexBuilderFactory;
+	}
+
 	public void addIngredients(NonNullList<IIngredientListElement> ingredients) {
+		for (IIngredientListElement<?> ingredient : ingredients) {
+			updateHiddenState(ingredient);
+		}
 		ingredients.sort(IngredientListElementComparator.INSTANCE);
 		this.elementSearch.addAll(ingredients);
 		invalidateCache();
@@ -162,20 +172,34 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 					}
 				}
 			}
+			// Build groupToElementsCache directly during the sorted traversal so its
+			// per-group value order matches allVisibleIngredientsCache's sort order.
+			// Multimaps.invertFrom over a HashMultimap would lose that order because
+			// HashMultimap.entries() iterates keys in hash order, not insertion order.
+			SetMultimap<CollapsibleGroup, IIngredientListElement<?>> gtoc = LinkedHashMultimap.create();
 			for (IIngredientListElement element : allVisibleIngredientsCache) {
 				String uid = element.getIngredientHelper().getUniqueId(element.getIngredient());
 				Collection<CollapsibleGroup> uidGroups = uids.get(uid);
 				if (!uidGroups.isEmpty()) {
 					groupMembershipCache.putAll(element, uidGroups);
+					for (CollapsibleGroup group : uidGroups) {
+						gtoc.put(group, element);
+					}
 				}
 				for (Map.Entry<String, CollapsibleGroup> entry : wildcardEntries) {
 					String prefix = entry.getKey();
 					if (uid.equals(prefix) || uid.startsWith(prefix + ":")) {
 						groupMembershipCache.put(element, entry.getValue());
+						gtoc.put(entry.getValue(), element);
 					}
 				}
 			}
-			groupToElementsCache = Multimaps.invertFrom(groupMembershipCache, HashMultimap.create());
+			groupToElementsCache = gtoc;
+
+			for (CollapsibleGroup group : groups.values()) {
+				Collection<IIngredientListElement<?>> groupElements = groupToElementsCache.get(group);
+				group.getIngredient().setStableIngredients(groupElements.isEmpty() ? Collections.emptyList() : new ArrayList<>(groupElements));
+			}
 		}
 	}
 
@@ -236,7 +260,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			rebuild = true;
 			this.afterBlock = false;
 			NonNullList<IIngredientListElement> ingredients = NonNullList.from(null, this.elementSearch.getAllIngredients().toArray(new IIngredientListElement[0]));
-			this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch();
+			this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch(searchIndexBuilderFactory);
 			ingredients.sort(IngredientListElementComparator.INSTANCE);
 			this.elementSearch.addAll(ingredients);
 			// make sure search tree finishes building before gameplay resumes
@@ -247,6 +271,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			rebuild = false;
 			this.afterBlock = true;
 		}
+		updateHidden();
 	}
 
 	@SubscribeEvent
@@ -267,10 +292,22 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		}
 	}
 
+	public void requestRefresh() {
+		this.refreshRequested = true;
+	}
+
+	public void refresh() {
+		if (this.refreshRequested) {
+			this.refreshRequested = false;
+			updateHidden();
+			notifyListenersOfChange();
+		}
+	}
+
 	public <V> void updateHiddenState(IIngredientListElement<V> element) {
 		V ingredient = element.getIngredient();
 		IIngredientHelper<V> ingredientHelper = element.getIngredientHelper();
-		boolean visible = !blacklist.isIngredientBlacklistedByApi(ingredient, ingredientHelper) &&
+		boolean visible = !blacklist.isIngredientBlacklistedByApiOrRuntime(ingredient, ingredientHelper) &&
 			ingredientHelper.isIngredientOnServer(ingredient) &&
 			(Config.isEditModeEnabled() || !Config.isIngredientOnConfigBlacklist(ingredient, ingredientHelper));
 		if (element.isVisible() != visible) {
@@ -311,7 +348,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		for (IIngredientListElement obj : collapsed) {
 			if (obj instanceof CollapsedGroupIngredient) {
 				CollapsedGroupIngredient cs = (CollapsedGroupIngredient) obj;
-				count += cs.isExpanded() ? cs.size() : 1;
+				count += cs.isExpanded() ? cs.getFilterIngredients().size() : 1;
 			} else {
 				count++;
 			}
@@ -334,6 +371,10 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		return builder.build();
 	}
 
+	public Collection<IIngredientListElement<?>> getRawIngredients(String filterText) {
+		return Collections.unmodifiableList(getIngredientListUncached(Translator.toLowercaseWithLocale(filterText)));
+	}
+
 	@Override
 	public String getFilterText() {
 		return Config.getFilterText();
@@ -351,10 +392,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		if (filterText.isEmpty()) {
 			return new ArrayList<>(getAllVisibleIngredients());
 		}
-		List<SearchToken> tokens = Arrays.stream(filterText.split("\\|"))
-				.map(SearchToken::parseSearchToken)
-				.filter(s -> !s.search.isEmpty())
-				.collect(Collectors.toList());
+		List<SearchToken> tokens = SearchToken.parseSearchTokens(filterText);
 		if (tokens.isEmpty()) {
 			return new ArrayList<>(getAllVisibleIngredients());
 		}
@@ -367,28 +405,25 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 	}
 
 	/**
-	 * Augments a filtered ingredient list so that every group relevant to the current search
-	 * is represented by its full member set. A group is relevant if:
-	 *   1. its display name contains the filter text, OR
-	 *   2. at least one of its members already appears in the base results.
-	 *
-	 * This ensures that searching "diamond" surfaces the complete "Helmets" group (not just
-	 * the diamond helmet alone) so that {@link #collapse} can produce a proper multi-item
-	 * group token rather than a degenerate 1-item one.
+	 * Augments a filtered ingredient list with any groups whose display name matches the
+	 * search text, so that typing "wool" surfaces the entire Wool group even though none of
+	 * the individual wool variants mention "wool" in their item name.
+	 * <p>
+	 * We deliberately only expand on group-name match, not on member match. Expanding on
+	 * member match would cause e.g. searching "orange" to pull in the full 16-item Wool
+	 * group when the user only wants the orange wool item.
 	 */
 	private List<IIngredientListElement<?>> withGroupNameMatches(List<IIngredientListElement<?>> baseList, String filterText) {
 		Multimap<CollapsibleGroup, IIngredientListElement<?>> groupToElements = getGroupToElements();
-		Multimap<IIngredientListElement<?>, CollapsibleGroup> membership = getGroupMembership();
 
-		// Collect every group that is relevant to this search
+		// Collect groups whose display name matches the search text.
+		// We intentionally do NOT expand groups just because a member matched — that produced
+		// "full group" results when the user typed e.g. "orange", expecting individual items.
 		Set<CollapsibleGroup> groupsToExpand = new ObjectOpenHashSet<>();
 		for (CollapsibleGroup group : Internal.getCollapsedGroupRegistry().getAllGroups().values()) {
 			if (Translator.toLowercaseWithLocale(group.getIngredient().getDisplayName()).contains(filterText)) {
 				groupsToExpand.add(group);
 			}
-		}
-		for (IIngredientListElement<?> element : baseList) {
-			groupsToExpand.addAll(membership.get(element));
 		}
 
 		if (groupsToExpand.isEmpty()) {
@@ -461,7 +496,23 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			}
 		}
 
-		result.removeIf(obj -> obj instanceof CollapsedGroupIngredient && ((CollapsedGroupIngredient) obj).isEmpty());
+		// Remove empty groups and deduplicate size-1 groups that share the same single element.
+		// The set tracks the first size-1 group element seen; later duplicates are dropped.
+		Set<IIngredientListElement<?>> seenSingles = new ObjectOpenHashSet<>();
+		result.removeIf(obj -> {
+			if (!(obj instanceof CollapsedGroupIngredient)) {
+				return false;
+			}
+			CollapsedGroupIngredient cg = (CollapsedGroupIngredient) obj;
+			if (cg.isFilterEmpty()) {
+				return true;
+			}
+			List<IIngredientListElement<?>> fi = cg.getFilterIngredients();
+			if (fi.size() == 1) {
+				return !seenSingles.add(fi.get(0));
+			}
+			return false;
+		});
 		return result;
 	}
 
@@ -534,6 +585,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 
 	public void replaceBlacklist(IngredientBlacklistInternal blacklist) {
 		this.blacklist = blacklist;
+		updateHidden();
 	}
 
 	public void notifyListenersOfChange() {

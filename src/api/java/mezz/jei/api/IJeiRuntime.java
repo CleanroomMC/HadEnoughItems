@@ -1,6 +1,7 @@
 package mezz.jei.api;
 
 import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
+import mezz.jei.api.search.ISearchIndexBuilderFactory;
 
 /**
  * Gives access to JEI functions that are available once everything has loaded.
@@ -33,6 +34,13 @@ public interface IJeiRuntime {
 	 * @since HEI 4.29.0
 	 */
 	IAutocraftingHandler getAutocraftingHandler();
+
+	/**
+	 * Get the factory used to build HEI's ingredient search indices.
+	 *
+	 * @since HEI 4.33.0
+	 */
+	ISearchIndexBuilderFactory getSearchIndexBuilderFactory();
 
 	/**
 	 * @deprecated since JEI 4.5.0. Use {@link #getIngredientListOverlay()}

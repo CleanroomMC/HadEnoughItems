@@ -2,10 +2,14 @@ package mezz.jei.search;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import mezz.jei.api.search.ISearchIndex;
+import mezz.jei.api.search.ISearchIndexBuilder;
+import mezz.jei.api.search.ISearchIndexBuilderFactory;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.util.Log;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 
 import java.io.FileWriter;
@@ -21,21 +25,26 @@ public class ElementSearch implements IElementSearch {
 
     private boolean loggedStatistics = false;
 
-    public ElementSearch() {
-        if (Config.isSearchTreeBuildingAsync()) {
+    public ElementSearch(ISearchIndexBuilderFactory searchIndexBuilderFactory) {
+        boolean async = Config.isSearchTreeBuildingAsync();
+        if (Loader.isModLoaded("resourcehogs")) {
+            // Too lazy to fix this, culmination of many bugs
+            // SkyFactory players, go nag someone to fix Resource Hogs
+            // https://github.com/CleanroomMC/HadEnoughItems/issues/141
+            async = false;
+        }
+        if (async) {
             AsyncPrefixedSearchable.startService();
         }
 
-        ISearchStorage<IIngredientListElement<?>> storage = PrefixInfo.NO_PREFIX.createStorage();
-        PrefixedSearchable searchable = new PrefixedSearchable(storage, PrefixInfo.NO_PREFIX);
+        ISearchIndexBuilder<IIngredientListElement<?>> indexBuilder = PrefixInfo.NO_PREFIX.createIndexBuilder(searchIndexBuilderFactory);
+        PrefixedSearchable searchable = new PrefixedSearchable(indexBuilder, PrefixInfo.NO_PREFIX);
         this.prefixedSearchables.put(PrefixInfo.NO_PREFIX, searchable);
         this.combinedSearchables.addSearchable(searchable);
 
         for (PrefixInfo prefixInfo : PrefixInfo.all()) {
-            storage = prefixInfo.createStorage();
-            searchable = Config.isSearchTreeBuildingAsync() && prefixInfo.isAsyncable() ?
-                    new AsyncPrefixedSearchable(storage, prefixInfo) :
-                    new PrefixedSearchable(storage, prefixInfo);
+            indexBuilder = prefixInfo.createIndexBuilder(searchIndexBuilderFactory);
+            searchable = async && prefixInfo.isAsyncable() ? new AsyncPrefixedSearchable(indexBuilder, prefixInfo) : new PrefixedSearchable(indexBuilder, prefixInfo);
             this.prefixedSearchables.put(prefixInfo, searchable);
             this.combinedSearchables.addSearchable(searchable);
         }
@@ -47,6 +56,9 @@ public class ElementSearch implements IElementSearch {
             for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
                 prefixedSearchable.stop();
             }
+        }
+        for (PrefixedSearchable prefixedSearchable : this.prefixedSearchables.values()) {
+            prefixedSearchable.build();
         }
         if (!this.loggedStatistics && FMLLaunchHandler.isDeobfuscatedEnvironment()) {
             this.loggedStatistics = true;
@@ -101,15 +113,21 @@ public class ElementSearch implements IElementSearch {
         for (Map.Entry<PrefixInfo, PrefixedSearchable> entry : this.prefixedSearchables.entrySet()) {
             PrefixInfo prefixInfo = entry.getKey();
             if (prefixInfo.getMode() != Config.SearchMode.DISABLED) {
-                ISearchStorage<IIngredientListElement<?>> storage = entry.getValue().getSearchStorage();
-                Log.get().info("ElementSearch {} Storage Stats: {}", prefixInfo, storage.statistics());
-                try {
-                    FileWriter fileWriter = new FileWriter("GeneralizedSuffixTree-" + prefixInfo + ".dot");
-                    try (PrintWriter out = new PrintWriter(fileWriter)) {
-                        storage.printTree(out, false);
+                ISearchIndex<IIngredientListElement<?>> index = entry.getValue().getSearchIndex();
+                if (index == null) {
+                    Log.get().info("ElementSearch {} Index Stats: not built yet", prefixInfo);
+                    continue;
+                }
+                Log.get().info("ElementSearch {} Index Stats: {}", prefixInfo, index.statistics());
+                if (index instanceof IPrintableSearchIndex) {
+                    try {
+                        FileWriter fileWriter = new FileWriter("GeneralizedSuffixTree-" + prefixInfo + ".dot");
+                        try (PrintWriter out = new PrintWriter(fileWriter)) {
+                            ((IPrintableSearchIndex<?>) index).printTree(out, false);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
         }

@@ -56,7 +56,7 @@ import java.util.Set;
  * This kind of "implicit path" is important in the testAndSplit method.
  * <p>
  */
-public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
+public class GeneralizedSuffixTree<T> implements IPrintableSearchIndex<T> {
     /**
      * The root of the suffix tree
      */
@@ -376,7 +376,7 @@ public class GeneralizedSuffixTree<T> implements ISearchStorage<T> {
 
     /**
      * Print the tree for use by graphviz.
-     * To view, run the command: `dot -Tpng -O <filename>.dot`
+     * To view, run the command: {@code dot -Tpng -O <filename>.dot}
      */
     @Override
     public void printTree(PrintWriter out, boolean includeSuffixLinks) {

@@ -15,7 +15,7 @@ import mezz.jei.api.recipe.IIngredientType;
 
 public class IngredientSet<V> extends AbstractSet<V> {
 	public static <V> IngredientSet<V> create(IIngredientType<V> ingredientType, IIngredientHelper<V> ingredientHelper) {
-		return new IngredientSet<>(ingredientHelper::getUniqueId);
+		return new IngredientSet<>(ingredientHelper::getFullUniqueId);
 	}
 
 	private final Function<V, String> uidGenerator;

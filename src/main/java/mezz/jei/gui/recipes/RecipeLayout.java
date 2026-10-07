@@ -10,6 +10,8 @@ import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import mezz.jei.Internal;
+import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.config.Config;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiFluidStackGroup;
 import mezz.jei.api.gui.IGuiIngredientGroup;
@@ -31,6 +33,7 @@ import mezz.jei.gui.ingredients.GuiFluidStackGroup;
 import mezz.jei.gui.ingredients.GuiIngredient;
 import mezz.jei.gui.ingredients.GuiIngredientGroup;
 import mezz.jei.gui.ingredients.GuiItemStackGroup;
+import mezz.jei.gui.ingredients.RecipeIdTooltipCallback;
 import mezz.jei.ingredients.Ingredients;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.LegacyUtil;
@@ -38,6 +41,7 @@ import mezz.jei.util.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
 public class RecipeLayout implements IRecipeLayoutDrawable {
@@ -66,6 +70,10 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	@Nullable
 	private ShapelessIcon shapelessIcon;
 	private final DrawableNineSliceTexture recipeBorder;
+	@Nullable
+	private String recipeCategoryModId;
+	@Nullable
+	private ResourceLocation recipeId;
 
 	private int posX;
 	private int posY;
@@ -77,6 +85,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			IIngredients ingredients = new Ingredients();
 			recipeWrapper.getIngredients(ingredients);
 			recipeCategory.setRecipe(recipeLayout, recipeWrapper, ingredients);
+			recipeLayout.addRecipeIdTooltip();
 			return recipeLayout;
 		} catch (RuntimeException | LinkageError e) {
 			Log.get().error("Error caught from Recipe Category: {}", recipeCategory.getClass().getCanonicalName(), e);
@@ -217,11 +226,11 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		GlStateManager.disableLighting();
 		GlStateManager.enableAlpha();
 
-		final int recipeMouseX = mouseX - posX;
-		final int recipeMouseY = mouseY - posY;
+		int recipeMouseX = mouseX - posX;
+		int recipeMouseY = mouseY - posY;
 
-		GuiIngredient hoveredIngredient = null;
-		for (GuiIngredientGroup guiIngredientGroup : guiIngredientGroups.values()) {
+		GuiIngredient<?> hoveredIngredient = null;
+		for (GuiIngredientGroup<?> guiIngredientGroup : guiIngredientGroups.values()) {
 			hoveredIngredient = guiIngredientGroup.getHoveredIngredient(posX, posY, mouseX, mouseY);
 			if (hoveredIngredient != null) {
 				break;
@@ -296,10 +305,18 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	}
 
 	public boolean handleMouseScroll(int mouseX, int mouseY, int scrollAmount) {
+		if (recipeWrapper.handleMouseScroll(mouseX - posX, mouseY - posY, scrollAmount)) {
+            return true;
+		}
+
 		if (recipeFavoriteButton == null) {
 			return false;
 		}
 		return recipeFavoriteButton.handleMouseScrolled(mouseX, mouseY, scrollAmount);
+	}
+
+	public boolean handleMouseDrag(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		return recipeWrapper.handleMouseDrag(mouseX - posX, mouseY - posY, clickedMouseButton, timeSinceLastClick);
 	}
 
 	@Override
@@ -418,13 +435,51 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	}
 
 	public boolean addToBookmarks() {
-        BookmarkList bookmarkList = Internal.getBookmarkList();
-        RecipeBookmarkGroup group = new RecipeBookmarkGroup(bookmarkList.nextId());
-        RecipeBookmarkItem<?> recipeBookmarkItem = new RecipeBookmarkItem<>(getRecipeFavoriteButton().getDisplayedIngredient());
-        recipeBookmarkItem.setGroup(group); // Do this early so that the dummy items are also added.
-        recipeBookmarkItem.populateWith(recipeWrapper, recipeCategory);
-        group.addItem(recipeBookmarkItem); // Do this late so that the recipe isn't overwritten.
-        group.update();
-        return bookmarkList.add(group);
+		return addToBookmarks(Config.isAddingBookmarksToFront());
+	}
+
+	public boolean addToBookmarks(boolean addToFront) {
+		RecipeFavoriteButton favoriteButton = getRecipeFavoriteButton();
+		if (favoriteButton == null) {
+			return false;
+		}
+		Object displayedIngredient = favoriteButton.getDisplayedIngredient();
+		if (displayedIngredient == null) {
+			return false;
+		}
+		BookmarkList bookmarkList = Internal.getBookmarkList();
+		RecipeBookmarkGroup group = new RecipeBookmarkGroup(bookmarkList.nextId());
+		List<RecipeBookmarkItem<?>> recipeOutputs = RecipeBookmarkItem.createRecipeOutputs(displayedIngredient, recipeWrapper, recipeCategory);
+		if (recipeOutputs.isEmpty()) {
+			return false;
+		}
+		for (RecipeBookmarkItem<?> recipeOutput : recipeOutputs) {
+			// Added after population so expanding the chain cannot replace the recipe chosen above.
+			group.addItem(recipeOutput);
+		}
+		return bookmarkList.add(group, addToFront);
+	}
+
+    public boolean mouseReleased(int mouseX, int mouseY, int state) {
+        return recipeWrapper.handleMouseReleased(mouseX, mouseY, state);
+    }
+
+	@Override
+	public void setRecipeId(String recipeCategoryModId, @Nullable ResourceLocation recipeId) {
+		this.recipeCategoryModId = recipeCategoryModId;
+		this.recipeId = recipeId;
+	}
+
+	private void addRecipeIdTooltip() {
+		if (recipeId != null) {
+			String recipeModId = recipeId.getNamespace();
+			boolean recipeCategoryIdDifferent = !recipeModId.equals(recipeCategoryModId);
+
+			for (GuiIngredientGroup guiIngredientGroup : guiIngredientGroups.values()) {
+				IIngredientHelper ingredientHelper = guiIngredientGroup.getIngredientHelper();
+				RecipeIdTooltipCallback tooltipCallback = new RecipeIdTooltipCallback(recipeId, recipeCategoryIdDifferent, ingredientHelper);
+				guiIngredientGroup.addTooltipCallbackAfter(tooltipCallback);
+			}
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package mezz.jei.util;
 
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import mezz.jei.Internal;
 import mezz.jei.api.IRecipeRegistry;
 import mezz.jei.api.recipe.IFocus;
@@ -8,6 +9,7 @@ import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.api.recipe.wrapper.ICraftingRecipeWrapper;
 import mezz.jei.gui.Focus;
+import mezz.jei.gui.ingredients.IIngredientListElement;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -28,6 +30,30 @@ public final class RecipeUtil {
 
     public static Query query() {
         return new Query();
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static Set<IRecipeWrapper> search(IRecipeCategory category,
+                                             Collection<IIngredientListElement<?>> ingredients,
+                                             boolean searchInputs, boolean searchOutputs) {
+        IRecipeRegistry recipeRegistry = Internal.getRuntime().getRecipeRegistry();
+        Set<IRecipeWrapper> matched = new ReferenceOpenHashSet<>();
+        MutableFocus focus = new MutableFocus();
+        if (searchInputs) {
+            focus.setMode(IFocus.Mode.INPUT);
+            for (IIngredientListElement<?> element : ingredients) {
+                focus.setValue(element.getIngredient());
+                matched.addAll(recipeRegistry.getRecipeWrappers(category, translateFocus(element, focus)));
+            }
+        }
+        if (searchOutputs) {
+            focus.setMode(IFocus.Mode.OUTPUT);
+            for (IIngredientListElement<?> element : ingredients) {
+                focus.setValue(element.getIngredient());
+                matched.addAll(recipeRegistry.getRecipeWrappers(category, translateFocus(element, focus)));
+            }
+        }
+        return matched;
     }
 
     public static List<IRecipeWrapper> query(Consumer<Query> consumer) throws IllegalArgumentException {
@@ -93,7 +119,7 @@ public final class RecipeUtil {
                     "Both inputs and outputs were empty when querying for recipes, that is not allowed");
 
             IRecipeRegistry recipeRegistry = Internal.getRuntime().getRecipeRegistry();
-            Set<IRecipeWrapper> recipes = new HashSet<>();
+            Set<IRecipeWrapper> recipes = new ReferenceOpenHashSet<>();
             MutableFocus focus = new MutableFocus();
 
             focus.setMode(IFocus.Mode.INPUT);
@@ -118,6 +144,11 @@ public final class RecipeUtil {
             return new ArrayList<>(recipes);
         }
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <V> IFocus<?> translateFocus(IIngredientListElement<V> element, MutableFocus focus) {
+        return element.getIngredientHelper().translateFocus((Focus<V>) focus, Focus::new);
     }
 
     private static class MutableFocus extends Focus<Object> {

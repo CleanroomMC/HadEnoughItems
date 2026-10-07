@@ -7,6 +7,7 @@ import mezz.jei.config.Config;
 import mezz.jei.config.CustomGroupsConfig;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.IngredientFilter;
+import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.util.Translator;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -17,6 +18,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -40,6 +42,12 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	private static final int BTN_NEXT_PAGE = 3;
 	private static final int BTN_PREV_SEL_PAGE = 4;
 	private static final int BTN_NEXT_SEL_PAGE = 5;
+	private static final int BTN_CLEAR = 6;
+
+	private static final int FIELD_NAME_BOX = 10;
+	private static final int FIELD_SEARCH_BOX = 11;
+	private static final int FIELD_BACKGROUND_COLOR_BOX = 12;
+	private static final int FIELD_BORDER_COLOR_BOX = 13;
 
 	private final GuiCollapsibleGroups parentScreen;
 	private final CustomGroupsConfig.CustomGroup group;
@@ -53,6 +61,10 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	private GuiTextField nameField;
 	@Nullable
 	private GuiTextField searchField;
+	@Nullable
+	private GuiTextField backgroundColorField;
+	@Nullable
+	private GuiTextField borderColorField;
 
 	// Left grid (all items)
 	private List<IIngredientListElement> filteredItems = Collections.emptyList();
@@ -97,6 +109,17 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		this.selectedUids.addAll(group.itemUids);
 	}
 
+	private static int getColor(String hex, int fallback) {
+		// don't color when only the alpha values are present
+		if (hex.length() <= 2) return fallback;
+		hex = StringUtils.rightPad(hex, 8, '0');
+		try {
+			return Integer.parseUnsignedInt(hex, 16);
+		} catch (NumberFormatException ignored) {
+			return fallback;
+		}
+	}
+
 	@Override
 	public void initGui() {
 		super.initGui();
@@ -107,14 +130,17 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		int panelDivider = (int) (this.width * 0.65);
 
 		// Name field
-		nameField = new GuiTextField(10, this.fontRenderer, 62, 6, panelDivider - 70, 16);
+		nameField = new GuiTextField(FIELD_NAME_BOX, this.fontRenderer, 62, 6, panelDivider - 70, 16);
 		nameField.setMaxStringLength(40);
 		nameField.setText(group.displayName != null ? group.displayName : "");
 
-		// Search field — restore saved text so the user's last search carries over
-		searchField = new GuiTextField(11, this.fontRenderer, 4, topBarHeight - 18, panelDivider - 12, 14);
-		searchField.setMaxStringLength(128);
-		searchField.setText(savedSearchText);
+		// color fields
+		backgroundColorField = new GuiTextField(FIELD_BACKGROUND_COLOR_BOX, this.fontRenderer, 62, topBarHeight - 20, 55, 16);
+		backgroundColorField.setMaxStringLength(8);
+		backgroundColorField.setText(Integer.toHexString(group.backgroundColor));
+		borderColorField = new GuiTextField(FIELD_BORDER_COLOR_BOX, this.fontRenderer, 121, topBarHeight - 20, 55, 16);
+		borderColorField.setMaxStringLength(8);
+		borderColorField.setText(Integer.toHexString(group.borderColor));
 
 		// Save & Cancel buttons
 		this.buttonList.add(new GuiButton(BTN_SAVE, panelDivider + 4, 4, 50, 20,
@@ -124,7 +150,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 		// Calculate left grid layout
 		int leftWidth = panelDivider - 8;
-		int leftHeight = this.height - topBarHeight - 26; // room for page nav
+		int leftHeight = this.height - topBarHeight - 44; // room for page nav
 		leftCols = Math.max(1, leftWidth / ITEM_SIZE);
 		leftRows = Math.max(1, leftHeight / ITEM_SIZE);
 		leftGridX = (panelDivider - 4 - leftCols * ITEM_SIZE) / 2;
@@ -142,12 +168,22 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 		// Page nav buttons for left grid
 		int leftNavY = this.height - 22;
-		this.buttonList.add(new GuiButton(BTN_PREV_PAGE, 4, leftNavY, 30, 20, "<"));
-		this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, panelDivider - 34, leftNavY, 30, 20, ">"));
+
+		// Search field — restore saved text so the user's last search carries over
+		searchField = new GuiTextField(FIELD_SEARCH_BOX, this.fontRenderer, 6, leftNavY - 18, panelDivider - 12, 14);
+		searchField.setMaxStringLength(128);
+		searchField.setText(savedSearchText);
+
+		this.buttonList.add(new GuiButton(BTN_PREV_PAGE, 4, leftNavY, 20, 20, "<"));
+		this.buttonList.add(new GuiButton(BTN_NEXT_PAGE, panelDivider - 24, leftNavY, 20, 20, ">"));
 
 		// Page nav buttons for right grid
-		this.buttonList.add(new GuiButton(BTN_PREV_SEL_PAGE, panelDivider + 4, leftNavY, 30, 20, "<"));
-		this.buttonList.add(new GuiButton(BTN_NEXT_SEL_PAGE, this.width - 34, leftNavY, 30, 20, ">"));
+		this.buttonList.add(new GuiButton(BTN_PREV_SEL_PAGE, panelDivider + 4, leftNavY, 20, 20, "<"));
+		this.buttonList.add(new GuiButton(BTN_NEXT_SEL_PAGE, this.width - 24, leftNavY, 20, 20, ">"));
+
+		// Clear all items
+		this.buttonList.add(new GuiButton(BTN_CLEAR, panelDivider + (this.width - panelDivider) / 2 - 25, leftNavY, 50, 20,
+				Translator.translateToLocal("hei.gui.collapsible.editor.clear")));
 
 		updateFilteredItems();
 		leftPage = Math.max(0, Math.min(savedFirstItemIndex / leftItemsPerPage, leftTotalPages - 1));
@@ -375,12 +411,22 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			case BTN_NEXT_SEL_PAGE:
 				rightPage = Math.min(rightTotalPages - 1, rightPage + 1);
 				break;
+			case BTN_CLEAR:
+				selectedUids.clear();
+				updateSelectedStacks();
+				break;
 		}
 	}
 
 	private void saveAndClose() {
 		if (nameField != null) {
 			group.displayName = nameField.getText();
+		}
+		if (backgroundColorField != null) {
+			group.backgroundColor = getColor(backgroundColorField.getText(), CollapsedGroupIngredient.BACKGROUND_COLOR_SMOKE);
+		}
+		if (borderColorField != null) {
+			group.borderColor = getColor(borderColorField.getText(), CollapsedGroupIngredient.BORDER_COLOR_SMOKE);
 		}
 		group.itemUids = new ArrayList<>(selectedUids);
 
@@ -410,9 +456,44 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		// Name label
 		this.fontRenderer.drawStringWithShadow(
 			Translator.translateToLocal("hei.gui.collapsible.editor.name") + ":",
-			4, 10, 0xFFFFFF);
+			6, 10, 0xFFFFFF);
 		if (nameField != null) {
 			nameField.drawTextBox();
+		}
+
+		// Color label
+		this.fontRenderer.drawStringWithShadow(
+				Translator.translateToLocal("hei.gui.collapsible.editor.color") + ":",
+				6, 32, 0xFFFFFF);
+		if (backgroundColorField != null) {
+			backgroundColorField.drawTextBox();
+		}
+		if (borderColorField != null) {
+			borderColorField.drawTextBox();
+		}
+
+		if (backgroundColorField != null && borderColorField != null) {
+			int backgroundColor = getColor(backgroundColorField.getText(), CollapsedGroupIngredient.BACKGROUND_COLOR_SMOKE);
+			int borderColor = getColor(borderColorField.getText(), CollapsedGroupIngredient.BORDER_COLOR_SMOKE);
+			int x = 180;
+			int y = 28;
+			GlStateManager.disableLighting();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(
+					GlStateManager.SourceFactor.SRC_ALPHA,
+					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+					GlStateManager.SourceFactor.ONE,
+					GlStateManager.DestFactor.ZERO
+			);
+			// create a 4x1 space to show what a typical group looks like
+			drawRect(x, y, x + 64, y + 16, backgroundColor);
+			GlStateManager.disableDepth();
+			GuiScreen.drawRect(x, y, x + 64, y + 1, borderColor);
+			GuiScreen.drawRect(x + 64 - 1, y + 1, x + 64, y + 16, borderColor);
+			GuiScreen.drawRect(x + 64 - 1, y + 16 - 1, x, y + 16, borderColor);
+			GuiScreen.drawRect(x, y + 1, x + 1, y + 16, borderColor);
+			GlStateManager.enableDepth();
+			GlStateManager.disableBlend();
 		}
 
 		// Search field
@@ -588,11 +669,14 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				IIngredientListElement<?> element = filteredItems.get(startIdx + i);
 				List<String> lines = getIngredientTooltipLines(element);
 				if (element.getIngredient() instanceof ItemStack) {
-					boolean alreadySelected = isUidSelected(getIngredientUid(element.getIngredient()));
-					if (alreadySelected) {
-						lines.add(TextFormatting.GOLD + "Ctrl+Click: Remove all variants");
-					} else {
-						lines.add(TextFormatting.GOLD + "Ctrl+Click: Select all variants (Wildcard)");
+					String familyWildcard = getIngredientWildcardUid(element.getIngredient());
+					if (familyWildcard != null && familyWildcard.endsWith(":*")) {
+						boolean alreadySelected = isUidSelected(getIngredientUid(element.getIngredient()));
+						if (alreadySelected) {
+							lines.add(TextFormatting.GOLD + "Ctrl+Click: Remove all variants");
+						} else {
+							lines.add(TextFormatting.GOLD + "Ctrl+Click: Select all variants (Wildcard)");
+						}
 					}
 				}
 				List<String> otherGroups = getOtherGroupNames(getIngredientUid(element.getIngredient()));
@@ -637,6 +721,12 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		if (nameField != null) {
 			nameField.mouseClicked(mouseX, mouseY, mouseButton);
+		}
+		if (backgroundColorField != null) {
+			backgroundColorField.mouseClicked(mouseX, mouseY, mouseButton);
+		}
+		if (borderColorField != null) {
+			borderColorField.mouseClicked(mouseX, mouseY, mouseButton);
 		}
 		if (searchField != null) {
 			searchField.mouseClicked(mouseX, mouseY, mouseButton);
@@ -829,6 +919,14 @@ public class GuiCustomGroupEditor extends GuiScreen {
 			nameField.textboxKeyTyped(typedChar, keyCode);
 			return;
 		}
+		if (backgroundColorField != null && backgroundColorField.isFocused()) {
+			backgroundColorField.textboxKeyTyped(typedChar, keyCode);
+			return;
+		}
+		if (borderColorField != null && borderColorField.isFocused()) {
+			borderColorField.textboxKeyTyped(typedChar, keyCode);
+			return;
+		}
 		if (searchField != null && searchField.isFocused()) {
 			String before = searchField.getText();
 			searchField.textboxKeyTyped(typedChar, keyCode);
@@ -886,6 +984,12 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		super.updateScreen();
 		if (nameField != null) {
 			nameField.updateCursorCounter();
+		}
+		if (backgroundColorField != null) {
+			backgroundColorField.updateCursorCounter();
+		}
+		if (borderColorField != null) {
+			borderColorField.updateCursorCounter();
 		}
 		if (searchField != null) {
 			searchField.updateCursorCounter();

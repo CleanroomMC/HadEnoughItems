@@ -22,11 +22,21 @@ public final class KeyBindings {
 	public static final KeyBinding recipeBack;
 	public static final KeyBinding previousPage;
 	public static final KeyBinding nextPage;
+	public static final KeyBinding previousCategory;
+	public static final KeyBinding nextCategory;
 	public static final KeyBinding bookmark;
 	public static final KeyBinding bookmarkToTop;
-	public static final KeyBinding recipeBookmark;
+	public static final KeyBinding bookmarkNewGroup;
+	public static final KeyBinding bookmarkNewGroupToTop;
 	public static final KeyBinding toggleBookmarkOverlay;
 	public static final KeyBinding crafting;
+	public static final KeyBinding moveGroupUp;
+	public static final KeyBinding moveGroupDown;
+
+	/** Changed to {@link #bookmark} */
+	@Deprecated
+	public static final KeyBinding recipeBookmark;
+
 	private static final List<KeyBinding> allBindings;
 
     static {
@@ -40,12 +50,19 @@ public final class KeyBindings {
 			recipeBack = new KeyBinding("key.jei.recipeBack", KeyConflictContext.GUI, Keyboard.KEY_BACK, categoryName),
 			previousPage = new KeyBinding("key.jei.previousPage", KeyConflictContext.GUI, Keyboard.KEY_PRIOR, categoryName),
 			nextPage = new KeyBinding("key.jei.nextPage", KeyConflictContext.GUI, Keyboard.KEY_NEXT, categoryName),
+			previousCategory = new KeyBinding("key.hei.previousCategory", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_PRIOR, categoryName),
+			nextCategory = new KeyBinding("key.hei.nextCategory", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_NEXT, categoryName),
 			bookmark = new KeyBinding("key.jei.bookmark", KeyConflictContext.GUI, KeyModifier.NONE, Keyboard.KEY_A, categoryName),
 			bookmarkToTop = new KeyBinding("key.hei.bookmarkToTop", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_A, categoryName),
-			recipeBookmark = new KeyBinding("key.hei.recipeBookmark", KeyConflictContext.GUI, KeyModifier.CONTROL, Keyboard.KEY_A, categoryName),
+			bookmarkNewGroup = new KeyBinding("key.hei.bookmarkNewGroup", KeyConflictContext.GUI, KeyModifier.CONTROL, Keyboard.KEY_A, categoryName),
+			bookmarkNewGroupToTop = new KeyBinding("key.hei.bookmarkNewGroupToTop", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
 			toggleBookmarkOverlay = new KeyBinding("key.hei.toggleBookmarkOverlay", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
-			crafting = new KeyBinding("key.hei.crafting", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_C, categoryName)
+			crafting = new KeyBinding("key.hei.crafting", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_C, categoryName),
+			moveGroupUp = new KeyBinding("key.hei.moveGroupUp", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_UP, categoryName),
+			moveGroupDown = new KeyBinding("key.hei.moveGroupDown", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_DOWN, categoryName)
 		);
+
+		recipeBookmark = bookmark;
 	}
 
 	private KeyBindings() {

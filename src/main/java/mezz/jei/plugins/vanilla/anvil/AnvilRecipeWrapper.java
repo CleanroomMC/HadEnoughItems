@@ -1,6 +1,5 @@
 package mezz.jei.plugins.vanilla.anvil;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -17,12 +16,14 @@ import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IRecipeWrapper;
 
 public class AnvilRecipeWrapper implements IRecipeWrapper {
-	private final List<List<ItemStack>> inputs;
-	private final List<List<ItemStack>> output;
+	private final List<ItemStack> leftInputs;
+	private final List<ItemStack> rightInputs;
+	private final List<ItemStack> output;
 
-	public AnvilRecipeWrapper(List<ItemStack> leftInput, List<ItemStack> rightInputs, List<ItemStack> outputs) {
-		this.inputs = ImmutableList.of(leftInput, rightInputs);
-		this.output = Collections.singletonList(outputs);
+	public AnvilRecipeWrapper(List<ItemStack> leftInputs, List<ItemStack> rightInputs, List<ItemStack> outputs) {
+		this.leftInputs = leftInputs;
+		this.rightInputs = rightInputs;
+		this.output = outputs;
 	}
 
 	@Override
@@ -44,8 +45,8 @@ public class AnvilRecipeWrapper implements IRecipeWrapper {
 		ItemStack lastRightStack = data.getLastRightStack();
 		int lastCost = data.getLastCost();
 		if (lastLeftStack == null || lastRightStack == null
-			|| !ItemStack.areItemStacksEqual(lastLeftStack, newLeftStack)
-			|| !ItemStack.areItemStacksEqual(lastRightStack, newRightStack)) {
+				|| !ItemStack.areItemStacksEqual(lastLeftStack, newLeftStack)
+				|| !ItemStack.areItemStacksEqual(lastRightStack, newRightStack)) {
 			lastCost = AnvilRecipeMaker.findLevelsCost(newLeftStack, newRightStack);
 			data.setLast(newLeftStack, newRightStack, lastCost);
 		}
@@ -57,8 +58,8 @@ public class AnvilRecipeWrapper implements IRecipeWrapper {
 			int mainColor = 0xFF80FF20;
 			EntityPlayerSP player = minecraft.player;
 			if (player != null &&
-				(lastCost >= 40 || lastCost > player.experienceLevel) &&
-				!player.capabilities.isCreativeMode) {
+					(lastCost >= 40 || lastCost > player.experienceLevel) &&
+					!player.capabilities.isCreativeMode) {
 				// Show red if the player doesn't have enough levels
 				mainColor = 0xFFFF6060;
 			}
@@ -87,7 +88,7 @@ public class AnvilRecipeWrapper implements IRecipeWrapper {
 
 	@Override
 	public void getIngredients(IIngredients ingredients) {
-		ingredients.setInputLists(VanillaTypes.ITEM, inputs);
-		ingredients.setOutputLists(VanillaTypes.ITEM, output);
+		ingredients.setInputLists(VanillaTypes.ITEM, ImmutableList.of(leftInputs, rightInputs));
+		ingredients.setOutputLists(VanillaTypes.ITEM, ImmutableList.of(output));
 	}
 }

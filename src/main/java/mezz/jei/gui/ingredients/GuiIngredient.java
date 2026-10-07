@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag;
@@ -24,6 +26,7 @@ import mezz.jei.api.gui.ITooltipCallback;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.recipe.IFocus;
+import mezz.jei.config.Config;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.IngredientRegistry;
@@ -43,14 +46,17 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	private final int yPadding;
 
 	private final CycleTimer cycleTimer;
-	private final List<T> displayIngredients = new ArrayList<>(); // ingredients, taking focus into account
+	final List<T> displayIngredients = new ArrayList<>(); // ingredients, taking focus into account
 	private final List<T> allIngredients = new ArrayList<>(); // all ingredients, ignoring focus
-	private final IIngredientRenderer<T> ingredientRenderer;
-	private final IIngredientHelper<T> ingredientHelper;
+	final IIngredientRenderer<T> ingredientRenderer;
+	final IIngredientHelper<T> ingredientHelper;
 	@Nullable
 	private ITooltipCallback<T> tooltipCallback;
 	@Nullable
 	private IDrawable background;
+	@Nullable
+	private IngredientListPreview ingredientPreview;
+	private boolean ingredientPreviewInvalidated = true;
 
 	private boolean enabled;
 
@@ -78,6 +84,14 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 
 	public Rectangle getRect() {
 		return rect;
+	}
+
+	public int getXPadding() {
+		return xPadding;
+	}
+
+	public int getYPadding() {
+		return yPadding;
 	}
 
 	public boolean isMouseOver(int xOffset, int yOffset, int mouseX, int mouseY) {
@@ -117,6 +131,28 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			this.allIngredients.addAll(ingredients);
 		}
 		enabled = !this.displayIngredients.isEmpty();
+
+		// The preview is built lazily on first hover: only one slot is ever hovered at a time, so
+		// wrapping every ingredient of every slot up front would be wasted work.
+		this.ingredientPreview = null;
+		this.ingredientPreviewInvalidated = true;
+	}
+
+	/**
+	 * Every ingredient this slot accepts, as a tooltip grid, or null when there is nothing to show.
+	 * Built on first request and cached until the slot is set again.
+	 */
+	@Nullable
+	public IngredientListPreview getIngredientPreview() {
+		if (ingredientPreviewInvalidated) {
+			ingredientPreviewInvalidated = false;
+			// A focused slot collapses displayIngredients down to the single match, which leaves
+			// fewer than two entries and so yields no preview.
+			ingredientPreview = Config.isRecipeIngredientPreviewEnabled()
+				? IngredientListPreview.create(this)
+				: null;
+		}
+		return ingredientPreview;
 	}
 
 	private List<T> filterOutHidden(List<T> ingredients) {
@@ -130,11 +166,8 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			if (ingredient == null || ingredientRegistry.isIngredientVisible(ingredient, ingredientFilter)) {
 				visible.add(ingredient);
 			}
-			if (visible.size() > 100) {
-				return visible;
-			}
 		}
-		if (visible.size() > 0) {
+		if (!visible.isEmpty()) {
 			return visible;
 		}
 		return ingredients;
@@ -213,7 +246,9 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			}
 
 			FontRenderer fontRenderer = ingredientRenderer.getFontRenderer(minecraft, value);
+			ItemStack tooltipStack = ItemStack.EMPTY;
 			if (value instanceof ItemStack) {
+				tooltipStack = (ItemStack) value;
 				//noinspection unchecked
 				Collection<ItemStack> itemStacks = (Collection<ItemStack>) this.allIngredients;
 				String oreDictEquivalent = Internal.getStackHelper().getOreDictEquivalent(itemStacks);
@@ -221,14 +256,59 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 					final String acceptsAny = String.format(oreDictionaryIngredient, oreDictEquivalent);
 					tooltip.add(TextFormatting.GRAY + acceptsAny);
 				}
-				TooltipRenderer.drawHoveringText((ItemStack) value, minecraft, tooltip, xOffset + mouseX, yOffset + mouseY, fontRenderer);
+			}
+
+			int tooltipX = xOffset + mouseX;
+			int tooltipY = yOffset + mouseY;
+			IngredientListPreview preview = getIngredientPreview();
+			if (preview != null && !GuiScreen.isShiftKeyDown()) {
+				// Shift pins the tooltip, so the hint only makes sense while it is not held.
+				tooltip.add(Translator.translateToLocal("hei.tooltip.recipe.ingredient_pin"));
+			}
+			if (preview == null) {
+				if (value instanceof ItemStack) {
+					TooltipRenderer.drawHoveringText(tooltipStack, minecraft, tooltip, tooltipX, tooltipY, fontRenderer);
+				} else {
+					TooltipRenderer.drawHoveringText(minecraft, tooltip, tooltipX, tooltipY, fontRenderer);
+				}
 			} else {
-				TooltipRenderer.drawHoveringText(minecraft, tooltip, xOffset + mouseX, yOffset + mouseY, fontRenderer);
+				TooltipRenderer.drawHoveringTextAndItems(
+					tooltipStack,
+					minecraft,
+					tooltip,
+					Collections.singletonList(preview.getRenderer()),
+					tooltipX,
+					tooltipY,
+					-1,
+					fontRenderer,
+					getPostLayoutHook(minecraft, preview)
+				);
 			}
 
 			GlStateManager.enableDepth();
 		} catch (RuntimeException e) {
 			Log.get().error("Exception when rendering tooltip on {}.", value, e);
+		}
+	}
+
+	private static Consumer<Rectangle> getPostLayoutHook(Minecraft minecraft, IngredientListPreview preview) {
+		if (GuiScreen.isShiftKeyDown()) {
+			return bound -> {
+				preview.setTooltipBounds(bound);
+
+				GlStateManager.enableAlpha();
+				int padding = 6; // 4 from tooltip itself, 2 for visible border
+				Internal.getHelpers().getGuiHelper().getRecipeBackground().draw(
+					minecraft,
+					bound.x - padding,
+					bound.y - padding,
+					bound.width + padding * 2,
+					bound.height + padding * 2
+				);
+				GlStateManager.disableAlpha();
+			};
+		} else {
+			return preview::setTooltipBounds;
 		}
 	}
 

@@ -365,8 +365,19 @@ public final class Config {
 		return values.mouseClickToSeeRecipes;
 	}
 
+	public static boolean holdToDragGhostIngredients() {
+		return values.holdToDragGhostIngredients;
+	}
+
 	public static boolean getTooltipShowRecipeBy() {
 		return values.tooltipShowRecipeBy;
+	}
+
+	/**
+	 * Whether a recipe slot's tooltip lists every ingredient that slot accepts.
+	 */
+	public static boolean isRecipeIngredientPreviewEnabled() {
+		return values.recipeIngredientPreviewEnabled;
 	}
 
 	public static boolean getShowHiddenIngredientsInCreative() {
@@ -377,8 +388,12 @@ public final class Config {
 		return values.skipShowingProgressBar;
 	}
 
-	public static boolean hideBottomRightCornerConfigButton() {
-		return values.hideBottomRightCornerConfigButton;
+	public enum ButtonPosition {
+		LEFT, RIGHT, HIDDEN
+	}
+
+	public static ButtonPosition getConfigButtonPosition() {
+		return values.configButtonPosition;
 	}
 
     public static boolean hideBottomLeftCornerBookmarkButton() {
@@ -399,6 +414,10 @@ public final class Config {
 
 	public static List<String> categoryUidOrder() {
 		return values.categoryUidOrder;
+	}
+
+	public static boolean isRecipeCategoryDisabled(String recipeCategoryUid) {
+		return values.disabledRecipeCategoryUids.contains(recipeCategoryUid);
 	}
 
 	@Nullable
@@ -576,7 +595,11 @@ public final class Config {
 
 		values.mouseClickToSeeRecipes = config.getBoolean(CATEGORY_MISC, "mouseClickToSeeRecipes", defaultValues.mouseClickToSeeRecipes);
 
+		values.holdToDragGhostIngredients = config.getBoolean(CATEGORY_MISC, "holdToDragGhostIngredients", defaultValues.holdToDragGhostIngredients);
+
 		values.tooltipShowRecipeBy = config.getBoolean(CATEGORY_MISC, "tooltipShowRecipeBy", defaultValues.tooltipShowRecipeBy);
+
+		values.recipeIngredientPreviewEnabled = config.getBoolean(CATEGORY_MISC, "recipeIngredientPreviewEnabled", defaultValues.recipeIngredientPreviewEnabled);
 
 		{
 			boolean prev = values.showHiddenIngredientsInCreative;
@@ -588,7 +611,7 @@ public final class Config {
 
 		values.skipShowingProgressBar = config.getBoolean(CATEGORY_MISC, "skipShowingProgressBar", defaultValues.skipShowingProgressBar);
 
-		values.hideBottomRightCornerConfigButton = config.getBoolean(CATEGORY_MISC, "hideBottomRightCornerConfigButton", defaultValues.hideBottomRightCornerConfigButton);
+		values.configButtonPosition = config.getEnum("configButtonPosition", CATEGORY_MISC, defaultValues.configButtonPosition, ButtonPosition.values());
 
         values.hideBottomLeftCornerBookmarkButton = config.getBoolean(CATEGORY_MISC, "hideBottomLeftCornerBookmarkButton", defaultValues.hideBottomLeftCornerBookmarkButton);
 
@@ -656,6 +679,15 @@ public final class Config {
 
 		String[] categoryUidOrder = config.getStringList("categoryUidOrder", CATEGORY_CATEGORY, defaultValues.categoryUidOrder.toArray(new String[]{}));
 		values.categoryUidOrder = Arrays.asList(categoryUidOrder);
+
+		String[] disabledRecipeCategoryUids = config.getStringList("disabledRecipeCategoryUids", CATEGORY_CATEGORY, new String[]{});
+		values.disabledRecipeCategoryUids.clear();
+		for (String uid : disabledRecipeCategoryUids) {
+			uid = uid.trim();
+			if (!uid.isEmpty()) {
+				values.disabledRecipeCategoryUids.add(uid);
+			}
+		}
 
 		final boolean configChanged = config.hasChanged();
 		if (configChanged) {

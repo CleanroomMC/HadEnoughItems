@@ -3,6 +3,7 @@ package mezz.jei.runtime;
 import mezz.jei.api.IBookmarkOverlay;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.recipe.transfer.IAutocraftingHandler;
+import mezz.jei.api.search.ISearchIndexBuilderFactory;
 import mezz.jei.autocrafting.AutocraftingHandler;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.gui.overlay.ItemListOverlay;
@@ -19,8 +20,10 @@ public class JeiRuntime implements IJeiRuntime {
 	private final RecipesGui recipesGui;
 	private final IngredientFilter ingredientFilter;
 	private final IAutocraftingHandler autocraftingHandler;
+	private final ISearchIndexBuilderFactory searchIndexBuilderFactory;
 
-	public JeiRuntime(RecipeRegistry recipeRegistry, IngredientListOverlay ingredientListOverlay, IBookmarkOverlay bookmarkOverlay, RecipesGui recipesGui, IngredientFilter ingredientFilter) {
+	public JeiRuntime(RecipeRegistry recipeRegistry, IngredientListOverlay ingredientListOverlay, IBookmarkOverlay bookmarkOverlay, RecipesGui recipesGui,
+			IngredientFilter ingredientFilter, ISearchIndexBuilderFactory searchIndexBuilderFactory) {
 		this.recipeRegistry = recipeRegistry;
 		this.ingredientListOverlay = ingredientListOverlay;
 		this.bookmarkOverlay = bookmarkOverlay;
@@ -28,6 +31,7 @@ public class JeiRuntime implements IJeiRuntime {
 		this.ingredientFilter = ingredientFilter;
 		this.itemListOverlay = new ItemListOverlay(ingredientListOverlay, ingredientFilter);
 		this.autocraftingHandler = new AutocraftingHandler();
+		this.searchIndexBuilderFactory = searchIndexBuilderFactory;
 	}
 
 	public void close() {
@@ -62,6 +66,11 @@ public class JeiRuntime implements IJeiRuntime {
 	@Override
 	public IAutocraftingHandler getAutocraftingHandler() {
 		return autocraftingHandler;
+	}
+
+	@Override
+	public ISearchIndexBuilderFactory getSearchIndexBuilderFactory() {
+		return searchIndexBuilderFactory;
 	}
 
 	@Override

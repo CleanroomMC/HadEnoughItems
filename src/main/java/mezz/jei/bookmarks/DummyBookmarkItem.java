@@ -3,45 +3,45 @@ package mezz.jei.bookmarks;
 import net.minecraft.nbt.NBTTagCompound;
 
 import javax.annotation.Nullable;
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
 
 /**
- * The dummy bookmark item is used to represent the inputs of a recipe.
- * These are generated automatically by the recipe bookmark group and are not saved to disk, nor are they editable.
- * This lack of implementation warrants the name "dummy".
- *
- * @param <I> The type of the internal ingredient.
+ * One ingredient slot of a recipe row in the bookmark overlay.
+ * <p>
+ * These stand for a recipe's ingredients rather than for bookmarks the player made,
+ * thus they are not saved nor editable.
  */
 public class DummyBookmarkItem<I> extends BookmarkItem<I> {
-    private final Supplier<Long> displayAmountSupplier;
-    public DummyBookmarkItem(I ingredient, @Nullable BookmarkGroup group, Supplier<Long> displayAmountSupplier) {
-        super(ingredient);
-        this.setGroup(group);
-        this.displayAmountSupplier = displayAmountSupplier;
-    }
 
-    @Override
-    public int getGroupIndex() {
-        return super.getGroupIndex();
-    }
+	private final LongSupplier displayAmount;
 
-    @Override
-    public void changeAmount(long delta) {
-        // It would be rather weird to change the amount of a dummy item in a recipe...
-    }
+	public DummyBookmarkItem(I ingredient, @Nullable BookmarkGroup group, LongSupplier displayAmount) {
+		super(ingredient);
+		this.setGroup(group);
+		this.displayAmount = displayAmount;
+	}
 
-    @Override
-    public long getDisplayAmount() {
-        return displayAmountSupplier.get();
-    }
+	public DummyBookmarkItem(I ingredient, @Nullable BookmarkGroup group, long displayAmount) {
+		this(ingredient, group, () -> displayAmount);
+	}
 
-    @Override
-    public String serialize() {
-        return null;
-    }
+	@Override
+	public void changeAmount(long delta) {
+	}
 
-    @Override
-    public boolean deserialize(NBTTagCompound ingredientJsonString) {
-        return false;
-    }
+	@Override
+	public long getDisplayAmount() {
+		return displayAmount.getAsLong();
+	}
+
+	@Override
+	@Nullable
+	public String serialize() {
+		return null;
+	}
+
+	@Override
+	public boolean deserialize(NBTTagCompound ingredientJsonString) {
+		return false;
+	}
 }

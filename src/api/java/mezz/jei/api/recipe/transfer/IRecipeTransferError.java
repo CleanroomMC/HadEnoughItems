@@ -6,6 +6,8 @@ import net.minecraft.inventory.Container;
 
 import mezz.jei.api.gui.IRecipeLayout;
 
+import javax.annotation.Nullable;
+
 /**
  * A reason that a recipe transfer couldn't happen.
  * <p>
@@ -33,4 +35,17 @@ public interface IRecipeTransferError {
 	 * Called on {@link Type#USER_FACING} errors.
 	 */
 	void showError(Minecraft minecraft, int mouseX, int mouseY, IRecipeLayout recipeLayout, int recipeX, int recipeY);
+
+	/**
+	 * A reason that a recipe transfer couldn't happen, as a string.
+	 * <p>
+	 * Nullable as it is a later addition to the API.
+	 *
+	 * @since HEI 4.33.0
+	 * @return reason of why the error has occurred
+	 */
+	@Nullable
+	default String getSimpleReason() {
+		return null;
+	}
 }

@@ -4,36 +4,33 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static mezz.jei.ingredients.IngredientFilter.FILTER_SPLIT_PATTERN;
-import static mezz.jei.ingredients.IngredientFilter.QUOTE_PATTERN;
 
 public class SearchToken {
 
     public static final SearchToken EMPTY = new SearchToken(Collections.emptyList(), Collections.emptyList());
 
-    public static SearchToken parseSearchToken(String filterText) {
-        if (filterText.isEmpty()) {
+    /**
+     * Parses filter text into one {@link SearchToken} per OR clause.
+     * Splitting on {@code |} is done by the tokenizer, allowing quoted and escaped pipes to stay as part of their token.
+     */
+    public static List<SearchToken> parseSearchTokens(String filterText) {
+        return SearchTokenizer.tokenize(filterText).stream()
+                .map(SearchToken::parseSearchToken)
+                .filter(token -> !token.isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    public static SearchToken parseSearchToken(List<SearchTokenizer.Token> rawTokens) {
+        if (rawTokens.isEmpty()) {
             return EMPTY;
         }
         SearchToken searchTokens = new SearchToken(new ArrayList<>(), new ArrayList<>());
-        Matcher filterMatcher = FILTER_SPLIT_PATTERN.matcher(filterText);
-        while (filterMatcher.find()) {
-            String string = filterMatcher.group(1);
-            final boolean remove = string.startsWith("-");
-            if (remove) {
-                string = string.substring(1);
-            }
-            string = QUOTE_PATTERN.matcher(string).replaceAll("");
-            if (string.isEmpty()) {
-                continue;
-            }
-            TokenInfo token = TokenInfo.parseRawToken(string);
+        for (SearchTokenizer.Token rawToken : rawTokens) {
+            TokenInfo token = TokenInfo.parseRawToken(rawToken.text);
             if (token != null) {
-                if (remove) {
+                if (rawToken.exclusion) {
                     searchTokens.remove.add(token);
                 } else {
                     searchTokens.search.add(token);
@@ -50,8 +47,15 @@ public class SearchToken {
         this.remove = remove;
     }
 
+    public boolean isEmpty() {
+        return this.search.isEmpty() && this.remove.isEmpty();
+    }
+
     public Set<IIngredientListElement<?>> getSearchResults(IElementSearch elementSearch) {
         Set<IIngredientListElement<?>> results = intersection(search.stream().map(elementSearch::getSearchResults));
+        if (results.isEmpty() && !remove.isEmpty() && search.isEmpty()) {
+            results.addAll(elementSearch.getAllIngredients());
+        }
         if (!results.isEmpty() && !remove.isEmpty()) {
             for (TokenInfo tokenInfo : remove) {
                 Set<IIngredientListElement<?>> resultsToRemove = elementSearch.getSearchResults(tokenInfo);
