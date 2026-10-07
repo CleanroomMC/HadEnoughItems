@@ -55,8 +55,9 @@ public class ConfigValues {
 	public boolean skipShowingProgressBar = false;
 	public Config.ButtonPosition configButtonPosition = Config.ButtonPosition.RIGHT;
     public boolean hideBottomLeftCornerBookmarkButton = false;
-	public boolean enableHistoryPanel = true;
-	public boolean isHistoryPanelOnLeft = true;
+	public int historyRows = 2;
+	public boolean historyOnLeft = false;
+	public boolean historyMatchNbt = true;
 
 	// category
 	public List<String> categoryUidOrder = new ArrayList<>();

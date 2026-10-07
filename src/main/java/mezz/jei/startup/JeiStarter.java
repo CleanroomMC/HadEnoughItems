@@ -19,6 +19,7 @@ import mezz.jei.gui.GuiEventHandler;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.ghost.GhostIngredientDragManager;
+import mezz.jei.gui.overlay.IngredientGridHistoryProvider;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.gui.overlay.bookmarks.BookmarkOverlay;
 import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
@@ -120,6 +121,7 @@ public class JeiStarter {
 
 		BookmarkList bookmarkList = new BookmarkList(ingredientRegistry);
 		Internal.setBookmarkList(bookmarkList);
+		Internal.setIngredientHistory(new IngredientGridHistoryProvider(ingredientRegistry));
 
 		timer.start("Building runtime");
 		List<IAdvancedGuiHandler<?>> advancedGuiHandlers = modRegistry.getAdvancedGuiHandlers();

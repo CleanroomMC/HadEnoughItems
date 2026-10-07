@@ -15,7 +15,6 @@ import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.elements.DrawableNineSliceTexture;
 import mezz.jei.gui.elements.GuiIconButtonSmall;
 import mezz.jei.gui.ingredients.GuiIngredient;
-import mezz.jei.gui.overlay.IngredientGridHistoryProvider;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.input.*;
@@ -604,7 +603,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			openingGui = false;
 		}
 
-		IngredientGridHistoryProvider.onSetFocus(focus);
+		Internal.getIngredientHistory().add(focus.getValue());
 	}
 
 	@Override

@@ -26,7 +26,7 @@ public class BookmarkGrid extends IngredientGrid {
 	private Rectangle area = new Rectangle();
 
 	public BookmarkGrid(GridAlignment alignment, BookmarkGroupOrganizer groupOrganizer, BookmarkList bookmarkList) {
-		super(new BookmarkListBatchRenderer(groupOrganizer, bookmarkList), alignment, Config.enableHistoryPanel() && Config.isHistoryPanelOnLeft());
+		super(new BookmarkListBatchRenderer(groupOrganizer, bookmarkList), alignment);
 		this.alignment = alignment;
 	}
 
@@ -68,16 +68,8 @@ public class BookmarkGrid extends IngredientGrid {
 		this.area = new Rectangle(x, y, width, height);
 		boolean hasFreeSlot = false;
 
-		if (historyProvider.isEnabled()) {
-			historyProvider.updateColumns(columns);
-			historyProvider.clearHistorySlots();
-		}
-
-		if (historyProvider.updateBoundsExtra(columns, rows, y, xOffset, exclusionAreas, this.guiIngredientSlots)) {
-			return true;
-		}
-
-		for (int row = 0; row < rows; row++) {
+		final int ingredientRows = updateHistoryBounds(columns, rows, xOffset, y, exclusionAreas);
+		for (int row = 0; row < ingredientRows; row++) {
 			int y1 = y + (row * INGREDIENT_HEIGHT);
 			List<IngredientListSlot> ingredientRow = new ArrayList<>();
 			for (int column = 0; column < columns; column++) {
@@ -98,6 +90,11 @@ public class BookmarkGrid extends IngredientGrid {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	protected boolean showsHistory() {
+		return Config.isHistoryOnLeft();
 	}
 
 	@Override

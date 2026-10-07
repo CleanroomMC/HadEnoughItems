@@ -200,11 +200,14 @@ config.jei.misc.configButtonPosition.comment=Where to place the config button. L
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Hide Bottom-Left Corner Bookmark Button
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Whether to hide the bottom-left corner bookmark button
 
-config.jei.misc.enableHistoryPanel=Enable History Panel
-config.jei.misc.enableHistoryPanel.comment=Whether to enable the history panel
+config.hei.misc.historyRows=History Rows
+config.hei.misc.historyRows.comment=How many rows at the bottom of the ingredient list show the ingredients you last looked up. Set to 0 to disable the history.
 
-config.jei.misc.isHistoryPanelOnLeft=Is History Panel On Left
-config.jei.misc.isHistoryPanelOnLeft.comment=The history panel can be on either the left or the right (true=left, false=right)
+config.hei.misc.historyOnLeft=History Under Bookmarks
+config.hei.misc.historyOnLeft.comment=Show the history under the bookmarks on the left instead of under the ingredient list.
+
+config.hei.misc.historyMatchNbt=History Matches NBT
+config.hei.misc.historyMatchNbt.comment=Keep ingredients that only differ by NBT as separate history entries.
 
 config.hei.collapsible=Collapsible Groups
 config.hei.collapsible.comment=Options for collapsing groups of ingredients into a single slot in the ingredient list.

@@ -31,6 +31,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.commons.io.FileUtils;
 
@@ -400,12 +401,16 @@ public final class Config {
         return values.hideBottomLeftCornerBookmarkButton;
     }
 
-	public static boolean enableHistoryPanel() {
-		return values.enableHistoryPanel;
+	public static int getHistoryRows() {
+		return Loader.isModLoaded("jeiutilities") ? 0 : values.historyRows;
 	}
 
-	public static boolean isHistoryPanelOnLeft() {
-		return values.isHistoryPanelOnLeft;
+	public static boolean isHistoryOnLeft() {
+		return values.historyOnLeft;
+	}
+
+	public static boolean isHistoryMatchingNbt() {
+		return values.historyMatchNbt;
 	}
 
     public static int getRecipeBookmarkGroupColor() {
@@ -615,9 +620,14 @@ public final class Config {
 
         values.hideBottomLeftCornerBookmarkButton = config.getBoolean(CATEGORY_MISC, "hideBottomLeftCornerBookmarkButton", defaultValues.hideBottomLeftCornerBookmarkButton);
 
-		values.enableHistoryPanel = config.getBoolean(CATEGORY_MISC, "enableHistoryPanel", defaultValues.enableHistoryPanel);
+		values.historyRows = config.getInt("historyRows", CATEGORY_MISC, defaultValues.historyRows, 0, 6,
+			Translator.translateToLocal("config.hei.misc.historyRows.comment"), "config.hei.misc.historyRows");
 
-		values.isHistoryPanelOnLeft = config.getBoolean(CATEGORY_MISC, "isHistoryPanelOnLeft", defaultValues.isHistoryPanelOnLeft);
+		values.historyOnLeft = config.getBoolean("historyOnLeft", CATEGORY_MISC, defaultValues.historyOnLeft,
+			Translator.translateToLocal("config.hei.misc.historyOnLeft.comment"), "config.hei.misc.historyOnLeft");
+
+		values.historyMatchNbt = config.getBoolean("historyMatchNbt", CATEGORY_MISC, defaultValues.historyMatchNbt,
+			Translator.translateToLocal("config.hei.misc.historyMatchNbt.comment"), "config.hei.misc.historyMatchNbt");
 
 		{
 			boolean prev = values.collapsibleGroupsEnabled;
