@@ -194,8 +194,8 @@ config.jei.rendering.bufferIngredientRenders.comment=Stops extremely frequent in
 config.jei.interface.defaultFluidContainerItem=Default Fluid Container Item
 config.jei.interface.defaultFluidContainerItem.comment=Default item to use to fill up fluids when clicking on a fluid ingredient in the menu, (format: item_name@meta)
 
-config.jei.misc.hideBottomRightCornerConfigButton=Hide Bottom-Right Corner Config Button
-config.jei.misc.hideBottomRightCornerConfigButton.comment=Whether to hide the bottom-right corner config button
+config.jei.misc.configButtonPosition=Config Button Position
+config.jei.misc.configButtonPosition.comment=Where to place the config button. Left, Right, or Hidden.
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Hide Bottom-Left Corner Bookmark Button
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Whether to hide the bottom-left corner bookmark button
