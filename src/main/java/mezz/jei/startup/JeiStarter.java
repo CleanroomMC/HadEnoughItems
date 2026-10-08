@@ -40,6 +40,9 @@ import mezz.jei.runtime.SubtypeRegistry;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.LoggedTimer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.ProgressManager;
 
 import java.util.Iterator;
@@ -56,6 +59,14 @@ public class JeiStarter {
 	public void load(List<IModPlugin> plugins, Textures textures, boolean recipesOnly) {
 		LoggedTimer totalTime = new LoggedTimer();
 		totalTime.start("Starting " + Tags.MOD_NAME);
+
+		if (started) {
+			Log.get().warn("Reloading {}. Third-party plugins may leak memory when they are loaded again.", Tags.MOD_NAME);
+			EntityPlayerSP player = Minecraft.getMinecraft().player;
+			if (player != null) {
+				player.sendMessage(new TextComponentTranslation("hei.chat.warning.reload"));
+			}
+		}
 
 		IModIdHelper modIdHelper = ForgeModIdHelper.getInstance();
 		ErrorUtil.setModIdHelper(modIdHelper);
