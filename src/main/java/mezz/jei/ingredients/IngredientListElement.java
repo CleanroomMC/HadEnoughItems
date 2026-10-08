@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.config.Config;
@@ -29,8 +30,8 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 
 	private final V ingredient;
 	private final int orderIndex;
-	private final IIngredientHelper<V> ingredientHelper;
-	private final IIngredientRenderer<V> ingredientRenderer;
+	private IIngredientHelper<V> ingredientHelper;
+	private IIngredientRenderer<V> ingredientRenderer;
 	private final Object modIds; // Can be String or String[]
 	private final Object modNames; // Can be String or String[]
 
@@ -49,6 +50,11 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 			}
 			return null;
 		}
+	}
+
+	public void rebind(IIngredientRegistry ingredientRegistry) {
+		this.ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
+		this.ingredientRenderer = ingredientRegistry.getIngredientRenderer(ingredient);
 	}
 
 	protected IngredientListElement(V ingredient, int orderIndex, IIngredientHelper<V> ingredientHelper, IIngredientRenderer<V> ingredientRenderer, IModIdHelper modIdHelper) {

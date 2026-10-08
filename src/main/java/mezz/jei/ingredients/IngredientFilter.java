@@ -24,6 +24,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mezz.jei.api.IIngredientFilter;
 import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.search.ISearchIndexBuilderFactory;
 import mezz.jei.config.Config;
 import mezz.jei.config.EditModeToggleEvent;
@@ -597,6 +598,14 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		// Do NOT null filterCached here. Creates client lag spikes.
 		for (Runnable listener : collapsedStateListeners) {
 			listener.run();
+		}
+	}
+
+	public void rebindElements(IIngredientRegistry ingredientRegistry) {
+		for (IIngredientListElement<?> element : this.elementSearch.getAllIngredients()) {
+			if (element instanceof IngredientListElement) {
+				((IngredientListElement<?>) element).rebind(ingredientRegistry);
+			}
 		}
 	}
 

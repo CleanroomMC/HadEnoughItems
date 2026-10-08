@@ -110,6 +110,7 @@ public class JeiStarter {
 			ingredientFilter = Internal.getIngredientFilter();
 			// The overlay built below registers itself again.
 			ingredientFilter.clearListeners();
+			ingredientFilter.rebindElements(ingredientRegistry);
 			ingredientFilter.replaceBlacklist(blacklist);
 			searchIndexBuilderFactory = ingredientFilter.getSearchIndexBuilderFactory();
 		} else {
@@ -134,6 +135,8 @@ public class JeiStarter {
 		Internal.setCollapsedGroupRegistry(collapsibleGroupRegistry);
 		registerCollapsibleGroups(plugins, collapsibleGroupRegistry);
 		collapsibleGroupRegistry.loadCustomGroups();
+		// A reused filter still caches the previous blacklist and groups.
+		ingredientFilter.invalidateCache();
 
 		BookmarkList bookmarkList = new BookmarkList(ingredientRegistry);
 		Internal.setBookmarkList(bookmarkList);
