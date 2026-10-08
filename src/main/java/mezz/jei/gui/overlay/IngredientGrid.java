@@ -120,7 +120,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 	}
 
 	protected boolean showsHistory() {
-		return !Config.isHistoryOnLeft();
+		return Config.getHistoryPosition() == Config.HistoryPosition.RIGHT;
 	}
 
 	/**

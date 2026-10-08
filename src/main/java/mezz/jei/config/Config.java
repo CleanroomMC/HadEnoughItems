@@ -401,12 +401,16 @@ public final class Config {
         return values.hideBottomLeftCornerBookmarkButton;
     }
 
-	public static int getHistoryRows() {
-		return Loader.isModLoaded("jeiutilities") ? 0 : values.historyRows;
+	public enum HistoryPosition {
+		LEFT, RIGHT, HIDDEN
 	}
 
-	public static boolean isHistoryOnLeft() {
-		return values.historyOnLeft;
+	public static HistoryPosition getHistoryPosition() {
+		return Loader.isModLoaded("jeiutilities") ? HistoryPosition.HIDDEN : values.historyPosition;
+	}
+
+	public static int getHistoryRows() {
+		return values.historyRows;
 	}
 
 	public static boolean isHistoryMatchingNbt() {
@@ -620,11 +624,10 @@ public final class Config {
 
         values.hideBottomLeftCornerBookmarkButton = config.getBoolean(CATEGORY_MISC, "hideBottomLeftCornerBookmarkButton", defaultValues.hideBottomLeftCornerBookmarkButton);
 
-		values.historyRows = config.getInt("historyRows", CATEGORY_MISC, defaultValues.historyRows, 0, 6,
-			Translator.translateToLocal("config.hei.misc.historyRows.comment"), "config.hei.misc.historyRows");
+		values.historyPosition = config.getEnum("historyPosition", CATEGORY_MISC, defaultValues.historyPosition, HistoryPosition.values());
 
-		values.historyOnLeft = config.getBoolean("historyOnLeft", CATEGORY_MISC, defaultValues.historyOnLeft,
-			Translator.translateToLocal("config.hei.misc.historyOnLeft.comment"), "config.hei.misc.historyOnLeft");
+		values.historyRows = config.getInt("historyRows", CATEGORY_MISC, defaultValues.historyRows, 1, 6,
+			Translator.translateToLocal("config.hei.misc.historyRows.comment"), "config.hei.misc.historyRows");
 
 		values.historyMatchNbt = config.getBoolean("historyMatchNbt", CATEGORY_MISC, defaultValues.historyMatchNbt,
 			Translator.translateToLocal("config.hei.misc.historyMatchNbt.comment"), "config.hei.misc.historyMatchNbt");

@@ -54,7 +54,7 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 			return false;
 		}
 		if (bookmarkList.isEmpty()) {
-			return Config.isHistoryOnLeft() && !Internal.getIngredientHistory().isEmpty();
+			return Config.getHistoryPosition() == Config.HistoryPosition.LEFT && !Internal.getIngredientHistory().isEmpty();
 		}
 		return Config.isBookmarkOverlayEnabled();
 	}

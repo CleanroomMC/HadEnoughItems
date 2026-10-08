@@ -94,7 +94,7 @@ public class BookmarkGrid extends IngredientGrid {
 
 	@Override
 	protected boolean showsHistory() {
-		return Config.isHistoryOnLeft();
+		return Config.getHistoryPosition() == Config.HistoryPosition.LEFT;
 	}
 
 	@Override

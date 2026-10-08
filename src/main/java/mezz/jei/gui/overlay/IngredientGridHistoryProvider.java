@@ -55,8 +55,7 @@ public class IngredientGridHistoryProvider {
 
 	@SuppressWarnings("unchecked")
 	public <V> void add(V ingredient) {
-		final int rows = Config.getHistoryRows();
-		if (rows == 0 || ingredient instanceof CollapsedGroupIngredient
+		if (Config.getHistoryPosition() == Config.HistoryPosition.HIDDEN || ingredient instanceof CollapsedGroupIngredient
 			|| Internal.getHelpers().getIngredientBlacklist().isIngredientBlacklisted(ingredient)) {
 			return;
 		}
@@ -72,7 +71,7 @@ public class IngredientGridHistoryProvider {
 		elements.removeIf(other -> other.getIngredient().getClass() == normalized.getClass() && uid.equals(getUid(other)));
 		elements.add(0, element);
 
-		final int maxSize = rows * Config.getMaxColumns();
+		final int maxSize = Config.getHistoryRows() * Config.getMaxColumns();
 		if (elements.size() > maxSize) {
 			elements.subList(maxSize, elements.size()).clear();
 		}
@@ -96,7 +95,7 @@ public class IngredientGridHistoryProvider {
 		slots.clear();
 
 		final int historyRows = Config.getHistoryRows();
-		if (historyRows == 0 || rows - historyRows < MIN_INGREDIENT_ROWS) {
+		if (rows - historyRows < MIN_INGREDIENT_ROWS) {
 			return 0;
 		}
 

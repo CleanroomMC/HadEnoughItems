@@ -200,11 +200,11 @@ config.jei.misc.configButtonPosition.comment=Where to place the config button. L
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Hide Bottom-Left Corner Bookmark Button
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Whether to hide the bottom-left corner bookmark button
 
-config.hei.misc.historyRows=History Rows
-config.hei.misc.historyRows.comment=How many rows at the bottom of the ingredient list show the ingredients you last looked up. Set to 0 to disable the history.
+config.jei.misc.historyPosition=History Position
+config.jei.misc.historyPosition.comment=Where to show the ingredients you last looked up. Left is under the bookmarks, Right is under the ingredient list, or Hidden.
 
-config.hei.misc.historyOnLeft=History Under Bookmarks
-config.hei.misc.historyOnLeft.comment=Show the history under the bookmarks on the left instead of under the ingredient list.
+config.hei.misc.historyRows=History Rows
+config.hei.misc.historyRows.comment=How many rows the history takes from the bottom of its list.
 
 config.hei.misc.historyMatchNbt=History Matches NBT
 config.hei.misc.historyMatchNbt.comment=Keep ingredients that only differ by NBT as separate history entries.
