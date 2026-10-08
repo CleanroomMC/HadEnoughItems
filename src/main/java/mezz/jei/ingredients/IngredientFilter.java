@@ -79,6 +79,7 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 			ISearchIndexBuilderFactory searchIndexBuilderFactory) {
 		this.blacklist = blacklist;
 		this.searchIndexBuilderFactory = searchIndexBuilderFactory;
+		firstBuild = true;
 		this.elementSearch = Config.isUltraLowMemoryMode() ? new ElementSearchLowMem() : new ElementSearch(searchIndexBuilderFactory);
 		this.elementSearch.addAll(ingredients);
 		firstBuild = false;
