@@ -10,6 +10,7 @@ import mezz.jei.gui.overlay.ItemListOverlay;
 import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.recipes.RecipeRegistry;
+import mezz.jei.render.IngredientListBatchRenderer;
 
 public class JeiRuntime implements IJeiRuntime {
 
@@ -36,6 +37,7 @@ public class JeiRuntime implements IJeiRuntime {
 
 	public void close() {
 		this.recipesGui.close();
+		IngredientListBatchRenderer.deleteFramebuffers();
 	}
 
 	@Override
