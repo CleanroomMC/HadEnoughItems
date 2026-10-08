@@ -119,6 +119,17 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		}
 	}
 
+	/**
+	 * Does what {@link #block()} does once the asynchronous build is done, without waiting for it.
+	 */
+	public void blockWhenBuilt() {
+		AsyncPrefixedSearchable.afterBuild(() -> Minecraft.getMinecraft().addScheduledTask(() -> {
+			if (Internal.getIngredientFilter() == this) {
+				block();
+			}
+		}));
+	}
+
 	public void block() {
 		if (this.elementSearch instanceof ElementSearch) {
 			((ElementSearch) this.elementSearch).block();

@@ -113,8 +113,8 @@ public class JeiStarter {
 					searchIndexBuilderFactory);
 			Internal.setIngredientFilter(ingredientFilter);
 			if (started) {
-				// No server join follows a reload, so the search service has to end here.
-				ingredientFilter.block();
+				// No server join follows a reload, so the search service has to end on its own.
+				ingredientFilter.blockWhenBuilt();
 			}
 			timer.stop();
 		}
