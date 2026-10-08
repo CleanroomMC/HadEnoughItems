@@ -112,6 +112,10 @@ public class JeiStarter {
 			ingredientFilter = new IngredientFilter(blacklist, IngredientListElementFactory.createBaseList(ingredientRegistry, modIdHelper),
 					searchIndexBuilderFactory);
 			Internal.setIngredientFilter(ingredientFilter);
+			if (started) {
+				// No server join follows a reload, so the search service has to end here.
+				ingredientFilter.block();
+			}
 			timer.stop();
 		}
 

@@ -19,7 +19,9 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
     private static ExecutorService service;
 
     public static void startService() {
-        service = Executors.newSingleThreadExecutor();
+        if (service == null) {
+            service = Executors.newSingleThreadExecutor();
+        }
     }
 
     public static void endService() {
