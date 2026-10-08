@@ -69,6 +69,8 @@ import java.util.List;
 public class VanillaPlugin implements IModPlugin {
 	@Nullable
 	private ISubtypeRegistry subtypeRegistry;
+	@Nullable
+	private EnchantedBookCache enchantedBookCache;
 
 	@Override
 	public void registerSubtypes(ISubtypeRegistry subtypeRegistry) {
@@ -124,7 +126,10 @@ public class VanillaPlugin implements IModPlugin {
 		ingredientRegistration.markAsCraftable(VanillaTypes.FLUID);
 
 		List<EnchantmentData> enchantments = EnchantDataListFactory.create();
-		EnchantedBookCache enchantedBookCache = new EnchantedBookCache();
+		if (this.enchantedBookCache != null) {
+			MinecraftForge.EVENT_BUS.unregister(this.enchantedBookCache);
+		}
+		EnchantedBookCache enchantedBookCache = this.enchantedBookCache = new EnchantedBookCache();
 		MinecraftForge.EVENT_BUS.register(enchantedBookCache);
 		EnchantDataHelper enchantmentHelper = new EnchantDataHelper(enchantedBookCache, itemStackHelper);
 		EnchantDataRenderer enchantmentRenderer = new EnchantDataRenderer(itemStackRenderer, enchantedBookCache);
