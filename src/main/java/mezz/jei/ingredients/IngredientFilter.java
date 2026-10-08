@@ -576,6 +576,11 @@ public class IngredientFilter implements IIngredientFilter, IIngredientGridSourc
 		collapsedStateListeners.add(listener);
 	}
 
+	public void clearListeners() {
+		listeners.clear();
+		collapsedStateListeners.clear();
+	}
+
 	public void notifyCollapsedStateChanged() {
 		// Do NOT null filterCached here. Creates client lag spikes.
 		for (Runnable listener : collapsedStateListeners) {

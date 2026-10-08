@@ -97,6 +97,8 @@ public class JeiStarter {
 		ISearchIndexBuilderFactory searchIndexBuilderFactory;
 		if (recipesOnly && Internal.hasIngredientFilter()) {
 			ingredientFilter = Internal.getIngredientFilter();
+			// The overlay built below registers itself again.
+			ingredientFilter.clearListeners();
 			ingredientFilter.replaceBlacklist(blacklist);
 			searchIndexBuilderFactory = ingredientFilter.getSearchIndexBuilderFactory();
 		} else {
