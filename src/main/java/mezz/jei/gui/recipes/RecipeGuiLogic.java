@@ -76,6 +76,8 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 		IngredientLookupState state = new IngredientLookupState(translatedFocus, recipeCategories, recipeCategoryIndex, recipeIndex);
 		setState(state);
 
+		Internal.getIngredientHistory().add(translatedFocus.getValue());
+
 		return true;
 	}
 

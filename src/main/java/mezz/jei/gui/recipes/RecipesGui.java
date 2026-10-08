@@ -602,8 +602,6 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 		} finally {
 			openingGui = false;
 		}
-
-		Internal.getIngredientHistory().add(focus.getValue());
 	}
 
 	@Override
