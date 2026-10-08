@@ -32,6 +32,11 @@ public class BrewingRecipeUtil {
 		clearCache();
 	}
 
+	public void clear() {
+		potionMap.clear();
+		clearCache();
+	}
+
 	public int getBrewingSteps(ItemStack outputPotion) {
 		String potionInputUid = Internal.getStackHelper().getUniqueIdentifierForStack(outputPotion);
 		return getBrewingSteps(potionInputUid, new HashSet<>());

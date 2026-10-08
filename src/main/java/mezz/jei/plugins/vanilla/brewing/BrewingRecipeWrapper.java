@@ -96,6 +96,10 @@ public class BrewingRecipeWrapper implements IRecipeWrapper {
 		return true;
 	}
 
+	public static void clearBrewingSteps() {
+		UTIL.clear();
+	}
+
 	private static boolean arePotionsEqual(ItemStack potion1, ItemStack potion2) {
 		if (potion1.getItem() != potion2.getItem()) {
 			return false;

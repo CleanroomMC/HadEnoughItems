@@ -33,6 +33,7 @@ public class BrewingRecipeMaker {
 	private final IIngredientRegistry ingredientRegistry;
 
 	public static List<BrewingRecipeWrapper> getBrewingRecipes(IIngredientRegistry ingredientRegistry) {
+		BrewingRecipeWrapper.clearBrewingSteps();
 		BrewingRecipeMaker brewingRecipeMaker = new BrewingRecipeMaker(ingredientRegistry);
 		return brewingRecipeMaker.getBrewingRecipes();
 	}
