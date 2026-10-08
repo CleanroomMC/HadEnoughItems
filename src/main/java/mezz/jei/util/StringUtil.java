@@ -20,6 +20,10 @@ public final class StringUtil {
 		return INTERNER.addOrGet(string);
 	}
 
+	public static void clearInterner() {
+		INTERNER.clear();
+	}
+
 	public static String truncateStringToWidth(String string, int width, FontRenderer fontRenderer) {
 		return fontRenderer.trimStringToWidth(string, width - fontRenderer.getStringWidth("...")) + "...";
 	}
