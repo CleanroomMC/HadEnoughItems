@@ -296,11 +296,14 @@ public class InputHandler {
 		return false;
 	}
 
-	private <V> boolean handleClickEdit(IClickedIngredient<V> clicked) {
-		V ingredient = clicked.getValue();
+	private boolean handleClickEdit(IClickedIngredient<?> clicked) {
+		Object ingredient = clicked.getValue();
+		if (ingredient instanceof BookmarkItem) {
+			ingredient = ((BookmarkItem<?>) ingredient).getIngredient();
+		}
 		IngredientBlacklistType blacklistType = GuiScreen.isCtrlKeyDown() ? IngredientBlacklistType.WILDCARD : IngredientBlacklistType.ITEM;
 
-		IIngredientHelper<V> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
+		IIngredientHelper<Object> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
 
 		if (Config.isIngredientOnConfigBlacklist(ingredient, ingredientHelper)) {
 			Config.removeIngredientFromConfigBlacklist(ingredientFilter, ingredientRegistry, ingredient, blacklistType, ingredientHelper);
