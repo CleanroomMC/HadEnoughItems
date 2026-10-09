@@ -269,7 +269,8 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 				? "hei.tooltip.collapsed.expand.firstItem"
 				: "hei.tooltip.collapsed.expand");
 
-		int tw = Math.max(Math.max(font.getStringWidth(header), font.getStringWidth(hint)), gridW);
+		int overflowW = overflow > 0 ? (COLS - 1) * SLOT + 2 + font.getStringWidth("+" + overflow) : 0;
+		int tw = Math.max(Math.max(font.getStringWidth(header), font.getStringWidth(hint)), Math.max(gridW, overflowW));
 		int th = 12 + gridH + 10;
 
 		ScaledResolution sr = new ScaledResolution(minecraft);

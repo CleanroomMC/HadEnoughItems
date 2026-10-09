@@ -5,6 +5,7 @@ import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.color.ColorNamer;
 import mezz.jei.gui.GuiEventHandler;
+import mezz.jei.gui.overlay.IngredientGridHistoryProvider;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.ingredients.group.CollapsibleGroupRegistry;
@@ -43,6 +44,8 @@ public final class Internal {
 	private static BookmarkList bookmarkList;
 	@Nullable
 	private static CollapsibleGroupRegistry collapsedGroupRegistry;
+	@Nullable
+	private static IngredientGridHistoryProvider ingredientHistory;
 
 	private Internal() {
 
@@ -162,5 +165,14 @@ public final class Internal {
 
 	public static void setCollapsedGroupRegistry(CollapsibleGroupRegistry registry) {
 		Internal.collapsedGroupRegistry = registry;
+	}
+
+	public static IngredientGridHistoryProvider getIngredientHistory() {
+		Preconditions.checkState(ingredientHistory != null, "Ingredient History has not been created yet.");
+		return ingredientHistory;
+	}
+
+	public static void setIngredientHistory(IngredientGridHistoryProvider ingredientHistory) {
+		Internal.ingredientHistory = ingredientHistory;
 	}
 }

@@ -31,6 +31,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.commons.io.FileUtils;
 
@@ -400,6 +401,22 @@ public final class Config {
         return values.hideBottomLeftCornerBookmarkButton;
     }
 
+	public enum HistoryPosition {
+		LEFT, RIGHT, HIDDEN
+	}
+
+	public static HistoryPosition getHistoryPosition() {
+		return Loader.isModLoaded("jeiutilities") ? HistoryPosition.HIDDEN : values.historyPosition;
+	}
+
+	public static int getHistoryRows() {
+		return values.historyRows;
+	}
+
+	public static boolean isHistoryMatchingNbt() {
+		return values.historyMatchNbt;
+	}
+
     public static int getRecipeBookmarkGroupColor() {
 		return values.recipeBookmarkGroupColor;
 	}
@@ -606,6 +623,14 @@ public final class Config {
 		values.configButtonPosition = config.getEnum("configButtonPosition", CATEGORY_MISC, defaultValues.configButtonPosition, ButtonPosition.values());
 
         values.hideBottomLeftCornerBookmarkButton = config.getBoolean(CATEGORY_MISC, "hideBottomLeftCornerBookmarkButton", defaultValues.hideBottomLeftCornerBookmarkButton);
+
+		values.historyPosition = config.getEnum("historyPosition", CATEGORY_MISC, defaultValues.historyPosition, HistoryPosition.values());
+
+		values.historyRows = config.getInt("historyRows", CATEGORY_MISC, defaultValues.historyRows, 1, 6,
+			Translator.translateToLocal("config.hei.misc.historyRows.comment"), "config.hei.misc.historyRows");
+
+		values.historyMatchNbt = config.getBoolean("historyMatchNbt", CATEGORY_MISC, defaultValues.historyMatchNbt,
+			Translator.translateToLocal("config.hei.misc.historyMatchNbt.comment"), "config.hei.misc.historyMatchNbt");
 
 		{
 			boolean prev = values.collapsibleGroupsEnabled;

@@ -68,7 +68,8 @@ public class BookmarkGrid extends IngredientGrid {
 		this.area = new Rectangle(x, y, width, height);
 		boolean hasFreeSlot = false;
 
-		for (int row = 0; row < rows; row++) {
+		final int ingredientRows = updateHistoryBounds(columns, rows, xOffset, y, exclusionAreas);
+		for (int row = 0; row < ingredientRows; row++) {
 			int y1 = y + (row * INGREDIENT_HEIGHT);
 			List<IngredientListSlot> ingredientRow = new ArrayList<>();
 			for (int column = 0; column < columns; column++) {
@@ -89,6 +90,11 @@ public class BookmarkGrid extends IngredientGrid {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	protected boolean showsHistory() {
+		return Config.getHistoryPosition() == Config.HistoryPosition.LEFT;
 	}
 
 	@Override

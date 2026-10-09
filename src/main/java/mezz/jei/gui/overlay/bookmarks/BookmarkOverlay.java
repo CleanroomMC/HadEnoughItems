@@ -1,5 +1,6 @@
 package mezz.jei.gui.overlay.bookmarks;
 
+import mezz.jei.Internal;
 import mezz.jei.api.IBookmarkOverlay;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkList;
@@ -50,7 +51,13 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 	}
 
 	public boolean isListDisplayed() {
-		return Config.isBookmarkOverlayEnabled() && hasRoom && !bookmarkList.isEmpty();
+		if (!hasRoom) {
+			return false;
+		}
+		if (bookmarkList.isEmpty()) {
+			return Config.getHistoryPosition() == Config.HistoryPosition.LEFT && !Internal.getIngredientHistory().isEmpty();
+		}
+		return Config.isBookmarkOverlayEnabled();
 	}
 
 	public boolean hasRoom() {

@@ -95,7 +95,8 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		this.area = new Rectangle(x, y, width, height);
         boolean hasFreeSlot = false;
 
-		for (int row = 0; row < rows; row++) {
+		final int ingredientRows = updateHistoryBounds(columns, rows, xOffset, y, exclusionAreas);
+		for (int row = 0; row < ingredientRows; row++) {
 			List<IngredientListSlot> ingredientRow = new ArrayList<>();
 			int y1 = y + (row * INGREDIENT_HEIGHT);
 			for (int column = 0; column < columns; column++) {
@@ -118,6 +119,28 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		return true;
 	}
 
+	protected boolean showsHistory() {
+		return Config.getHistoryPosition() == Config.HistoryPosition.RIGHT;
+	}
+
+	/**
+	 * Gives the bottom rows of the grid to the history, if this grid shows it.
+	 *
+	 * @return the number of rows left for ingredients
+	 */
+	protected int updateHistoryBounds(int columns, int rows, int x, int y, Collection<Rectangle> exclusionAreas) {
+		return showsHistory() ? rows - Internal.getIngredientHistory().updateBounds(columns, rows, x, y, exclusionAreas) : rows;
+	}
+
+	@Nullable
+	private IngredientRenderer<?> getHovered(int mouseX, int mouseY) {
+		IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
+		if (hovered == null && showsHistory() && isMouseOver(mouseX, mouseY)) {
+			hovered = Internal.getIngredientHistory().getHovered(mouseX, mouseY);
+		}
+		return hovered;
+	}
+
 	public void invalidateBuffer() {
 		this.guiIngredientSlots.invalidateBuffer();
 	}
@@ -131,13 +154,16 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 
 		guiIngredientSlots.render(minecraft);
 		guiIngredientSlots.renderExpandedGroupOutlines();
+		if (showsHistory()) {
+			Internal.getIngredientHistory().draw(minecraft);
+		}
 
 		if (!shouldDeleteItemOnClick(minecraft, mouseX, mouseY) && isMouseOver(mouseX, mouseY)) {
 			CollapsedGroupRenderer collapsedHovered = guiIngredientSlots.getHoveredCollapsed(mouseX, mouseY);
 			if (collapsedHovered != null) {
 				collapsedHovered.drawHighlight();
 			} else {
-				IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
+				IngredientRenderer<?> hovered = getHovered(mouseX, mouseY);
 				if (hovered != null) {
 					hovered.drawHighlight();
 				}
@@ -157,7 +183,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 				if (collapsedHovered != null) {
 					collapsedHovered.drawTooltip(minecraft, mouseX, mouseY);
 				} else {
-					IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(mouseX, mouseY);
+					IngredientRenderer<?> hovered = getHovered(mouseX, mouseY);
 					if (hovered != null) {
 						CollapsedGroupIngredient expandedGroup = guiIngredientSlots.getExpandedCollapsedGroupAt(mouseX, mouseY);
 						if (expandedGroup != null) {
@@ -232,7 +258,7 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 
 	@Nullable
 	public IIngredientListElement<?> getElementUnderMouse() {
-		IngredientRenderer<?> hovered = guiIngredientSlots.getHovered(MouseHelper.getX(), MouseHelper.getY());
+		IngredientRenderer<?> hovered = getHovered(MouseHelper.getX(), MouseHelper.getY());
 		if (hovered != null) {
 			return hovered.getElement();
 		}
@@ -244,6 +270,9 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 	public IClickedIngredient<?> getIngredientUnderMouse(int mouseX, int mouseY) {
 		if (isMouseOver(mouseX, mouseY)) {
 			ClickedIngredient<?> clicked = guiIngredientSlots.getIngredientUnderMouse(mouseX, mouseY);
+			if (clicked == null && showsHistory()) {
+				clicked = Internal.getIngredientHistory().getIngredientUnderMouse(mouseX, mouseY);
+			}
 			if (clicked != null) {
 				clicked.setAllowsCheating();
 			}
