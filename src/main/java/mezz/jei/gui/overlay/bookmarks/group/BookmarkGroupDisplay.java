@@ -54,9 +54,6 @@ public class BookmarkGroupDisplay implements IGhostIngredientHandler.AwareTarget
 			BookmarkItem<?> item = new BookmarkItem<>(ingredient);
 			if (group.addItem(item, false)) {
 				moveItemToIndex(item, insertionIndex);
-				if (!Config.isBookmarkOverlayEnabled()) {
-					Config.toggleBookmarkEnabled();
-				}
 				bookmarkList.notifyListenersOfAddition(item);
 				bookmarkList.saveBookmarks();
 				bookmarkList.notifyListenersOfChange();
