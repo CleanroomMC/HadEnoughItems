@@ -111,9 +111,8 @@ public class GhostIngredientDragManager {
 	}
 
 	/**
-	 * @deprecated use {@link #handleMouseClicked(Minecraft, GuiScreen, IClickedIngredient, Object, int, int, int)}
+	 * Prefer to use {@link #handleMouseClicked(Minecraft, GuiScreen, IClickedIngredient, Object, int, int, int)}
 	 */
-	@Deprecated
 	public boolean handleMouseClicked(Minecraft minecraft, GuiScreen currentScreen, IClickedIngredient<?> clicked,
 			IIngredientListElement<?> listElement, int mouseButton, int mouseX, int mouseY) {
 		Object listIngredient = listElement == null ? null : listElement.getIngredient();
