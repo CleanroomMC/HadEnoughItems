@@ -1,6 +1,7 @@
 package mezz.jei.gui.overlay.bookmarks;
 
 import mezz.jei.api.IBookmarkOverlay;
+import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiHelper;
@@ -203,7 +204,8 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 		if (isListDisplayed()) {
 			IIngredientListElement elementUnderMouse = this.contents.getElementUnderMouse();
 			if (elementUnderMouse != null) {
-				return elementUnderMouse.getIngredient();
+				Object ingredient = elementUnderMouse.getIngredient();
+				return ingredient instanceof BookmarkItem ? ((BookmarkItem<?>) ingredient).getIngredient() : ingredient;
 			}
 		}
 		return null;
