@@ -202,8 +202,7 @@ public class InputHandler {
 			return true;
 		}
 
-		IIngredientListElement<?> listElement = getElementUnderMouse();
-		if (pendingClick == null && this.ghostIngredientDragManager.handleMouseClicked(guiScreen.mc, guiScreen, clicked, listElement, mouseButton, mouseX, mouseY)) {
+		if (pendingClick == null && this.ghostIngredientDragManager.handleMouseClicked(guiScreen.mc, guiScreen, clicked, getDragIngredientUnderMouse(), mouseButton, mouseX, mouseY)) {
 			return true;
 		}
 
@@ -248,6 +247,9 @@ public class InputHandler {
 		return null;
 	}
 
+	/**
+	 * Prefer to use {@link #getDragIngredientUnderMouse()}
+	 */
 	@Nullable
 	public IIngredientListElement<?> getElementUnderMouse() {
 		for (IShowsRecipeFocuses gui : showsRecipeFocuses) {
@@ -260,6 +262,20 @@ public class InputHandler {
 					return ((BookmarkItem<?>) element.getIngredient()).getSavedElement();
 				}
 				return element;
+			}
+		}
+		return null;
+	}
+
+	@Nullable
+	public Object getDragIngredientUnderMouse() {
+		for (IShowsRecipeFocuses gui : showsRecipeFocuses) {
+			if (!(gui instanceof IGhostIngredientDragSource)) {
+				continue;
+			}
+			IIngredientListElement<?> element = ((IGhostIngredientDragSource) gui).getElementUnderMouse();
+			if (element != null) {
+				return BookmarkItem.unwrap(element.getIngredient());
 			}
 		}
 		return null;

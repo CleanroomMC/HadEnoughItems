@@ -83,8 +83,7 @@ public class GhostIngredientDragManager {
 		if (this.ghostIngredientDrag != null) {
 			this.ghostIngredientDrag.drawTargets(mouseX, mouseY);
 		} else {
-			IIngredientListElement elementUnderMouse = Internal.getInputHandler().getElementUnderMouse();
-			Object hovered = elementUnderMouse == null ? null : elementUnderMouse.getIngredient();
+			Object hovered = Internal.getInputHandler().getDragIngredientUnderMouse();
 			boolean showHighlight = true;
 			if (!Objects.equals(hovered, this.hoveredIngredient)) {
 				this.hoveredIngredient = hovered;
@@ -111,8 +110,18 @@ public class GhostIngredientDragManager {
 		}
 	}
 
+	/**
+	 * @deprecated use {@link #handleMouseClicked(Minecraft, GuiScreen, IClickedIngredient, Object, int, int, int)}
+	 */
+	@Deprecated
 	public boolean handleMouseClicked(Minecraft minecraft, GuiScreen currentScreen, IClickedIngredient<?> clicked,
 			IIngredientListElement<?> listElement, int mouseButton, int mouseX, int mouseY) {
+		Object listIngredient = listElement == null ? null : listElement.getIngredient();
+		return handleMouseClicked(minecraft, currentScreen, clicked, listIngredient, mouseButton, mouseX, mouseY);
+	}
+
+	public boolean handleMouseClicked(Minecraft minecraft, GuiScreen currentScreen, IClickedIngredient<?> clicked,
+			@Nullable Object listIngredient, int mouseButton, int mouseX, int mouseY) {
 		if (this.ghostIngredientDrag != null) {
 			if (dropOnMouseRelease) {
 				return true;
@@ -125,7 +134,7 @@ public class GhostIngredientDragManager {
 		EntityPlayerSP player = minecraft.player;
 		if (player != null && clicked != null) {
 			ItemStack mouseItem = player.inventory.getItemStack();
-			if (mouseItem.isEmpty() && this.handleClickGhostIngredient(currentScreen, clicked, listElement, mouseButton)) {
+			if (mouseItem.isEmpty() && this.handleClickGhostIngredient(currentScreen, clicked, listIngredient, mouseButton)) {
 				return true;
 			}
 		}
@@ -195,7 +204,7 @@ public class GhostIngredientDragManager {
 	}
 
 	private <T extends GuiScreen> boolean handleClickGhostIngredient(T currentScreen, IClickedIngredient<?> clicked,
-			@Nullable IIngredientListElement<?> listElement, int mouseButton) {
+			@Nullable Object listIngredient, int mouseButton) {
 		if (clicked == null) {
 			return false;
 		}
@@ -206,7 +215,7 @@ public class GhostIngredientDragManager {
 			}
 			return false;
 		}
-		Object ingredient = listElement == null ? getIngredientForHandler(handler, clicked.getValue()) : listElement.getIngredient();
+		Object ingredient = listIngredient == null ? getIngredientForHandler(handler, clicked.getValue()) : listIngredient;
 		return startGhostIngredientDrag(handler, currentScreen, clicked, ingredient, clicked.getValue(), true, mouseButton);
 	}
 
