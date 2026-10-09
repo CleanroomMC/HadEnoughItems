@@ -1,5 +1,37 @@
 # Changelog
 
+## 4.36.0 - 2026-10-09
+
+## Feature
+
+- History grid from JEI Utilities *[PR by [@Rongmario](https://github.com/Rongmario), tttsaurus in [#264](https://github.com/CleanroomMC/HadEnoughItems/pull/264)]*
+- **reload**: Warn about third-party plugin leaks on reload *[commit by [@Rongmario](https://github.com/Rongmario) in [318b280](https://github.com/CleanroomMC/HadEnoughItems/commit/318b28079627369b7957a8ee59bc16451e92368e)]*
+
+## Bug Fix
+
+- **bookmark**: Unwrap bookmarks when editing the blacklist in edit mode *[commit by [@Rongmario](https://github.com/Rongmario) in [173564f](https://github.com/CleanroomMC/HadEnoughItems/commit/173564f6c1f6a13eebdc2a48226825a21a9e6175)]*
+- **bookmark**: Return the bookmarked ingredient from the bookmark overlay API *[commit by [@Rongmario](https://github.com/Rongmario) in [5b511c2](https://github.com/CleanroomMC/HadEnoughItems/commit/5b511c2898f9ba1745ff61c7b9648dc9c6169d91)]*
+    *[Fixes issue #236 by @Cal-Is-Burning]*
+- **bookmark**: Disallow dragging when bookmarks are disabled *[commit by [@Rongmario](https://github.com/Rongmario) in [34c65b3](https://github.com/CleanroomMC/HadEnoughItems/commit/34c65b3ae704f5d988ff123ed6f02d6f42588a6b)]*
+    *[Fixes issue #234 by @Circulate233]*
+- **reload**: Drop stale anvil and brewing caches on reload *[commit by [@Rongmario](https://github.com/Rongmario) in [f8698e1](https://github.com/CleanroomMC/HadEnoughItems/commit/f8698e140c4ba1d80de28c88a4a668388ee6d7ee)]*
+- **reload**: Reset the order tracker and string interner on full reload *[commit by [@Rongmario](https://github.com/Rongmario) in [638b109](https://github.com/CleanroomMC/HadEnoughItems/commit/638b109aec668e63d87e6c9d0c083469203438ca)]*
+- **reload**: Refresh the reused ingredient filter on recipes-only reload *[commit by [@Rongmario](https://github.com/Rongmario) in [63f3452](https://github.com/CleanroomMC/HadEnoughItems/commit/63f3452cf0d630b6d61af945612ed216b2fca10d)]*
+- **reload**: Build synchronous search indexes on full reload *[commit by [@Rongmario](https://github.com/Rongmario) in [49f9cee](https://github.com/CleanroomMC/HadEnoughItems/commit/49f9cee572fed7a61e0fc91a8c6cfe5fa687abaa)]*
+- **reload**: Interrupt superseded search tree builds instead of waiting *[commit by [@Rongmario](https://github.com/Rongmario) in [1c85d9f](https://github.com/CleanroomMC/HadEnoughItems/commit/1c85d9f4f6ba51269e1a780ee94d0531008973b3)]*
+- **reload**: Finish the search tree build on full reload *[commit by [@Rongmario](https://github.com/Rongmario) in [01aaa04](https://github.com/CleanroomMC/HadEnoughItems/commit/01aaa04d4c142194570e1a3d558ee596ff988f02)]*
+- **reload**: Let the recipe search thread time out when idle *[commit by [@Rongmario](https://github.com/Rongmario) in [67b6947](https://github.com/CleanroomMC/HadEnoughItems/commit/67b69479936cda6a57b6249bd0b7cdab2e452711)]*
+- **reload**: Delete ingredient grid framebuffers when the runtime is replaced *[commit by [@Rongmario](https://github.com/Rongmario) in [91e1f3f](https://github.com/CleanroomMC/HadEnoughItems/commit/91e1f3f2ea7456be9e57ddef85a04b0578f27994)]*
+- **reload**: Clear stale filter listeners on recipes-only reload *[commit by [@Rongmario](https://github.com/Rongmario) in [dc02c36](https://github.com/CleanroomMC/HadEnoughItems/commit/dc02c368154fa63923461eee9f82f7628fecd890)]*
+- **reload**: Unregister previous EnchantedBookCache on reload *[commit by [@Rongmario](https://github.com/Rongmario) in [d04f890](https://github.com/CleanroomMC/HadEnoughItems/commit/d04f8901b60091a9f1c04503438abe26da5502b3)]*
+
+## Refactor
+
+- **ghost**: Pass the raw ingredient under the mouse to ghost dragging *[commit by [@Rongmario](https://github.com/Rongmario) in [2a325c0](https://github.com/CleanroomMC/HadEnoughItems/commit/2a325c02967c3cc6291d57bd7c32a188b6a85d68)]*
+- **bookmark**: Redirect bookmark focuses and unwraps through the helper *[commit by [@Rongmario](https://github.com/Rongmario) in [fb0497a](https://github.com/CleanroomMC/HadEnoughItems/commit/fb0497a74d51be1ce44fa94d928cfdb65bb34938)]*
+
+**Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/4.35.1...4.36.0
+
 ## 4.35.1 - 2026-10-07
 
 ## Feature
