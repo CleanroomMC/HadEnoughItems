@@ -204,8 +204,7 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 		if (isListDisplayed()) {
 			IIngredientListElement elementUnderMouse = this.contents.getElementUnderMouse();
 			if (elementUnderMouse != null) {
-				Object ingredient = elementUnderMouse.getIngredient();
-				return ingredient instanceof BookmarkItem ? ((BookmarkItem<?>) ingredient).getIngredient() : ingredient;
+				return BookmarkItem.unwrap(elementUnderMouse.getIngredient());
 			}
 		}
 		return null;

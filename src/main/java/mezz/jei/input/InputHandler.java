@@ -278,9 +278,6 @@ public class InputHandler {
 
 	private <V> boolean handleMouseClickedFocus(int mouseButton, IClickedIngredient<V> clicked) {
 		Object value = clicked.getValue();
-		if (value instanceof BookmarkItem) {
-			value = ((BookmarkItem<?>) value).getIngredient();
-		}
 		if (mouseButton == 0) {
 			IFocus<?> focus = new Focus<>(IFocus.Mode.OUTPUT, value);
 			recipesGui.show(focus);
@@ -297,10 +294,7 @@ public class InputHandler {
 	}
 
 	private boolean handleClickEdit(IClickedIngredient<?> clicked) {
-		Object ingredient = clicked.getValue();
-		if (ingredient instanceof BookmarkItem) {
-			ingredient = ((BookmarkItem<?>) ingredient).getIngredient();
-		}
+		Object ingredient = BookmarkItem.unwrap(clicked.getValue());
 		IngredientBlacklistType blacklistType = GuiScreen.isCtrlKeyDown() ? IngredientBlacklistType.WILDCARD : IngredientBlacklistType.ITEM;
 
 		IIngredientHelper<Object> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
@@ -459,8 +453,7 @@ public class InputHandler {
 			return false;
 		}
 
-		Object value = clicked.getValue();
-		recipesGui.show(new Focus<>(mode, value instanceof BookmarkItem ? ((BookmarkItem<?>) value).getIngredient() : value));
+		recipesGui.show(new Focus<>(mode, clicked.getValue()));
 		clicked.onClickHandled();
 		return true;
 	}

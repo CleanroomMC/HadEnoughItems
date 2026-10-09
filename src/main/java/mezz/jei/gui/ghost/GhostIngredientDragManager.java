@@ -137,14 +137,8 @@ public class GhostIngredientDragManager {
 		if (pendingClick == null) {
 			return false;
 		}
-		Object original = pendingClick.getValue();
-		Object current = hovered == null ? null : hovered.getValue();
-		if (original instanceof BookmarkItem) {
-			original = ((BookmarkItem<?>) original).getIngredient();
-		}
-		if (current instanceof BookmarkItem) {
-			current = ((BookmarkItem<?>) current).getIngredient();
-		}
+		Object original = BookmarkItem.unwrap(pendingClick.getValue());
+		Object current = hovered == null ? null : BookmarkItem.unwrap(hovered.getValue());
 		if (!IngredientUtil.equals(original, current)) {
 			BooleanSupplier startDrag = pendingDrag;
 			pendingClick = null;
@@ -238,10 +232,7 @@ public class GhostIngredientDragManager {
 	}
 
 	private Object getIngredientForHandler(IGhostIngredientHandler<?> handler, Object ingredient) {
-		if (handler != defaultHandler && ingredient instanceof BookmarkItem) {
-			return ((BookmarkItem<?>) ingredient).getIngredient();
-		}
-		return ingredient;
+		return handler == defaultHandler ? ingredient : BookmarkItem.unwrap(ingredient);
 	}
 
 	private <T extends GuiScreen, V> boolean startGhostIngredientDrag(IGhostIngredientHandler<T> handler,
