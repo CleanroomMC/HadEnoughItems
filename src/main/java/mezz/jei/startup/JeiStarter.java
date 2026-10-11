@@ -36,8 +36,11 @@ import mezz.jei.recipes.RecipeRegistry;
 import mezz.jei.runtime.JeiHelpers;
 import mezz.jei.runtime.AdvancedSearchRegistry;
 import mezz.jei.runtime.JeiRuntime;
-import mezz.jei.search.BakedSubstringIndexBuilder;
 import mezz.jei.runtime.SubtypeRegistry;
+import mezz.jei.search.BakedSubstringIndexBuilder;
+import mezz.jei.search.GeneralizedSuffixTree;
+import mezz.jei.search.PrefixInfo;
+import mezz.jei.search.SearchIndexBuilder;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.LoggedTimer;
@@ -381,7 +384,11 @@ public class JeiStarter {
 		return new ISearchIndexBuilderFactory() {
 			@Override
 			public <T> ISearchIndexBuilder<T> create() {
-				return new BakedSubstringIndexBuilder<>();
+				GeneralizedSuffixTree<T> index = PrefixInfo.createLegacySearchIndex();
+				if (index.getClass() == GeneralizedSuffixTree.class) {
+					return new BakedSubstringIndexBuilder<>();
+				}
+				return new SearchIndexBuilder<>(index);
 			}
 		};
 	}

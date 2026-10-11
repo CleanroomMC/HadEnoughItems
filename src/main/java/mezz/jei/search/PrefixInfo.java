@@ -10,12 +10,22 @@ import mezz.jei.util.StringUtil;
 import mezz.jei.util.Translator;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class PrefixInfo implements Comparable<PrefixInfo> {
 
     public static final PrefixInfo NO_PREFIX;
 
     private static final Char2ObjectMap<PrefixInfo> instances = new Char2ObjectArrayMap<>(6);
+
+    // Kept as a bytecode-compatible hook for HadEnoughCharacters. Its transformer
+    // replaces this constructor reference with the pinyin-aware implementation.
+    private static final Supplier<GeneralizedSuffixTree<Object>> legacySearchIndexFactory = GeneralizedSuffixTree::new;
+
+    @SuppressWarnings("unchecked")
+    public static <T> GeneralizedSuffixTree<T> createLegacySearchIndex() {
+        return (GeneralizedSuffixTree<T>) legacySearchIndexFactory.get();
+    }
 
     static {
         NO_PREFIX = new PrefixInfo('\0', -1, true, "default", () -> Config.SearchMode.ENABLED, i -> Collections.singleton(Translator.toLowercaseWithLocale(i.getDisplayName())),
