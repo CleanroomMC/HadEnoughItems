@@ -46,6 +46,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.ProgressManager;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,9 @@ public class JeiStarter {
 	}
 
 	public void load(List<IModPlugin> plugins, Textures textures, boolean recipesOnly) {
+		// A plugin that fails is dropped for this load only, the next reload tries it again.
+		plugins = new ArrayList<>(plugins);
+
 		LoggedTimer totalTime = new LoggedTimer();
 		totalTime.start("Starting " + Tags.MOD_NAME);
 
