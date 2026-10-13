@@ -791,15 +791,15 @@ public final class Config {
 		property.setShowInGui(false);
 		values.bookmarkOverlayEnabled = property.getBoolean();
 
-		property = worldConfig.get(worldCategory, "autocraftingEnabled", defaultValues.recipeBookmarksEnabled);
+		property = worldConfig.get(worldCategory, "autocraftingEnabled", defaultValues.autocraftingEnabled);
 		property.setLanguageKey("config.jei.interface.autocraftingEnabled");
 		property.setComment(Translator.translateToLocal("config.jei.interface.autocraftingEnabled.comment"));
 		values.autocraftingEnabled = property.getBoolean();
 
-		property = worldConfig.get(worldCategory, "recipeBookmarksEnabled", defaultValues.autocraftingEnabled);
+		property = worldConfig.get(worldCategory, "recipeBookmarksEnabled", defaultValues.recipeBookmarksEnabled);
 		property.setLanguageKey("config.jei.interface.recipeBookmarksEnabled");
-		property.setComment(Translator.translateToLocal("config.jei.interface.autocraftingEnabled.comment"));
-		values.autocraftingEnabled = property.getBoolean();
+		property.setComment(Translator.translateToLocal("config.jei.interface.recipeBookmarksEnabled.comment"));
+		values.recipeBookmarksEnabled = property.getBoolean();
 
 		property = worldConfig.get(worldCategory, "filterText", defaultValues.filterText);
 		property.setShowInGui(false);
