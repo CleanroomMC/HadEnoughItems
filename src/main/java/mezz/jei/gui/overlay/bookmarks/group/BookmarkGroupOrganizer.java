@@ -33,6 +33,7 @@ import static mezz.jei.gui.overlay.IngredientGrid.INGREDIENT_PADDING;
 public class BookmarkGroupOrganizer {
 	public static final int GROUP_PADDING_Y = INGREDIENT_HEIGHT / 2 - 5;
 	public static final int GROUP_PADDING_X = BookmarkGridWithNavigation.BOOKMARK_TAB_WIDTH / 2 - 1;
+	private static final long REMOVAL_CONFIRM_MILLIS = 2000;
 
 	private final List<BookmarkGroupDisplay> groups = new ArrayList<>();
 	private final IngredientListBatchRenderer missingIngredientRenderer = new IngredientListBatchRenderer(false);
@@ -49,6 +50,8 @@ public class BookmarkGroupOrganizer {
 	private int draggedGroupId = -1;
 	private boolean dragWholeGroup = false;
 	private int prevMouseY = 0;
+	private int pendingRemovalGroupId = -1;
+	private long pendingRemovalTime = 0;
 
 	public BookmarkGroupOrganizer() {
 	}
@@ -66,6 +69,7 @@ public class BookmarkGroupOrganizer {
 		this.craftingBlocker = null;
 		this.missingIngredientRenderer.clear();
 		this.prevMouseY = 0;
+		this.pendingRemovalGroupId = -1;
 		stopDrag();
 	}
 
@@ -181,6 +185,9 @@ public class BookmarkGroupOrganizer {
 			} else {
 				tooltips.add(Translator.translateToLocal("hei.tooltip.item_group"));
 			}
+			if (isRemovalPending(group.group)) {
+				tooltips.add(Translator.translateToLocalFormatted("hei.tooltip.organizer.confirm_delete", KeyBindings.bookmark.getDisplayName()));
+			}
 
 			// Detect if the user is holding either ALT key.
 			if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
@@ -295,7 +302,13 @@ public class BookmarkGroupOrganizer {
 					return true;
 				}
 			}
-			if (overTabStrip && KeyBindings.bookmark.isActiveAndMatches(eventKey)) {
+			if (overTabStrip && KeyBindings.bookmark.isActiveAndMatches(eventKey) && !Keyboard.isRepeatEvent()) {
+				if (!isRemovalPending(group.group)) {
+					pendingRemovalGroupId = group.group.id;
+					pendingRemovalTime = Minecraft.getSystemTime();
+					return true;
+				}
+				pendingRemovalGroupId = -1;
 				if (bookmarkList.removeGroup(group.group)) {
 					return true;
 				}
@@ -313,6 +326,10 @@ public class BookmarkGroupOrganizer {
 		}
 
 		return false;
+	}
+
+	private boolean isRemovalPending(BookmarkGroup group) {
+		return group.id == pendingRemovalGroupId && Minecraft.getSystemTime() - pendingRemovalTime <= REMOVAL_CONFIRM_MILLIS;
 	}
 
 	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {

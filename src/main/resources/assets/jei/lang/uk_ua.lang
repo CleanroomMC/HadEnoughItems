@@ -233,7 +233,7 @@ hei.tooltip.recipe.ingredient_pin=§7Утримуйте §fSHIFT§7, щоб за
 hei.tooltip.press_alt=§7Натисніть §fALT§7 для перегляду дій
 hei.tooltip.organizer.1=§6CTRL + ЛКМ§7: Перемістити закладки між групами
 hei.tooltip.organizer.2=§6%s§r або §6%s§7: Перемістити групу вгору або вниз
-hei.tooltip.organizer.5=§6%s§7 на цій вкладці: Видалити групу
+hei.tooltip.organizer.5=§6%s§7 двічі на цій вкладці: Видалити групу
 hei.tooltip.organizer.3=§6CTRL + Прокрутка§7: Змінити кінцевий вихід
 hei.tooltip.organizer.4=§6%s§7: Автокрафт
 
