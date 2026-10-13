@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.36.1 - 2026-10-13
+
+## Feature
+
+- **bookmarks**: Press twice to remove a bookmark group *[commit by [@Rongmario](https://github.com/Rongmario) in [05ad007](https://github.com/CleanroomMC/HadEnoughItems/commit/05ad007590dc954c0ca14f0580ed323923d6c3fd)]*
+
+## Bug Fix
+
+- **config**: Mix-up between recipeBookmarksEnabled & autocraftingEnabled *[commit by [@Rongmario](https://github.com/Rongmario) in [e110d8b](https://github.com/CleanroomMC/HadEnoughItems/commit/e110d8b45e7a847a09d9e62fd86659baa17d82d2)]*
+- **reload**: Ensure erroneous plugins aren't removed globally *[commit by [@Rongmario](https://github.com/Rongmario) in [0ed3bd5](https://github.com/CleanroomMC/HadEnoughItems/commit/0ed3bd5c5d2479dc690b9a9c955060d1a57223d6)]*
+
+**Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/4.36.0...4.36.1
+
 ## 4.36.0 - 2026-10-09
 
 ## Feature
@@ -1263,7 +1276,7 @@
 ## Other
 
 - Add API to allow utility mods to set areas where JEI should not draw *[commit by [@mezz](https://github.com/mezz) in [2d10205](https://github.com/CleanroomMC/HadEnoughItems/commit/2d102051e46ad4ff0a5533e46f9894af5aa30332)]*
-- Update ru_ru.lang (Bookmarks) *[commit by [@iPopstop](https://github.com/iPopstop) in [b517f23](https://github.com/CleanroomMC/HadEnoughItems/commit/b517f2353a595e4899368c7bf121fe2fc301de46)]*
+- Update ru_ru.lang (Bookmarks) *[commit by [@vkutov1](https://github.com/vkutov1) in [b517f23](https://github.com/CleanroomMC/HadEnoughItems/commit/b517f2353a595e4899368c7bf121fe2fc301de46)]*
 - Update(pt_BR) add bookmark strings *[commit by Diego Ramos in [0e62942](https://github.com/CleanroomMC/HadEnoughItems/commit/0e62942d7ca170104b5388e6bc16206385f0638f)]*
 - Fixes for cleanup *[commit by [@mezz](https://github.com/mezz) in [2aec4bc](https://github.com/CleanroomMC/HadEnoughItems/commit/2aec4bc39d0dbea24f79f7b0326a2b29f6642b12)]*
 - Minor cleanup *[commit by [@mezz](https://github.com/mezz) in [a485ffb](https://github.com/CleanroomMC/HadEnoughItems/commit/a485ffbdf540e16ffbf9241b2b3e5bda4a64e99f)]*
@@ -1276,7 +1289,7 @@
 
 ## First-time Contributors
 
-- **[@iPopstop](https://github.com/iPopstop) made their first contribution!**
+- **[@vkutov1](https://github.com/vkutov1) made their first contribution!**
 
 **Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/v4.13.1...v4.14.0
 
