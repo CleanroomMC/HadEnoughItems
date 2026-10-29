@@ -266,11 +266,7 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 				tooltip.add(Translator.translateToLocal("hei.tooltip.recipe.ingredient_pin"));
 			}
 			if (preview == null) {
-				if (value instanceof ItemStack) {
-					TooltipRenderer.drawHoveringText(tooltipStack, minecraft, tooltip, tooltipX, tooltipY, fontRenderer);
-				} else {
-					TooltipRenderer.drawHoveringText(minecraft, tooltip, tooltipX, tooltipY, fontRenderer);
-				}
+				TooltipRenderer.drawHoveringText(value, tooltipStack, minecraft, tooltip, tooltipX, tooltipY, fontRenderer);
 			} else {
 				TooltipRenderer.drawHoveringTextAndItems(
 					tooltipStack,
@@ -286,7 +282,7 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			}
 
 			GlStateManager.enableDepth();
-		} catch (RuntimeException e) {
+		} catch (RuntimeException | LinkageError e) {
 			Log.get().error("Exception when rendering tooltip on {}.", value, e);
 		}
 	}

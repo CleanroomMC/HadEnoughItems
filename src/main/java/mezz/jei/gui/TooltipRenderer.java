@@ -1,8 +1,12 @@
 package mezz.jei.gui;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import com.google.common.collect.Lists;
 import mezz.jei.render.IngredientListBatchRenderer;
+import mezz.jei.util.ErrorUtil;
+import mezz.jei.util.LimitedLogger;
+import mezz.jei.util.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
@@ -12,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nullable;
 import java.awt.Rectangle;
@@ -19,6 +24,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public final class TooltipRenderer {
+	private static final LimitedLogger LIMITED_LOGGER = new LimitedLogger(Log.get(), Duration.ofSeconds(30));
+
 	private TooltipRenderer() {
 	}
 
@@ -47,6 +54,14 @@ public final class TooltipRenderer {
 	}
 
 	public static void drawHoveringText(ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, int maxWidth, FontRenderer font) {
+		drawHoveringText(itemStack, itemStack, minecraft, textLines, x, y, maxWidth, font);
+	}
+
+	public static <T> void drawHoveringText(T ingredient, ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, FontRenderer font) {
+		drawHoveringText(ingredient, itemStack, minecraft, textLines, x, y, -1, font);
+	}
+
+	private static void drawHoveringText(@Nullable Object ingredient, ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, int maxWidth, FontRenderer font) {
 		List<String> safeTextLines = null; // assume that null string almost never happens, so allocate lazily
         for (int i = 0, textLinesSize = textLines.size(); i < textLinesSize; i++) {
             String textLine = textLines.get(i);
@@ -54,15 +69,35 @@ public final class TooltipRenderer {
 				safeTextLines = new ArrayList<>(textLinesSize);
 				safeTextLines.addAll(textLines.subList(0, i));
             }
-			if (safeTextLines != null) {
+			if (safeTextLines != null && textLine != null) {
 				safeTextLines.add(textLine);
 			}
 		}
 		if (safeTextLines == null) {
 			safeTextLines = textLines;
 		}
+		if (safeTextLines.isEmpty()) {
+			return;
+		}
 		ScaledResolution scaledresolution = new ScaledResolution(minecraft);
-		GuiUtils.drawHoveringText(itemStack, safeTextLines, x, y, scaledresolution.getScaledWidth(), scaledresolution.getScaledHeight(), maxWidth, font);
+		try {
+			GuiUtils.drawHoveringText(itemStack, safeTextLines, x, y, scaledresolution.getScaledWidth(), scaledresolution.getScaledHeight(), maxWidth, font);
+		} catch (RuntimeException | LinkageError e) {
+			String stringTooltip = String.join("\n", safeTextLines);
+			String message = String.format("Failed to render tooltip for %s:\n%s", getIngredientInfo(ingredient), stringTooltip);
+			LIMITED_LOGGER.log(Level.ERROR, message, message, e);
+		}
+	}
+
+	private static String getIngredientInfo(@Nullable Object ingredient) {
+		if (ingredient == null || ingredient == ItemStack.EMPTY) {
+			return "HEI";
+		}
+		try {
+			return ErrorUtil.getIngredientInfo(ingredient);
+		} catch (RuntimeException | LinkageError e) {
+			return ingredient.getClass().getName();
+		}
 	}
 
 	public static void drawHoveringText(ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, int maxWidth) {
