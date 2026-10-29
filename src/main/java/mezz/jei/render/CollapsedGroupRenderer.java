@@ -263,7 +263,7 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		String header = TextFormatting.GOLD + collapsedStack.getDisplayName()
 			+ TextFormatting.GRAY + " (" + total + " items)";
 		// In OPEN_GROUP mode, alt+click uses first item; show that as the hint.
-		// In FIRST_ITEM mode, alt+click expands; show that instead.
+		// In FIRST_ITEM mode, alt+middle click expands; show that instead.
 		String hint = TextFormatting.YELLOW + Translator.translateToLocal(
 			Config.getCollapsedClickAction() == CollapsedClickAction.OPEN_GROUP
 				? "hei.tooltip.collapsed.expand.firstItem"

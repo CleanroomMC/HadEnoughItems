@@ -121,9 +121,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Sol alt köşedeki yer imi d�
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Sol alt köşedeki yer imi düğmesinin gizlenip gizlenmeyeceği
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Tıkla genişletmek için
 hei.tooltip.collapsed.expand.firstItem=Alt+Tıkla ilk öğe için
-hei.tooltip.collapsed.collapse=Alt+Tıkla daraltmak için
 hei.tooltip.config.expandCollapseAll=Alt+Tıkla Grupları Dönüştür
 
 config.hei.collapsible=Daraltılabilir Gruplar
@@ -133,7 +131,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Etkinleştirildiğinde, 
 config.hei.collapsible.collapseOnClose=Kapatırken Daralt
 config.hei.collapsible.collapseOnClose.comment=HEI kapatıldığında açık olan grupları daraltır.
 config.hei.collapsible.collapsedClickAction=Varsayılan Tıklama Eylemi
-config.hei.collapsible.collapsedClickAction.comment=Tek tıklama eylemini değiştirir, diğer seçenek Alt+Tıklama eylemi olur. Grubu Aç grubu açar. İlk Öğe eylemi gruptaki ilk öğeye uygular.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Grubu Aç
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=İlk Öğe
 

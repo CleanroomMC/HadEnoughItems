@@ -134,9 +134,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Dölj bokmärkesknapp i nedre
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Om bokmärkesknappen i nedre vänstra hörnet ska döljas
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Klicka för att expandera
 hei.tooltip.collapsed.expand.firstItem=Alt+Klicka för första föremålet
-hei.tooltip.collapsed.collapse=Alt+Klicka för att fälla ihop
 hei.tooltip.config.expandCollapseAll=Alt+Klicka för att växla grupper
 
 config.hei.collapsible=Ihopfällbara grupper
@@ -146,7 +144,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=När aktiverat fälls gr
 config.hei.collapsible.collapseOnClose=Fäll ihop vid stängning
 config.hei.collapsible.collapseOnClose.comment=Fäller ihop öppna grupper när HEI stängs.
 config.hei.collapsible.collapsedClickAction=Standardklickåtgärd
-config.hei.collapsible.collapsedClickAction.comment=Byter enkelklicksåtgärden, det andra alternativet blir Alt+Klick-åtgärden. Öppna grupp öppnar gruppen. Första föremålet tillämpar åtgärden på gruppens första föremål.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Öppna grupp
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Första föremålet
 

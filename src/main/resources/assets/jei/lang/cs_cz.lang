@@ -121,9 +121,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Skrýt tlačítko záložky v
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Zda skrýt tlačítko záložky v levém dolním rohu
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Klik pro rozbalení
 hei.tooltip.collapsed.expand.firstItem=Alt+Klik pro první předmět
-hei.tooltip.collapsed.collapse=Alt+Klik pro sbalení
 hei.tooltip.config.expandCollapseAll=Alt+Klik pro přepínat skupiny
 
 config.hei.collapsible=Sbalitelné skupiny
@@ -133,7 +131,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Pokud je povoleno, skupi
 config.hei.collapsible.collapseOnClose=Sbalit při zavření
 config.hei.collapsible.collapseOnClose.comment=Sbalí aktuálně otevřené skupiny při zavření HEI.
 config.hei.collapsible.collapsedClickAction=Výchozí akce kliknutí
-config.hei.collapsible.collapsedClickAction.comment=Zamění akci jednoduchého kliknutí, druhá možnost se stane akcí Alt+Klik. Otevřít skupinu otevře skupinu. První předmět aplikuje akci na první předmět ve skupině.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Otevřít skupinu
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=První předmět
 

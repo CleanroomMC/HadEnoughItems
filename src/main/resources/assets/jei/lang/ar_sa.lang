@@ -121,9 +121,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=إخفاء زر الإشار�
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=ما إذا كان سيتم إخفاء زر الإشارة المرجعية في الزاوية السفلية اليسرى
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+انقر للتوسيع
 hei.tooltip.collapsed.expand.firstItem=Alt+انقر للعنصر الأول
-hei.tooltip.collapsed.collapse=Alt+انقر للطي
 hei.tooltip.config.expandCollapseAll=Alt+النقر لتبديل المجموعات
 
 config.hei.collapsible=المجموعات القابلة للطي
@@ -133,7 +131,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=عند التفعيل، 
 config.hei.collapsible.collapseOnClose=الطي عند الإغلاق
 config.hei.collapsible.collapseOnClose.comment=طي المجموعات المفتوحة حالياً عند إغلاق HEI.
 config.hei.collapsible.collapsedClickAction=إجراء النقر الافتراضي
-config.hei.collapsible.collapsedClickAction.comment=يبدل إجراء النقرة الواحدة، يصبح الخيار الآخر هو إجراء Alt+النقر. فتح المجموعة يفتح المجموعة. العنصر الأول يطبق الإجراء على أول عنصر في المجموعة.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=فتح المجموعة
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=العنصر الأول
 

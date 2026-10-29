@@ -23,9 +23,7 @@ jei.tooltip.bookmarks.usage.key=Наведите курсор на предме�
 jei.tooltip.bookmarks.not.enough.space=Здесь недостаточно места для отображения закладок.
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+ЛКМ для раскрытия
 hei.tooltip.collapsed.expand.firstItem=Alt+ЛКМ для первого предмета
-hei.tooltip.collapsed.collapse=Alt+ЛКМ для сворачивания
 hei.tooltip.config.expandCollapseAll=Alt+ЛКМ для переключения групп
 
 # Error Tooltips
@@ -207,7 +205,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Если включен�
 config.hei.collapsible.collapseOnClose=Сворачивать при закрытии
 config.hei.collapsible.collapseOnClose.comment=Автоматически сворачивать открытые группы при закрытии интерфейса HEI.
 config.hei.collapsible.collapsedClickAction=Действие по умолчанию для свернутой группы
-config.hei.collapsible.collapsedClickAction.comment=Меняет местами действие обычного клика и Alt+ЛКМ. «Открыть группу» разворачивает список, «Первый предмет» применяет действие к первому элементу группы.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Открыть группу
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Первый предмет
 

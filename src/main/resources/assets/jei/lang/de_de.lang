@@ -154,9 +154,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Lesezeichen-Button in der unt
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Ob der Lesezeichen-Button in der unteren linken Ecke ausgeblendet werden soll
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Klick zum Aufklappen
 hei.tooltip.collapsed.expand.firstItem=Alt+Klick für erstes Element
-hei.tooltip.collapsed.collapse=Alt+Klick zum Zuklappen
 hei.tooltip.config.expandCollapseAll=Alt+Klick zum Gruppen umschalten
 
 config.hei.collapsible=Einklappbare Gruppen
@@ -166,7 +164,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Wenn aktiviert, werden G
 config.hei.collapsible.collapseOnClose=Beim Schließen einklappen
 config.hei.collapsible.collapseOnClose.comment=Aktuell geöffnete Gruppen beim Schließen von HEI einklappen.
 config.hei.collapsible.collapsedClickAction=Standard-Klickaktion
-config.hei.collapsible.collapsedClickAction.comment=Wechselt die Einzelklick-Aktion, die andere Option wird zur Alt+Klick-Aktion. Gruppe öffnen öffnet die Gruppe. Erstes Element wendet die Aktion auf das erste Element der Gruppe an.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Gruppe öffnen
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Erstes Element
 
