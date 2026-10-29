@@ -381,7 +381,7 @@ public class InputHandler {
 				Config.toggleBookmarkEnabled();
 				return true;
 			}
-			if (handleFocusKeybinds(eventKey)) {
+			if (!ingredientListOverlay.hasKeyboardFocus() && handleFocusKeybinds(eventKey)) {
 				return true;
 			}
 			return ingredientListOverlay.onKeyPressed(typedChar, eventKey);
