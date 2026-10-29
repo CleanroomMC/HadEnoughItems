@@ -176,7 +176,7 @@ public class BookmarkGridWithNavigation implements IShowsRecipeFocuses, IMouseHa
 	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
 		return !guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY)
 			&& (this.groupOrganizer.handleMouseClicked(mouseX, mouseY, mouseButton)
-				|| this.bookmarkGrid.handleMouseClicked(mouseX, mouseY)
+				|| this.bookmarkGrid.handleMouseClicked(mouseX, mouseY, mouseButton)
 				|| this.bookmarkCount > 0 && this.navigation.handleMouseClickedButtons(mouseX, mouseY));
 
 	}
