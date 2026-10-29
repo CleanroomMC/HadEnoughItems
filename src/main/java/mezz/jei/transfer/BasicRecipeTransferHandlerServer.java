@@ -24,15 +24,32 @@ public final class BasicRecipeTransferHandlerServer {
 		Container container = player.openContainer;
 		// grab items from slots
 		Map<Integer, ItemStack> slotMap = new HashMap<>(slotIdMap.size());
+		Map<Slot, ItemStack> targetSlotStacks = new HashMap<>();
 		for (Map.Entry<Integer, Integer> entry : slotIdMap.entrySet()) {
-			Slot slot = container.getSlot(entry.getValue());
+			int sourceSlotNumber = entry.getValue();
+			if (!craftingSlots.contains(sourceSlotNumber) && !inventorySlots.contains(sourceSlotNumber)) {
+				return;
+			}
+			Slot slot = container.getSlot(sourceSlotNumber);
 			final ItemStack slotStack = slot.getStack();
-			if (slotStack.isEmpty()) {
+			if (slotStack.isEmpty() || !slot.isItemValid(slotStack)) {
 				return;
 			}
 			ItemStack stack = slotStack.copy();
-			stack.setCount(itemCounts == null ? 1 : itemCounts.get(entry.getKey()));
+			stack.setCount(itemCounts == null ? 1 : Math.max(1, itemCounts.getOrDefault(entry.getKey(), 1)));
+			Slot targetSlot = container.getSlot(craftingSlots.get(entry.getKey()));
+			if (!targetSlot.isItemValid(stack) || targetSlotStacks.putIfAbsent(targetSlot, stack) != null) {
+				return;
+			}
 			slotMap.put(entry.getKey(), stack);
+		}
+
+		for (Integer craftingSlotNumber : craftingSlots) {
+			Slot craftingSlot = container.getSlot(craftingSlotNumber);
+			ItemStack stack = craftingSlot.getStack();
+			if (!stack.isEmpty() && (!craftingSlot.canTakeStack(player) || !craftingSlot.isItemValid(stack))) {
+				return;
+			}
 		}
 
 		// Transfer as many items as possible only if it has been explicitly requested by the implementation
@@ -301,7 +318,7 @@ public final class BasicRecipeTransferHandlerServer {
 			if (slotNumber >= 0 && slotNumber < container.inventorySlots.size()) {
 				Slot slot = container.getSlot(slotNumber);
 				ItemStack slotStack = slot.getStack();
-				if (slot.canTakeStack(player) && ItemStack.areItemsEqual(itemStack, slotStack) && ItemStack.areItemStackTagsEqual(itemStack, slotStack)) {
+				if (slot.canTakeStack(player) && slot.isItemValid(slotStack) && ItemStack.areItemsEqual(itemStack, slotStack) && ItemStack.areItemStackTagsEqual(itemStack, slotStack)) {
 					return slot;
 				}
 			}
