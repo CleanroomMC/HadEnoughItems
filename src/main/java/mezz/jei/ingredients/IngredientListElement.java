@@ -9,6 +9,7 @@ import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.startup.ForgeModIdHelper;
 import mezz.jei.startup.IModIdHelper;
 import mezz.jei.startup.ProxyCommonClient;
 import mezz.jei.util.LegacyUtil;
@@ -18,7 +19,9 @@ import mezz.jei.util.Translator;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 
 public class IngredientListElement<V> implements IIngredientListElement<V> {
 	private static final Pattern SPACE_PATTERN = Pattern.compile("\\s");
+	private static final Pattern MOD_NAME_SEPARATOR_PATTERN = Pattern.compile("(?=[A-Z_-])|\\s+");
 
 	private final V ingredient;
 	private final int orderIndex;
@@ -105,6 +109,18 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 	}
 
 	@Override
+	public Collection<String> getNameStrings() {
+		Collection<String> aliases = Internal.getIngredientRegistry().getIngredientAliases(ingredient);
+		if (aliases.isEmpty()) {
+			return Collections.singleton(getDisplayName());
+		}
+		List<String> nameStrings = new ArrayList<>(1 + aliases.size());
+		nameStrings.add(getDisplayName());
+		nameStrings.addAll(aliases);
+		return nameStrings;
+	}
+
+	@Override
 	public String getModNameForSorting() {
 		return this.modNames instanceof String ? (String) this.modNames : ((String[]) this.modNames)[0];
 	}
@@ -135,12 +151,28 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 		String modIdLowercase = Translator.toLowercaseWithLocale(modId);
 		modNames.add(modIdLowercase);
 		modNames.add(SPACE_PATTERN.matcher(modIdLowercase).replaceAll(""));
+		for (String alias : ForgeModIdHelper.getInstance().getModAliases(modId)) {
+			modNames.add(SPACE_PATTERN.matcher(Translator.toLowercaseWithLocale(alias)).replaceAll(""));
+		}
 	}
 
 	private static void addModNameStrings(Set<String> modNames, String modName) {
 		String modNameLowercase = Translator.toLowercaseWithLocale(modName);
 		modNames.add(modNameLowercase);
 		modNames.add(SPACE_PATTERN.matcher(modNameLowercase).replaceAll(""));
+		String[] words = MOD_NAME_SEPARATOR_PATTERN.split(modName);
+		if (words.length > 1) {
+			modNames.add(Translator.toLowercaseWithLocale(combineFirstLetters(words, 1)));
+			modNames.add(Translator.toLowercaseWithLocale(combineFirstLetters(words, 2)));
+		}
+	}
+
+	private static String combineFirstLetters(String[] words, int count) {
+		StringBuilder result = new StringBuilder();
+		for (String word : words) {
+			result.append(word, 0, Math.min(count, word.length()));
+		}
+		return result.toString();
 	}
 
 	@Override
