@@ -2,6 +2,7 @@ package mezz.jei.startup;
 
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
@@ -17,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ModIngredientRegistration implements IModIngredientRegistration {
-	private final Map<IIngredientType, Collection> allIngredientsMap = new Reference2ObjectOpenHashMap<>();
+	private final Map<IIngredientType, Collection> allIngredientsMap = new Reference2ObjectLinkedOpenHashMap<>();
 	private final Map<IIngredientType, IIngredientHelper> ingredientHelperMap = new Reference2ObjectOpenHashMap<>();
 	private final Map<IIngredientType, IIngredientRenderer> ingredientRendererMap = new Reference2ObjectOpenHashMap<>();
 	private final Set<IIngredientType<?>> craftableIngredientTypes = new ObjectLinkedOpenHashSet<>();
@@ -48,7 +49,7 @@ public class ModIngredientRegistration implements IModIngredientRegistration {
 	}
 
 	public IngredientRegistry createIngredientRegistry(IModIdHelper modIdHelper, IngredientBlacklistInternal blacklist) {
-		Map<IIngredientType, IngredientSet> ingredientsMap = new Reference2ObjectOpenHashMap<>();
+		Map<IIngredientType, IngredientSet> ingredientsMap = new Reference2ObjectLinkedOpenHashMap<>();
 		for (Map.Entry<IIngredientType, Collection> entry : allIngredientsMap.entrySet()) {
 			IIngredientType ingredientType = entry.getKey();
 			@SuppressWarnings("unchecked")
