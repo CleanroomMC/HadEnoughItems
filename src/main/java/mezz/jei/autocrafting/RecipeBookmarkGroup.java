@@ -11,6 +11,7 @@ import mezz.jei.config.Config;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.transfer.RecipeTransferErrorSlots;
 import mezz.jei.transfer.RecipeTransferErrorTooltip;
+import mezz.jei.transfer.RecipeTransferUtil;
 import mezz.jei.util.Translator;
 
 import javax.annotation.Nullable;
@@ -215,7 +216,7 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
 		for (CraftingPlan.Step step : plan.steps()) {
 			int crafts = (int) Math.min(Integer.MAX_VALUE, step.crafts());
 			IRecipeTransferError error = AutocraftingHandler.isRecipeAutoCraftable(step.recipe(), crafts);
-			if (error == null || error instanceof RecipeTransferErrorSlots) {
+			if (RecipeTransferUtil.allowsTransfer(error) || error instanceof RecipeTransferErrorSlots) {
 				continue;
 			}
 			if (error.getSimpleReason() != null) {
