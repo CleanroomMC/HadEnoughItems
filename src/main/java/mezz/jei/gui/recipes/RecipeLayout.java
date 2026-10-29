@@ -39,9 +39,12 @@ import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.LegacyUtil;
 import mezz.jei.util.Log;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fluids.FluidStack;
 
 public class RecipeLayout implements IRecipeLayoutDrawable {
@@ -260,6 +263,10 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			hoveredIngredient.drawOverlays(minecraft, posX, posY, recipeMouseX, recipeMouseY);
 		} else if (isMouseOver(mouseX, mouseY)) {
 			List<String> tooltipStrings = getTooltipStrings(recipeMouseX, recipeMouseY);
+			if (recipeTransferButton != null) {
+				recipeTransferButton.drawRecipeError(minecraft, mouseX, mouseY);
+				recipeTransferButton.addShortcutTooltips(tooltipStrings);
+			}
 			if (!tooltipStrings.isEmpty()) {
 				TooltipRenderer.drawHoveringText(minecraft, tooltipStrings, mouseX, mouseY);
 			}
@@ -318,6 +325,23 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 
 	public boolean handleClick(Minecraft minecraft, int mouseX, int mouseY, int mouseButton) {
 		return recipeWrapper.handleClick(minecraft, mouseX - posX, mouseY - posY, mouseButton);
+	}
+
+	public boolean handleCopyRecipeId() {
+		Minecraft minecraft = Minecraft.getMinecraft();
+		EntityPlayerSP player = minecraft.player;
+		if (recipeId == null) {
+			if (player != null) {
+				player.sendMessage(new TextComponentTranslation("jei.message.copy.recipe.id.failure"));
+			}
+			return false;
+		}
+		String recipeIdString = recipeId.toString();
+		GuiScreen.setClipboardString(recipeIdString);
+		if (player != null) {
+			player.sendMessage(new TextComponentTranslation("jei.message.copy.recipe.id.success", recipeIdString));
+		}
+		return true;
 	}
 
 	public boolean handleMouseScroll(int mouseX, int mouseY, int scrollAmount) {
