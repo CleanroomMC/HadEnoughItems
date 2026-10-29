@@ -14,6 +14,7 @@ public class ConfigValues {
 	// advanced
 	public boolean debugModeEnabled = false;
 	public boolean centerSearchBarEnabled = false;
+	public boolean hideIngredientsWhenNotSearching = false;
 	public boolean ultraLowMemoryUsage = false;
 	public boolean asyncSearchTreeBuilding = true;
 	public boolean addBookmarksToFront = false;

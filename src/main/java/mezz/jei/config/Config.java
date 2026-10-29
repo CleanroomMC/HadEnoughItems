@@ -231,6 +231,19 @@ public final class Config {
 		return values.centerSearchBarEnabled;
 	}
 
+	public static boolean isHideIngredientsWhenNotSearchingEnabled() {
+		return values.hideIngredientsWhenNotSearching;
+	}
+
+	public static void toggleHideIngredientsWhenNotSearching() {
+		values.hideIngredientsWhenNotSearching = !values.hideIngredientsWhenNotSearching;
+		if (config != null) {
+			config.get(CATEGORY_ADVANCED, "hideIngredientsWhenNotSearching", defaultValues.hideIngredientsWhenNotSearching)
+				.set(values.hideIngredientsWhenNotSearching);
+			config.save();
+		}
+	}
+
 	public static boolean isOptimizeMemoryUsage() {
 		return true; // For compatibility sake
 	}
@@ -584,6 +597,7 @@ public final class Config {
 		categoryAdvanced.remove("maxSubtypes");
 
 		values.centerSearchBarEnabled = config.getBoolean(CATEGORY_ADVANCED, "centerSearchBarEnabled", defaultValues.centerSearchBarEnabled);
+		values.hideIngredientsWhenNotSearching = config.getBoolean(CATEGORY_ADVANCED, "hideIngredientsWhenNotSearching", defaultValues.hideIngredientsWhenNotSearching);
 
 		values.ultraLowMemoryUsage = config.getBoolean(CATEGORY_ADVANCED, "ultraLowMemoryUsage", defaultValues.ultraLowMemoryUsage);
 

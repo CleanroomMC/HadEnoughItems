@@ -57,12 +57,12 @@ public class GuiEventHandler {
 
 	@SubscribeEvent
 	public void onGuiOpen(GuiOpenEvent event) {
-		boolean wasDisplayed = ingredientListOverlay.isListDisplayed();
+		boolean wasDisplayed = ingredientListOverlay.isSearchDisplayed();
 		GuiScreen gui = event.getGui();
 		ingredientListOverlay.updateScreen(gui, false);
 		leftAreaDispatcher.updateScreen(gui, false);
 		ghostIngredientDragManager.updateScreen(gui, false);
-		if (wasDisplayed && !ingredientListOverlay.isListDisplayed() && Config.isCollapseOnClose()
+		if (wasDisplayed && !ingredientListOverlay.isSearchDisplayed() && Config.isCollapseOnClose()
 				&& Internal.hasIngredientFilter()) {
 			Internal.getCollapsedGroupRegistry().closeAllGroups();
 			Internal.getIngredientFilter().notifyCollapsedStateChanged();
