@@ -181,3 +181,6 @@ hei.gui.collapsible.editor.title=Ausgewählte Elemente
 hei.gui.collapsible.editor.name=Name
 hei.gui.collapsible.editor.save=Speichern
 hei.gui.collapsible.editor.selected=%d ausgewählt
+
+jei.tooltip.bookmarks.usage.nokey=Füge eine Tastenkombination für HEI-Lesezeichen in der Steuerungs-Einstellung hinzu.
+config.jei.search.searchAdvancedTooltips=Durchsuche erweiterte Tooltips

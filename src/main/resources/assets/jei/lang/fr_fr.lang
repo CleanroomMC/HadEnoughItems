@@ -18,7 +18,7 @@ jei.tooltip.not.enough.space=Il n'y a pas assez de place pour afficher la liste 
 jei.tooltip.ingredient.list.disabled=L'overlay HEI a été désactivé.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Pressez %s pour l'activer.
 jei.tooltip.bookmarks=Marque-pages HEI
-jei.tooltip.bookmarks.usage.nokey=Ajoutez un raccourci pour les marque-pages HEI dans vos paramètres de raccourcis.
+jei.tooltip.bookmarks.usage.nokey=Ajoutez un raccourci pour les marque-page HEI dans vos paramètres de raccourcis.
 jei.tooltip.bookmarks.usage.key=Survolez un objet avec votre souris et pressez "%s" pour l'épingler.
 jei.tooltip.bookmarks.not.enough.space=Il n'y a pas assez de place pour afficher les marque-pages ici.
 
@@ -38,7 +38,7 @@ jei.chat.error.no.cheat.permission.2=L'autorisation est donnée aux joueurs qui 
 # Key Bindings
 key.jei.toggleOverlay=Afficher/cacher HEI
 key.jei.focusSearch=Sélectionner la barre de recherche
-key.jei.showRecipe=Montrer la recette
+key.jei.showRecipe=Afficher la recette
 key.jei.showUses=Montrer les utilisations
 key.jei.recipeBack=Montrer la recette précédente
 key.jei.toggleCheatMode=Activer/désactiver le Mode triche
@@ -115,7 +115,7 @@ key.jei.ctrl.mac=CMD
 gui.jei.category.craftingTable=Établi
 gui.jei.category.smelting=Fourneau
 gui.jei.category.smelting.experience=%s XP
-gui.jei.category.fuel=Combustible
+gui.jei.category.fuel=Carburant
 gui.jei.category.fuel.smeltCount.single=Fond 1 objet
 gui.jei.category.fuel.smeltCount=Fond %s objets
 gui.jei.category.brewing=Création de potion
@@ -123,9 +123,9 @@ gui.jei.category.brewing.steps=Étapes: %s
 gui.jei.category.itemInformation=Information
 
 # DEBUG (for debug mode, do not need translation)
-description.jei.wooden.door.1=Wooden Doors allow you to block monsters from entering your building.\nTesting sentences.
-description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and visa versa.
-description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits.
+description.jei.wooden.door.1=Wooden doors allow you to block monsters from entering your building.\nTesting sentences.
+description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and vice versa.
+description.jei.wooden.door.3=Wooden doors can be opened/closed via redstone circuits.
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Masquer le bouton de marque-page en bas à gauche
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Si le bouton de marque-page en bas à gauche doit être masqué
@@ -158,3 +158,8 @@ hei.gui.collapsible.editor.title=Objets sélectionnés
 hei.gui.collapsible.editor.name=Nom
 hei.gui.collapsible.editor.save=Enregistrer
 hei.gui.collapsible.editor.selected=%d sélectionnés
+
+key.jei.toggleEditMode=Basculer en mode Masquer/Modifier
+config.jei.search.searchAdvancedTooltips=Recherche avancée par infobulle
+config.jei.advanced.addBookmarksToFront=Ajouter de nouveaux marque-pages
+config.jei.advanced.addBookmarksToFront.comment=Si elle est vraie, elle ajoute les nouveaux marque-pages au début de la liste des marque-pages. Si elle est fausse, elle ajoute les nouveaux marque-pages à la fin de la liste des marque-pages.

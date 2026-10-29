@@ -10,41 +10,41 @@ jei.tooltip.recipe.ore.dict=Aceita qualquer: %s
 jei.tooltip.item.colors=Cores: %s
 jei.tooltip.shapeless.recipe=Receita indefinida
 jei.tooltip.cheat.mode.button.enabled=Modo trapaça ativado
-jei.tooltip.cheat.mode.how.to.disable.hotkey=Pressione %s para ativá-lo.
+jei.tooltip.cheat.mode.how.to.disable.hotkey=Pressione \"%s\" para alternar.
 jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s + clique aqui para ativá-lo.
 jei.tooltip.recipe.by=Receita por: %s
 jei.tooltip.recipe.id=ID da receita: %s
-jei.tooltip.not.enough.space=Não há espaço suficiente para exibir o HEI aqui.
-jei.tooltip.ingredient.list.disabled=A sobreposição do HEI está desativada.
-jei.tooltip.ingredient.list.disabled.how.to.fix=Pressione %s para ativá-la.
+jei.tooltip.not.enough.space=O lado direito da tela é pequena demais para exibir a lista de ingredientes do HEI.
+jei.tooltip.ingredient.list.disabled=A sobreposição do HEI está oculta.
+jei.tooltip.ingredient.list.disabled.how.to.fix=Pressione \"%s\" para exibir novamente.
 jei.tooltip.bookmarks=Favoritos
-jei.tooltip.bookmarks.usage.nokey=Definir tecla de atalho para itens favoritos do HEI em Controles.
-jei.tooltip.bookmarks.usage.key=Passe o cursor sobre um ingrediente e pressione "%s" para adicioná-lo aos favoritos.
-jei.tooltip.bookmarks.not.enough.space=Não há espaço suficiente para exibir os favoritos aqui.
+jei.tooltip.bookmarks.usage.nokey=Defina uma tecla de atalho para favoritos do HEI em Controles.
+jei.tooltip.bookmarks.usage.key=Passe o mouse sobre um ingrediente e pressione \"%s\" para adicionar aos favoritos.
+jei.tooltip.bookmarks.not.enough.space=A área do lado esquerdo da tela é pequena demais para exibir a lista de favoritos do HEI.
 
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Itens ausentes
-jei.tooltip.error.recipe.transfer.inventory.full=O inventário está muito cheio
+jei.tooltip.error.recipe.transfer.inventory.full=Inventário muito cheio
 jei.tooltip.error.recipe.transfer.unknown=Erro desconhecido, ver registro
-jei.tooltip.error.recipe.transfer.no.server=O servidor deve ter o HEI instalado
-jei.tooltip.error.recipe.transfer.too.large.player.inventory=Não é possível fabricar isso em uma grade 2x2.
-jei.tooltip.error.crash=Descrição do erro, ver registro
+jei.tooltip.error.recipe.transfer.no.server=O servidor precisa ter o HEI instalado
+jei.tooltip.error.recipe.transfer.too.large.player.inventory=Não é possível fabricar isso na grade 2x2 do jogador.
+jei.tooltip.error.crash=Este ingrediente causou crash ao gerar a dica. Veja os logs do cliente para detalhes.
 
 # Error Messages
-jei.chat.error.command.too.long=O HEI deve ser instalado no servidor para o uso desse comando de bate-papo, que é longo demais para o Minecraft enviar.
+jei.chat.error.command.too.long=O HEI deve estar instalado no servidor para utilizar esse comando de bate-papo, longo demais para o Minecraft enviar.
 jei.chat.error.no.cheat.permission.1=Você não tem permissão para usar o modo trapaça do HEI.
-jei.chat.error.no.cheat.permission.2=A permissão é concedida apenas para jogadores que podem usar o comando /give ou que estão no modo Criativo.
+jei.chat.error.no.cheat.permission.2=Permissão dada apenas a jogadores que estão no Modo Criativo ou podem usar o comando /give.
 
 # Key Bindings
-key.jei.toggleOverlay=Exibir/ocultar HEI
+key.jei.toggleOverlay=Mostrar/Ocultar sobreposições do HEI
 key.jei.focusSearch=Selecionar barra de busca
 key.jei.showRecipe=Mostrar receita
 key.jei.showUses=Mostrar usos
-key.jei.recipeBack=Mostrar receita anterior
-key.jei.toggleCheatMode=Ativar/desativar modo trapaça
-key.jei.previousPage=Voltar
-key.jei.nextPage=Avançar
-key.jei.bookmark=Adic./remov. ingrediente favorito
+key.jei.recipeBack=Receita anterior
+key.jei.toggleCheatMode=Alternar modo trapaça
+key.jei.previousPage=Página anterior
+key.jei.nextPage=Próxima página
+key.jei.bookmark=Adicionar/Remover favorito
 key.hei.toggleBookmarkOverlay=Exibir/ocultar ingredientes favoritos
 
 # Config
@@ -54,7 +54,7 @@ config.jei.valid=Válida
 config.jei.title=Config. do %MODNAME
 
 config.jei.mode=Modo
-config.jei.mode.comment=Alterar o modo de operação do HEI.
+config.jei.mode.comment=Mudar o modo de operação do HEI.
 config.jei.mode.cheatItemsEnabled=Modo trapaça ativado
 config.jei.mode.cheatItemsEnabled.comment=Dar itens em vez de apenas mostrar a receita.
 config.jei.mode.editEnabled=Ocultar ingredientes
@@ -74,8 +74,8 @@ config.jei.search.modNameSearchMode.comment=Modo de busca para Mod Names (prefix
 config.jei.search.tooltipSearchMode=#Tooltip
 config.jei.search.tooltipSearchMode.comment=Modo de busca para Tooltips (prefixo: #)
 config.jei.search.oreDictSearchMode=$OreDictionary
-config.jei.search.oreDictSearchMode.comment=Modo de busca para Ore Dictionary Names (prefixo: $)
-config.jei.search.creativeTabSearchMode=%%CreativeTab
+config.jei.search.oreDictSearchMode.comment=Modo de busca para Ore Dictionary (prefixo: $)
+config.jei.search.creativeTabSearchMode=%%CreativeModeTab
 config.jei.search.creativeTabSearchMode.comment=Modo de busca para Creative Tab Names (prefixo: %)
 config.jei.search.colorSearchMode=^Color
 config.jei.search.colorSearchMode.comment=Modo de busca para Colors (prefixo: ^)
@@ -88,21 +88,21 @@ config.jei.advanced.itemBlacklist=Lista negra de ingredientes
 config.jei.advanced.itemBlacklist.comment=Lista de ingredientes que não deve ser exibida na lista principal. Formato: modId[:name[:meta]]. O modo ingredientes ocultos adicionará ou removerá entradas aqui automaticamente.
 config.jei.advanced.colorSearchEnabled=Ativar busca por cor
 config.jei.advanced.colorSearchEnabled.comment=Buscar ingredientes por cor e exibir as cores em descrições na lista.
-config.jei.advanced.debugModeEnabled=Modo depuração
+config.jei.advanced.debugModeEnabled=Depuração
 config.jei.advanced.debugModeEnabled.comment=Recomendado apenas para desenvolvedores do HEI. Adiciona ingredientes de testes e algumas receitas de depuração.
 config.jei.advanced.centerSearchBarEnabled=Centralizar barra de busca
 config.jei.advanced.centerSearchBarEnabled.comment=Mover a barra de busca do HEI para o centro-inferior da tela.
 config.jei.advanced.modNameFormat=Formato de nome do HEI
-config.jei.advanced.modNameFormat.comment=Alterar o formato do nome em descrições nas interfaces do HEI. Deixe em branco para desativar.
+config.jei.advanced.modNameFormat.comment=Mudar o formato do nome em descrições nas interfaces do HEI. Deixe em branco para desativar.
 config.jei.advanced.maxColumns=Largura máxima de sobreposição
 config.jei.advanced.maxColumns.comment=A largura máxima da lista de ingredientes.
 config.jei.advanced.maxRecipeGuiHeight=Altura máxima da interface de receitas
 config.jei.advanced.maxRecipeGuiHeight.comment=A altura máxima para a interface de receitas.
 config.jei.advanced.giveMode=Modo Give
-config.jei.advanced.giveMode.comment=Permitir que o HEI envie itens diretamente ao inventário ou possa obtê-los apenas com o mouse (mouse_pickup).
+config.jei.advanced.giveMode.comment=Permitir que o HEI envie itens diretamente ao inventário ou possa obtê-los com o mouse.
 
 # Hide Ingredients Mode
-gui.jei.editMode.description=Modo ingredientes ocultos do HEI:
+gui.jei.editMode.description=Modo ocultar ingredientes do HEI:
 gui.jei.editMode.description.hide=%CTRL + clique para ocultar
 gui.jei.editMode.description.hide.wild=%CTRL + clique com o botão direito para ocultar com o curinga
 
@@ -114,7 +114,7 @@ key.jei.ctrl.mac=CMD
 # Recipe Categories
 gui.jei.category.craftingTable=Fabricação
 gui.jei.category.smelting=Fundição
-gui.jei.category.smelting.experience=%s de exp.
+gui.jei.category.smelting.experience=%s XP
 gui.jei.category.fuel=Combustível
 gui.jei.category.fuel.smeltCount.single=Funde 1 item
 gui.jei.category.fuel.smeltCount=Funde %s itens
@@ -123,9 +123,9 @@ gui.jei.category.brewing.steps=Passos: %s
 gui.jei.category.itemInformation=Informações
 
 # DEBUG (for debug mode, do not need translation)
-description.jei.wooden.door.1=Wooden Doors allow you to block monsters from entering your building.\nTesting sentences.
-description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and vice versa.
-description.jei.wooden.door.3=Wooden Doors can be opened/closed via Redstone Circuits.
+description.jei.wooden.door.1=Portas de madeira permitem que você bloqueie a entrada de monstros em seu prédio.\nTeste sentenças..
+description.jei.wooden.door.2=Clicar em uma porta muda seu estado de aberto para fechado e vice-versa.
+description.jei.wooden.door.3=As portas de madeira podem ser abertas/fechadas através dos circuitos de Redstone.
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Ocultar botão de favorito no canto inferior esquerdo
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Se o botão de favorito no canto inferior esquerdo deve ser ocultado
@@ -158,3 +158,6 @@ hei.gui.collapsible.editor.title=Itens selecionados
 hei.gui.collapsible.editor.name=Nome
 hei.gui.collapsible.editor.save=Salvar
 hei.gui.collapsible.editor.selected=%d selecionados
+
+key.jei.toggleEditMode=Alternar modo ocultar ingredientes
+config.jei.search.searchAdvancedTooltips=Pesquisar dicas de ferramentas avançadas
