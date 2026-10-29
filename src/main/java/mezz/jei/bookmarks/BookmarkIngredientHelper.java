@@ -4,6 +4,7 @@ import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.recipe.IFocus;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -61,6 +62,11 @@ public class BookmarkIngredientHelper implements IIngredientHelper<BookmarkItem>
 	@Override
 	public String getResourceId(BookmarkItem ingredient) {
 		return getIngredientHelper(ingredient.getIngredient()).getResourceId(ingredient.getIngredient());
+	}
+
+	@Override
+	public ResourceLocation getResourceLocation(BookmarkItem ingredient) {
+		return getIngredientHelper(ingredient.getIngredient()).getResourceLocation(ingredient.getIngredient());
 	}
 
 	@Override

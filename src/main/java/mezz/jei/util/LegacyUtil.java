@@ -4,6 +4,8 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
+import net.minecraft.util.ResourceLocation;
+
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.recipe.IRecipeCategory;
 
@@ -32,6 +34,14 @@ public final class LegacyUtil {
 			return ingredientHelper.getResourceId(ingredient);
 		} catch (AbstractMethodError ignored) {
 			return ingredientHelper.getUniqueId(ingredient);
+		}
+	}
+
+	public static <T> ResourceLocation getResourceLocation(T ingredient, IIngredientHelper<T> ingredientHelper) {
+		try {
+			return ingredientHelper.getResourceLocation(ingredient);
+		} catch (AbstractMethodError ignored) {
+			return new ResourceLocation(ingredientHelper.getModId(ingredient), ingredientHelper.getUniqueId(ingredient));
 		}
 	}
 
