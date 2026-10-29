@@ -26,12 +26,15 @@ import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.recipes.RecipeRegistry;
 import mezz.jei.runtime.JeiRuntime;
+import mezz.jei.util.CommandUtil;
+import mezz.jei.util.GiveMode;
 import mezz.jei.util.ReflectionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -205,6 +208,9 @@ public class InputHandler {
 	}
 
 	private boolean handleMouseClick(GuiScreen guiScreen, int mouseButton, int mouseX, int mouseY, @Nullable IClickedIngredient<?> pendingClick) {
+		if (pendingClick == null && handleInventoryCheat(mouseButton - 100, mouseX, mouseY)) {
+			return true;
+		}
 		IClickedIngredient<?> clicked = pendingClick == null ? getFocusUnderMouseForClick(mouseX, mouseY) : pendingClick;
 		if (Config.isEditModeEnabled() && clicked != null && handleClickEdit(clicked)) {
 			return true;
@@ -399,6 +405,9 @@ public class InputHandler {
 	}
 
 	private boolean handleFocusKeybinds(int eventKey) {
+		if (handleInventoryCheat(eventKey, MouseHelper.getX(), MouseHelper.getY())) {
+			return true;
+		}
 		KeyBind pressedKey = null;
 		for (KeyBind keyBind : KeyBind.values()) {
 			if (keyBind.tryMatch(eventKey)) {
@@ -426,6 +435,26 @@ public class InputHandler {
 				return showRecipeOrUses(IFocus.Mode.INPUT);
 		}
 
+		return false;
+	}
+
+	private boolean handleInventoryCheat(int eventKey, int mouseX, int mouseY) {
+		if (!Config.isCheatItemsEnabled()) {
+			return false;
+		}
+		boolean oneItem = KeyBindings.cheatOneItemToInventory.isActiveAndMatches(eventKey);
+		boolean itemStack = KeyBindings.cheatItemStackToInventory.isActiveAndMatches(eventKey);
+		if (oneItem || itemStack) {
+			IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(mouseX, mouseY);
+			if (clicked != null) {
+				ItemStack stack = clicked.getCheatItemStack();
+				if (!stack.isEmpty()) {
+					CommandUtil.giveStack(stack, oneItem ? 1 : 0, GiveMode.INVENTORY);
+					clicked.onClickHandled();
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
