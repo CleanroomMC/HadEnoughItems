@@ -35,7 +35,11 @@ public class SmeltingRecipe implements IRecipeWrapper {
     public void drawInfo(Minecraft minecraft, int recipeWidth, int recipeHeight, int mouseX, int mouseY) {
         FurnaceRecipes furnaceRecipes = FurnaceRecipes.instance();
         if (this.experience == -1) {
-            this.experience = furnaceRecipes.getSmeltingExperience(output);
+            try {
+                this.experience = furnaceRecipes.getSmeltingExperience(output);
+            } catch (RuntimeException ignored) {
+                this.experience = 0;
+            }
         }
         if (this.experience > 0) {
             String experienceString = Translator.translateToLocalFormatted("gui.jei.category.smelting.experience", experience);

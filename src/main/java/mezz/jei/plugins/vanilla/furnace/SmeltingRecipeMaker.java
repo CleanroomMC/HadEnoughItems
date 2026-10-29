@@ -14,6 +14,8 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.recipe.IStackHelper;
+import mezz.jei.util.ErrorUtil;
+import mezz.jei.util.Log;
 
 public final class SmeltingRecipeMaker {
 
@@ -42,6 +44,11 @@ public final class SmeltingRecipeMaker {
 		for (Map.Entry<ItemStack, ItemStack> entry : smeltingMap.entrySet()) {
 			ItemStack input = entry.getKey();
 			ItemStack output = entry.getValue();
+			//noinspection ConstantConditions
+			if (input == null || output == null || input.getItem() == null || output.getItem() == null) {
+				Log.get().error("Found invalid smelting recipe: ({} -> {})", ErrorUtil.getItemStackInfo(input), ErrorUtil.getItemStackInfo(output));
+				continue;
+			}
 			outputMap.computeIfAbsent(output, k -> new ArrayList<>()).addAll(stackHelper.getSubtypes(input));
 		}
 
