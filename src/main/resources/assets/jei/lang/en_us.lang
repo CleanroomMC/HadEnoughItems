@@ -27,9 +27,9 @@ jei.tooltip.bookmarks.usage.key=Hover over an ingredient and press "%s" to bookm
 jei.tooltip.bookmarks.not.enough.space=There is not enough space to display bookmarks here.
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Click to Expand
+hei.tooltip.collapsed.expand=Alt+Middle Click to Expand
 hei.tooltip.collapsed.expand.firstItem=Alt+Click for First Item
-hei.tooltip.collapsed.collapse=Alt+Click to Collapse
+hei.tooltip.collapsed.collapse=Alt+Middle Click to Collapse
 hei.tooltip.config.expandCollapseAll=Alt+Click Toggle Groups
 
 # Error Tooltips
@@ -241,7 +241,7 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=When enabled, groups of 
 config.hei.collapsible.collapseOnClose=Collapse on Close
 config.hei.collapsible.collapseOnClose.comment=Collapse currently opened groups when HEI is closed.
 config.hei.collapsible.collapsedClickAction=Default Collapsed Action
-config.hei.collapsible.collapsedClickAction.comment=Swaps the single click action, The other option becomes the Alt+Click action. Open Group opens the group. First Item applies the action to the first item in the group.
+config.hei.collapsible.collapsedClickAction.comment=Swaps the single click action. Open Group opens the group, and Alt+Click applies the action to the first item. First Item applies the action to the first item, and Alt+Middle Click opens the group.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Open Group
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=First Item
 

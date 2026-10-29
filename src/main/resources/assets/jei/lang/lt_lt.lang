@@ -121,9 +121,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Paslėpti žymės mygtuką ap
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Ar paslėpti žymės mygtuką apatiniame kairiajame kampe
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+spustelėkite, kad išskleistumėte
 hei.tooltip.collapsed.expand.firstItem=Alt+spustelėkite pirmam daiktui
-hei.tooltip.collapsed.collapse=Alt+spustelėkite, kad sutrauktumėte
 hei.tooltip.config.expandCollapseAll=Alt+Spustelėkite perjungti grupes
 
 config.hei.collapsible=Sutraukiamos grupės
@@ -133,7 +131,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Kai įjungta, susijusių
 config.hei.collapsible.collapseOnClose=Sutraukti uždarant
 config.hei.collapsible.collapseOnClose.comment=Sutraukti šiuo metu atidarytas grupes kai HEI uždaromas.
 config.hei.collapsible.collapsedClickAction=Numatytasis paspaudimo veiksmas
-config.hei.collapsible.collapsedClickAction.comment=Pakeičia vieno paspaudimo veiksmą, kita parinktis tampa Alt+spustelėjimo veiksmu. Atidaryti grupę atidaro grupę. Pirmas daiktas taiko veiksmą pirmam grupės daiktui.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Atidaryti grupę
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Pirmas daiktas
 

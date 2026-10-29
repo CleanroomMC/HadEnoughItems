@@ -23,9 +23,7 @@ jei.tooltip.bookmarks.usage.key=将鼠标悬停在某个原料上，然后按 %s
 jei.tooltip.bookmarks.not.enough.space=屏幕左侧区域空间不足，无法显示书签列表叠加层。
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt + 点击：展开
 hei.tooltip.collapsed.expand.firstItem=Alt + 点击：首个物品
-hei.tooltip.collapsed.collapse=Alt + 点击：折叠
 hei.tooltip.config.expandCollapseAll=Alt + 点击：切换分组
 
 # Error Tooltips
@@ -201,7 +199,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=启用后，相关原料
 config.hei.collapsible.collapseOnClose=关闭时折叠
 config.hei.collapsible.collapseOnClose.comment=关闭 HEI 时折叠当前已展开的分组。
 config.hei.collapsible.collapsedClickAction=默认点击操作
-config.hei.collapsible.collapsedClickAction.comment=切换单击操作，另一项操作将变为 Alt + 点击。打开分组（open_group）：展开分组。首个物品（first_item）：对分组中的第一个物品执行操作。
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=打开分组
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=首个物品
 

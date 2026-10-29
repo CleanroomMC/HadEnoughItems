@@ -121,9 +121,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=הסתר כפתור סימנ�
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=האם להסתיר את כפתור הסימנייה בפינה השמאלית התחתונה
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+לחיצה כדי להרחיב
 hei.tooltip.collapsed.expand.firstItem=Alt+לחיצה לפריט הראשון
-hei.tooltip.collapsed.collapse=Alt+לחיצה כדי לכווץ
 hei.tooltip.config.expandCollapseAll=Alt+לחיצה להחלפת קבוצות
 
 config.hei.collapsible=קבוצות מתכווצות
@@ -133,7 +131,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=כאשר מופעל, ק�
 config.hei.collapsible.collapseOnClose=כיווץ בסגירה
 config.hei.collapsible.collapseOnClose.comment=כיווץ קבוצות פתוחות כאשר HEI נסגר.
 config.hei.collapsible.collapsedClickAction=פעולת לחיצה ברירת מחדל
-config.hei.collapsible.collapsedClickAction.comment=מחליף את פעולת הלחיצה הבודדת, האפשרות השנייה הופכת לפעולת Alt+לחיצה. פתח קבוצה פותח את הקבוצה. פריט ראשון מחיל את הפעולה על הפריט הראשון בקבוצה.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=פתח קבוצה
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=פריט ראשון
 

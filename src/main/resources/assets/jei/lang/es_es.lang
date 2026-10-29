@@ -121,9 +121,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Ocultar botón de marcador en
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Si se debe ocultar el botón de marcador en la esquina inferior izquierda
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Clic para expandir
 hei.tooltip.collapsed.expand.firstItem=Alt+Clic para primer objeto
-hei.tooltip.collapsed.collapse=Alt+Clic para colapsar
 hei.tooltip.config.expandCollapseAll=Alt+Clic alternar grupos
 
 config.hei.collapsible=Grupos colapsables
@@ -133,7 +131,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Cuando está habilitado,
 config.hei.collapsible.collapseOnClose=Colapsar al cerrar
 config.hei.collapsible.collapseOnClose.comment=Colapsa los grupos actualmente abiertos cuando se cierra HEI.
 config.hei.collapsible.collapsedClickAction=Acción de clic predeterminada
-config.hei.collapsible.collapsedClickAction.comment=Intercambia la acción del clic simple, la otra opción se convierte en la acción de Alt+Clic. Abrir Grupo abre el grupo. Primer Objeto aplica la acción al primer objeto del grupo.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Abrir Grupo
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Primer Objeto
 

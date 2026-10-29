@@ -121,9 +121,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Απόκρυψη Κουμπι
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Αν θα αποκρύπτεται το κουμπί σελιδοδείκτη στην κάτω αριστερή γωνία
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Κλικ για ανάπτυξη
 hei.tooltip.collapsed.expand.firstItem=Alt+Κλικ για πρώτο αντικείμενο
-hei.tooltip.collapsed.collapse=Alt+Κλικ για σύμπτυξη
 hei.tooltip.config.expandCollapseAll=Alt+Κλικ Εναλλαγή Ομάδων
 
 config.hei.collapsible=Πτυσσόμενες Ομάδες
@@ -133,7 +131,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Όταν ενεργοπ�
 config.hei.collapsible.collapseOnClose=Σύμπτυξη κατά το κλείσιμο
 config.hei.collapsible.collapseOnClose.comment=Σύμπτυξη των τρεχόντων ανοιχτών ομάδων όταν κλείνει το HEI.
 config.hei.collapsible.collapsedClickAction=Προεπιλεγμένη ενέργεια κλικ
-config.hei.collapsible.collapsedClickAction.comment=Εναλλάσσει την ενέργεια μονού κλικ, η άλλη επιλογή γίνεται η ενέργεια Alt+Κλικ. Άνοιγμα Ομάδας ανοίγει την ομάδα. Πρώτο Αντικείμενο εφαρμόζει την ενέργεια στο πρώτο αντικείμενο της ομάδας.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Άνοιγμα Ομάδας
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Πρώτο Αντικείμενο
 

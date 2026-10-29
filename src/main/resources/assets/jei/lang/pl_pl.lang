@@ -136,9 +136,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Ukryj przycisk zakładki w le
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Czy ukryć przycisk zakładki w lewym dolnym rogu
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Klik aby rozwinąć
 hei.tooltip.collapsed.expand.firstItem=Alt+Klik dla pierwszego przedmiotu
-hei.tooltip.collapsed.collapse=Alt+Klik aby zwinąć
 hei.tooltip.config.expandCollapseAll=Alt+Klik aby przełączyć grupy
 
 config.hei.collapsible=Zwijane grupy
@@ -148,7 +146,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Po włączeniu grupy pow
 config.hei.collapsible.collapseOnClose=Zwiń przy zamknięciu
 config.hei.collapsible.collapseOnClose.comment=Zwija aktualnie otwarte grupy po zamknięciu HEI.
 config.hei.collapsible.collapsedClickAction=Domyślna akcja kliknięcia
-config.hei.collapsible.collapsedClickAction.comment=Zamienia akcję pojedynczego kliknięcia, druga opcja staje się akcją Alt+Klik. Otwórz grupę otwiera grupę. Pierwszy przedmiot stosuje akcję do pierwszego przedmiotu w grupie.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Otwórz grupę
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Pierwszy przedmiot
 

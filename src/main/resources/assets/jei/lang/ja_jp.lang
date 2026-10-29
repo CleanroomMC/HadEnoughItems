@@ -131,9 +131,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=左下隅のブックマー�
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=左下隅のブックマークボタンを非表示にするかどうか
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+クリックで展開
 hei.tooltip.collapsed.expand.firstItem=Alt+クリックで最初のアイテム
-hei.tooltip.collapsed.collapse=Alt+クリックで折りたたむ
 hei.tooltip.config.expandCollapseAll=Alt+クリックでグループ展開切替
 
 config.hei.collapsible=折りたたみグループ
@@ -143,7 +141,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=有効にすると、関
 config.hei.collapsible.collapseOnClose=閉じる時に折りたたむ
 config.hei.collapsible.collapseOnClose.comment=HEIを閉じた時に現在開いているグループを折りたたみます。
 config.hei.collapsible.collapsedClickAction=デフォルトのクリック動作
-config.hei.collapsible.collapsedClickAction.comment=シングルクリックの動作を切り替えます。もう一方のオプションがAlt+クリックの動作になります。グループを開くはグループを開きます。最初のアイテムはグループの最初のアイテムにアクションを適用します。
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=グループを開く
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=最初のアイテム
 

@@ -131,9 +131,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=隱藏左下角書籤按鈕
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=是否隱藏左下角書籤按鈕
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+點擊展開
 hei.tooltip.collapsed.expand.firstItem=Alt+點擊查看第一個物品
-hei.tooltip.collapsed.collapse=Alt+點擊收合
 hei.tooltip.config.expandCollapseAll=Alt+點擊切換群組
 
 config.hei.collapsible=可折疊群組
@@ -143,7 +141,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=啟用後，相關材料
 config.hei.collapsible.collapseOnClose=關閉時收合
 config.hei.collapsible.collapseOnClose.comment=關閉HEI時收合目前已展開的群組。
 config.hei.collapsible.collapsedClickAction=預設點擊操作
-config.hei.collapsible.collapsedClickAction.comment=切換單擊操作，另一個選項變為Alt+點擊操作。開啟群組會展開群組。第一個物品會對群組中的第一個物品執行操作。
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=開啟群組
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=第一個物品
 

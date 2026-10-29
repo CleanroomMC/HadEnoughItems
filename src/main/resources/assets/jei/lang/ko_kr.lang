@@ -168,9 +168,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=왼쪽 하단 모서리 북�
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=왼쪽 하단 모서리 북마크 버튼을 숨길지 여부
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+클릭하여 펼치기
 hei.tooltip.collapsed.expand.firstItem=Alt+클릭하여 첫 번째 아이템
-hei.tooltip.collapsed.collapse=Alt+클릭하여 접기
 hei.tooltip.config.expandCollapseAll=Alt+클릭으로 그룹 전환
 
 config.hei.collapsible=접을 수 있는 그룹
@@ -180,7 +178,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=활성화하면 관련 �
 config.hei.collapsible.collapseOnClose=닫을 때 접기
 config.hei.collapsible.collapseOnClose.comment=HEI를 닫을 때 현재 열려 있는 그룹을 접습니다.
 config.hei.collapsible.collapsedClickAction=기본 클릭 동작
-config.hei.collapsible.collapsedClickAction.comment=단일 클릭 동작을 전환합니다. 다른 옵션이 Alt+클릭 동작이 됩니다. 그룹 열기는 그룹을 엽니다. 첫 번째 아이템은 그룹의 첫 번째 아이템에 동작을 적용합니다.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=그룹 열기
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=첫 번째 아이템
 

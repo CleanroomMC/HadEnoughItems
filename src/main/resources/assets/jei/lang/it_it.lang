@@ -121,9 +121,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Nascondi pulsante segnalibro 
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Se nascondere il pulsante segnalibro nell'angolo in basso a sinistra
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Clic per espandere
 hei.tooltip.collapsed.expand.firstItem=Alt+Clic per il primo oggetto
-hei.tooltip.collapsed.collapse=Alt+Clic per comprimere
 hei.tooltip.config.expandCollapseAll=Alt+Clic attiva/disattiva gruppi
 
 config.hei.collapsible=Gruppi comprimibili
@@ -133,7 +131,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Quando abilitato, i grup
 config.hei.collapsible.collapseOnClose=Comprimi alla chiusura
 config.hei.collapsible.collapseOnClose.comment=Comprime i gruppi attualmente aperti quando HEI viene chiuso.
 config.hei.collapsible.collapsedClickAction=Azione clic predefinita
-config.hei.collapsible.collapsedClickAction.comment=Scambia l'azione del clic singolo, l'altra opzione diventa l'azione Alt+Clic. Apri Gruppo apre il gruppo. Primo Oggetto applica l'azione al primo oggetto del gruppo.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Apri Gruppo
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Primo Oggetto
 

@@ -121,9 +121,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Скрий бутона за 
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Дали да се скрие бутона за отметка в долния ляв ъгъл
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Клик за разгъване
 hei.tooltip.collapsed.expand.firstItem=Alt+Клик за първия предмет
-hei.tooltip.collapsed.collapse=Alt+Клик за свиване
 hei.tooltip.config.expandCollapseAll=Alt+Клик за превключване на групи
 
 config.hei.collapsible=Свиваеми групи
@@ -133,7 +131,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Когато е акти
 config.hei.collapsible.collapseOnClose=Свиване при затваряне
 config.hei.collapsible.collapseOnClose.comment=Свиване на текущо отворените групи при затваряне на HEI.
 config.hei.collapsible.collapsedClickAction=Действие при клик по подразбиране
-config.hei.collapsible.collapsedClickAction.comment=Разменя действието при единично кликване, другата опция става действието при Alt+Клик. Отвори групата отваря групата. Първият предмет прилага действието към първия предмет в групата.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Отвори групата
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Първият предмет
 

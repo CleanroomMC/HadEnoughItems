@@ -121,9 +121,7 @@ config.jei.misc.hideBottomLeftCornerBookmarkButton=Piilota vasemman alan kulman 
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Piilotetaanko vasemman alan kulman kirjanmerkkipainike
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Klikkaa laajentaaksesi
 hei.tooltip.collapsed.expand.firstItem=Alt+Klikkaa ensimmäiselle esineelle
-hei.tooltip.collapsed.collapse=Alt+Klikkaa tiivistääksesi
 hei.tooltip.config.expandCollapseAll=Alt+Klikkaa vaihda ryhmiä
 config.hei.collapsible=Tiivistetyt ryhmät
 config.hei.collapsible.comment=Asetukset ainesosaryhmien tiivistämiseen yhdeksi paikaksi ainesosaluettelossa.
@@ -132,7 +130,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=Kun käytössä, toisiin
 config.hei.collapsible.collapseOnClose=Tiivistä suljettaessa
 config.hei.collapsible.collapseOnClose.comment=Tiivistetään avoinna olevat ryhmät kun HEI suljetaan.
 config.hei.collapsible.collapsedClickAction=Oletusklikkitoiminto
-config.hei.collapsible.collapsedClickAction.comment=Vaihtaa yksittäisklikkauksen toiminnon, toinen vaihtoehto tulee Alt+Klikkaus-toiminnoksi. Avaa ryhmä avaa ryhmän. Ensimmäinen esine soveltaa toiminnon ryhmän ensimmäiseen esineeseen.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Avaa ryhmä
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=Ensimmäinen esine
 
