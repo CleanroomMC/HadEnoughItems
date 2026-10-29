@@ -55,7 +55,7 @@ public final class Config {
 	public static final String CATEGORY_COLLAPSIBLE = "collapsible";
 
 	public static final String defaultModNameFormatFriendly = "blue italic";
-	public static final int smallestNumColumns = 4;
+	public static final int smallestNumColumns = 2;
 	public static final int largestNumColumns = 100;
 	public static final int minRecipeGuiHeight = 175;
 	public static final int maxRecipeGuiHeight = 5000;
