@@ -75,6 +75,7 @@ public class JeiStarter {
 
 		IModIdHelper modIdHelper = ForgeModIdHelper.getInstance();
 		ErrorUtil.setModIdHelper(modIdHelper);
+		registerModInfo(plugins, modIdHelper);
 
 		SubtypeRegistry subtypeRegistry = new SubtypeRegistry();
 		Internal.setSubtypeRegistry(subtypeRegistry);
@@ -87,6 +88,7 @@ public class JeiStarter {
 
 		IngredientBlacklistInternal blacklist = new IngredientBlacklistInternal();
 		ModIngredientRegistration modIngredientRegistry = registerIngredients(plugins);
+		registerIngredientAliases(plugins, modIngredientRegistry);
 		IngredientRegistry ingredientRegistry = modIngredientRegistry.createIngredientRegistry(modIdHelper, blacklist);
 		Internal.setIngredientRegistry(ingredientRegistry);
 
@@ -192,6 +194,51 @@ public class JeiStarter {
 
 	public boolean hasStarted() {
 		return started;
+	}
+
+	private static void registerModInfo(List<IModPlugin> plugins, IModIdHelper modIdHelper) {
+		if (!(modIdHelper instanceof AbstractModIdHelper)) {
+			return;
+		}
+		ModInfoRegistration registration = new ModInfoRegistration();
+		ProgressManager.ProgressBar progressBar = Config.skipShowingProgressBar() ? null : ProgressManager.push("Registering mod info", plugins.size());
+		for (IModPlugin plugin : plugins) {
+			try {
+				if (progressBar != null) {
+					progressBar.step(plugin.getClass().getName());
+				}
+				plugin.registerModInfo(registration);
+			} catch (RuntimeException | LinkageError e) {
+				if (plugin instanceof VanillaPlugin) {
+					throw e;
+				}
+				Log.get().error("Failed to register mod info for mod plugin: {}", plugin.getClass(), e);
+			}
+		}
+		if (progressBar != null) {
+			ProgressManager.pop(progressBar);
+		}
+		((AbstractModIdHelper) modIdHelper).setModAliases(registration.getModAliases());
+	}
+
+	private static void registerIngredientAliases(List<IModPlugin> plugins, ModIngredientRegistration registration) {
+		ProgressManager.ProgressBar progressBar = Config.skipShowingProgressBar() ? null : ProgressManager.push("Registering ingredient aliases", plugins.size());
+		for (IModPlugin plugin : plugins) {
+			try {
+				if (progressBar != null) {
+					progressBar.step(plugin.getClass().getName());
+				}
+				plugin.registerIngredientAliases(registration);
+			} catch (RuntimeException | LinkageError e) {
+				if (plugin instanceof VanillaPlugin) {
+					throw e;
+				}
+				Log.get().error("Failed to register ingredient aliases for mod plugin: {}", plugin.getClass(), e);
+			}
+		}
+		if (progressBar != null) {
+			ProgressManager.pop(progressBar);
+		}
 	}
 
 	private static void registerItemSubtypes(List<IModPlugin> plugins, SubtypeRegistry subtypeRegistry) {

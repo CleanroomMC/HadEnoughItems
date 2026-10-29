@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.recipe.IIngredientType;
+import mezz.jei.api.registration.IIngredientAliasRegistration;
 
 /**
  * The IIngredientRegistry is provided by JEI and has some useful functions related to recipe ingredients.
@@ -95,6 +96,16 @@ public interface IIngredientRegistry {
 	 * @since JEI 4.12.0
 	 */
 	<V> IIngredientType<V> getIngredientType(Class<? extends V> ingredientClass);
+
+	/**
+	 * Get localized search aliases registered for an ingredient.
+	 *
+	 * @see IIngredientAliasRegistration
+	 * @since HEI 4.37.0
+	 */
+	default <V> Collection<String> getIngredientAliases(V ingredient) {
+		return Collections.emptyList();
+	}
 
 	/**
 	 * Returns the ingredient types that plugins have marked as craftable.
