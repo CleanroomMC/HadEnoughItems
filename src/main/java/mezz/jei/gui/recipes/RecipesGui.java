@@ -577,15 +577,8 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			return;
 		}
 		if (isOpen()) {
-			if (parentScreen != null) {
-				mc.displayGuiScreen(parentScreen);
-				parentScreen = null;
-			} else {
-				EntityPlayerSP player = mc.player;
-				if (player != null) {
-					player.closeScreen();
-				}
-			}
+			mc.displayGuiScreen(parentScreen);
+			parentScreen = null;
 			logic.clearHistory();
 		}
 	}
