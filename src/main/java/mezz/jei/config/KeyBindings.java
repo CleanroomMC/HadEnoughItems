@@ -28,6 +28,8 @@ public final class KeyBindings {
 	public static final KeyBinding nextCategory;
 	public static final KeyBinding transferRecipeGui;
 	public static final KeyBinding maxTransferRecipeGui;
+	public static final KeyBinding cheatOneItemToInventory;
+	public static final KeyBinding cheatItemStackToInventory;
 	public static final KeyBinding closeRecipeGui;
 	public static final KeyBinding copyRecipeId;
 	public static final KeyBinding pauseRecipeCycling;
@@ -64,6 +66,8 @@ public final class KeyBindings {
 			nextCategory = new KeyBinding("key.hei.nextCategory", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_NEXT, categoryName),
 			transferRecipeGui = new KeyBinding("key.jei.transferRecipeGui", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
 			maxTransferRecipeGui = new KeyBinding("key.jei.maxTransferRecipeGui", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
+			cheatOneItemToInventory = new KeyBinding("key.jei.cheatOneItemToInventory", KeyConflictContext.GUI, KeyModifier.ALT, -99, categoryName),
+			cheatItemStackToInventory = new KeyBinding("key.jei.cheatItemStackToInventory", KeyConflictContext.GUI, KeyModifier.ALT, -100, categoryName),
 			closeRecipeGui = new KeyBinding("key.jei.closeRecipeGui", KeyConflictContext.GUI, Keyboard.KEY_ESCAPE, categoryName),
 			copyRecipeId = new KeyBinding("key.jei.copy.recipe.id", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
 			pauseRecipeCycling = new KeyBinding("key.jei.pauseRecipeCycling", KeyConflictContext.GUI, Keyboard.KEY_LSHIFT, categoryName),
