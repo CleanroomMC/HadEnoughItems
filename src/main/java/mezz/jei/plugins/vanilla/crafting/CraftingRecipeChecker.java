@@ -19,6 +19,9 @@ import mezz.jei.util.Log;
 public final class CraftingRecipeChecker {
 
 	public static boolean hasTippedArrowRecipe;
+	public static boolean hasFireworkRecipe;
+	public static boolean hasShieldDecorationRecipe;
+	public static boolean hasShulkerBoxColoringRecipe;
 
 	private CraftingRecipeChecker() {
 	}
@@ -30,6 +33,9 @@ public final class CraftingRecipeChecker {
 		CraftingRecipeValidator<ShapelessRecipes> shapelessRecipesValidator = new CraftingRecipeValidator<>(recipe -> new ShapelessRecipeWrapper<>(jeiHelpers, recipe));
 
 		hasTippedArrowRecipe = false;
+		hasFireworkRecipe = false;
+		hasShieldDecorationRecipe = false;
+		hasShulkerBoxColoringRecipe = false;
 
 		StackHelper stackHelper = Internal.getStackHelper();
 		Iterator<IRecipe> recipeIterator = CraftingManager.REGISTRY.iterator();
@@ -52,9 +58,16 @@ public final class CraftingRecipeChecker {
 				if (shapelessRecipesValidator.isRecipeValid((ShapelessRecipes) recipe, stackHelper)) {
 					validRecipes.add(recipe);
 				}
+			} else if (recipe instanceof RecipeFireworks) {
+				// shown through FireworkRecipeMaker, the dynamic recipe itself has nothing to display
+				hasFireworkRecipe = true;
 			} else {
-				if (!hasTippedArrowRecipe && recipe instanceof RecipeTippedArrow) {
+				if (recipe instanceof RecipeTippedArrow) {
 					hasTippedArrowRecipe = true;
+				} else if (recipe instanceof ShieldRecipes.Decoration) {
+					hasShieldDecorationRecipe = true;
+				} else if (recipe instanceof ShulkerBoxRecipes.ShulkerBoxColoring) {
+					hasShulkerBoxColoringRecipe = true;
 				}
 				validRecipes.add(recipe);
 			}

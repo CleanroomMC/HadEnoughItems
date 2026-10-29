@@ -165,6 +165,15 @@ public class VanillaPlugin implements IModPlugin {
 		if (CraftingRecipeChecker.hasTippedArrowRecipe) {
 			registry.addRecipes(TippedArrowRecipeMaker.getTippedArrowRecipes(), VanillaRecipeCategoryUid.CRAFTING);
 		}
+		if (CraftingRecipeChecker.hasFireworkRecipe) {
+			registry.addRecipes(FireworkRecipeMaker.getFireworkRecipes(), VanillaRecipeCategoryUid.CRAFTING);
+		}
+		if (CraftingRecipeChecker.hasShieldDecorationRecipe) {
+			registry.addRecipes(ShieldDecorationRecipeMaker.getShieldDecorationRecipes(), VanillaRecipeCategoryUid.CRAFTING);
+		}
+		if (CraftingRecipeChecker.hasShulkerBoxColoringRecipe) {
+			registry.addRecipes(ShulkerBoxColoringRecipeMaker.getShulkerBoxColoringRecipes(ingredientRegistry.getAllIngredients(VanillaTypes.ITEM)), VanillaRecipeCategoryUid.CRAFTING);
+		}
 
 		registry.handleRecipes(ShapedOreRecipe.class, recipe -> new ShapedOreRecipeWrapper(jeiHelpers, recipe), VanillaRecipeCategoryUid.CRAFTING);
 		registry.handleRecipes(ShapedRecipes.class, recipe -> new ShapedRecipesWrapper(jeiHelpers, recipe), VanillaRecipeCategoryUid.CRAFTING);
