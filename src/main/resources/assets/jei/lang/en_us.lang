@@ -162,6 +162,11 @@ config.jei.misc.comment=Miscellaneous config options
 config.jei.search.searchAdvancedTooltips=Search Advanced Tooltips
 config.jei.search.searchAdvancedTooltips.comment=Includes advanced tooltips in search trees [WILL RELOAD SEARCH TREES]
 
+config.jei.searchColors=Search Colors
+config.jei.searchColors.comment=Config options related to searching for colors of items in HEI.
+config.jei.searchColors.searchColors=Search Colors
+config.jei.searchColors.searchColors.comment=Color values to search for.
+
 config.jei.search.searchStrippedDiacritics=Search Stripped Diacritics
 config.jei.search.searchStrippedDiacritics.comment=Includes stripped diacritics version of strings in search trees [WILL RELOAD SEARCH TREES]
 

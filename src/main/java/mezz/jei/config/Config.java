@@ -524,6 +524,7 @@ public final class Config {
 
 		config.addCategory(CATEGORY_SEARCH);
 		config.addCategory(CATEGORY_ADVANCED);
+		migrateSearchAdvancedTooltipsConfig(config);
 		config.addCategory(CATEGORY_MISC);
 		config.addCategory(CATEGORY_COLLAPSIBLE);
 		// Override collapsible category lang keys from config.jei.* to config.hei.*
@@ -707,6 +708,27 @@ public final class Config {
 			config.save();
 		}
 		return needsReload;
+	}
+
+	static void migrateSearchAdvancedTooltipsConfig(Configuration config) {
+		String legacyCategoryName = "searchAdvancedTooltips";
+		String legacyPropertyName = CATEGORY_SEARCH;
+		String propertyName = "searchAdvancedTooltips";
+		if (!config.hasCategory(legacyCategoryName)) {
+			return;
+		}
+
+		ConfigCategory legacyCategory = config.getCategory(legacyCategoryName);
+		if (legacyCategory.containsKey(legacyPropertyName)) {
+			if (config.hasKey(CATEGORY_SEARCH, propertyName)) {
+				legacyCategory.remove(legacyPropertyName);
+			} else if (config.moveProperty(legacyCategoryName, legacyPropertyName, CATEGORY_SEARCH)) {
+				config.renameProperty(CATEGORY_SEARCH, legacyPropertyName, propertyName);
+			}
+		}
+		if (legacyCategory.isEmpty()) {
+			config.removeCategory(legacyCategory);
+		}
 	}
 
 	private static void updateModNameFormat(LocalizedConfiguration config) {
