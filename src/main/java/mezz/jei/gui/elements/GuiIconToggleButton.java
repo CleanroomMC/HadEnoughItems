@@ -32,6 +32,9 @@ public abstract class GuiIconToggleButton {
 	}
 
 	public void draw(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
+		if (this.button.width <= 0 || this.button.height <= 0) {
+			return;
+		}
 		this.button.drawButton(minecraft, mouseX, mouseY, partialTicks);
 		IDrawable icon = isIconToggledOn() ? this.onIcon : this.offIcon;
 		double xOffset = this.button.x + (this.button.width - icon.getWidth()) / 2.0;
