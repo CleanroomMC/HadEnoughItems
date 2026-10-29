@@ -14,7 +14,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.EnumMap;
 
 @SideOnly(Side.CLIENT)
@@ -37,20 +36,21 @@ public class PacketHandlerClient extends PacketHandler {
 			PacketIdClient packetId = PacketIdClient.VALUES[packetIdOrdinal];
 			IPacketJeiHandler packetHandler = clientHandlers.get(packetId);
 			checkThreadAndEnqueue(packetHandler, packetBuffer, minecraft);
-		} catch (Exception ex) {
+		} catch (Throwable ex) {
 			Log.get().error("Packet error", ex);
 		}
 	}
 
 	private static void checkThreadAndEnqueue(final IPacketJeiHandler packetHandler, final PacketBuffer packetBuffer, @Nullable IThreadListener threadListener) {
 		if (threadListener != null && !threadListener.isCallingFromMinecraftThread()) {
+			packetBuffer.retain();
 			threadListener.addScheduledTask(() -> {
 				try {
 					EntityPlayer player = Minecraft.getMinecraft().player;
 					if (player != null) {
 						packetHandler.readPacketData(packetBuffer, player);
 					}
-				} catch (IOException e) {
+				} catch (Throwable e) {
 					Log.get().error("Network Error", e);
 				} finally {
 					packetBuffer.release();
