@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,20 +18,27 @@ import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.common.brewing.VanillaBrewingRecipe;
 import net.minecraft.init.PotionTypes;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.potion.PotionHelper;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
 import mezz.jei.Internal;
+import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRegistry;
+import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.config.Config;
+import mezz.jei.util.ErrorUtil;
+import mezz.jei.util.IngredientSet;
 import mezz.jei.util.Log;
 
 public class BrewingRecipeMaker {
 
 	private final Set<Class> unhandledRecipeClasses = new HashSet<>();
 	private final Set<BrewingRecipeWrapper> disabledRecipes = new HashSet<>();
+	private final Map<String, BrewingRecipeWrapper> recipesByPotionIds = new HashMap<>();
 	private final IIngredientRegistry ingredientRegistry;
 
 	public static List<BrewingRecipeWrapper> getBrewingRecipes(IIngredientRegistry ingredientRegistry) {
@@ -63,23 +72,34 @@ public class BrewingRecipeMaker {
 
 	private void addVanillaBrewingRecipes(Collection<BrewingRecipeWrapper> recipes, VanillaBrewingRecipe vanillaBrewingRecipe) {
 		List<ItemStack> potionIngredients = ingredientRegistry.getPotionIngredients();
-		List<ItemStack> knownPotions = new ArrayList<>();
-
-		knownPotions.add(BrewingRecipeUtil.WATER_BOTTLE);
+		IIngredientHelper<ItemStack> itemStackHelper = ingredientRegistry.getIngredientHelper(VanillaTypes.ITEM);
+		Collection<ItemStack> knownPotions = IngredientSet.create(VanillaTypes.ITEM, itemStackHelper);
+		for (PotionType potionType : ForgeRegistries.POTION_TYPES.getValuesCollection()) {
+			if (potionType == PotionTypes.EMPTY) {
+				continue;
+			}
+			for (Ingredient container : PotionHelper.POTION_ITEMS) {
+				for (ItemStack stack : container.getMatchingStacks()) {
+					knownPotions.add(PotionUtils.addPotionToItemStack(stack.copy(), potionType));
+				}
+			}
+		}
 
 		boolean foundNewPotions;
 		do {
-			List<ItemStack> newPotions = getNewPotions(knownPotions, potionIngredients, recipes, vanillaBrewingRecipe);
+			List<ItemStack> newPotions = getNewPotions(knownPotions, potionIngredients, recipes, vanillaBrewingRecipe, itemStackHelper);
 			foundNewPotions = !newPotions.isEmpty();
 			knownPotions.addAll(newPotions);
 		} while (foundNewPotions);
 	}
 
-	private List<ItemStack> getNewPotions(List<ItemStack> knownPotions, List<ItemStack> potionIngredients, Collection<BrewingRecipeWrapper> recipes, VanillaBrewingRecipe vanillaBrewingRecipe) {
+	private List<ItemStack> getNewPotions(Collection<ItemStack> knownPotions, List<ItemStack> potionIngredients, Collection<BrewingRecipeWrapper> recipes, VanillaBrewingRecipe vanillaBrewingRecipe, IIngredientHelper<ItemStack> itemStackHelper) {
 		List<ItemStack> newPotions = new ArrayList<>();
 		for (ItemStack potionInput : knownPotions) {
+			String inputId = itemStackHelper.getUniqueId(potionInput);
 			for (ItemStack potionIngredient : potionIngredients) {
-				ItemStack potionOutput = vanillaBrewingRecipe.getOutput(potionInput.copy(), potionIngredient);
+				ItemStack potionInputCopy = potionInput.copy();
+				ItemStack potionOutput = getPotionOutput(vanillaBrewingRecipe, potionInputCopy, potionIngredient);
 				if (potionOutput.isEmpty()) {
 					continue;
 				}
@@ -91,25 +111,65 @@ public class BrewingRecipeMaker {
 					}
 
 					PotionType potionInputType = PotionUtils.getPotionFromItem(potionInput);
-					ResourceLocation inputId = ForgeRegistries.POTION_TYPES.getKey(potionInputType);
-					ResourceLocation outputId = ForgeRegistries.POTION_TYPES.getKey(potionOutputType);
-					if (Objects.equals(inputId, outputId)) {
+					ResourceLocation inputPotionTypeId = ForgeRegistries.POTION_TYPES.getKey(potionInputType);
+					ResourceLocation outputPotionTypeId = ForgeRegistries.POTION_TYPES.getKey(potionOutputType);
+					if (Objects.equals(inputPotionTypeId, outputPotionTypeId)) {
 						continue;
 					}
 				}
 
-				BrewingRecipeWrapper recipe = new BrewingRecipeWrapper(Collections.singletonList(potionIngredient), potionInput.copy(), potionOutput);
-				if (!recipes.contains(recipe) && !disabledRecipes.contains(recipe)) {
-					if (BrewingRecipeRegistry.hasOutput(potionInput, potionIngredient)) {
-						recipes.add(recipe);
-					} else {
-						disabledRecipes.add(recipe);
+				String outputId = itemStackHelper.getUniqueId(potionOutput);
+				if (Objects.equals(inputId, outputId)) {
+					continue;
+				}
+
+				BrewingRecipeWrapper recipe = new BrewingRecipeWrapper(Collections.singletonList(potionIngredient), potionInputCopy, potionOutput);
+				if (!BrewingRecipeRegistry.hasOutput(potionInput, potionIngredient)) {
+					disabledRecipes.add(recipe);
+					continue;
+				}
+
+				String recipeKey = inputId + " -> " + outputId;
+				BrewingRecipeWrapper existingRecipe = recipesByPotionIds.get(recipeKey);
+				if (existingRecipe == null) {
+					if (recipes.add(recipe)) {
+						recipesByPotionIds.put(recipeKey, recipe);
+						newPotions.add(potionOutput);
 					}
-					newPotions.add(potionOutput);
+				} else {
+					Collection<ItemStack> reagents = IngredientSet.create(VanillaTypes.ITEM, itemStackHelper);
+					reagents.addAll(existingRecipe.getIngredients());
+					reagents.add(potionIngredient);
+					if (reagents.size() != existingRecipe.getIngredients().size()) {
+						BrewingRecipeWrapper replacementRecipe = new BrewingRecipeWrapper(
+							new ArrayList<>(reagents),
+							existingRecipe.getPotionInput(),
+							existingRecipe.getPotionOutput()
+						);
+						recipes.remove(existingRecipe);
+						recipes.add(replacementRecipe);
+						recipesByPotionIds.put(recipeKey, replacementRecipe);
+					}
 				}
 			}
 		}
 		return newPotions;
+	}
+
+	private static ItemStack getPotionOutput(VanillaBrewingRecipe vanillaBrewingRecipe, ItemStack potion, ItemStack reagent) {
+		try {
+			return vanillaBrewingRecipe.getOutput(potion, reagent);
+		} catch (RuntimeException | LinkageError e) {
+			String potionInfo = ErrorUtil.getItemStackInfo(potion);
+			String reagentInfo = ErrorUtil.getItemStackInfo(reagent);
+			Log.get().error(
+				"A modded potion mix crashed:\nPotion: {}\nItemStack: {}",
+				potionInfo,
+				reagentInfo,
+				e
+			);
+			return ItemStack.EMPTY;
+		}
 	}
 
 	private void addModdedBrewingRecipes(Collection<IBrewingRecipe> brewingRecipes, Collection<BrewingRecipeWrapper> recipes) {
