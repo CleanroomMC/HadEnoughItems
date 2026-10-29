@@ -24,6 +24,11 @@ public final class KeyBindings {
 	public static final KeyBinding nextPage;
 	public static final KeyBinding previousCategory;
 	public static final KeyBinding nextCategory;
+	public static final KeyBinding transferRecipeGui;
+	public static final KeyBinding maxTransferRecipeGui;
+	public static final KeyBinding closeRecipeGui;
+	public static final KeyBinding copyRecipeId;
+	public static final KeyBinding pauseRecipeCycling;
 	public static final KeyBinding bookmark;
 	public static final KeyBinding bookmarkToTop;
 	public static final KeyBinding bookmarkNewGroup;
@@ -52,6 +57,11 @@ public final class KeyBindings {
 			nextPage = new KeyBinding("key.jei.nextPage", KeyConflictContext.GUI, Keyboard.KEY_NEXT, categoryName),
 			previousCategory = new KeyBinding("key.hei.previousCategory", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_PRIOR, categoryName),
 			nextCategory = new KeyBinding("key.hei.nextCategory", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_NEXT, categoryName),
+			transferRecipeGui = new KeyBinding("key.jei.transferRecipeGui", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
+			maxTransferRecipeGui = new KeyBinding("key.jei.maxTransferRecipeGui", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
+			closeRecipeGui = new KeyBinding("key.jei.closeRecipeGui", KeyConflictContext.GUI, Keyboard.KEY_ESCAPE, categoryName),
+			copyRecipeId = new KeyBinding("key.jei.copy.recipe.id", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
+			pauseRecipeCycling = new KeyBinding("key.jei.pauseRecipeCycling", KeyConflictContext.GUI, Keyboard.KEY_LSHIFT, categoryName),
 			bookmark = new KeyBinding("key.jei.bookmark", KeyConflictContext.GUI, KeyModifier.NONE, Keyboard.KEY_A, categoryName),
 			bookmarkToTop = new KeyBinding("key.hei.bookmarkToTop", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_A, categoryName),
 			bookmarkNewGroup = new KeyBinding("key.hei.bookmarkNewGroup", KeyConflictContext.GUI, KeyModifier.CONTROL, Keyboard.KEY_A, categoryName),
