@@ -32,7 +32,7 @@ public class RecipeTransferButton extends GuiIconButtonSmall {
 			this.recipeTransferError = RecipeTransferErrorInternal.INSTANCE;
 		}
 
-		if (this.recipeTransferError == null) {
+		if (RecipeTransferUtil.allowsTransfer(this.recipeTransferError)) {
 			this.enabled = true;
 			this.visible = true;
 		} else {
@@ -52,6 +52,14 @@ public class RecipeTransferButton extends GuiIconButtonSmall {
 				String tooltipTransfer = Translator.translateToLocal("jei.tooltip.transfer");
 				TooltipRenderer.drawHoveringText(mc, tooltipTransfer, mouseX, mouseY);
 			}
+		}
+	}
+
+	@Override
+	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+		super.drawButton(mc, mouseX, mouseY, partialTicks);
+		if (this.visible && this.recipeTransferError != null && this.recipeTransferError.getType() == IRecipeTransferError.Type.COSMETIC) {
+			drawRect(this.x, this.y, this.x + this.width, this.y + this.height, this.recipeTransferError.getButtonHighlightColor());
 		}
 	}
 }
