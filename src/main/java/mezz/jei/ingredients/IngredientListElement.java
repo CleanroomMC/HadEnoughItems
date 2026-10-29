@@ -63,7 +63,7 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 		this.ingredientHelper = ingredientHelper;
 		this.ingredientRenderer = ingredientRenderer;
 		String displayModId = ingredientHelper.getDisplayModId(ingredient);
-		String modId = ingredientHelper.getModId(ingredient);
+		String modId = LegacyUtil.getResourceLocation(ingredient, ingredientHelper).getNamespace();
 		if (modId.equals(displayModId)) {
 			this.modIds = StringUtil.intern(modId);
 			this.modNames = StringUtil.intern(modIdHelper.getModNameForModId(modId));
@@ -150,7 +150,7 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 		String modIdLowercase = Translator.toLowercaseWithLocale(modId);
 		String modNameLowercase = Translator.toLowercaseWithLocale(modName);
 		String displayNameLowercase = Translator.toLowercaseWithLocale(this.getDisplayName());
-		String resourceIdLowercase = Translator.toLowercaseWithLocale(this.getResourceId());
+		String resourceIdLowercase = Translator.toLowercaseWithLocale(LegacyUtil.getResourceLocation(ingredient, ingredientHelper).getPath());
 		return IngredientInformation.getTooltipStrings(ingredient, ingredientRenderer, ImmutableSet.of(modIdLowercase, modNameLowercase, displayNameLowercase, resourceIdLowercase));
 	}
 
@@ -177,7 +177,7 @@ public class IngredientListElement<V> implements IIngredientListElement<V> {
 
 	@Override
 	public String getResourceId() {
-		return LegacyUtil.getResourceId(ingredient, ingredientHelper);
+		return LegacyUtil.getResourceLocation(ingredient, ingredientHelper).toString();
 	}
 
 	@Override
