@@ -4,10 +4,12 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.network.IPacketId;
 import mezz.jei.network.PacketIdServer;
 import mezz.jei.transfer.BasicRecipeTransferHandlerServer;
+import mezz.jei.util.Log;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.network.PacketBuffer;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class PacketRecipeTransfer extends PacketJei {
@@ -100,39 +102,59 @@ public class PacketRecipeTransfer extends PacketJei {
 	}
 
 	public static void readPacketData(PacketBuffer buf, EntityPlayer player) {
+		Container container = player.openContainer;
+
 		int recipeMapSize = buf.readVarInt();
-		Map<Integer, Integer> recipeMap = new HashMap<>(recipeMapSize);
+		if (!isValidCollectionSize(container, recipeMapSize, "recipe map")) {
+			return;
+		}
+		Map<Integer, Integer> recipeMap = new HashMap<>();
 		for (int i = 0; i < recipeMapSize; i++) {
 			int slotIndex = buf.readVarInt();
 			int recipeItem = buf.readVarInt();
+			if (!isValidSlotIndex(container, recipeItem, "recipe item")) {
+				return;
+			}
 			recipeMap.put(slotIndex, recipeItem);
 		}
 
-		int craftingSlotsSize = buf.readVarInt();
-		List<Integer> craftingSlots = new ArrayList<>(craftingSlotsSize);
-		for (int i = 0; i < craftingSlotsSize; i++) {
-			int slotIndex = buf.readVarInt();
-			craftingSlots.add(slotIndex);
+		List<Integer> craftingSlots = readSlotIndexes(buf, container);
+		if (craftingSlots == null) {
+			return;
+		}
+		for (Integer craftingSlotNumber : recipeMap.keySet()) {
+			if (craftingSlotNumber < 0 || craftingSlotNumber >= craftingSlots.size()) {
+				Log.get().error("Recipe transfer packet has invalid crafting slot number {} for {} crafting slots", craftingSlotNumber, craftingSlots.size());
+				return;
+			}
 		}
 
-		int inventorySlotsSize = buf.readVarInt();
-		List<Integer> inventorySlots = new ArrayList<>(inventorySlotsSize);
-		for (int i = 0; i < inventorySlotsSize; i++) {
-			int slotIndex = buf.readVarInt();
-			inventorySlots.add(slotIndex);
+		List<Integer> inventorySlots = readSlotIndexes(buf, container);
+		if (inventorySlots == null) {
+			return;
 		}
 		int maxTransfer = buf.readVarInt();
 		boolean performRecipe = buf.readBoolean();
 		boolean requireCompleteSets = buf.readBoolean();
 		int outputSlot = buf.readVarInt();
+		if (outputSlot != -1 && !isValidSlotIndex(container, outputSlot, "output slot")) {
+			return;
+		}
 
 		Map<Integer, Integer> itemCounts = null;
 		if (buf.readBoolean()) {
 			int itemCountsSize = buf.readVarInt();
-			itemCounts = new HashMap<>(itemCountsSize);
+			if (!isValidCollectionSize(container, itemCountsSize, "item counts")) {
+				return;
+			}
+			itemCounts = new HashMap<>();
 			for (int i = 0; i < itemCountsSize; i++) {
 				int slotIndex = buf.readVarInt();
 				int itemCount = buf.readVarInt();
+				if (itemCount < 1) {
+					Log.get().error("Recipe transfer packet has invalid recipe item count {} for container {}", itemCount, container.getClass());
+					return;
+				}
 				itemCounts.put(slotIndex, itemCount);
 			}
 		}
@@ -141,6 +163,39 @@ public class PacketRecipeTransfer extends PacketJei {
 		if (performRecipe && outputSlot != -1) {
 			BasicRecipeTransferHandlerServer.performRecipe(player, outputSlot);
 		}
+	}
+
+	@Nullable
+	private static List<Integer> readSlotIndexes(PacketBuffer buf, Container container) {
+		int slotCount = buf.readVarInt();
+		if (!isValidCollectionSize(container, slotCount, "slot ids")) {
+			return null;
+		}
+		List<Integer> slots = new ArrayList<>();
+		for (int i = 0; i < slotCount; i++) {
+			int slotIndex = buf.readVarInt();
+			if (!isValidSlotIndex(container, slotIndex, "slot")) {
+				return null;
+			}
+			slots.add(slotIndex);
+		}
+		return slots;
+	}
+
+	private static boolean isValidCollectionSize(Container container, int count, String collectionName) {
+		if (count < 0 || count > container.inventorySlots.size()) {
+			Log.get().error("Recipe transfer packet has invalid {} count {} for container {} with {} slots", collectionName, count, container.getClass(), container.inventorySlots.size());
+			return false;
+		}
+		return true;
+	}
+
+	private static boolean isValidSlotIndex(Container container, int slotIndex, String slotName) {
+		if (slotIndex < 0 || slotIndex >= container.inventorySlots.size()) {
+			Log.get().error("Recipe transfer packet has invalid {} id {} for container {}", slotName, slotIndex, container.getClass());
+			return false;
+		}
+		return true;
 	}
 
 }
