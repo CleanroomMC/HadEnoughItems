@@ -25,10 +25,15 @@ public class GuiContainerWrapper implements IShowsRecipeFocuses {
 		if (guiScreen == null) {
 			return null;
 		}
-		IClickedIngredient<?> pluginsIngredientUnderMouse = guiScreenHelper.getPluginsIngredientUnderMouse(guiScreen, mouseX, mouseY);
-		if (pluginsIngredientUnderMouse != null) {
-			return pluginsIngredientUnderMouse;
+
+		// AE2FC's transformer expects stack in local 6, so this block must not add a local to the method's frame.
+		{
+			IClickedIngredient<?> pluginsIngredientUnderMouse = guiScreenHelper.getPluginsIngredientUnderMouse(guiScreen, mouseX, mouseY);
+			if (pluginsIngredientUnderMouse != null) {
+				return pluginsIngredientUnderMouse;
+			}
 		}
+
 		if (guiScreen instanceof GuiContainer) {
 			GuiContainer guiContainer = (GuiContainer) guiScreen;
 			Slot slotUnderMouse = guiContainer.getSlotUnderMouse();
