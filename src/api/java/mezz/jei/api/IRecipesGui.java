@@ -81,9 +81,9 @@ public interface IRecipesGui {
 	 *
 	 * If this {@link IRecipesGui} is not open, this will return {@link Optional#empty()}.
 	 *
-	 * @since HEI 4.37.0
+	 * @since HEI 4.37.2
 	 */
-	default Optional<GuiScreen> getParentScreen() {
+	default Optional<GuiScreen> maybeGetParentScreen() {
 		return Optional.empty();
 	}
 }

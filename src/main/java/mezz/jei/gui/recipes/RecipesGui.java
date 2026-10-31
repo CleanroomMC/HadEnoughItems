@@ -777,8 +777,14 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 	}
 
 	@Override
-	public Optional<GuiScreen> getParentScreen() {
+	public Optional<GuiScreen> maybeGetParentScreen() {
 		return Optional.ofNullable(parentScreen);
+	}
+
+	// Not Enough Energistics links against this exact signature.
+	@Nullable
+	public GuiScreen getParentScreen() {
+		return parentScreen;
 	}
 
 	@Nullable

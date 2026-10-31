@@ -107,6 +107,11 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
         return mouseButton == 2 && GuiScreen.isAltKeyDown();
     }
 
+    @Deprecated
+    public boolean handleMouseClicked(IngredientListBatchRenderer renderer, int mouseX, int mouseY) {
+        return handleMouseClicked(renderer, mouseX, mouseY, 0);
+    }
+
     public boolean handleMouseClicked(IngredientListBatchRenderer renderer, int mouseX, int mouseY, int mouseButton) {
         if (isExpandClick(mouseButton)) {
             CollapsedGroupRenderer collapsedHovered = renderer.getHoveredCollapsed(mouseX, mouseY);

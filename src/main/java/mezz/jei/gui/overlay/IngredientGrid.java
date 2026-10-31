@@ -256,6 +256,11 @@ public class IngredientGrid implements IShowsRecipeFocuses {
 		return false;
 	}
 
+	@Deprecated
+	protected boolean handleCollapsedGroupClicked(int mouseX, int mouseY) {
+		return handleCollapsedGroupClicked(mouseX, mouseY, 0);
+	}
+
 	protected boolean handleCollapsedGroupClicked(int mouseX, int mouseY, int mouseButton) {
 		return Internal.getCollapsedGroupRegistry().handleMouseClicked(guiIngredientSlots, mouseX, mouseY, mouseButton);
 	}

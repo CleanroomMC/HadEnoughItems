@@ -40,7 +40,7 @@ public class JEIModConfigGui extends GuiConfig {
 	 */
 	private static GuiScreen getParent(GuiScreen parent) {
 		if (parent instanceof RecipesGui) {
-			GuiScreen parentScreen = ((RecipesGui) parent).getParentScreen().orElse(null);
+			GuiScreen parentScreen = ((RecipesGui) parent).getParentScreen();
 			if (parentScreen != null) {
 				return parentScreen;
 			} else {

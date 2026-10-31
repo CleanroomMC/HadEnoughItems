@@ -45,6 +45,18 @@ public class IngredientRegistry implements IIngredientRegistry {
 	private final NonNullList<ItemStack> fuels = NonNullList.create();
 	private final NonNullList<ItemStack> potionIngredients = NonNullList.create();
 
+	@Deprecated
+	public IngredientRegistry(
+		IModIdHelper modIdHelper,
+		IngredientBlacklistInternal blacklist,
+		Map<IIngredientType, IngredientSet> ingredientsMap,
+		ImmutableMap<IIngredientType, IIngredientHelper> ingredientHelperMap,
+		ImmutableMap<IIngredientType, IIngredientRenderer> ingredientRendererMap,
+		Set<IIngredientType<?>> craftableIngredientTypes
+	) {
+		this(modIdHelper, blacklist, ingredientsMap, ingredientHelperMap, ingredientRendererMap, craftableIngredientTypes, ImmutableMap.of(), ImmutableMap.of());
+	}
+
 	public IngredientRegistry(
 		IModIdHelper modIdHelper,
 		IngredientBlacklistInternal blacklist,

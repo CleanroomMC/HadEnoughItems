@@ -189,6 +189,11 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 		this.tooltipCallbacks = tooltipCallbacks;
 	}
 
+	@Deprecated
+	public void setTooltipCallback(@Nullable ITooltipCallback<T> tooltipCallback) {
+		setTooltipCallbacks(tooltipCallback == null ? Collections.emptyList() : Collections.singletonList(tooltipCallback));
+	}
+
 	public void draw(Minecraft minecraft, int xOffset, int yOffset) {
 		cycleTimer.onDraw();
 
