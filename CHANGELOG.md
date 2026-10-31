@@ -1,5 +1,90 @@
 # Changelog
 
+## 4.37.2 - 2026-10-31
+
+## Bug Fix
+
+- Regression that did not consider binary compatibility *[commit by [@Rongmario](https://github.com/Rongmario) in [f8b0c6b](https://github.com/CleanroomMC/HadEnoughItems/commit/f8b0c6b7c4108e766d5a3b7d2094287133e93579)]*
+    *[Fixes issue #269 by @Circulate233]*
+
+**Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/4.37.1...4.37.2
+
+## 4.37.1 - 2026-10-30
+
+## Bug Fix
+
+- Regression in AE2FC transformation compatibility *[commit by [@Rongmario](https://github.com/Rongmario) in [264b353](https://github.com/CleanroomMC/HadEnoughItems/commit/264b353a2ca9b4f3ce3e2e7f982e9c584c3b7d67)]*
+- Pause recipe cycling keybind not working *[commit by [@Rongmario](https://github.com/Rongmario) in [ecdb0c6](https://github.com/CleanroomMC/HadEnoughItems/commit/ecdb0c6f34560aa992ac478058b4543fd22eb813)]*
+
+**Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/4.37.0...4.37.1
+
+## 4.37.0 - 2026-10-29
+
+## Feature
+
+- **groups**: Toggle collapsible groups with Alt+middle click so Alt+click can cheat to the inventory *[commit by [@Rongmario](https://github.com/Rongmario) in [6f683a0](https://github.com/CleanroomMC/HadEnoughItems/commit/6f683a00839060dfd99fcf67f2df2305ed935e40)]*
+- **cheat**: Add Alt+click shortcuts to cheat items straight into the inventory *[commit by [@Rongmario](https://github.com/Rongmario) in [5bbb125](https://github.com/CleanroomMC/HadEnoughItems/commit/5bbb125f61aa4bcae31184ebb335da139e76adcd)]*
+- **overlay**: Optionally hide ingredients until searching, hide empty grids and make config button shortcuts rebindable *[commit by [@Rongmario](https://github.com/Rongmario) in [c26503d](https://github.com/CleanroomMC/HadEnoughItems/commit/c26503d980d1903ee3068a30c096b7d8c71070cb)]*
+- **keybinds**: Add recipe GUI keybinds to transfer, copy recipe IDs, close and pause cycling *[commit by [@Rongmario](https://github.com/Rongmario) in [b2821b2](https://github.com/CleanroomMC/HadEnoughItems/commit/b2821b28f80b9d8c56e035637ce39fcdb8f1e93d)]*
+- **api**: Expose crafting grid slot indexes *[commit by [@Rongmario](https://github.com/Rongmario) in [bde5564](https://github.com/CleanroomMC/HadEnoughItems/commit/bde5564511bda370527898c8cf7fa1b09ddf7695)]*
+- **api**: Allow several tooltip callbacks on one recipe slot *[commit by [@Rongmario](https://github.com/Rongmario) in [388eff0](https://github.com/CleanroomMC/HadEnoughItems/commit/388eff0cfd62e4d78d1dfac5480a598ff143089e)]*
+- **api**: Refresh ingredient search at runtime after searchable data changes *[commit by [@Rongmario](https://github.com/Rongmario) in [2bd236d](https://github.com/CleanroomMC/HadEnoughItems/commit/2bd236d71f80adcb36d9037d0aa72f2d88585cc6)]*
+- **search**: Add ingredient and mod search aliases, and short mod name searches *[commit by [@Rongmario](https://github.com/Rongmario) in [6ef7d51](https://github.com/CleanroomMC/HadEnoughItems/commit/6ef7d51aabe6416884cffd55b25914747fe4efc0)]*
+- **api**: Expose the screen the recipes GUI was opened from *[commit by [@Rongmario](https://github.com/Rongmario) in [8a0ca8c](https://github.com/CleanroomMC/HadEnoughItems/commit/8a0ca8c8ac7d9afe28f2ebe3b7d986d1fe8fa858)]*
+- **overlay**: Fit the ingredient list into narrower spaces *[commit by [@Rongmario](https://github.com/Rongmario) in [c2e242a](https://github.com/CleanroomMC/HadEnoughItems/commit/c2e242a1b76cd525b1fa03af0d00039618bb3fa6)]*
+- **crafting**: Show firework, shield decoration and shulker box recoloring recipes *[commit by [@Rongmario](https://github.com/Rongmario) in [0b2f02a](https://github.com/CleanroomMC/HadEnoughItems/commit/0b2f02afa3162ce1ede119309b1aed36e958d6de)]*
+- **api**: Let recipe transfer info explain why it cannot handle a container *[commit by [@Rongmario](https://github.com/Rongmario) in [585cc60](https://github.com/CleanroomMC/HadEnoughItems/commit/585cc60fbc17329a1b4a82191ab79f07c228d82b)]*
+- **search**: Match the full resource location in resource ID searches *[commit by [@Rongmario](https://github.com/Rongmario) in [eeb3be2](https://github.com/CleanroomMC/HadEnoughItems/commit/eeb3be2ec77541c11f178e62033b877abdd181c5)]*
+- **brewing**: Show every potion conversion with grouped reagents and skip broken potion mixes *[commit by [@Rongmario](https://github.com/Rongmario) in [52d6b79](https://github.com/CleanroomMC/HadEnoughItems/commit/52d6b793b569a30dbcf917e33df305a5824d4c25)]*
+- **anvil**: Link anvil inputs and outputs to the focused ingredient *[commit by [@Rongmario](https://github.com/Rongmario) in [f53b92a](https://github.com/CleanroomMC/HadEnoughItems/commit/f53b92a5c513919c60b530cdf3ab09536a0e9c61)]*
+- **api**: Let screen handlers provide the ingredient under the mouse, ahead of slots *[commit by [@Rongmario](https://github.com/Rongmario) in [289ce0c](https://github.com/CleanroomMC/HadEnoughItems/commit/289ce0c4141ffc91cfa05ff336067e1135d82ff7)]*
+- **api**: Add cosmetic recipe transfer errors that keep the transfer button usable *[commit by [@Rongmario](https://github.com/Rongmario) in [9065e1e](https://github.com/CleanroomMC/HadEnoughItems/commit/9065e1e5922cad2bc95c37a9b2d0e0da3fd55511)]*
+- **anvil**: Allow anvil recipes with mismatched input sizes or no right input *[commit by [@Rongmario](https://github.com/Rongmario) in [0fa8513](https://github.com/CleanroomMC/HadEnoughItems/commit/0fa8513e3d0e9dd077e45839f299e4ef5b920980)]*
+
+## Bug Fix
+
+- **recipes**: Show the shapeless tooltip only over the shapeless icon *[commit by [@Rongmario](https://github.com/Rongmario) in [13c8b6c](https://github.com/CleanroomMC/HadEnoughItems/commit/13c8b6c75fac614a5e08db17e9d88b5b2356e71d)]*
+- **catalysts**: Skip recipe catalysts that are invalid or missing on the server *[commit by [@Rongmario](https://github.com/Rongmario) in [cb36981](https://github.com/CleanroomMC/HadEnoughItems/commit/cb36981f3a12689a1e86c2e275ab9309c5fd7829)]*
+- **network**: Require cheat permission before deleting the held item *[commit by [@Rongmario](https://github.com/Rongmario) in [14bc7fc](https://github.com/CleanroomMC/HadEnoughItems/commit/14bc7fcc5cf95c6f0a8b3fc1031e9cdafd5fb816)]*
+- **bookmarks**: Stop scrolling bookmarks under GUI exclusion areas *[commit by [@Rongmario](https://github.com/Rongmario) in [d95bac8](https://github.com/CleanroomMC/HadEnoughItems/commit/d95bac8c5139928ebb650ed2c7cd566d5f28f3c0)]*
+- **tooltips**: Contain modded tooltip rendering crashes and drop null tooltip lines *[commit by [@Rongmario](https://github.com/Rongmario) in [34579d0](https://github.com/CleanroomMC/HadEnoughItems/commit/34579d0bde3f237e12953f547b385640b472d467)]*
+- **ingredients**: Keep registered ingredient types in registration order *[commit by [@Rongmario](https://github.com/Rongmario) in [98f7576](https://github.com/CleanroomMC/HadEnoughItems/commit/98f75761e1f45c6340934fa759f0e1b875ef27c1)]*
+- **fluids**: Report whether a fluid exists on the server *[commit by [@Rongmario](https://github.com/Rongmario) in [05ff12a](https://github.com/CleanroomMC/HadEnoughItems/commit/05ff12a6c3b2403230d09bbfa29e6e2971f5582c)]*
+- **bookmarks**: Write bookmarks through a temporary file to avoid partial saves *[commit by [@Rongmario](https://github.com/Rongmario) in [d11eb7b](https://github.com/CleanroomMC/HadEnoughItems/commit/d11eb7b47fa84be9045babebaa2cf1b2887cae84)]*
+- **ingredients**: Skip empty creative tab stacks without logging *[commit by [@Rongmario](https://github.com/Rongmario) in [ff5914f](https://github.com/CleanroomMC/HadEnoughItems/commit/ff5914fa9fa21c2baf6da0de953eb5bed736f629)]*
+- **config**: Keep per-world config stable on Realms *[commit by [@Rongmario](https://github.com/Rongmario) in [2b95b11](https://github.com/CleanroomMC/HadEnoughItems/commit/2b95b11d8b8713f52abe3b141afd91f55a1fc06b)]*
+- **color**: Handle color extraction edge cases *[commit by [@Rongmario](https://github.com/Rongmario) in [b77971f](https://github.com/CleanroomMC/HadEnoughItems/commit/b77971f31f0e03e73478a5537d6ddfb32b39c86c)]*
+- **crafting**: Log skipped crafting recipes at debug level *[commit by [@Rongmario](https://github.com/Rongmario) in [695f08e](https://github.com/CleanroomMC/HadEnoughItems/commit/695f08ebcc1c5f32fcf77dc370ac0b8c93ccfb1f)]*
+- **fuel**: Size the fuel category to fit the longest smelt count and burn time *[commit by [@Rongmario](https://github.com/Rongmario) in [07defdb](https://github.com/CleanroomMC/HadEnoughItems/commit/07defdbfb791d86856dcdadbb389e2195e68c115)]*
+- **fluids**: Log and skip fluids that crash while rendering or building tooltips *[commit by [@Rongmario](https://github.com/Rongmario) in [5803eb7](https://github.com/CleanroomMC/HadEnoughItems/commit/5803eb7d83ff5a5427be3ded497c2a65d80069b5)]*
+- **cheat**: Only delete the held item on left click *[commit by [@Rongmario](https://github.com/Rongmario) in [ff6719d](https://github.com/CleanroomMC/HadEnoughItems/commit/ff6719db46ce6e82abecbf556adbb961e05cf357)]*
+- **ingredients**: Ignore ingredients whose unique ID throws *[commit by [@Rongmario](https://github.com/Rongmario) in [f57ad62](https://github.com/CleanroomMC/HadEnoughItems/commit/f57ad62bf9dc47df1bfab850c1b9cd859c86cf15)]*
+- **anvil**: Skip anvil cost lookups that fail to link *[commit by [@Rongmario](https://github.com/Rongmario) in [b6c8e3a](https://github.com/CleanroomMC/HadEnoughItems/commit/b6c8e3ae3885133e40417e0a0d02c3da97b7c63b)]*
+- **config**: Migrate the misplaced advanced tooltip search option and label the search colors config *[commit by [@Rongmario](https://github.com/Rongmario) in [6a2c017](https://github.com/CleanroomMC/HadEnoughItems/commit/6a2c0176c9335701bb6d543f6f20a75cd46aebfe)]*
+- **ghost**: Clear hovered drop targets when a ghost drag stops *[commit by [@Rongmario](https://github.com/Rongmario) in [f1ec667](https://github.com/CleanroomMC/HadEnoughItems/commit/f1ec667113b266a29229830699b41980fdcc5428)]*
+- **startup**: Skip plugin classes that throw while loading *[commit by [@Rongmario](https://github.com/Rongmario) in [8d03ede](https://github.com/CleanroomMC/HadEnoughItems/commit/8d03ede4aa0f3e2264c9d2997ab3666b81b4f7cd)]*
+- **util**: Survive reflection into classes that fail to link *[commit by [@Rongmario](https://github.com/Rongmario) in [222e869](https://github.com/CleanroomMC/HadEnoughItems/commit/222e8694165205068830de0fe6ddb4d89dae98b3)]*
+- **recipes**: Survive too many catalysts or too little room beside the GUI *[commit by [@Rongmario](https://github.com/Rongmario) in [728b5ea](https://github.com/CleanroomMC/HadEnoughItems/commit/728b5eabc8c62910e3f29633685c313275cdeb0b)]*
+- **transfer**: Validate recipe transfer packets on the server *[commit by [@Rongmario](https://github.com/Rongmario) in [d94a2f3](https://github.com/CleanroomMC/HadEnoughItems/commit/d94a2f3be1c21658cd8427f3054fa357f1c3fbd9)]*
+- **network**: Handle packets on the main thread and contain handler failures *[commit by [@Rongmario](https://github.com/Rongmario) in [5c20a7b](https://github.com/CleanroomMC/HadEnoughItems/commit/5c20a7b820df68add05cb66b73a35d3e057c7c68)]*
+- **overlay**: Reject invalid GUI properties instead of crashing *[commit by [@Rongmario](https://github.com/Rongmario) in [9a30e04](https://github.com/CleanroomMC/HadEnoughItems/commit/9a30e04b99986ebd6c6148b85a72db80f9d52875)]*
+- **recipes**: Isolate the matrix stack while recipe categories draw *[commit by [@Rongmario](https://github.com/Rongmario) in [5416882](https://github.com/CleanroomMC/HadEnoughItems/commit/541688280f06f217586e46068047a43304704699)]*
+- **logging**: Truncate huge ingredient lists in error logs *[commit by [@Rongmario](https://github.com/Rongmario) in [c898962](https://github.com/CleanroomMC/HadEnoughItems/commit/c898962e3bec130159959987cd906018c2bda2a6)]*
+- **transfer**: Log why a recipe transfer helper does not fit its container *[commit by [@Rongmario](https://github.com/Rongmario) in [cba6e69](https://github.com/CleanroomMC/HadEnoughItems/commit/cba6e69eff59b6930201b68cc312dd604aaf807c)]*
+- **overlay**: Match potion effect exclusion areas to their drawn height *[commit by [@Rongmario](https://github.com/Rongmario) in [82c2b39](https://github.com/CleanroomMC/HadEnoughItems/commit/82c2b3982894f1a1f7b5579b6515d250477a2675)]*
+- **recipes**: Close the recipe screen without looping when it has no parent screen *[commit by [@Rongmario](https://github.com/Rongmario) in [aef9d42](https://github.com/CleanroomMC/HadEnoughItems/commit/aef9d42624753721e099c492a0402908da17a229)]*
+- **input**: Skip recipe click areas while carrying an item *[commit by [@Rongmario](https://github.com/Rongmario) in [514cf12](https://github.com/CleanroomMC/HadEnoughItems/commit/514cf124bf15fbc5d3aadc20f1057b0bf31d96c9)]*
+- **input**: Stop ingredient hotkeys firing while typing in the search bar *[commit by [@Rongmario](https://github.com/Rongmario) in [eb310f7](https://github.com/CleanroomMC/HadEnoughItems/commit/eb310f7d90e3be54de9d6d6f66315897b0dd8bae)]*
+- **input**: Ignore screens without HEI and keep search bar keystrokes from reaching the screen *[commit by [@Rongmario](https://github.com/Rongmario) in [e17434b](https://github.com/CleanroomMC/HadEnoughItems/commit/e17434bb713d6222db11ca06cee67bb2fed15c66)]*
+- **recipes**: Choose the closest recipe handler when several match *[commit by [@Rongmario](https://github.com/Rongmario) in [c47480d](https://github.com/CleanroomMC/HadEnoughItems/commit/c47480d3f1bf09a5f480ba68bcfe4a0f9c0b66c5)]*
+- **smelting**: Skip invalid smelting recipes and survive broken experience lookups *[commit by [@Rongmario](https://github.com/Rongmario) in [980cd3d](https://github.com/CleanroomMC/HadEnoughItems/commit/980cd3d813f5e3dec4dbb2936d42cb40c2db7675)]*
+
+## Build and Dependencies
+
+- Register access transformers on applyJST so changes reach the decompiled sources *[commit by [@Rongmario](https://github.com/Rongmario) in [2755eeb](https://github.com/CleanroomMC/HadEnoughItems/commit/2755eeb825116fce34fbf9591f3958a324ad964f)]*
+
+**Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/4.36.1...4.37.0
+
 ## 4.36.1 - 2026-10-13
 
 ## Feature
@@ -2974,7 +3059,7 @@
 ## Other
 
 - Close #270 Stop logging errors about empty lists in oreDict recipes *[commit by [@mezz](https://github.com/mezz) in [7f780de](https://github.com/CleanroomMC/HadEnoughItems/commit/7f780de00cbbe820bae585ecb1f69e6bddca3567)]*
-    *[Fixes issue #270]*
+    *[Fixes issue #270 by @FlashyGuitar603]*
 - Log errors when someone adds a null CraftingRecipeItem in the API *[commit by [@mezz](https://github.com/mezz) in [6793749](https://github.com/CleanroomMC/HadEnoughItems/commit/67937490030bdb4e47646841d902374805dbe28a)]*
 
 **Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/v3.4.3...v3.4.4
