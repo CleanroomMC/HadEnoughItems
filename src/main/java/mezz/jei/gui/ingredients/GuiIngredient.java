@@ -120,8 +120,6 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	public void set(@Nullable List<T> ingredients, @Nullable IFocus<T> focus) {
 		this.displayIngredients.clear();
 		this.allIngredients.clear();
-		this.focusedMatch = null;
-
 		List<T> displayIngredients;
 		if (ingredients == null) {
 			displayIngredients = Collections.emptyList();
@@ -129,10 +127,7 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			displayIngredients = this.ingredientHelper.expandSubtypes(ingredients);
 		}
 
-		T match = getMatch(displayIngredients, focus);
-		if (match != null) {
-			this.focusedMatch = match;
-		}
+		this.focusedMatch = getMatch(displayIngredients, focus);
 		this.displayIngredients.addAll(filterOutHidden(displayIngredients));
 
 		if (ingredients != null) {
