@@ -219,6 +219,15 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			}
 			throw e;
 		}
+
+		if (displayIngredients.size() > 1) {
+			GlStateManager.enableAlpha();
+			GlStateManager.disableDepth();
+			Internal.getHelpers().getGuiHelper().getRecipeTransfer()
+				.draw(minecraft, xOffset + rect.x + rect.width - 8, yOffset + rect.y + rect.height - 8);
+			GlStateManager.enableDepth();
+			GlStateManager.disableAlpha();
+		}
 	}
 
 	@Override
