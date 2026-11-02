@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.37.3 - 2026-11-02
+
+## Feature
+
+- **lang**: Update Simplified Chinese localization *[PR by [@ZHAY10086](https://github.com/ZHAY10086), Rongmario in [#197](https://github.com/CleanroomMC/HadEnoughItems/pull/197)]*
+- Display all ingredient candidates in tooltip when showing ingredient's usage *[PR by [@ZZZank](https://github.com/ZZZank) in [#271](https://github.com/CleanroomMC/HadEnoughItems/pull/271)]*
+
+## Bug Fix
+
+- Regression caused by unstable modular machinery ce mixin *[commit by [@Rongmario](https://github.com/Rongmario) in [19799c8](https://github.com/CleanroomMC/HadEnoughItems/commit/19799c86d6373a586d64416920eda17e60241288)]*
+    *[Fixes issue #268 by @Butterfly-Kiyo]*
+- Regression in highlighted button texture *[commit by [@Rongmario](https://github.com/Rongmario) in [e8ca267](https://github.com/CleanroomMC/HadEnoughItems/commit/e8ca267b6a8050eda2cc71a0debe07b58d2d024e)]*
+
+**Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/4.37.2...4.37.3
+
 ## 4.37.2 - 2026-10-31
 
 ## Bug Fix
