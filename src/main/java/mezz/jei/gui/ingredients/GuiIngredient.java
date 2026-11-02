@@ -48,6 +48,12 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	private final CycleTimer cycleTimer;
 	final List<T> displayIngredients = new ArrayList<>(); // ingredients, taking focus into account
 	private final List<T> allIngredients = new ArrayList<>(); // all ingredients, ignoring focus
+    /**
+     * For {@link #getDisplayedIngredient()}. Not stored in {@link #displayIngredients} because it's
+     * reserved for tooltip rendering.
+     */
+    @Nullable
+    private T focusedMatch;
 	final IIngredientRenderer<T> ingredientRenderer;
 	final IIngredientHelper<T> ingredientHelper;
 	private List<ITooltipCallback<T>> tooltipCallbacks = Collections.emptyList();
@@ -100,6 +106,9 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	@Nullable
 	@Override
 	public T getDisplayedIngredient() {
+		if (focusedMatch != null) {
+			return focusedMatch;
+		}
 		return cycleTimer.getCycledItem(displayIngredients);
 	}
 
@@ -118,13 +127,8 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			displayIngredients = this.ingredientHelper.expandSubtypes(ingredients);
 		}
 
-		T match = getMatch(displayIngredients, focus);
-		if (match != null) {
-			this.displayIngredients.add(match);
-		} else {
-			displayIngredients = filterOutHidden(displayIngredients);
-			this.displayIngredients.addAll(displayIngredients);
-		}
+		this.focusedMatch = getMatch(displayIngredients, focus);
+		this.displayIngredients.addAll(filterOutHidden(displayIngredients));
 
 		if (ingredients != null) {
 			this.allIngredients.addAll(ingredients);
@@ -209,6 +213,15 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 				throw ErrorUtil.createRenderIngredientException(e, value);
 			}
 			throw e;
+		}
+
+		if (displayIngredients.size() > 1) {
+			GlStateManager.enableAlpha();
+			GlStateManager.disableDepth();
+			Internal.getHelpers().getGuiHelper().getRecipeTransfer()
+				.draw(minecraft, xOffset + rect.x + rect.width - 8, yOffset + rect.y + rect.height - 8);
+			GlStateManager.enableDepth();
+			GlStateManager.disableAlpha();
 		}
 	}
 
