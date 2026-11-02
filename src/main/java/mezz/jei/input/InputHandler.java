@@ -26,12 +26,15 @@ import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.recipes.RecipeRegistry;
 import mezz.jei.runtime.JeiRuntime;
+import mezz.jei.util.CommandUtil;
+import mezz.jei.util.GiveMode;
 import mezz.jei.util.ReflectionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -71,6 +74,7 @@ public class InputHandler {
 	private final IngredientFilter ingredientFilter;
 	private final RecipesGui recipesGui;
 	private final IngredientListOverlay ingredientListOverlay;
+	private final GuiScreenHelper guiScreenHelper;
 	private final LeftAreaDispatcher leftAreaDispatcher;
 	private final BookmarkList bookmarkList;
 	private final IAutocraftingHandler autocraftingHandler;
@@ -86,6 +90,7 @@ public class InputHandler {
 		this.ingredientFilter = runtime.getIngredientFilter();
 		this.recipesGui = runtime.getRecipesGui();
 		this.ingredientListOverlay = ingredientListOverlay;
+		this.guiScreenHelper = guiScreenHelper;
 		this.leftAreaDispatcher = leftAreaDispatcher;
 		this.bookmarkList = bookmarkList;
 		this.autocraftingHandler = runtime.getAutocraftingHandler();
@@ -102,7 +107,9 @@ public class InputHandler {
 	 */
 	@SubscribeEvent
 	public void onGuiKeyboardEvent(GuiScreenEvent.KeyboardInputEvent.Pre event) {
-		if (hasKeyboardFocus() && handleKeyEvent()) {
+		GuiScreen guiScreen = event.getGui();
+		if (guiScreenHelper.getGuiProperties(guiScreen) != null && hasKeyboardFocus()) {
+			handleKeyEvent();
 			event.setCanceled(true);
 		}
 	}
@@ -112,15 +119,19 @@ public class InputHandler {
 	 */
 	@SubscribeEvent
 	public void onGuiKeyboardEvent(GuiScreenEvent.KeyboardInputEvent.Post event) {
-		if (hasKeyboardFocus()) return;
-		else if (handleKeyEvent())
+		GuiScreen guiScreen = event.getGui();
+		if (guiScreenHelper.getGuiProperties(guiScreen) != null && !hasKeyboardFocus() && handleKeyEvent()) {
 			event.setCanceled(true);
+		}
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
 	public void onGuiMouseEvent(GuiScreenEvent.MouseInputEvent.Pre event) {
 		this.deferMouseEventCancellation = false;
 		GuiScreen guiScreen = event.getGui();
+		if (guiScreenHelper.getGuiProperties(guiScreen) == null) {
+			return;
+		}
 		Minecraft minecraft = guiScreen.mc;
 		if (minecraft != null) {
 			int x = Mouse.getEventX() * guiScreen.width / minecraft.displayWidth;
@@ -197,13 +208,15 @@ public class InputHandler {
 	}
 
 	private boolean handleMouseClick(GuiScreen guiScreen, int mouseButton, int mouseX, int mouseY, @Nullable IClickedIngredient<?> pendingClick) {
+		if (pendingClick == null && handleInventoryCheat(mouseButton - 100, mouseX, mouseY)) {
+			return true;
+		}
 		IClickedIngredient<?> clicked = pendingClick == null ? getFocusUnderMouseForClick(mouseX, mouseY) : pendingClick;
 		if (Config.isEditModeEnabled() && clicked != null && handleClickEdit(clicked)) {
 			return true;
 		}
 
-		IIngredientListElement<?> listElement = getElementUnderMouse();
-		if (pendingClick == null && this.ghostIngredientDragManager.handleMouseClicked(guiScreen.mc, guiScreen, clicked, listElement, mouseButton, mouseX, mouseY)) {
+		if (pendingClick == null && this.ghostIngredientDragManager.handleMouseClicked(guiScreen.mc, guiScreen, clicked, getDragIngredientUnderMouse(), mouseButton, mouseX, mouseY)) {
 			return true;
 		}
 
@@ -223,6 +236,10 @@ public class InputHandler {
 		}
 
 		if (guiScreen instanceof GuiContainer) {
+			Minecraft minecraft = guiScreen.mc;
+			if (minecraft != null && minecraft.player != null && !minecraft.player.inventory.getItemStack().isEmpty()) {
+				return false;
+			}
 			GuiContainer guiContainer = (GuiContainer) guiScreen;
 			RecipeClickableArea clickableArea = recipeRegistry.getRecipeClickableArea(guiContainer, mouseX - guiContainer.getGuiLeft(), mouseY - guiContainer.getGuiTop());
 			if (clickableArea != null) {
@@ -248,6 +265,9 @@ public class InputHandler {
 		return null;
 	}
 
+	/**
+	 * Prefer to use {@link #getDragIngredientUnderMouse()}
+	 */
 	@Nullable
 	public IIngredientListElement<?> getElementUnderMouse() {
 		for (IShowsRecipeFocuses gui : showsRecipeFocuses) {
@@ -266,6 +286,20 @@ public class InputHandler {
 	}
 
 	@Nullable
+	public Object getDragIngredientUnderMouse() {
+		for (IShowsRecipeFocuses gui : showsRecipeFocuses) {
+			if (!(gui instanceof IGhostIngredientDragSource)) {
+				continue;
+			}
+			IIngredientListElement<?> element = ((IGhostIngredientDragSource) gui).getElementUnderMouse();
+			if (element != null) {
+				return BookmarkItem.unwrap(element.getIngredient());
+			}
+		}
+		return null;
+	}
+
+	@Nullable
 	private IClickedIngredient<?> getIngredientUnderMouseForKey(int mouseX, int mouseY) {
 		for (IShowsRecipeFocuses gui : showsRecipeFocuses) {
 			IClickedIngredient<?> clicked = gui.getIngredientUnderMouse(mouseX, mouseY);
@@ -278,9 +312,6 @@ public class InputHandler {
 
 	private <V> boolean handleMouseClickedFocus(int mouseButton, IClickedIngredient<V> clicked) {
 		Object value = clicked.getValue();
-		if (value instanceof BookmarkItem) {
-			value = ((BookmarkItem<?>) value).getIngredient();
-		}
 		if (mouseButton == 0) {
 			IFocus<?> focus = new Focus<>(IFocus.Mode.OUTPUT, value);
 			recipesGui.show(focus);
@@ -296,11 +327,11 @@ public class InputHandler {
 		return false;
 	}
 
-	private <V> boolean handleClickEdit(IClickedIngredient<V> clicked) {
-		V ingredient = clicked.getValue();
+	private boolean handleClickEdit(IClickedIngredient<?> clicked) {
+		Object ingredient = BookmarkItem.unwrap(clicked.getValue());
 		IngredientBlacklistType blacklistType = GuiScreen.isCtrlKeyDown() ? IngredientBlacklistType.WILDCARD : IngredientBlacklistType.ITEM;
 
-		IIngredientHelper<V> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
+		IIngredientHelper<Object> ingredientHelper = ingredientRegistry.getIngredientHelper(ingredient);
 
 		if (Config.isIngredientOnConfigBlacklist(ingredient, ingredientHelper)) {
 			Config.removeIngredientFromConfigBlacklist(ingredientFilter, ingredientRegistry, ingredient, blacklistType, ingredientHelper);
@@ -360,7 +391,7 @@ public class InputHandler {
 				Config.toggleBookmarkEnabled();
 				return true;
 			}
-			if (handleFocusKeybinds(eventKey)) {
+			if (!ingredientListOverlay.hasKeyboardFocus() && handleFocusKeybinds(eventKey)) {
 				return true;
 			}
 			return ingredientListOverlay.onKeyPressed(typedChar, eventKey);
@@ -374,6 +405,9 @@ public class InputHandler {
 	}
 
 	private boolean handleFocusKeybinds(int eventKey) {
+		if (handleInventoryCheat(eventKey, MouseHelper.getX(), MouseHelper.getY())) {
+			return true;
+		}
 		KeyBind pressedKey = null;
 		for (KeyBind keyBind : KeyBind.values()) {
 			if (keyBind.tryMatch(eventKey)) {
@@ -401,6 +435,26 @@ public class InputHandler {
 				return showRecipeOrUses(IFocus.Mode.INPUT);
 		}
 
+		return false;
+	}
+
+	private boolean handleInventoryCheat(int eventKey, int mouseX, int mouseY) {
+		if (!Config.isCheatItemsEnabled()) {
+			return false;
+		}
+		boolean oneItem = KeyBindings.cheatOneItemToInventory.isActiveAndMatches(eventKey);
+		boolean itemStack = KeyBindings.cheatItemStackToInventory.isActiveAndMatches(eventKey);
+		if (oneItem || itemStack) {
+			IClickedIngredient<?> clicked = getIngredientUnderMouseForKey(mouseX, mouseY);
+			if (clicked != null) {
+				ItemStack stack = clicked.getCheatItemStack();
+				if (!stack.isEmpty()) {
+					CommandUtil.giveStack(stack, oneItem ? 1 : 0, GiveMode.INVENTORY);
+					clicked.onClickHandled();
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
@@ -456,8 +510,7 @@ public class InputHandler {
 			return false;
 		}
 
-		Object value = clicked.getValue();
-		recipesGui.show(new Focus<>(mode, value instanceof BookmarkItem ? ((BookmarkItem<?>) value).getIngredient() : value));
+		recipesGui.show(new Focus<>(mode, clicked.getValue()));
 		clicked.onClickHandled();
 		return true;
 	}

@@ -29,18 +29,25 @@ public class FuelRecipe implements IRecipeWrapper {
 		Preconditions.checkArgument(burnTime > 0, "burn time must be greater than 0");
 		List<ItemStack> inputList = new ArrayList<>(input);
 		this.inputs = Collections.singletonList(inputList);
-		this.burnTimeString = Translator.translateToLocalFormatted("hei.generic.ticks", burnTime);
-		if (burnTime == 200) {
-			this.smeltCountString = Translator.translateToLocal("gui.jei.category.fuel.smeltCount.single");
-		} else {
-			NumberFormat numberInstance = NumberFormat.getNumberInstance();
-			numberInstance.setMaximumFractionDigits(2);
-			String smeltCount = numberInstance.format(burnTime / 200f);
-			this.smeltCountString = Translator.translateToLocalFormatted("gui.jei.category.fuel.smeltCount", smeltCount);
-		}
+		this.burnTimeString = createBurnTimeString(burnTime);
+		this.smeltCountString = createSmeltCountString(burnTime);
 
 		this.flame = guiHelper.drawableBuilder(Constants.RECIPE_GUI_VANILLA, 82, 114, 14, 14)
 				.buildAnimated(burnTime, IDrawableAnimated.StartDirection.TOP, true);
+	}
+
+	public static String createBurnTimeString(int burnTime) {
+		return Translator.translateToLocalFormatted("hei.generic.ticks", burnTime);
+	}
+
+	public static String createSmeltCountString(int burnTime) {
+		if (burnTime == 200) {
+			return Translator.translateToLocal("gui.jei.category.fuel.smeltCount.single");
+		}
+		NumberFormat numberInstance = NumberFormat.getNumberInstance();
+		numberInstance.setMaximumFractionDigits(2);
+		String smeltCount = numberInstance.format(burnTime / 200f);
+		return Translator.translateToLocalFormatted("gui.jei.category.fuel.smeltCount", smeltCount);
 	}
 
 	@Override

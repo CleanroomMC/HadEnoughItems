@@ -83,8 +83,7 @@ public class GhostIngredientDragManager {
 		if (this.ghostIngredientDrag != null) {
 			this.ghostIngredientDrag.drawTargets(mouseX, mouseY);
 		} else {
-			IIngredientListElement elementUnderMouse = Internal.getInputHandler().getElementUnderMouse();
-			Object hovered = elementUnderMouse == null ? null : elementUnderMouse.getIngredient();
+			Object hovered = Internal.getInputHandler().getDragIngredientUnderMouse();
 			boolean showHighlight = true;
 			if (!Objects.equals(hovered, this.hoveredIngredient)) {
 				this.hoveredIngredient = hovered;
@@ -111,8 +110,17 @@ public class GhostIngredientDragManager {
 		}
 	}
 
+	/**
+	 * Prefer to use {@link #handleMouseClicked(Minecraft, GuiScreen, IClickedIngredient, Object, int, int, int)}
+	 */
 	public boolean handleMouseClicked(Minecraft minecraft, GuiScreen currentScreen, IClickedIngredient<?> clicked,
 			IIngredientListElement<?> listElement, int mouseButton, int mouseX, int mouseY) {
+		Object listIngredient = listElement == null ? null : listElement.getIngredient();
+		return handleMouseClicked(minecraft, currentScreen, clicked, listIngredient, mouseButton, mouseX, mouseY);
+	}
+
+	public boolean handleMouseClicked(Minecraft minecraft, GuiScreen currentScreen, IClickedIngredient<?> clicked,
+			@Nullable Object listIngredient, int mouseButton, int mouseX, int mouseY) {
 		if (this.ghostIngredientDrag != null) {
 			if (dropOnMouseRelease) {
 				return true;
@@ -125,7 +133,7 @@ public class GhostIngredientDragManager {
 		EntityPlayerSP player = minecraft.player;
 		if (player != null && clicked != null) {
 			ItemStack mouseItem = player.inventory.getItemStack();
-			if (mouseItem.isEmpty() && this.handleClickGhostIngredient(currentScreen, clicked, listElement, mouseButton)) {
+			if (mouseItem.isEmpty() && this.handleClickGhostIngredient(currentScreen, clicked, listIngredient, mouseButton)) {
 				return true;
 			}
 		}
@@ -137,14 +145,8 @@ public class GhostIngredientDragManager {
 		if (pendingClick == null) {
 			return false;
 		}
-		Object original = pendingClick.getValue();
-		Object current = hovered == null ? null : hovered.getValue();
-		if (original instanceof BookmarkItem) {
-			original = ((BookmarkItem<?>) original).getIngredient();
-		}
-		if (current instanceof BookmarkItem) {
-			current = ((BookmarkItem<?>) current).getIngredient();
-		}
+		Object original = BookmarkItem.unwrap(pendingClick.getValue());
+		Object current = hovered == null ? null : BookmarkItem.unwrap(hovered.getValue());
 		if (!IngredientUtil.equals(original, current)) {
 			BooleanSupplier startDrag = pendingDrag;
 			pendingClick = null;
@@ -194,6 +196,9 @@ public class GhostIngredientDragManager {
 		}
 		this.dragMouseButton = -1;
 		this.dropOnMouseRelease = false;
+		this.hoveredIngredient = null;
+		this.hoveredIngredientTargets = null;
+		this.hoverHandler = null;
 	}
 
 	public <T extends GuiScreen, V> boolean handleClickGhostIngredient(T currentScreen, IClickedIngredient<V> clicked) {
@@ -201,7 +206,7 @@ public class GhostIngredientDragManager {
 	}
 
 	private <T extends GuiScreen> boolean handleClickGhostIngredient(T currentScreen, IClickedIngredient<?> clicked,
-			@Nullable IIngredientListElement<?> listElement, int mouseButton) {
+			@Nullable Object listIngredient, int mouseButton) {
 		if (clicked == null) {
 			return false;
 		}
@@ -212,7 +217,7 @@ public class GhostIngredientDragManager {
 			}
 			return false;
 		}
-		Object ingredient = listElement == null ? getIngredientForHandler(handler, clicked.getValue()) : listElement.getIngredient();
+		Object ingredient = listIngredient == null ? getIngredientForHandler(handler, clicked.getValue()) : listIngredient;
 		return startGhostIngredientDrag(handler, currentScreen, clicked, ingredient, clicked.getValue(), true, mouseButton);
 	}
 
@@ -238,10 +243,7 @@ public class GhostIngredientDragManager {
 	}
 
 	private Object getIngredientForHandler(IGhostIngredientHandler<?> handler, Object ingredient) {
-		if (handler != defaultHandler && ingredient instanceof BookmarkItem) {
-			return ((BookmarkItem<?>) ingredient).getIngredient();
-		}
-		return ingredient;
+		return handler == defaultHandler ? ingredient : BookmarkItem.unwrap(ingredient);
 	}
 
 	private <T extends GuiScreen, V> boolean startGhostIngredientDrag(IGhostIngredientHandler<T> handler,

@@ -14,8 +14,8 @@ import mezz.jei.config.JEIModConfigGui;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.elements.GuiIconToggleButton;
+import mezz.jei.input.MouseHelper;
 import mezz.jei.util.Translator;
-import org.lwjgl.input.Keyboard;
 
 public class ConfigButton extends GuiIconToggleButton {
 	public static ConfigButton create(IngredientListOverlay parent) {
@@ -39,19 +39,37 @@ public class ConfigButton extends GuiIconToggleButton {
 		if (!Config.isOverlayEnabled()) {
 			tooltip.add(TextFormatting.GOLD + Translator.translateToLocal("jei.tooltip.ingredient.list.disabled"));
 			tooltip.add(TextFormatting.GOLD + Translator.translateToLocalFormatted("jei.tooltip.ingredient.list.disabled.how.to.fix", KeyBindings.toggleOverlay.getDisplayName()));
-		} else if (!parent.isListDisplayed()) {
+		} else if (!parent.hasRoom()) {
 			tooltip.add(TextFormatting.GOLD + Translator.translateToLocal("jei.tooltip.not.enough.space"));
+		} else if (parent.isListHiddenWhenNotSearching()) {
+			tooltip.add(TextFormatting.GOLD + Translator.translateToLocal("jei.tooltip.ingredient.list.hidden.when.not.searching"));
+		}
+		if (Config.isOverlayEnabled() && Config.isHideIngredientsWhenNotSearchingEnabled() && KeyBindings.toggleHideIngredientsWhenNotSearching.getKeyCode() != 0) {
+			tooltip.add(Translator.translateToLocalFormatted("jei.tooltip.ingredient.list.show.always.hotkey", KeyBindings.toggleHideIngredientsWhenNotSearching.getDisplayName()));
 		}
 		if (Config.isCheatItemsEnabled()) {
 			tooltip.add(TextFormatting.RED + Translator.translateToLocal("jei.tooltip.cheat.mode.button.enabled"));
 			KeyBinding toggleCheatMode = KeyBindings.toggleCheatMode;
 			if (toggleCheatMode.getKeyCode() != 0) {
 				tooltip.add(TextFormatting.RED + Translator.translateToLocalFormatted("jei.tooltip.cheat.mode.how.to.disable.hotkey", toggleCheatMode.getDisplayName()));
-			} else {
-				String controlKeyLocalization = Translator.translateToLocal(Minecraft.IS_RUNNING_ON_MAC ? "key.jei.ctrl.mac" : "key.jei.ctrl");
-				tooltip.add(TextFormatting.RED + Translator.translateToLocalFormatted("jei.tooltip.cheat.mode.how.to.disable.no.hotkey", controlKeyLocalization));
+			} else if (KeyBindings.toggleCheatModeConfigButton.getKeyCode() != 0) {
+				tooltip.add(TextFormatting.RED + Translator.translateToLocalFormatted("jei.tooltip.cheat.mode.how.to.disable.hotkey", KeyBindings.toggleCheatModeConfigButton.getDisplayName()));
 			}
 		}
+	}
+
+	public boolean handleKeyPressed(int eventKey) {
+		if (Config.isOverlayEnabled() && isMouseOver(MouseHelper.getX(), MouseHelper.getY())) {
+			if (KeyBindings.toggleCheatModeConfigButton.isActiveAndMatches(eventKey)) {
+				Config.toggleCheatItemsEnabled();
+				return true;
+			}
+			if (KeyBindings.toggleHideIngredientsWhenNotSearching.isActiveAndMatches(eventKey)) {
+				Config.toggleHideIngredientsWhenNotSearching();
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -65,8 +83,6 @@ public class ConfigButton extends GuiIconToggleButton {
 			if (GuiScreen.isAltKeyDown() && Config.isCollapsibleGroupsEnabled() && Internal.hasIngredientFilter()) {
 				Internal.getCollapsedGroupRegistry().expandOrCloseAll();
 				Internal.getIngredientFilter().notifyCollapsedStateChanged();
-			} else if (Keyboard.getEventKeyState() && (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL || Keyboard.getEventKey() == Keyboard.KEY_RCONTROL)) {
-				Config.toggleCheatItemsEnabled();
 			} else {
 				Minecraft minecraft = Minecraft.getMinecraft();
 				if (minecraft.currentScreen != null) {

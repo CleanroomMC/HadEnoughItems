@@ -10,6 +10,7 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.recipes.RecipeRegistry;
 import mezz.jei.transfer.RecipeTransferErrorInternal;
 import mezz.jei.transfer.RecipeTransferErrorTooltip;
+import mezz.jei.transfer.RecipeTransferUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
@@ -148,7 +149,7 @@ public class AutocraftingHandler implements IAutocraftingHandler {
 		}
 		// Dry run first
 		IRecipeTransferError error = isRecipeAutoCraftable(recipe, recipeLayout, craftCount);
-		if (error != null) {
+		if (!RecipeTransferUtil.allowsTransfer(error)) {
 			Log.get().warn("Skipping autocrafting step for {} x{}: {}", step.recipe.getIngredient(), craftCount,
 				error.getSimpleReason() != null ? error.getSimpleReason() : error.getClass().getSimpleName());
 			return false;

@@ -92,13 +92,28 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
         Log.get().info("Loaded {} custom collapsible groups", amount);
     }
 
+    /**
+     * Alt + middle click toggles a group in either mode. OPEN_GROUP also toggles on a plain click.
+     * Alt + left or right click falls through to the first item, which cheat mode gives to the inventory.
+     */
+    public static boolean isExpandClick(int mouseButton) {
+        if (GuiScreen.isAltKeyDown()) {
+            return mouseButton == 2;
+        }
+        return Config.getCollapsedClickAction() == CollapsedClickAction.OPEN_GROUP;
+    }
+
+    public static boolean isCollapseClick(int mouseButton) {
+        return mouseButton == 2 && GuiScreen.isAltKeyDown();
+    }
+
+    @Deprecated
     public boolean handleMouseClicked(IngredientListBatchRenderer renderer, int mouseX, int mouseY) {
-        boolean firstItemMode = Config.getCollapsedClickAction() == CollapsedClickAction.FIRST_ITEM;
-        boolean altDown = GuiScreen.isAltKeyDown();
-        // OPEN_GROUP: plain click expands a collapsed icon; alt+click falls through (first item).
-        // FIRST_ITEM: alt+click expands a collapsed icon; plain click falls through (first item).
-        boolean expandKeyDown = firstItemMode == altDown;
-        if (expandKeyDown) {
+        return handleMouseClicked(renderer, mouseX, mouseY, 0);
+    }
+
+    public boolean handleMouseClicked(IngredientListBatchRenderer renderer, int mouseX, int mouseY, int mouseButton) {
+        if (isExpandClick(mouseButton)) {
             CollapsedGroupRenderer collapsedHovered = renderer.getHoveredCollapsed(mouseX, mouseY);
             if (collapsedHovered != null) {
                 // If the search has filtered this group down to a single item, don't expand —
@@ -111,8 +126,8 @@ public class CollapsibleGroupRegistry implements ICollapsibleGroupRegistry {
                 return true;
             }
         }
-        // Alt+Click on any item inside an expanded group always collapses it.
-        if (altDown) {
+        // Alt + middle click on any item inside an expanded group always collapses it.
+        if (isCollapseClick(mouseButton)) {
             CollapsedGroupIngredient expandedHovered = renderer.getExpandedCollapsedGroupAt(mouseX, mouseY);
             if (expandedHovered != null) {
                 expandedHovered.toggleExpanded();

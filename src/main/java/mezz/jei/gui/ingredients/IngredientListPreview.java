@@ -11,6 +11,7 @@ import mezz.jei.ingredients.IngredientListElement;
 import mezz.jei.render.IngredientListBatchRenderer;
 import mezz.jei.render.IngredientListSlot;
 import mezz.jei.render.IngredientRenderer;
+import mezz.jei.startup.ForgeModIdHelper;
 import mezz.jei.startup.IModIdHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -22,32 +23,39 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A read-only preview of every ingredient that a single recipe slot accepts, laid out as a fixed
- * {@value #COLUMNS}-column, {@value #ROWS}-row grid so that it can be rendered inside a tooltip by
+ * A read-only preview of every ingredient that a single recipe slot accepts, laid out as a grid of
+ * at most {@value #COLUMNS} columns and {@value #ROWS} rows. It can be then rendered inside a
+ * tooltip by passing its {@link #getRenderer()} renderer to
  * {@link mezz.jei.gui.TooltipRenderer#drawHoveringTextAndItems}.
  * <p>
- * The ingredients are wrapped in {@link IngredientListElement}s and drawn through the very same
- * renderers they use inside the recipe slot, so every registered ingredient type is supported
- * without any type-specific handling here.
- * <p>
- * Build once (the wrapping is not free), then render every frame. When the slot accepts more than
- * {@value #MAX_VISIBLE} ingredients a {@link ScrollBar} is drawn in an extra column on the right
- * and the grid shows a moving window of them.
+ * When the slot accepts more ingredients than fit, a {@link ScrollBar} is drawn in an extra column
+ * on the right and the grid shows a moving window of them.
  */
 public class IngredientListPreview {
-	/** The collapsed-group tooltip grid uses 8 columns and 3 rows; here the last row is full too. */
+	/** The most columns and rows the tooltip grid is allowed to use. */
 	public static final int COLUMNS = 8;
 	public static final int ROWS = 3;
-	public static final int MAX_VISIBLE = COLUMNS * ROWS;
-	/** Forces a {@value #COLUMNS}-column layout regardless of how wide the tooltip ends up. */
-	public static final int GRID_WIDTH = COLUMNS * IngredientGrid.INGREDIENT_WIDTH;
-	private static final int GRID_HEIGHT = ROWS * IngredientGrid.INGREDIENT_HEIGHT;
+	/**
+	 * The footprint the grid keeps: what {@value #COLUMNS}x{@value #ROWS} 16x16 ingredients with
+	 * padding take up. Bigger ingredients shrink the column/row counts instead of growing the tooltip.
+	 */
+	private static final int GRID_BUDGET_WIDTH = COLUMNS * IngredientGrid.INGREDIENT_WIDTH;
+	private static final int GRID_BUDGET_HEIGHT = ROWS * IngredientGrid.INGREDIENT_HEIGHT;
+	/** Ingredients drawn smaller than this keep getting the classic 16x16 cell. */
+	private static final int MIN_CONTENT_SIZE = IngredientListSlot.DEFAULT_CONTENT_SIZE;
 
 	private final List<IIngredientListElement<?>> elements;
 	private final IngredientListBatchRenderer renderer;
 	private final List<IngredientListSlot> slots;
 	private final ScrollBar scrollBar;
-	/** Whether the grid can show every ingredient at once. */
+	/** How many cells fit in the grid. */
+	private final int columns;
+	private final int rows;
+	/** No bigger than {@link #columns} x {@link #rows} */
+	private final int visibleCount;
+	/** The grid's size, in pixels; also the width the tooltip reserves for it. */
+	private final int gridWidth;
+	/** {@code false} when the grid can show every ingredient at once. */
 	private final boolean scrollable;
 	private float scrollOffset;
 	/** Where the tooltip was last drawn, so a pinned tooltip can claim the screen area it covers. */
@@ -55,21 +63,20 @@ public class IngredientListPreview {
 	private Rectangle tooltipBounds;
 
 	/**
-	 * Wraps the given ingredients into a preview, or returns null when there is nothing worth showing.
-	 *
-	 * @param ingredients every ingredient the slot accepts, in display order.
+	 * Wraps the ingredients of a recipe slot into a preview sized like that slot, or returns null
+	 * when there is nothing worth showing.
 	 */
 	@Nullable
-	public static <T> IngredientListPreview create(
-		List<T> ingredients,
-		IIngredientHelper<T> ingredientHelper,
-		IIngredientRenderer<T> ingredientRenderer,
-		IModIdHelper modIdHelper
-	) {
+	public static <T> IngredientListPreview create(GuiIngredient<T> guiIngredient) {
+		List<T> ingredients = guiIngredient.displayIngredients;
 		if (ingredients.size() < 2) {
 			// A slot with a single option already shows it; an extra grid would just be noise.
 			return null;
 		}
+
+		IIngredientHelper<T> ingredientHelper = guiIngredient.ingredientHelper;
+		IIngredientRenderer<T> ingredientRenderer = guiIngredient.ingredientRenderer;
+		IModIdHelper modIdHelper = ForgeModIdHelper.getInstance();
 
 		List<IIngredientListElement<?>> elements = new ObjectArrayList<>(ingredients.size());
 		for (T ingredient : ingredients) {
@@ -86,22 +93,37 @@ public class IngredientListPreview {
 			return null;
 		}
 
-		return new IngredientListPreview(elements);
+		int contentWidth = guiIngredient.getRect().width - (2 * guiIngredient.getXPadding());
+		int contentHeight = guiIngredient.getRect().height - (2 * guiIngredient.getYPadding());
+		// Slots drawn smaller than 16x16 have always had a 16x16 cell and look fine in one,
+		// so only a slot that needs more room gets a bigger area.
+		return new IngredientListPreview(elements, Math.max(MIN_CONTENT_SIZE, contentWidth), Math.max(MIN_CONTENT_SIZE, contentHeight));
 	}
 
-	private IngredientListPreview(List<IIngredientListElement<?>> elements) {
+	public IngredientListPreview(List<IIngredientListElement<?>> elements, int contentWidth, int contentHeight) {
 		this.elements = elements;
-		this.scrollable = elements.size() > MAX_VISIBLE;
 
-		int displaySize = Math.min(MAX_VISIBLE, elements.size());
+		// A cell is big enough for one ingredient at the size the recipe slot draws it, plus padding.
+		int cellWidth = contentWidth + (2 * IngredientGrid.INGREDIENT_PADDING);
+		int cellHeight = contentHeight + (2 * IngredientGrid.INGREDIENT_PADDING);
+		// Ingredients that are drawn larger than 16x16 get fewer cells rather than bigger ones, so
+		// the tooltip never grows past the footprint the 8x3 grid of items has always had.
+		this.columns = Math.max(1, Math.min(COLUMNS, GRID_BUDGET_WIDTH / cellWidth));
+		this.rows = Math.max(1, Math.min(ROWS, GRID_BUDGET_HEIGHT / cellHeight));
+		this.visibleCount = columns * rows;
+		this.gridWidth = columns * cellWidth;
+		int gridHeight = rows * cellHeight;
+		this.scrollable = elements.size() > visibleCount;
+
+		int displaySize = Math.min(visibleCount, elements.size());
 		List<IngredientListSlot> slots = new ObjectArrayList<>(displaySize);
 		for (int i = 0; i < displaySize; i++) {
-			slots.add(new IngredientListSlot(0, 0, IngredientGrid.INGREDIENT_PADDING));
+			slots.add(new IngredientListSlot(0, 0, IngredientGrid.INGREDIENT_PADDING, contentWidth, contentHeight));
 		}
 		this.slots = Collections.unmodifiableList(slots);
 
 		GuiHelper guiHelper = Internal.getHelpers().getGuiHelper();
-		this.scrollBar = new ScrollBar(GRID_WIDTH, 0, GRID_HEIGHT, guiHelper.getScrollbarBackground(), guiHelper.getScrollbarMarker());
+		this.scrollBar = new ScrollBar(gridWidth, 0, gridHeight, guiHelper.getScrollbarBackground(), guiHelper.getScrollbarMarker());
 
 		// Tooltips are drawn once per frame on top of everything else, so the framebuffer
 		// optimization the ingredient list uses would only add overhead here.
@@ -155,7 +177,7 @@ public class IngredientListPreview {
 		if (!scrollable) {
 			return false;
 		}
-		ScrollBar.ScrollResult result = scrollBar.scrollBy(scrollDelta, MAX_VISIBLE, hiddenCount(), scrollOffset);
+		ScrollBar.ScrollResult result = scrollBar.scrollBy(scrollDelta, visibleCount, hiddenCount(), scrollOffset);
 		if (result.isHandled()) {
 			setScrollOffset(result.getScrollOffsetY());
 			return true;
@@ -172,7 +194,7 @@ public class IngredientListPreview {
 		if (local == null) {
 			return false;
 		}
-		ScrollBar.ScrollResult result = scrollBar.startDrag(local.x, local.y, MAX_VISIBLE, hiddenCount(), scrollOffset);
+		ScrollBar.ScrollResult result = scrollBar.startDrag(local.x, local.y, visibleCount, hiddenCount(), scrollOffset);
 		if (result.isHandled()) {
 			setScrollOffset(result.getScrollOffsetY());
 			return true;
@@ -189,7 +211,7 @@ public class IngredientListPreview {
 		if (origin == null) {
 			return false;
 		}
-		ScrollBar.ScrollResult result = scrollBar.dragTo(screenMouseY - origin.y, MAX_VISIBLE, hiddenCount(), scrollOffset);
+		ScrollBar.ScrollResult result = scrollBar.dragTo(screenMouseY - origin.y, visibleCount, hiddenCount(), scrollOffset);
 		if (result.isHandled()) {
 			setScrollOffset(result.getScrollOffsetY());
 			return true;
@@ -202,7 +224,7 @@ public class IngredientListPreview {
 	}
 
 	private int hiddenCount() {
-		return Math.max(0, elements.size() - MAX_VISIBLE);
+		return Math.max(0, elements.size() - visibleCount);
 	}
 
 	private int startIndex() {
@@ -211,7 +233,7 @@ public class IngredientListPreview {
 
 	private List<IIngredientListElement<?>> visibleElements() {
 		int from = startIndex();
-		int to = Math.min(elements.size(), from + MAX_VISIBLE);
+		int to = Math.min(elements.size(), from + visibleCount);
 		return elements.subList(from, to);
 	}
 
@@ -271,12 +293,12 @@ public class IngredientListPreview {
 
 		/**
 		 * The tooltip lays the grids out into whatever width it has available, which would let the
-		 * number of columns depend on the screen size. This grid is a fixed {@value #COLUMNS}-column
-		 * one instead, and it is narrow enough to always fit.
+		 * number of columns depend on the screen size. This grid always lays out at the width its
+		 * cell size was decided at, and it is narrow enough to always fit.
 		 */
 		@Override
 		public void moveSlotsToFit(int maxWidth) {
-			super.moveSlotsToFit(GRID_WIDTH);
+			super.moveSlotsToFit(gridWidth);
 		}
 
 		@Override
@@ -291,8 +313,8 @@ public class IngredientListPreview {
 				return;
 			}
 			// Slot areas are relative to the grid origin, and so is this.
-			scrollBar.updateBounds(new Rectangle(GRID_WIDTH, 0, ScrollBar.WIDTH, getHeight()));
-			scrollBar.draw(minecraft, MAX_VISIBLE, hiddenCount(), scrollOffset);
+			scrollBar.updateBounds(new Rectangle(gridWidth, 0, ScrollBar.WIDTH, getHeight()));
+			scrollBar.draw(minecraft, visibleCount, hiddenCount(), scrollOffset);
 		}
 	}
 }

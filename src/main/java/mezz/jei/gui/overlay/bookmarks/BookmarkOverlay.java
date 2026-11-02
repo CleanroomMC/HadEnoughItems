@@ -1,6 +1,8 @@
 package mezz.jei.gui.overlay.bookmarks;
 
+import mezz.jei.Internal;
 import mezz.jei.api.IBookmarkOverlay;
+import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.bookmarks.BookmarkList;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiHelper;
@@ -49,7 +51,13 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 	}
 
 	public boolean isListDisplayed() {
-		return Config.isBookmarkOverlayEnabled() && hasRoom && !bookmarkList.isEmpty();
+		if (!hasRoom) {
+			return false;
+		}
+		if (bookmarkList.isEmpty()) {
+			return Config.getHistoryPosition() == Config.HistoryPosition.LEFT && !Internal.getIngredientHistory().isEmpty();
+		}
+		return Config.isBookmarkOverlayEnabled();
 	}
 
 	public boolean hasRoom() {
@@ -113,7 +121,7 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
             this.bookmarkButton.updateBounds(new Rectangle(0, 0, 0, 0));
         } else {
             this.bookmarkButton.updateBounds(new Rectangle(
-                    2,
+                    2 + (Config.getConfigButtonPosition() == Config.ButtonPosition.LEFT ? BUTTON_SIZE + 2 : 0),
                     (int) Math.floor(displayArea.getMaxY()) - BUTTON_SIZE - 2,
                     BUTTON_SIZE,
                     BUTTON_SIZE
@@ -142,7 +150,7 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 	@Override
 	public boolean handleMouseScrolled(int mouseX, int mouseY, int scrollDelta) {
 		return isListDisplayed() &&
-			displayArea.contains(mouseX, mouseY) &&
+			this.contents.isMouseOver(mouseX, mouseY) &&
 			this.contents.handleMouseScrolled(mouseX, mouseY, scrollDelta);
 	}
 
@@ -203,7 +211,7 @@ public class BookmarkOverlay implements ILeftAreaContent, IBookmarkOverlay {
 		if (isListDisplayed()) {
 			IIngredientListElement elementUnderMouse = this.contents.getElementUnderMouse();
 			if (elementUnderMouse != null) {
-				return elementUnderMouse.getIngredient();
+				return BookmarkItem.unwrap(elementUnderMouse.getIngredient());
 			}
 		}
 		return null;

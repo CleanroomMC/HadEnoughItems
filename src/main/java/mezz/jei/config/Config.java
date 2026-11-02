@@ -31,6 +31,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.commons.io.FileUtils;
 
@@ -54,7 +55,7 @@ public final class Config {
 	public static final String CATEGORY_COLLAPSIBLE = "collapsible";
 
 	public static final String defaultModNameFormatFriendly = "blue italic";
-	public static final int smallestNumColumns = 4;
+	public static final int smallestNumColumns = 2;
 	public static final int largestNumColumns = 100;
 	public static final int minRecipeGuiHeight = 175;
 	public static final int maxRecipeGuiHeight = 5000;
@@ -230,6 +231,19 @@ public final class Config {
 		return values.centerSearchBarEnabled;
 	}
 
+	public static boolean isHideIngredientsWhenNotSearchingEnabled() {
+		return values.hideIngredientsWhenNotSearching;
+	}
+
+	public static void toggleHideIngredientsWhenNotSearching() {
+		values.hideIngredientsWhenNotSearching = !values.hideIngredientsWhenNotSearching;
+		if (config != null) {
+			config.get(CATEGORY_ADVANCED, "hideIngredientsWhenNotSearching", defaultValues.hideIngredientsWhenNotSearching)
+				.set(values.hideIngredientsWhenNotSearching);
+			config.save();
+		}
+	}
+
 	public static boolean isOptimizeMemoryUsage() {
 		return true; // For compatibility sake
 	}
@@ -388,13 +402,33 @@ public final class Config {
 		return values.skipShowingProgressBar;
 	}
 
-	public static boolean hideBottomRightCornerConfigButton() {
-		return values.hideBottomRightCornerConfigButton;
+	public enum ButtonPosition {
+		LEFT, RIGHT, HIDDEN
+	}
+
+	public static ButtonPosition getConfigButtonPosition() {
+		return values.configButtonPosition;
 	}
 
     public static boolean hideBottomLeftCornerBookmarkButton() {
         return values.hideBottomLeftCornerBookmarkButton;
     }
+
+	public enum HistoryPosition {
+		LEFT, RIGHT, HIDDEN
+	}
+
+	public static HistoryPosition getHistoryPosition() {
+		return Loader.isModLoaded("jeiutilities") ? HistoryPosition.HIDDEN : values.historyPosition;
+	}
+
+	public static int getHistoryRows() {
+		return values.historyRows;
+	}
+
+	public static boolean isHistoryMatchingNbt() {
+		return values.historyMatchNbt;
+	}
 
     public static int getRecipeBookmarkGroupColor() {
 		return values.recipeBookmarkGroupColor;
@@ -503,6 +537,7 @@ public final class Config {
 
 		config.addCategory(CATEGORY_SEARCH);
 		config.addCategory(CATEGORY_ADVANCED);
+		migrateSearchAdvancedTooltipsConfig(config);
 		config.addCategory(CATEGORY_MISC);
 		config.addCategory(CATEGORY_COLLAPSIBLE);
 		// Override collapsible category lang keys from config.jei.* to config.hei.*
@@ -562,6 +597,7 @@ public final class Config {
 		categoryAdvanced.remove("maxSubtypes");
 
 		values.centerSearchBarEnabled = config.getBoolean(CATEGORY_ADVANCED, "centerSearchBarEnabled", defaultValues.centerSearchBarEnabled);
+		values.hideIngredientsWhenNotSearching = config.getBoolean(CATEGORY_ADVANCED, "hideIngredientsWhenNotSearching", defaultValues.hideIngredientsWhenNotSearching);
 
 		values.ultraLowMemoryUsage = config.getBoolean(CATEGORY_ADVANCED, "ultraLowMemoryUsage", defaultValues.ultraLowMemoryUsage);
 
@@ -599,9 +635,17 @@ public final class Config {
 
 		values.skipShowingProgressBar = config.getBoolean(CATEGORY_MISC, "skipShowingProgressBar", defaultValues.skipShowingProgressBar);
 
-		values.hideBottomRightCornerConfigButton = config.getBoolean(CATEGORY_MISC, "hideBottomRightCornerConfigButton", defaultValues.hideBottomRightCornerConfigButton);
+		values.configButtonPosition = config.getEnum("configButtonPosition", CATEGORY_MISC, defaultValues.configButtonPosition, ButtonPosition.values());
 
         values.hideBottomLeftCornerBookmarkButton = config.getBoolean(CATEGORY_MISC, "hideBottomLeftCornerBookmarkButton", defaultValues.hideBottomLeftCornerBookmarkButton);
+
+		values.historyPosition = config.getEnum("historyPosition", CATEGORY_MISC, defaultValues.historyPosition, HistoryPosition.values());
+
+		values.historyRows = config.getInt("historyRows", CATEGORY_MISC, defaultValues.historyRows, 1, 6,
+			Translator.translateToLocal("config.hei.misc.historyRows.comment"), "config.hei.misc.historyRows");
+
+		values.historyMatchNbt = config.getBoolean("historyMatchNbt", CATEGORY_MISC, defaultValues.historyMatchNbt,
+			Translator.translateToLocal("config.hei.misc.historyMatchNbt.comment"), "config.hei.misc.historyMatchNbt");
 
 		{
 			boolean prev = values.collapsibleGroupsEnabled;
@@ -678,6 +722,27 @@ public final class Config {
 			config.save();
 		}
 		return needsReload;
+	}
+
+	static void migrateSearchAdvancedTooltipsConfig(Configuration config) {
+		String legacyCategoryName = "searchAdvancedTooltips";
+		String legacyPropertyName = CATEGORY_SEARCH;
+		String propertyName = "searchAdvancedTooltips";
+		if (!config.hasCategory(legacyCategoryName)) {
+			return;
+		}
+
+		ConfigCategory legacyCategory = config.getCategory(legacyCategoryName);
+		if (legacyCategory.containsKey(legacyPropertyName)) {
+			if (config.hasKey(CATEGORY_SEARCH, propertyName)) {
+				legacyCategory.remove(legacyPropertyName);
+			} else if (config.moveProperty(legacyCategoryName, legacyPropertyName, CATEGORY_SEARCH)) {
+				config.renameProperty(CATEGORY_SEARCH, legacyPropertyName, propertyName);
+			}
+		}
+		if (legacyCategory.isEmpty()) {
+			config.removeCategory(legacyCategory);
+		}
 	}
 
 	private static void updateModNameFormat(LocalizedConfiguration config) {
@@ -762,15 +827,15 @@ public final class Config {
 		property.setShowInGui(false);
 		values.bookmarkOverlayEnabled = property.getBoolean();
 
-		property = worldConfig.get(worldCategory, "autocraftingEnabled", defaultValues.recipeBookmarksEnabled);
+		property = worldConfig.get(worldCategory, "autocraftingEnabled", defaultValues.autocraftingEnabled);
 		property.setLanguageKey("config.jei.interface.autocraftingEnabled");
 		property.setComment(Translator.translateToLocal("config.jei.interface.autocraftingEnabled.comment"));
 		values.autocraftingEnabled = property.getBoolean();
 
-		property = worldConfig.get(worldCategory, "recipeBookmarksEnabled", defaultValues.autocraftingEnabled);
+		property = worldConfig.get(worldCategory, "recipeBookmarksEnabled", defaultValues.recipeBookmarksEnabled);
 		property.setLanguageKey("config.jei.interface.recipeBookmarksEnabled");
-		property.setComment(Translator.translateToLocal("config.jei.interface.autocraftingEnabled.comment"));
-		values.autocraftingEnabled = property.getBoolean();
+		property.setComment(Translator.translateToLocal("config.jei.interface.recipeBookmarksEnabled.comment"));
+		values.recipeBookmarksEnabled = property.getBoolean();
 
 		property = worldConfig.get(worldCategory, "filterText", defaultValues.filterText);
 		property.setShowInGui(false);

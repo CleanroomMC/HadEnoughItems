@@ -23,9 +23,7 @@ jei.tooltip.bookmarks.usage.key=将鼠标悬停在某个原料上，然后按 %s
 jei.tooltip.bookmarks.not.enough.space=屏幕左侧区域空间不足，无法显示书签列表叠加层。
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt + 点击：展开
 hei.tooltip.collapsed.expand.firstItem=Alt + 点击：首个物品
-hei.tooltip.collapsed.collapse=Alt + 点击：折叠
 hei.tooltip.config.expandCollapseAll=Alt + 点击：切换分组
 
 # Error Tooltips
@@ -207,7 +205,6 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=启用后，相关原料
 config.hei.collapsible.collapseOnClose=关闭时折叠
 config.hei.collapsible.collapseOnClose.comment=关闭 HEI 时折叠当前已展开的分组。
 config.hei.collapsible.collapsedClickAction=默认点击操作
-config.hei.collapsible.collapsedClickAction.comment=切换单击操作，另一项操作将变为 Alt + 点击。打开分组（open_group）：展开分组。首个物品（first_item）：对分组中的第一个物品执行操作。
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=打开分组
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=首个物品
 
@@ -254,6 +251,7 @@ hei.gui.collapsible.editor.clear=清除
 hei.gui.collapsible.editor.selected=%d 已选择
 hei.gui.collapsible.confirmDelete=删除？
 hei.tooltip.missing_ingredients=§c缺失原料：
+
 hei.tooltip.autocraft.wrong_container=该容器无法自行合成 %s 配方。
 
 hei.tooltip.search.title=搜索配方
@@ -263,3 +261,9 @@ hei.tooltip.search.mode.both=同时搜索输入和输出
 hei.tooltip.search.mode.input=仅搜索输入
 hei.tooltip.search.mode.output=仅搜索输出
 hei.tooltip.search.note=配方的输入或输出格式可能与预期不符！
+
+description.jei.wooden.door.1=木门可以阻止怪物进入你的建筑。\n测试用语句。
+description.jei.wooden.door.2=右击木门会将其从关闭状态变为打开状态，反之亦然。
+description.jei.wooden.door.3=可通过红石电路开/关木门。
+key.jei.transferRecipeGui=合成配方（配方界面）
+key.jei.maxTransferRecipeGui=合成配方（最大数量，配方界面）

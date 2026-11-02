@@ -1,0 +1,121 @@
+# Tooltips
+jei.tooltip.config=HEI баптауы
+jei.tooltip.show.recipes=Рецепт көрсету
+jei.tooltip.show.all.recipes=Барлық рецептті көрсету
+jei.tooltip.delete.item=Жою үшін бас
+jei.tooltip.liquid.amount.with.capacity=%,d / %,d mB
+jei.tooltip.liquid.amount=%,d mB
+jei.tooltip.transfer=Зат жылжыту
+jei.tooltip.recipe.ore.dict=Кез келгенін қабылдайды: %s
+jei.tooltip.item.colors=Түс: %s
+jei.tooltip.shapeless.recipe=Пішінсіз рецепт
+jei.tooltip.cheat.mode.button.enabled=Чит режимі қосулы
+jei.tooltip.cheat.mode.how.to.disable.hotkey=Ауыстыру үшін \"%s\" бас.
+jei.tooltip.recipe.by=Рецепт: %s
+jei.tooltip.recipe.id=Рецепт ID-і: %s
+jei.tooltip.not.enough.space=HEI ингредиент оверлейін көрсетуге орын жетпейді.
+jei.tooltip.ingredient.list.disabled=HEI оверлейі өшірулі.
+jei.tooltip.ingredient.list.disabled.how.to.fix=Қосу үшін \"%s\" бас.
+jei.tooltip.bookmarks=HEI бетбелгілері
+jei.tooltip.bookmarks.usage.nokey=Басқару баптауларында HEI бетбелгілер пернесін орнат.
+jei.tooltip.bookmarks.usage.key=Ингредиентке бетбелгі қосу үшін оның үстіне курсорды апарып, \"%s\" бас.
+jei.tooltip.bookmarks.not.enough.space=HEI бетбелгі тізімі оверлейін көрсетуге орын жетпейді.
+
+# Error Tooltips
+jei.tooltip.error.recipe.transfer.missing=Жоқ заттар
+jei.tooltip.error.recipe.transfer.inventory.full=Инвентарь толық
+jei.tooltip.error.recipe.transfer.no.server=Серверде HEI орнатылған болуы керек
+jei.tooltip.error.recipe.transfer.too.large.player.inventory=Рецепт ойыншының 2x2 жасау торында жасалуға тым үлкен.
+jei.tooltip.error.crash=Түсіндірме қатесі, журналды тексер
+
+# Error Messages
+jei.chat.error.no.cheat.permission.1=HEI чит режимін қолдануға рұқсат жоқ.
+
+# Key Bindings
+key.jei.toggleOverlay=HEI оверлейлерін көрсету/жасыру
+key.jei.focusSearch=Іздеу жолағын таңдау
+key.jei.showRecipe=Рецепт көрсету
+key.jei.showUses=Қолдану жолдарын көрсету
+key.jei.recipeBack=Алдыңғы рецепт
+key.jei.toggleCheatMode=Чит режімін қосу/өшіру
+key.jei.toggleEditMode=Ингредиент жасыру режимін қосу/өшіру
+key.jei.previousPage=Алдыңғы бет
+key.jei.nextPage=Келесі бет
+key.jei.bookmark=Бетбелгі қосу/жою
+key.hei.toggleBookmarkOverlay=Бетбелгілі ингредиенттерді көрсету/жасыру
+
+# Config
+config.jei.default=Әдепкі
+config.jei.valid=Дүрыс
+
+config.jei.title=%MODNAME конфигі
+
+config.jei.mode=Режим
+config.jei.mode.comment=HEI жұмыс істеп жатқан модты ауыстыру.
+config.jei.mode.cheatItemsEnabled=Чит режимі
+config.jei.mode.cheatItemsEnabled.comment=Рецепт көрсеткеннен гөрі затты беру.
+config.jei.mode.editEnabled=Ингредиент жасыру режимі
+config.jei.mode.editEnabled.comment=Ингредиент тізімі оверлейінде зат жасыру/көрсету.
+
+config.jei.interface=Интерфейс
+config.jei.interface.comment=Қолданушы интерфейсіне байланысты баптаулар.
+config.jei.interface.overlayEnabled=Ингредиент тізімін көрсету оверлейі
+config.jei.interface.overlayEnabled.comment=Ашылған интерфейстің қасында ингредиент тізімін көрсету.
+config.jei.interface.bookmarkOverlayEnabled=Бетбелгі тізімі оверлейін көрсету
+config.jei.interface.bookmarkOverlayEnabled.comment=Ашылған интерфейстің қасында бетбелгі тізімін көрсету.
+
+config.jei.search=Іздеу
+config.jei.search.comment=Іздеу жолағына байланысты баптаулар.
+config.jei.search.modNameSearchMode=@МодАтауы
+config.jei.search.modNameSearchMode.comment=Мод атауы бойынша іздеу режимі (префикс: @).
+config.jei.search.tooltipSearchMode=#Кеңес
+config.jei.search.tooltipSearchMode.comment=Кеңес бойынша іздеу режимі (префикс: #).
+config.jei.search.creativeTabSearchMode=%%ШығармашылықҚойынша
+config.jei.search.creativeTabSearchMode.comment=Шығармашылық режим қойынша атауы бойынша іздеу режимі (префикс: %).
+config.jei.search.colorSearchMode=^Түс
+config.jei.search.colorSearchMode.comment=Түс бойынша іздеу режимі (префикс: ^).
+config.jei.search.resourceIdSearchMode=&РесурсId
+config.jei.search.resourceIdSearchMode.comment=Ресурс ID-і бойынша іздеу режимі (префикс: &).
+config.jei.search.searchAdvancedTooltips=Қосымша кеңес іздеу
+
+config.jei.advanced=Жетілдірілген
+config.jei.advanced.comment=HEI жұмысын өзгерту үшін жетілдірілген конфиг баптаулары.
+config.jei.advanced.itemBlacklist=Ингредиент қара тізімі
+config.jei.advanced.itemBlacklist.comment=Ингредиент тізімі оверлейінде көрсетілмейтін ингредиенттер тізімі. Пішім: modId[:name[:meta]]. Ингредиент жасыру режимі осы тізімге зат қосады/жояды.
+config.jei.advanced.colorSearchEnabled=Түс бойынша іздеуді қосу
+config.jei.advanced.colorSearchEnabled.comment=Түс бойынша ингредиент іздеу және ингредиент тізімі оверлейінде кеңес түсін көрсету.
+config.jei.advanced.debugModeEnabled=Өңдау режимі
+config.jei.advanced.debugModeEnabled.comment=HEI әзірлеушілеріне ғана пайдалы. Қосымша ақпарат пен рецепт қосады.
+config.jei.advanced.centerSearchBarEnabled=Ортадағы іздеу жолағы
+config.jei.advanced.centerSearchBarEnabled.comment=HEI іздеу жолағын экранның астыңғы ортасына орналастыру.
+config.jei.advanced.modNameFormat=Мод атауының пішімі
+config.jei.advanced.modNameFormat.comment=HEI интерфейсінде мод атауының пішімі. Өшіру үшін бос қалдырыңыз.
+config.jei.advanced.maxColumns=Макс. оверлей ені
+config.jei.advanced.maxColumns.comment=Ингредиент және бетбелгі тізімі оверлейінің максималды ені.
+config.jei.advanced.maxRecipeGuiHeight=Макс. рецепт интерфейсінің биіктігі
+config.jei.advanced.maxRecipeGuiHeight.comment=Рецепт ингрефейсінің максималды биіктігі.
+config.jei.advanced.giveMode=Беру режимі
+config.jei.advanced.giveMode.comment=HEI ингредиенттерді тікелей мұқаммалға немесе курсорға салатынына жауап береді.
+
+# Hide Ingredients Mode
+gui.jei.editMode.description=HEI ингредиент жасыру режимі:
+
+# Recipe Categories
+gui.jei.category.craftingTable=Жасау
+gui.jei.category.smelting=Балқыту
+gui.jei.category.smelting.experience=%s тәжірибе
+gui.jei.category.fuel=Отын
+gui.jei.category.fuel.smeltCount.single=1 зат балқытады
+gui.jei.category.fuel.smeltCount=%s зат балқытады
+gui.jei.category.brewing=Демдеу
+gui.jei.category.brewing.steps=Қадам: %s
+gui.jei.category.itemInformation=Ақпарат
+
+# Key Names
+key.jei.ctrl=CTRL
+key.jei.ctrl.mac=CMD
+
+# Debug (for a debug mode, do not need translation)
+description.jei.wooden.door.1=Wooden doors allow you to block monsters from entering your building.\nTesting sentences.
+description.jei.wooden.door.2=Clicking on a door changes its state from open to closed and vice versa.
+description.jei.wooden.door.3=Wooden doors can be opened/closed via redstone circuits.

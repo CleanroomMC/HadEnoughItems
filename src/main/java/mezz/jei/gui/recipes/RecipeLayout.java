@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import mezz.jei.Internal;
+import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.config.Config;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiFluidStackGroup;
@@ -32,13 +33,18 @@ import mezz.jei.gui.ingredients.GuiFluidStackGroup;
 import mezz.jei.gui.ingredients.GuiIngredient;
 import mezz.jei.gui.ingredients.GuiIngredientGroup;
 import mezz.jei.gui.ingredients.GuiItemStackGroup;
+import mezz.jei.gui.ingredients.RecipeIdTooltipCallback;
 import mezz.jei.ingredients.Ingredients;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.LegacyUtil;
 import mezz.jei.util.Log;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fluids.FluidStack;
 
 public class RecipeLayout implements IRecipeLayoutDrawable {
@@ -67,6 +73,10 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	@Nullable
 	private ShapelessIcon shapelessIcon;
 	private final DrawableNineSliceTexture recipeBorder;
+	@Nullable
+	private String recipeCategoryModId;
+	@Nullable
+	private ResourceLocation recipeId;
 
 	private int posX;
 	private int posY;
@@ -78,6 +88,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			IIngredients ingredients = new Ingredients();
 			recipeWrapper.getIngredients(ingredients);
 			recipeCategory.setRecipe(recipeLayout, recipeWrapper, ingredients);
+			recipeLayout.addRecipeIdTooltip();
 			return recipeLayout;
 		} catch (RuntimeException | LinkageError e) {
 			Log.get().error("Error caught from Recipe Category: {}", recipeCategory.getClass().getCanonicalName(), e);
@@ -182,10 +193,18 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			int height = categoryBackground.getHeight() + (2 * RECIPE_BORDER_PADDING);
 			recipeBorder.draw(minecraft, -RECIPE_BORDER_PADDING, -RECIPE_BORDER_PADDING, width, height);
 			background.draw(minecraft);
-			recipeCategory.drawExtras(minecraft);
-			recipeWrapper.drawInfo(minecraft, background.getWidth(), background.getHeight(), recipeMouseX, recipeMouseY);
-			// drawExtras and drawInfo often render text which messes with the color, this clears it
-			GlStateManager.color(1, 1, 1, 1);
+
+			// defensive push/pop to protect against recipe categories changing the last matrix
+			GlStateManager.pushMatrix();
+			{
+				recipeCategory.drawExtras(minecraft);
+				recipeWrapper.drawInfo(minecraft, background.getWidth(), background.getHeight(), recipeMouseX, recipeMouseY);
+
+				// drawExtras and drawInfo often render text which messes with the color, this clears it
+				GlStateManager.color(1, 1, 1, 1);
+			}
+			GlStateManager.popMatrix();
+
 			if (shapelessIcon != null) {
 				shapelessIcon.draw(minecraft, background.getWidth());
 			}
@@ -214,15 +233,6 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 
 	@Override
 	public void drawOverlays(Minecraft minecraft, int mouseX, int mouseY) {
-		drawOverlays(minecraft, mouseX, mouseY, null);
-	}
-
-	/**
-	 * @param pinned the tooltip the player pinned by holding Shift, or null when nothing is pinned.
-	 *               A pinned tooltip keeps the position it had when it was pinned, leaving the mouse
-	 *               free to travel over the ingredient grid inside it.
-	 */
-	public void drawOverlays(Minecraft minecraft, int mouseX, int mouseY, @Nullable PinnedIngredientTooltip pinned) {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableLighting();
 		GlStateManager.enableAlpha();
@@ -236,13 +246,6 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 			if (hoveredIngredient != null) {
 				break;
 			}
-		}
-		final boolean pinnedHere = pinned != null && pinned.getLayout() == this;
-		if (pinnedHere) {
-			hoveredIngredient = pinned.getSlot();
-			// The slot positions its tooltip from these, so the pinned position freezes it in place.
-			recipeMouseX = pinned.getScreenMouseX() - posX;
-			recipeMouseY = pinned.getScreenMouseY() - posY;
 		}
 		if (recipeTransferButton != null) {
 			recipeTransferButton.drawToolTip(minecraft, mouseX, mouseY);
@@ -259,31 +262,34 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		if (hoveredIngredient != null) {
 			hoveredIngredient.drawOverlays(minecraft, posX, posY, recipeMouseX, recipeMouseY);
 		} else if (isMouseOver(mouseX, mouseY)) {
-			List<String> categoryTooltipStrings = LegacyUtil.getTooltipStrings(recipeCategory, recipeMouseX, recipeMouseY);
-			List<String> tooltipStrings = new ArrayList<>(categoryTooltipStrings);
-			List<String> wrapperTooltips = recipeWrapper.getTooltipStrings(recipeMouseX, recipeMouseY);
-			//noinspection ConstantConditions
-			if (wrapperTooltips != null) {
-				tooltipStrings.addAll(wrapperTooltips);
+			List<String> tooltipStrings = getTooltipStrings(recipeMouseX, recipeMouseY);
+			if (recipeTransferButton != null) {
+				recipeTransferButton.drawRecipeError(minecraft, mouseX, mouseY);
+				recipeTransferButton.addShortcutTooltips(tooltipStrings);
 			}
-			if (tooltipStrings.isEmpty() && shapelessIcon != null) {
-				tooltipStrings = shapelessIcon.getTooltipStrings(recipeMouseX, recipeMouseY);
-			}
-			if (tooltipStrings != null && !tooltipStrings.isEmpty()) {
+			if (!tooltipStrings.isEmpty()) {
 				TooltipRenderer.drawHoveringText(minecraft, tooltipStrings, mouseX, mouseY);
 			}
 		}
 
-		if (pinnedHere) {
-			// The tooltip has been drawn by now, so the screen area it took is known.
-			pinned.captureBounds();
-			// The highlight goes first so that the hovered ingredient's own tooltip, drawn from the
-			// real mouse position, ends up on top.
-			pinned.drawHighlight(mouseX, mouseY);
-			pinned.drawHoveredIngredientTooltip(minecraft, mouseX, mouseY);
-		}
-
 		GlStateManager.disableAlpha();
+	}
+
+	List<String> getTooltipStrings(int recipeMouseX, int recipeMouseY) {
+		List<String> categoryTooltipStrings = LegacyUtil.getTooltipStrings(recipeCategory, recipeMouseX, recipeMouseY);
+		List<String> tooltipStrings = new ArrayList<>(categoryTooltipStrings);
+		List<String> wrapperTooltips = recipeWrapper.getTooltipStrings(recipeMouseX, recipeMouseY);
+		//noinspection ConstantConditions
+		if (wrapperTooltips != null) {
+			tooltipStrings.addAll(wrapperTooltips);
+		}
+		if (tooltipStrings.isEmpty() && shapelessIcon != null) {
+			List<String> shapelessTooltips = shapelessIcon.getTooltipStrings(recipeMouseX, recipeMouseY);
+			if (shapelessTooltips != null) {
+				tooltipStrings.addAll(shapelessTooltips);
+			}
+		}
+		return tooltipStrings;
 	}
 
 	@Override
@@ -319,6 +325,23 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 
 	public boolean handleClick(Minecraft minecraft, int mouseX, int mouseY, int mouseButton) {
 		return recipeWrapper.handleClick(minecraft, mouseX - posX, mouseY - posY, mouseButton);
+	}
+
+	public boolean handleCopyRecipeId() {
+		Minecraft minecraft = Minecraft.getMinecraft();
+		EntityPlayerSP player = minecraft.player;
+		if (recipeId == null) {
+			if (player != null) {
+				player.sendMessage(new TextComponentTranslation("jei.message.copy.recipe.id.failure"));
+			}
+			return false;
+		}
+		String recipeIdString = recipeId.toString();
+		GuiScreen.setClipboardString(recipeIdString);
+		if (player != null) {
+			player.sendMessage(new TextComponentTranslation("jei.message.copy.recipe.id.success", recipeIdString));
+		}
+		return true;
 	}
 
 	public boolean handleMouseScroll(int mouseX, int mouseY, int scrollAmount) {
@@ -480,4 +503,23 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
     public boolean mouseReleased(int mouseX, int mouseY, int state) {
         return recipeWrapper.handleMouseReleased(mouseX, mouseY, state);
     }
+
+	@Override
+	public void setRecipeId(String recipeCategoryModId, @Nullable ResourceLocation recipeId) {
+		this.recipeCategoryModId = recipeCategoryModId;
+		this.recipeId = recipeId;
+	}
+
+	private void addRecipeIdTooltip() {
+		if (recipeId != null) {
+			String recipeModId = recipeId.getNamespace();
+			boolean recipeCategoryIdDifferent = !recipeModId.equals(recipeCategoryModId);
+
+			for (GuiIngredientGroup guiIngredientGroup : guiIngredientGroups.values()) {
+				IIngredientHelper ingredientHelper = guiIngredientGroup.getIngredientHelper();
+				RecipeIdTooltipCallback tooltipCallback = new RecipeIdTooltipCallback(recipeId, recipeCategoryIdDifferent, ingredientHelper);
+				guiIngredientGroup.addTooltipCallbackAfter(tooltipCallback);
+			}
+		}
+	}
 }

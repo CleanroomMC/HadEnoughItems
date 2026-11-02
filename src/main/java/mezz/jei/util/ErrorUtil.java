@@ -130,18 +130,32 @@ public final class ErrorUtil {
 
 	public static <T> List<String> getIngredientInfo(IIngredientType<T> ingredientType, List<? extends List<T>> ingredients) {
 		IIngredientHelper<T> ingredientHelper = Internal.getIngredientRegistry().getIngredientHelper(ingredientType);
-		List<String> allInfos = new ArrayList<>(ingredients.size());
+		List<String> allInfos = new ArrayList<>(Math.min(ingredients.size() + 1, 101));
 
-		for (List<T> inputList : ingredients) {
-			List<String> infos = new ArrayList<>(inputList.size());
-			for (T input : inputList) {
-				String errorInfo = ingredientHelper.getErrorInfo(input);
-				infos.add(errorInfo);
-			}
-			allInfos.add(infos.toString());
+		int slotLimit = Math.min(ingredients.size(), 100);
+		for (int i = 0; i < slotLimit; i++) {
+			allInfos.add(getIngredientSlotInfo(ingredientHelper, ingredients.get(i)));
+		}
+		if (ingredients.size() > 100) {
+			allInfos.add(String.format("<truncated to %s elements, skipped %s>", 100, ingredients.size() - 100));
 		}
 
 		return allInfos;
+	}
+
+	private static <T> String getIngredientSlotInfo(IIngredientHelper<T> ingredientHelper, List<T> ingredients) {
+		List<String> infos = new ArrayList<>(Math.min(ingredients.size() + 1, 11));
+
+		int ingredientLimit = Math.min(ingredients.size(), 10);
+		for (int i = 0; i < ingredientLimit; i++) {
+			String errorInfo = ingredientHelper.getErrorInfo(ingredients.get(i));
+			infos.add(errorInfo);
+		}
+		if (ingredients.size() > 10) {
+			infos.add(String.format("<truncated to %s elements, skipped %s>", 10, ingredients.size() - 10));
+		}
+
+		return infos.toString();
 	}
 
 	public static String getItemStackInfo(@Nullable ItemStack itemStack) {
@@ -149,6 +163,11 @@ public final class ErrorUtil {
 			return "null";
 		}
 		Item item = itemStack.getItem();
+		//noinspection ConstantConditions
+		if (item == null) {
+			return itemStack.getCount() + "x (null)";
+		}
+
 		final String itemName;
 		ResourceLocation registryName = item.getRegistryName();
 		if (registryName != null) {
@@ -276,11 +295,7 @@ public final class ErrorUtil {
 				return modIdHelper.getModNameForModId(modId);
 			});
 		}
-		ingredientCategory.addDetail("Registry Name", () -> {
-			String modId = ingredientHelper.getModId(ingredient);
-			String resourceId = ingredientHelper.getResourceId(ingredient);
-			return modId + ":" + resourceId;
-		});
+		ingredientCategory.addDetail("Registry Name", () -> ingredientHelper.getResourceLocation(ingredient).toString());
 		ingredientCategory.addDetail("Display Name", () -> ingredientHelper.getDisplayName(ingredient));
 		ingredientCategory.addDetail("String Name", ingredient::toString);
 

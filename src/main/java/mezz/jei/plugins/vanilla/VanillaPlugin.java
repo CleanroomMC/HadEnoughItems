@@ -11,6 +11,7 @@ import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 import mezz.jei.api.recipe.IVanillaRecipeFactory;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
+import mezz.jei.api.registration.IModInfoRegistration;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.plugins.vanilla.anvil.AnvilRecipeCategory;
 import mezz.jei.plugins.vanilla.anvil.AnvilRecipeMaker;
@@ -69,6 +70,8 @@ import java.util.List;
 public class VanillaPlugin implements IModPlugin {
 	@Nullable
 	private ISubtypeRegistry subtypeRegistry;
+	@Nullable
+	private EnchantedBookCache enchantedBookCache;
 
 	@Override
 	public void registerSubtypes(ISubtypeRegistry subtypeRegistry) {
@@ -106,6 +109,11 @@ public class VanillaPlugin implements IModPlugin {
 	}
 
 	@Override
+	public void registerModInfo(IModInfoRegistration registration) {
+		registration.addModAliases("minecraft", "mc");
+	}
+
+	@Override
 	public void registerIngredients(IModIngredientRegistration ingredientRegistration) {
 		Preconditions.checkState(this.subtypeRegistry != null);
 		StackHelper stackHelper = Internal.getStackHelper();
@@ -124,7 +132,10 @@ public class VanillaPlugin implements IModPlugin {
 		ingredientRegistration.markAsCraftable(VanillaTypes.FLUID);
 
 		List<EnchantmentData> enchantments = EnchantDataListFactory.create();
-		EnchantedBookCache enchantedBookCache = new EnchantedBookCache();
+		if (this.enchantedBookCache != null) {
+			MinecraftForge.EVENT_BUS.unregister(this.enchantedBookCache);
+		}
+		EnchantedBookCache enchantedBookCache = this.enchantedBookCache = new EnchantedBookCache();
 		MinecraftForge.EVENT_BUS.register(enchantedBookCache);
 		EnchantDataHelper enchantmentHelper = new EnchantDataHelper(enchantedBookCache, itemStackHelper);
 		EnchantDataRenderer enchantmentRenderer = new EnchantDataRenderer(itemStackRenderer, enchantedBookCache);
@@ -159,6 +170,15 @@ public class VanillaPlugin implements IModPlugin {
 		// TODO: perform other special recipe wrappers? see: CraftingManager.class
 		if (CraftingRecipeChecker.hasTippedArrowRecipe) {
 			registry.addRecipes(TippedArrowRecipeMaker.getTippedArrowRecipes(), VanillaRecipeCategoryUid.CRAFTING);
+		}
+		if (CraftingRecipeChecker.hasFireworkRecipe) {
+			registry.addRecipes(FireworkRecipeMaker.getFireworkRecipes(), VanillaRecipeCategoryUid.CRAFTING);
+		}
+		if (CraftingRecipeChecker.hasShieldDecorationRecipe) {
+			registry.addRecipes(ShieldDecorationRecipeMaker.getShieldDecorationRecipes(), VanillaRecipeCategoryUid.CRAFTING);
+		}
+		if (CraftingRecipeChecker.hasShulkerBoxColoringRecipe) {
+			registry.addRecipes(ShulkerBoxColoringRecipeMaker.getShulkerBoxColoringRecipes(ingredientRegistry.getAllIngredients(VanillaTypes.ITEM)), VanillaRecipeCategoryUid.CRAFTING);
 		}
 
 		registry.handleRecipes(ShapedOreRecipe.class, recipe -> new ShapedOreRecipeWrapper(jeiHelpers, recipe), VanillaRecipeCategoryUid.CRAFTING);

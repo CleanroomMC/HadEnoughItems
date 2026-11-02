@@ -4,6 +4,9 @@ import javax.annotation.Nullable;
 import java.awt.Rectangle;
 
 public class IngredientListSlot {
+	/** Ingredients that do not say otherwise are drawn at the vanilla 16x16 size. */
+	public static final int DEFAULT_CONTENT_SIZE = 16;
+
 	private final Rectangle area;
 	private final int padding;
 	private boolean blocked = false;
@@ -11,9 +14,16 @@ public class IngredientListSlot {
 	private IngredientRenderer ingredientRenderer;
 
 	public IngredientListSlot(int xPosition, int yPosition, int padding) {
+		this(xPosition, yPosition, padding, DEFAULT_CONTENT_SIZE, DEFAULT_CONTENT_SIZE);
+	}
+
+	/**
+	 *
+	 * @param padding note that padding is applied twice, at the left and right
+	 */
+	public IngredientListSlot(int xPosition, int yPosition, int padding, int contentWidth, int contentHeight) {
 		this.padding = padding;
-		final int size = 16 + (2 * padding);
-		this.area = new Rectangle(xPosition, yPosition, size, size);
+		this.area = new Rectangle(xPosition, yPosition, contentWidth + (2 * padding), contentHeight + (2 * padding));
 	}
 
 	@Nullable

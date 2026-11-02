@@ -43,6 +43,8 @@ public class IngredientListBatchRenderer {
 	// Per-group list of individual slot rectangles (used for per-slot fill + edge-detection border).
 	protected final Map<CollapsedGroupIngredient, List<Rectangle>> expandedGroupSlots = new HashMap<>();
 
+	private static final Set<IngredientListBatchRenderer> BUFFERED_INSTANCES = Collections.newSetFromMap(new WeakHashMap<>());
+
 	@Nullable
 	private Framebuffer framebuffer = null;
 	private boolean allowBuffering;
@@ -66,6 +68,9 @@ public class IngredientListBatchRenderer {
 
 	public IngredientListBatchRenderer(boolean allowBuffering) {
 		this.allowBuffering = allowBuffering;
+		if (allowBuffering) {
+			BUFFERED_INSTANCES.add(this);
+		}
 	}
 
 	public void clear() {
@@ -247,6 +252,16 @@ public class IngredientListBatchRenderer {
 		refreshBuffer = true;
 	}
 
+	public static void deleteFramebuffers() {
+		for (IngredientListBatchRenderer renderer : BUFFERED_INSTANCES) {
+			if (renderer.framebuffer != null) {
+				renderer.framebuffer.deleteFramebuffer();
+				renderer.framebuffer = null;
+				renderer.refreshBuffer = true;
+			}
+		}
+	}
+
 	protected <V> void set(IngredientListSlot ingredientListSlot, IIngredientListElement<V> element) {
 		V ingredient = element.getIngredient();
 		if (ingredient instanceof ItemStack) {
@@ -285,27 +300,32 @@ public class IngredientListBatchRenderer {
 	 * @param maxWidth The maximum width allowed for the grid.
 	 */
 	public void moveSlotsToFit(int maxWidth) {
-		if (this.maxWidth / INGREDIENT_WIDTH == maxWidth / INGREDIENT_WIDTH) {
+		if (this.maxWidth == maxWidth && width > 0) {
 			return;
 		}
 		int xPos = 0;
 		int yPos = 0;
+		int rowHeight = 0;
 		this.maxWidth = maxWidth;
 		width = 0;
 		for (List<IngredientListSlot> row : slots) {
 			for (IngredientListSlot slot : row) {
+				Rectangle slotArea = slot.getArea();
 				if (xPos >= maxWidth) {
 					xPos = 0;
-					yPos += INGREDIENT_HEIGHT;
+					yPos += rowHeight;
+					rowHeight = 0;
 				}
-				slot.getArea().setLocation(xPos, yPos);
-				xPos += INGREDIENT_WIDTH;
+				slotArea.setLocation(xPos, yPos);
+				xPos += slotArea.width;
+				rowHeight = Math.max(rowHeight, slotArea.height);
 				if (xPos > width) {
 					width = xPos;
 				}
 			}
 			xPos = 0;
-			yPos += INGREDIENT_HEIGHT;
+			yPos += rowHeight;
+			rowHeight = 0;
 		}
 		this.height = yPos;
 	}

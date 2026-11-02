@@ -19,6 +19,7 @@ import mezz.jei.gui.GuiEventHandler;
 import mezz.jei.gui.GuiHelper;
 import mezz.jei.gui.GuiScreenHelper;
 import mezz.jei.gui.ghost.GhostIngredientDragManager;
+import mezz.jei.gui.overlay.IngredientGridHistoryProvider;
 import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.gui.overlay.bookmarks.BookmarkOverlay;
 import mezz.jei.gui.overlay.bookmarks.LeftAreaDispatcher;
@@ -40,8 +41,12 @@ import mezz.jei.runtime.SubtypeRegistry;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 import mezz.jei.util.LoggedTimer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.ProgressManager;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,11 +59,23 @@ public class JeiStarter {
 	}
 
 	public void load(List<IModPlugin> plugins, Textures textures, boolean recipesOnly) {
+		// A plugin that fails is dropped for this load only, the next reload tries it again.
+		plugins = new ArrayList<>(plugins);
+
 		LoggedTimer totalTime = new LoggedTimer();
 		totalTime.start("Starting " + Tags.MOD_NAME);
 
+		if (started) {
+			Log.get().warn("Reloading {}. Third-party plugins may leak memory when they are loaded again.", Tags.MOD_NAME);
+			EntityPlayerSP player = Minecraft.getMinecraft().player;
+			if (player != null) {
+				player.sendMessage(new TextComponentTranslation("hei.chat.warning.reload"));
+			}
+		}
+
 		IModIdHelper modIdHelper = ForgeModIdHelper.getInstance();
 		ErrorUtil.setModIdHelper(modIdHelper);
+		registerModInfo(plugins, modIdHelper);
 
 		SubtypeRegistry subtypeRegistry = new SubtypeRegistry();
 		Internal.setSubtypeRegistry(subtypeRegistry);
@@ -71,6 +88,7 @@ public class JeiStarter {
 
 		IngredientBlacklistInternal blacklist = new IngredientBlacklistInternal();
 		ModIngredientRegistration modIngredientRegistry = registerIngredients(plugins);
+		registerIngredientAliases(plugins, modIngredientRegistry);
 		IngredientRegistry ingredientRegistry = modIngredientRegistry.createIngredientRegistry(modIdHelper, blacklist);
 		Internal.setIngredientRegistry(ingredientRegistry);
 
@@ -97,6 +115,9 @@ public class JeiStarter {
 		ISearchIndexBuilderFactory searchIndexBuilderFactory;
 		if (recipesOnly && Internal.hasIngredientFilter()) {
 			ingredientFilter = Internal.getIngredientFilter();
+			// The overlay built below registers itself again.
+			ingredientFilter.clearListeners();
+			ingredientFilter.rebindElements(ingredientRegistry);
 			ingredientFilter.replaceBlacklist(blacklist);
 			searchIndexBuilderFactory = ingredientFilter.getSearchIndexBuilderFactory();
 		} else {
@@ -110,6 +131,10 @@ public class JeiStarter {
 			ingredientFilter = new IngredientFilter(blacklist, IngredientListElementFactory.createBaseList(ingredientRegistry, modIdHelper),
 					searchIndexBuilderFactory);
 			Internal.setIngredientFilter(ingredientFilter);
+			if (started) {
+				// No server join follows a reload, so the search service has to end on its own.
+				ingredientFilter.blockWhenBuilt();
+			}
 			timer.stop();
 		}
 
@@ -117,9 +142,12 @@ public class JeiStarter {
 		Internal.setCollapsedGroupRegistry(collapsibleGroupRegistry);
 		registerCollapsibleGroups(plugins, collapsibleGroupRegistry);
 		collapsibleGroupRegistry.loadCustomGroups();
+		// A reused filter still caches the previous blacklist and groups.
+		ingredientFilter.invalidateCache();
 
 		BookmarkList bookmarkList = new BookmarkList(ingredientRegistry);
 		Internal.setBookmarkList(bookmarkList);
+		Internal.setIngredientHistory(new IngredientGridHistoryProvider(ingredientRegistry));
 
 		timer.start("Building runtime");
 		List<IAdvancedGuiHandler<?>> advancedGuiHandlers = modRegistry.getAdvancedGuiHandlers();
@@ -166,6 +194,51 @@ public class JeiStarter {
 
 	public boolean hasStarted() {
 		return started;
+	}
+
+	private static void registerModInfo(List<IModPlugin> plugins, IModIdHelper modIdHelper) {
+		if (!(modIdHelper instanceof AbstractModIdHelper)) {
+			return;
+		}
+		ModInfoRegistration registration = new ModInfoRegistration();
+		ProgressManager.ProgressBar progressBar = Config.skipShowingProgressBar() ? null : ProgressManager.push("Registering mod info", plugins.size());
+		for (IModPlugin plugin : plugins) {
+			try {
+				if (progressBar != null) {
+					progressBar.step(plugin.getClass().getName());
+				}
+				plugin.registerModInfo(registration);
+			} catch (RuntimeException | LinkageError e) {
+				if (plugin instanceof VanillaPlugin) {
+					throw e;
+				}
+				Log.get().error("Failed to register mod info for mod plugin: {}", plugin.getClass(), e);
+			}
+		}
+		if (progressBar != null) {
+			ProgressManager.pop(progressBar);
+		}
+		((AbstractModIdHelper) modIdHelper).setModAliases(registration.getModAliases());
+	}
+
+	private static void registerIngredientAliases(List<IModPlugin> plugins, ModIngredientRegistration registration) {
+		ProgressManager.ProgressBar progressBar = Config.skipShowingProgressBar() ? null : ProgressManager.push("Registering ingredient aliases", plugins.size());
+		for (IModPlugin plugin : plugins) {
+			try {
+				if (progressBar != null) {
+					progressBar.step(plugin.getClass().getName());
+				}
+				plugin.registerIngredientAliases(registration);
+			} catch (RuntimeException | LinkageError e) {
+				if (plugin instanceof VanillaPlugin) {
+					throw e;
+				}
+				Log.get().error("Failed to register ingredient aliases for mod plugin: {}", plugin.getClass(), e);
+			}
+		}
+		if (progressBar != null) {
+			ProgressManager.pop(progressBar);
+		}
 	}
 
 	private static void registerItemSubtypes(List<IModPlugin> plugins, SubtypeRegistry subtypeRegistry) {

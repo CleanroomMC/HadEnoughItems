@@ -19,7 +19,21 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
     private static ExecutorService service;
 
     public static void startService() {
+        if (service != null) {
+            service.shutdownNow();
+        }
         service = Executors.newSingleThreadExecutor();
+    }
+
+    /**
+     * Runs the task once the queued builds finish, or right away when nothing is building.
+     */
+    public static void afterBuild(Runnable task) {
+        if (service == null) {
+            task.run();
+        } else {
+            service.submit(task);
+        }
     }
 
     public static void endService() {
@@ -55,6 +69,9 @@ public class AsyncPrefixedSearchable extends PrefixedSearchable {
                     firstBuild = false;
                 }
                 for (IIngredientListElement ingredient : ingredients) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        return;
+                    }
                     try {
                         submit(ingredient);
                     } catch (Throwable t) {

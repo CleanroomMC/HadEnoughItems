@@ -263,13 +263,14 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 		String header = TextFormatting.GOLD + collapsedStack.getDisplayName()
 			+ TextFormatting.GRAY + " (" + total + " items)";
 		// In OPEN_GROUP mode, alt+click uses first item; show that as the hint.
-		// In FIRST_ITEM mode, alt+click expands; show that instead.
+		// In FIRST_ITEM mode, alt+middle click expands; show that instead.
 		String hint = TextFormatting.YELLOW + Translator.translateToLocal(
 			Config.getCollapsedClickAction() == CollapsedClickAction.OPEN_GROUP
 				? "hei.tooltip.collapsed.expand.firstItem"
 				: "hei.tooltip.collapsed.expand");
 
-		int tw = Math.max(Math.max(font.getStringWidth(header), font.getStringWidth(hint)), gridW);
+		int overflowW = overflow > 0 ? (COLS - 1) * SLOT + 2 + font.getStringWidth("+" + overflow) : 0;
+		int tw = Math.max(Math.max(font.getStringWidth(header), font.getStringWidth(hint)), Math.max(gridW, overflowW));
 		int th = 12 + gridH + 10;
 
 		ScaledResolution sr = new ScaledResolution(minecraft);

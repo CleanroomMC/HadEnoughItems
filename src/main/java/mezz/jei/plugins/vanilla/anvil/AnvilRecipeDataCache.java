@@ -7,6 +7,7 @@ import com.google.common.cache.LoadingCache;
 public class AnvilRecipeDataCache {
 	private static final LoadingCache<AnvilRecipeWrapper, AnvilRecipeDisplayData> cachedDisplayData = CacheBuilder.newBuilder()
 		.maximumSize(25)
+		.weakKeys()
 		.build(new CacheLoader<AnvilRecipeWrapper, AnvilRecipeDisplayData>() {
 			@Override
 			public AnvilRecipeDisplayData load(AnvilRecipeWrapper key) {

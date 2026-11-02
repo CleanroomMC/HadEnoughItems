@@ -16,6 +16,8 @@ public final class KeyBindings {
 	public static final KeyBinding toggleOverlay;
 	public static final KeyBinding focusSearch;
 	public static final KeyBinding toggleCheatMode;
+	public static final KeyBinding toggleCheatModeConfigButton;
+	public static final KeyBinding toggleHideIngredientsWhenNotSearching;
 	public static final KeyBinding toggleEditMode;
 	public static final KeyBinding showRecipe;
 	public static final KeyBinding showUses;
@@ -24,6 +26,13 @@ public final class KeyBindings {
 	public static final KeyBinding nextPage;
 	public static final KeyBinding previousCategory;
 	public static final KeyBinding nextCategory;
+	public static final KeyBinding transferRecipeGui;
+	public static final KeyBinding maxTransferRecipeGui;
+	public static final KeyBinding cheatOneItemToInventory;
+	public static final KeyBinding cheatItemStackToInventory;
+	public static final KeyBinding closeRecipeGui;
+	public static final KeyBinding copyRecipeId;
+	public static final KeyBinding pauseRecipeCycling;
 	public static final KeyBinding bookmark;
 	public static final KeyBinding bookmarkToTop;
 	public static final KeyBinding bookmarkNewGroup;
@@ -44,6 +53,9 @@ public final class KeyBindings {
 			toggleOverlay = new KeyBinding("key.jei.toggleOverlay", KeyConflictContext.GUI, KeyModifier.CONTROL, Keyboard.KEY_O, categoryName),
 			focusSearch = new KeyBinding("key.jei.focusSearch", KeyConflictContext.GUI, KeyModifier.CONTROL, Keyboard.KEY_F, categoryName),
 			toggleCheatMode = new KeyBinding("key.jei.toggleCheatMode", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
+			// key codes below 0 are mouse buttons offset by -100
+			toggleCheatModeConfigButton = new KeyBinding("key.jei.toggleCheatModeConfigButton", KeyConflictContext.GUI, KeyModifier.CONTROL, -100, categoryName),
+			toggleHideIngredientsWhenNotSearching = new KeyBinding("key.jei.toggleHideIngredientsWhenNotSearching", KeyConflictContext.GUI, KeyModifier.CONTROL, -99, categoryName),
 			toggleEditMode = new KeyBinding("key.jei.toggleEditMode", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
 			showRecipe = new KeyBinding("key.jei.showRecipe", KeyConflictContext.GUI, Keyboard.KEY_R, categoryName),
 			showUses = new KeyBinding("key.jei.showUses", KeyConflictContext.GUI, Keyboard.KEY_U, categoryName),
@@ -52,6 +64,13 @@ public final class KeyBindings {
 			nextPage = new KeyBinding("key.jei.nextPage", KeyConflictContext.GUI, Keyboard.KEY_NEXT, categoryName),
 			previousCategory = new KeyBinding("key.hei.previousCategory", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_PRIOR, categoryName),
 			nextCategory = new KeyBinding("key.hei.nextCategory", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_NEXT, categoryName),
+			transferRecipeGui = new KeyBinding("key.jei.transferRecipeGui", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
+			maxTransferRecipeGui = new KeyBinding("key.jei.maxTransferRecipeGui", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
+			cheatOneItemToInventory = new KeyBinding("key.jei.cheatOneItemToInventory", KeyConflictContext.GUI, KeyModifier.ALT, -99, categoryName),
+			cheatItemStackToInventory = new KeyBinding("key.jei.cheatItemStackToInventory", KeyConflictContext.GUI, KeyModifier.ALT, -100, categoryName),
+			closeRecipeGui = new KeyBinding("key.jei.closeRecipeGui", KeyConflictContext.GUI, Keyboard.KEY_ESCAPE, categoryName),
+			copyRecipeId = new KeyBinding("key.jei.copy.recipe.id", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
+			pauseRecipeCycling = new KeyBinding("key.jei.pauseRecipeCycling", KeyConflictContext.GUI, Keyboard.KEY_LSHIFT, categoryName),
 			bookmark = new KeyBinding("key.jei.bookmark", KeyConflictContext.GUI, KeyModifier.NONE, Keyboard.KEY_A, categoryName),
 			bookmarkToTop = new KeyBinding("key.hei.bookmarkToTop", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_A, categoryName),
 			bookmarkNewGroup = new KeyBinding("key.hei.bookmarkNewGroup", KeyConflictContext.GUI, KeyModifier.CONTROL, Keyboard.KEY_A, categoryName),

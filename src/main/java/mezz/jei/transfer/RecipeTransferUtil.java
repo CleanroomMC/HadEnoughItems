@@ -24,7 +24,11 @@ public final class RecipeTransferUtil {
 
 	public static boolean transferRecipe(Container container, RecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer) {
 		IRecipeTransferError error = transferRecipe(container, recipeLayout, player, maxTransfer, true);
-		return error == null;
+		return allowsTransfer(error);
+	}
+
+	public static boolean allowsTransfer(@Nullable IRecipeTransferError error) {
+		return error == null || error.getType() == IRecipeTransferError.Type.COSMETIC;
 	}
 
 	@Nullable

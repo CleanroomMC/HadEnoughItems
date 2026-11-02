@@ -3,7 +3,9 @@ package mezz.jei.gui.ingredients;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiScreen;
+import mezz.jei.config.KeyBindings;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.client.settings.KeyModifier;
 
 public class CycleTimer {
 	/* the amount of time in ms to display one thing before cycling to the next one */
@@ -28,7 +30,11 @@ public class CycleTimer {
 	}
 
 	public void onDraw() {
-		if (!GuiScreen.isShiftKeyDown()) {
+		KeyBinding pauseKey = KeyBindings.pauseRecipeCycling;
+
+		// KeyBinding#isKeyDown is false for a modifier key bound alone
+		// KeyModifier.NONE rejects held modifiers in GUIs
+		if (!pauseKey.isKeyDown() && !KeyModifier.getActiveModifier().matches(pauseKey.getKeyCode())) {
 			if (pausedDuration > 0) {
 				startTime += pausedDuration;
 				pausedDuration = 0;

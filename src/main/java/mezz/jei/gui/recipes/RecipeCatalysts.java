@@ -61,7 +61,7 @@ public class RecipeCatalysts implements IShowsRecipeFocuses {
 		if (!ingredients.isEmpty()) {
 			int availableHeight = recipesGui.getYSize() - 8;
 			int borderHeight = (2 * borderSize) + (2 * ingredientBorderSize);
-			int maxIngredientsPerColumn = (availableHeight - borderHeight) / ingredientSize;
+			int maxIngredientsPerColumn = Math.max(1, (availableHeight - borderHeight) / ingredientSize);
 			int columnCount = MathUtil.divideCeil(ingredients.size(), maxIngredientsPerColumn);
 			maxIngredientsPerColumn = MathUtil.divideCeil(ingredients.size(), columnCount);
 

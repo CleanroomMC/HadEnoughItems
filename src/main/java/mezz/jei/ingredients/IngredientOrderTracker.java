@@ -10,6 +10,11 @@ public class IngredientOrderTracker {
 	private final Map<String, Integer> wildcardAddedOrder = new Object2IntOpenHashMap<>();
 	private int addedIndex = 0;
 
+	public void clear() {
+		wildcardAddedOrder.clear();
+		addedIndex = 0;
+	}
+
 	public <V> int getOrderIndex(V ingredient, IIngredientHelper<V> ingredientHelper) {
 		String uid = ingredientHelper.getWildcardId(ingredient);
 		if (wildcardAddedOrder.containsKey(uid)) {

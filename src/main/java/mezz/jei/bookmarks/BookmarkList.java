@@ -12,12 +12,12 @@ import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
 import mezz.jei.ingredients.IngredientRegistry;
 import mezz.jei.ingredients.group.CollapsedGroupIngredient;
 import mezz.jei.util.Log;
+import mezz.jei.util.PathUtil;
 import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -210,8 +210,8 @@ public class BookmarkList implements IIngredientGridSource {
 
 		File file = Config.getBookmarkFile();
 		if (file != null) {
-			try (FileWriter writer = new FileWriter(file)) {
-				IOUtils.writeLines(strings, "\n", writer);
+			try {
+				PathUtil.writeUsingTempFile(file.toPath(), strings);
 			} catch (IOException e) {
 				Log.get().error("Failed to save bookmarks list to file {}", file, e);
 			}

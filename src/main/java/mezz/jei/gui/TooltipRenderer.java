@@ -1,8 +1,12 @@
 package mezz.jei.gui;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import com.google.common.collect.Lists;
 import mezz.jei.render.IngredientListBatchRenderer;
+import mezz.jei.util.ErrorUtil;
+import mezz.jei.util.LimitedLogger;
+import mezz.jei.util.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
@@ -12,13 +16,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nullable;
 import java.awt.Rectangle;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class TooltipRenderer {
+	private static final LimitedLogger LIMITED_LOGGER = new LimitedLogger(Log.get(), Duration.ofSeconds(30));
+
 	private TooltipRenderer() {
 	}
 
@@ -47,6 +54,14 @@ public final class TooltipRenderer {
 	}
 
 	public static void drawHoveringText(ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, int maxWidth, FontRenderer font) {
+		drawHoveringText(itemStack, itemStack, minecraft, textLines, x, y, maxWidth, font);
+	}
+
+	public static <T> void drawHoveringText(T ingredient, ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, FontRenderer font) {
+		drawHoveringText(ingredient, itemStack, minecraft, textLines, x, y, -1, font);
+	}
+
+	private static void drawHoveringText(@Nullable Object ingredient, ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, int maxWidth, FontRenderer font) {
 		List<String> safeTextLines = null; // assume that null string almost never happens, so allocate lazily
         for (int i = 0, textLinesSize = textLines.size(); i < textLinesSize; i++) {
             String textLine = textLines.get(i);
@@ -54,15 +69,35 @@ public final class TooltipRenderer {
 				safeTextLines = new ArrayList<>(textLinesSize);
 				safeTextLines.addAll(textLines.subList(0, i));
             }
-			if (safeTextLines != null) {
+			if (safeTextLines != null && textLine != null) {
 				safeTextLines.add(textLine);
 			}
 		}
 		if (safeTextLines == null) {
 			safeTextLines = textLines;
 		}
+		if (safeTextLines.isEmpty()) {
+			return;
+		}
 		ScaledResolution scaledresolution = new ScaledResolution(minecraft);
-		GuiUtils.drawHoveringText(itemStack, safeTextLines, x, y, scaledresolution.getScaledWidth(), scaledresolution.getScaledHeight(), maxWidth, font);
+		try {
+			GuiUtils.drawHoveringText(itemStack, safeTextLines, x, y, scaledresolution.getScaledWidth(), scaledresolution.getScaledHeight(), maxWidth, font);
+		} catch (RuntimeException | LinkageError e) {
+			String stringTooltip = String.join("\n", safeTextLines);
+			String message = String.format("Failed to render tooltip for %s:\n%s", getIngredientInfo(ingredient), stringTooltip);
+			LIMITED_LOGGER.log(Level.ERROR, message, message, e);
+		}
+	}
+
+	private static String getIngredientInfo(@Nullable Object ingredient) {
+		if (ingredient == null || ingredient == ItemStack.EMPTY) {
+			return "HEI";
+		}
+		try {
+			return ErrorUtil.getIngredientInfo(ingredient);
+		} catch (RuntimeException | LinkageError e) {
+			return ingredient.getClass().getName();
+		}
 	}
 
 	public static void drawHoveringText(ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, int maxWidth) {
@@ -70,18 +105,18 @@ public final class TooltipRenderer {
 	}
 
 	public static void drawHoveringTextAndItems(Minecraft minecraft, List<String> textLines, List<IngredientListBatchRenderer> itemLines, int x, int y) {
-		drawHoveringTextAndItems(ItemStack.EMPTY, minecraft, textLines, itemLines, x, y, -1, minecraft.fontRenderer);
+		drawHoveringTextAndItems(ItemStack.EMPTY, minecraft, textLines, itemLines, x, y, -1, minecraft.fontRenderer, null);
 	}
 
 	/**
 	 * Draws the standard Minecraft tooltip, but allows extra {@link IngredientListBatchRenderer} lines
 	 * to be rendered as item grids below the text lines.
 	 *
-	 * @return the screen rectangle the tooltip occupies, or null if the tooltip was cancelled by
-	 *         {@link RenderTooltipEvent.Pre}.
+	 * @param postLayoutHook Accept the area tooltip occupies, or null if the tooltip was cancelled by
+	 *                       {@link RenderTooltipEvent.Pre}. This callback is called after layout
+	 *                       computation, but before rendering the tooltip
 	 */
-	@Nullable
-	public static Rectangle drawHoveringTextAndItems(ItemStack stack, Minecraft minecraft, List<String> lines, List<IngredientListBatchRenderer> itemLines, int mouseX, int mouseY, int maxTextWidth, FontRenderer font) {
+	public static void drawHoveringTextAndItems(ItemStack stack, Minecraft minecraft, List<String> lines, List<IngredientListBatchRenderer> itemLines, int mouseX, int mouseY, int maxTextWidth, FontRenderer font, @Nullable Consumer<Rectangle> postLayoutHook) {
 		// Almost a copy from GuiUtils.drawHoveringText, but also allowing IngredientListBatchRenderer lines.
 
 		ScaledResolution scaledresolution = new ScaledResolution(minecraft);
@@ -89,7 +124,7 @@ public final class TooltipRenderer {
 		int screenHeight = scaledresolution.getScaledHeight();
 		RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(stack, lines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
 		if (MinecraftForge.EVENT_BUS.post(event)) {
-			return null;
+			return;
 		}
 		mouseX = event.getX();
 		mouseY = event.getY();
@@ -193,6 +228,9 @@ public final class TooltipRenderer {
 		} else if (tooltipY + tooltipHeight + 4 > screenHeight) {
 			tooltipY = screenHeight - tooltipHeight - 4;
 		}
+		if (postLayoutHook != null) {
+			postLayoutHook.accept(new Rectangle(tooltipX, tooltipY, tooltipTextWidth, tooltipHeight));
+		}
 
 		final int zLevel = 300;
 		int backgroundColor = 0xF0100010;
@@ -215,7 +253,6 @@ public final class TooltipRenderer {
 
 		MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, lines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));
 		int tooltipTop = tooltipY;
-		Rectangle tooltipRect = new Rectangle(tooltipX, tooltipTop, tooltipTextWidth, tooltipHeight);
 
 		for (int lineNumber = 0; lineNumber < lines.size(); ++lineNumber) {
 			font.drawStringWithShadow(lines.get(lineNumber), (float) tooltipX, (float) tooltipY, -1);
@@ -254,7 +291,5 @@ public final class TooltipRenderer {
 		GlStateManager.enableDepth();
 		RenderHelper.enableStandardItemLighting();
 		GlStateManager.enableRescaleNormal();
-
-		return tooltipRect;
 	}
 }

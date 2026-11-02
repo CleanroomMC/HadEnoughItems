@@ -24,6 +24,7 @@ import mezz.jei.api.gui.IGhostIngredientHandler;
 import mezz.jei.api.gui.IGlobalGuiHandler;
 import mezz.jei.api.gui.IGuiScreenHandler;
 import mezz.jei.api.gui.ISlotIngredientProvider;
+import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IIngredientType;
@@ -210,11 +211,24 @@ public class ModRegistry implements IModRegistry, IRecipeCategoryRegistration {
 
 	@Override
 	public void addRecipeCatalyst(Object catalystIngredient, String... recipeCategoryUids) {
-		ErrorUtil.checkIsValidIngredient(catalystIngredient, "catalystIngredient");
+		ErrorUtil.checkNotNull(catalystIngredient, "catalystIngredient");
 		ErrorUtil.checkNotEmpty(recipeCategoryUids, "recipeCategoryUids");
-
 		for (String recipeCategoryUid : recipeCategoryUids) {
 			ErrorUtil.checkNotNull(recipeCategoryUid, "recipeCategoryUid");
+		}
+
+		try {
+			IIngredientHelper<Object> helper = ingredientRegistry.getIngredientHelper(catalystIngredient);
+			if (!helper.isValidIngredient(catalystIngredient) || !helper.isIngredientOnServer(catalystIngredient)) {
+				Log.get().warn("Skipping unavailable recipe catalyst of type {}", catalystIngredient.getClass().getName());
+				return;
+			}
+		} catch (RuntimeException | LinkageError e) {
+			Log.get().warn("Skipping broken recipe catalyst of type {}", catalystIngredient.getClass().getName(), e);
+			return;
+		}
+
+		for (String recipeCategoryUid : recipeCategoryUids) {
 			if (!Config.isRecipeCategoryDisabled(recipeCategoryUid)) {
 				this.recipeCatalysts.put(recipeCategoryUid, catalystIngredient);
 			}

@@ -10,6 +10,7 @@ import mezz.jei.util.StringUtil;
 import mezz.jei.util.Translator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PrefixInfo implements Comparable<PrefixInfo> {
 
@@ -18,7 +19,7 @@ public class PrefixInfo implements Comparable<PrefixInfo> {
     private static final Char2ObjectMap<PrefixInfo> instances = new Char2ObjectArrayMap<>(6);
 
     static {
-        NO_PREFIX = new PrefixInfo('\0', -1, true, "default", () -> Config.SearchMode.ENABLED, i -> Collections.singleton(Translator.toLowercaseWithLocale(i.getDisplayName())),
+        NO_PREFIX = new PrefixInfo('\0', -1, true, "default", () -> Config.SearchMode.ENABLED, i -> i.getNameStrings().stream().map(Translator::toLowercaseWithLocale).collect(Collectors.toList()),
                 false);
         addPrefix(new PrefixInfo('#', 0, true, false, "tooltip", Config::getTooltipSearchMode, IIngredientListElement::getTooltipStrings, false));
         addPrefix(new PrefixInfo('&', 1, false, "resource_id", Config::getResourceIdSearchMode,

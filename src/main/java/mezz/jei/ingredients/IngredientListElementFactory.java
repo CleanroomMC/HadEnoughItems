@@ -9,6 +9,7 @@ import net.minecraft.util.NonNullList;
 
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRegistry;
+import mezz.jei.util.StringUtil;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.recipe.IIngredientType;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -21,6 +22,8 @@ public final class IngredientListElementFactory {
 	}
 
 	public static NonNullList<IIngredientListElement> createBaseList(IIngredientRegistry ingredientRegistry, IModIdHelper modIdHelper) {
+		ORDER_TRACKER.clear();
+		StringUtil.clearInterner();
 		NonNullList<IIngredientListElement> ingredientListElements = NonNullList.create();
 
 		for (IIngredientType<?> ingredientType : ingredientRegistry.getRegisteredIngredientTypes()) {

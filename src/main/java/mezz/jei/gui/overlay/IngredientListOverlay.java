@@ -6,7 +6,6 @@ import mezz.jei.api.gui.IGuiProperties;
 import mezz.jei.config.Config;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.GuiScreenHelper;
-import mezz.jei.gui.elements.GuiIconToggleButton;
 import mezz.jei.gui.ghost.GhostIngredientDragManager;
 import mezz.jei.gui.ghost.IGhostIngredientDragSource;
 import mezz.jei.gui.ingredients.IIngredientListElement;
@@ -42,7 +41,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	}
 
 	private final IngredientFilter ingredientFilter;
-	private final GuiIconToggleButton configButton;
+	private final ConfigButton configButton;
 	private final IngredientGridWithNavigation contents;
 	private final GuiScreenHelper guiScreenHelper;
 	private final GuiTextFieldFilter searchField;
@@ -79,7 +78,23 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	}
 
 	public boolean isListDisplayed() {
+		return isSearchDisplayed() && !isListHiddenWhenNotSearching() && !ingredientFilter.getIngredientList().isEmpty();
+	}
+
+	public boolean isSearchDisplayed() {
 		return Config.isOverlayEnabled() && this.guiProperties != null && this.hasRoom;
+	}
+
+	boolean isListHiddenWhenNotSearching() {
+		return Config.isHideIngredientsWhenNotSearchingEnabled() && Config.getFilterText().codePoints().allMatch(Character::isWhitespace);
+	}
+
+	boolean hasRoom() {
+		return this.hasRoom;
+	}
+
+	private boolean isConfigButtonDisplayed() {
+		return Config.getConfigButtonPosition() != Config.ButtonPosition.HIDDEN && this.guiProperties != null;
 	}
 
 	private static Rectangle getDisplayArea(IGuiProperties guiProperties) {
@@ -91,7 +106,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	}
 
 	public void updateScreen(@Nullable GuiScreen guiScreen, boolean forceUpdate) {
-		final boolean wasDisplayed = isListDisplayed();
+		final boolean wasDisplayed = isSearchDisplayed();
 		IGuiProperties guiProperties = guiScreenHelper.getGuiProperties(guiScreen);
 		if (guiProperties == null) {
 			if (this.guiProperties != null) {
@@ -106,6 +121,11 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 				final boolean searchBarCentered = isSearchBarCentered(guiProperties);
 				final int searchHeight = searchBarCentered ? 0 : SEARCH_HEIGHT + BORDER_PADDING;
 
+				final Config.ButtonPosition buttonPosition = Config.getConfigButtonPosition();
+				int configButtonX = buttonPosition == Config.ButtonPosition.RIGHT ?
+					guiProperties.getScreenWidth() - BUTTON_SIZE - BORDER_PADDING : BORDER_PADDING;
+				int configButtonY = guiProperties.getScreenHeight() - BUTTON_SIZE - 2 * BORDER_PADDING;
+
 				Set<Rectangle> guiExclusionAreas = guiScreenHelper.getGuiExclusionAreas();
 				Rectangle availableContentsArea = new Rectangle(
 					displayArea.x,
@@ -116,39 +136,35 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 
 				hasRoom = this.contents.updateBounds(availableContentsArea, guiExclusionAreas, 4 * BUTTON_SIZE);
 
-				final int visibleButtonSize = Config.hideBottomRightCornerConfigButton() ? 0 : BUTTON_SIZE;
+				final int visibleButtonSize = buttonPosition == Config.ButtonPosition.HIDDEN ? 0 : BUTTON_SIZE;
 				Rectangle searchArea;
-				int configButtonX;
-				int configButtonY;
 				if (hasRoom) {
                     // update area to match contents size
 					Rectangle contentsArea = this.contents.getArea();
 					displayArea.x = contentsArea.x;
 					displayArea.width = contentsArea.width;
 
-					boolean centerSearchBar = searchBarCentered && isListDisplayed();
+					boolean centerSearchBar = searchBarCentered && isSearchDisplayed();
 					int searchX = centerSearchBar ? guiProperties.getGuiLeft() : displayArea.x;
 					int searchY = centerSearchBar ?
 						guiProperties.getScreenHeight() - SEARCH_HEIGHT - BORDER_PADDING :
 						displayArea.y + displayArea.height - SEARCH_HEIGHT - BORDER_PADDING;
 					int availableSearchWidth = centerSearchBar ? guiProperties.getGuiXSize() : displayArea.width;
+					if (buttonPosition == Config.ButtonPosition.RIGHT) {
+						availableSearchWidth = Math.max(0, availableSearchWidth - visibleButtonSize + 1);
+					}
 					searchArea = new Rectangle(
 						searchX,
 						searchY,
-						availableSearchWidth - visibleButtonSize + 1,
+						availableSearchWidth,
 						SEARCH_HEIGHT
 					);
-					configButtonX = searchArea.x + searchArea.width - 1;
-					configButtonY = searchArea.y;
+					if (buttonPosition == Config.ButtonPosition.RIGHT) {
+						configButtonX = searchArea.x + searchArea.width - 1;
+						configButtonY = searchArea.y;
+					}
 				} else {
 					searchArea = new Rectangle();
-					if (visibleButtonSize == 0) {
-						configButtonX = 0;
-						configButtonY = 0;
-					} else {
-						configButtonX = (int) Math.floor(displayArea.getMaxX()) - visibleButtonSize;
-						configButtonY = (int) Math.floor(displayArea.getMaxY()) - visibleButtonSize - BORDER_PADDING;
-					}
 				}
 				this.searchField.updateBounds(searchArea);
 				this.configButton.updateBounds(new Rectangle(
@@ -160,7 +176,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 				updateLayout(false);
 			}
 		}
-		if (wasDisplayed && !isListDisplayed()) {
+		if (wasDisplayed && !isSearchDisplayed()) {
 			Config.saveFilterText();
 		}
 	}
@@ -172,27 +188,25 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 
 	public void drawScreen(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
 		if (this.guiProperties != null) {
-			if (isListDisplayed()) {
+			if (isSearchDisplayed()) {
 				GlStateManager.disableLighting();
 				this.searchField.drawTextBox();
-				this.contents.draw(minecraft, mouseX, mouseY, partialTicks);
-                if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
-                    this.configButton.draw(minecraft, mouseX, mouseY, partialTicks);
-                }
-            } else if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
-                this.configButton.draw(minecraft, mouseX, mouseY, partialTicks);
-            }
+				if (isListDisplayed()) {
+					this.contents.draw(minecraft, mouseX, mouseY, partialTicks);
+				}
+			}
+			if (isConfigButtonDisplayed()) {
+				this.configButton.draw(minecraft, mouseX, mouseY, partialTicks);
+			}
 		}
 	}
 
 	public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
-		if (isListDisplayed()) {
-            if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
-                this.configButton.drawTooltips(minecraft, mouseX, mouseY);
-            }
-			this.contents.drawTooltips(minecraft, mouseX, mouseY);
-		} else if (this.guiProperties != null) {
+		if (isConfigButtonDisplayed()) {
 			this.configButton.drawTooltips(minecraft, mouseX, mouseY);
+		}
+		if (isListDisplayed()) {
+			this.contents.drawTooltips(minecraft, mouseX, mouseY);
 		}
 	}
 
@@ -201,7 +215,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	}
 
 	public void handleTick() {
-		if (this.isListDisplayed()) {
+		if (isSearchDisplayed()) {
 			this.searchField.updateCursorCounter();
 		}
 	}
@@ -211,19 +225,20 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 		if (guiScreenHelper.isInGuiExclusionArea(mouseX, mouseY)) {
 			return false;
 		}
+		if (isConfigButtonDisplayed() && this.configButton.isMouseOver(mouseX, mouseY)) {
+			return true;
+		}
+		if (isSearchDisplayed() && searchField.isMouseOver(mouseX, mouseY)) {
+			return true;
+		}
 		if (isListDisplayed()) {
-			if (Config.isCenterSearchBarEnabled() && searchField.isMouseOver(mouseX, mouseY)) {
-				return true;
-			}
 			return displayArea.contains(mouseX, mouseY);
-		} else if (this.guiProperties != null) {
-			return this.configButton.isMouseOver(mouseX, mouseY);
 		}
 		return false;
 	}
 
 	public boolean isMouseOverSearchField(int mouseX, int mouseY) {
-		return isListDisplayed() && this.searchField.isMouseOver(mouseX, mouseY);
+		return isSearchDisplayed() && this.searchField.isMouseOver(mouseX, mouseY);
 	}
 
 	@Override
@@ -246,19 +261,19 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 
 	@Override
 	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (isListDisplayed()) {
-            if (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled()) {
-                if (this.configButton.handleMouseClick(mouseX, mouseY)) {
-                    return true;
-                }
-            }
-
+		if (isConfigButtonDisplayed() && configButton.handleKeyPressed(mouseButton - 100)) {
+			return true;
+		}
+		if (isConfigButtonDisplayed() && this.configButton.handleMouseClick(mouseX, mouseY)) {
+			return true;
+		}
+		if (isSearchDisplayed()) {
 			if (!isMouseOver(mouseX, mouseY)) {
 				setKeyboardFocus(false);
 				return false;
 			}
 
-			if (this.contents.handleMouseClicked(mouseX, mouseY, mouseButton)) {
+			if (isListDisplayed() && this.contents.handleMouseClicked(mouseX, mouseY, mouseButton)) {
 				setKeyboardFocus(false);
 				return true;
 			}
@@ -293,10 +308,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 					}
 				}
 			}
-        } else if (this.guiProperties != null
-                && (!Config.hideBottomRightCornerConfigButton() || Config.isCenterSearchBarEnabled())) {
-            return this.configButton.handleMouseClick(mouseX, mouseY);
-        }
+		}
 		return false;
 	}
 
@@ -309,7 +321,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 
 	@Override
 	public boolean hasKeyboardFocus() {
-		return isListDisplayed() && this.searchField.isFocused();
+		return isSearchDisplayed() && this.searchField.isFocused();
 	}
 
 	public void setKeyboardFocus(boolean keyboardFocus) {
@@ -317,7 +329,10 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	}
 
 	public boolean onGlobalKeyPressed(int eventKey) {
-		if (isListDisplayed()) {
+		if (isConfigButtonDisplayed() && configButton.handleKeyPressed(eventKey)) {
+			return true;
+		}
+		if (isSearchDisplayed()) {
 			if (KeyBindings.toggleCheatMode.isActiveAndMatches(eventKey)) {
 				Config.toggleCheatItemsEnabled();
 				return true;
@@ -335,7 +350,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 	}
 
 	public boolean onKeyPressed(char typedChar, int eventKey) {
-		if (isListDisplayed()) {
+		if (isSearchDisplayed()) {
 			if (hasKeyboardFocus() &&
 				searchField.textboxKeyTyped(typedChar, eventKey)) {
 				boolean changed = Config.setFilterText(searchField.getText());
@@ -344,7 +359,7 @@ public class IngredientListOverlay implements IIngredientListOverlay, IMouseHand
 				}
 				return true;
 			}
-			return this.contents.onKeyPressed(typedChar, eventKey);
+			return isListDisplayed() && this.contents.onKeyPressed(typedChar, eventKey);
 		}
 		return false;
 	}

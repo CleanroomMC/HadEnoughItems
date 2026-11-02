@@ -2,7 +2,9 @@ package mezz.jei.bookmarks;
 
 import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.recipe.IFocus;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -14,6 +16,12 @@ public class BookmarkIngredientHelper implements IIngredientHelper<BookmarkItem>
 	@Override
 	public BookmarkItem getMatch(Iterable<BookmarkItem> ingredients, BookmarkItem ingredientToMatch) {
 		return null;
+	}
+
+	@Override
+	public IFocus<?> translateFocus(IFocus<BookmarkItem> focus, IFocusFactory focusFactory) {
+		Object ingredient = focus.getValue().getIngredient();
+		return getIngredientHelper(ingredient).translateFocus(focusFactory.createFocus(focus.getMode(), ingredient), focusFactory);
 	}
 
 	@Override
@@ -54,6 +62,11 @@ public class BookmarkIngredientHelper implements IIngredientHelper<BookmarkItem>
 	@Override
 	public String getResourceId(BookmarkItem ingredient) {
 		return getIngredientHelper(ingredient.getIngredient()).getResourceId(ingredient.getIngredient());
+	}
+
+	@Override
+	public ResourceLocation getResourceLocation(BookmarkItem ingredient) {
+		return getIngredientHelper(ingredient.getIngredient()).getResourceLocation(ingredient.getIngredient());
 	}
 
 	@Override

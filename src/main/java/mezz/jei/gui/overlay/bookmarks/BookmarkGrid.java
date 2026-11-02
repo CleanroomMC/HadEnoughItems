@@ -6,14 +6,13 @@ import mezz.jei.config.Config;
 import mezz.jei.gui.overlay.GridAlignment;
 import mezz.jei.gui.overlay.IngredientGrid;
 import mezz.jei.gui.overlay.bookmarks.group.BookmarkGroupOrganizer;
+import mezz.jei.ingredients.group.CollapsibleGroupRegistry;
 import mezz.jei.render.BookmarkListBatchRenderer;
 import mezz.jei.render.CollapsedGroupRenderer;
 import mezz.jei.render.IngredientListBatchRenderer;
 import mezz.jei.render.IngredientListSlot;
 import mezz.jei.render.IngredientRenderer;
-import mezz.jei.util.CollapsedClickAction;
 import mezz.jei.util.MathUtil;
-import net.minecraft.client.gui.GuiScreen;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -68,7 +67,8 @@ public class BookmarkGrid extends IngredientGrid {
 		this.area = new Rectangle(x, y, width, height);
 		boolean hasFreeSlot = false;
 
-		for (int row = 0; row < rows; row++) {
+		final int ingredientRows = updateHistoryBounds(columns, rows, xOffset, y, exclusionAreas);
+		for (int row = 0; row < ingredientRows; row++) {
 			int y1 = y + (row * INGREDIENT_HEIGHT);
 			List<IngredientListSlot> ingredientRow = new ArrayList<>();
 			for (int column = 0; column < columns; column++) {
@@ -92,6 +92,11 @@ public class BookmarkGrid extends IngredientGrid {
 	}
 
 	@Override
+	protected boolean showsHistory() {
+		return Config.getHistoryPosition() == Config.HistoryPosition.LEFT;
+	}
+
+	@Override
 	public Rectangle getArea() {
 		return area;
 	}
@@ -106,12 +111,9 @@ public class BookmarkGrid extends IngredientGrid {
 	}
 
 	@Override
-	protected boolean handleCollapsedGroupClicked(int mouseX, int mouseY) {
+	protected boolean handleCollapsedGroupClicked(int mouseX, int mouseY, int mouseButton) {
 		BookmarkListBatchRenderer renderer = (BookmarkListBatchRenderer) guiIngredientSlots;
-		boolean firstItemMode = Config.getCollapsedClickAction() == CollapsedClickAction.FIRST_ITEM;
-		boolean altDown = GuiScreen.isAltKeyDown();
-		boolean expandKeyDown = firstItemMode == altDown;
-		if (expandKeyDown) {
+		if (CollapsibleGroupRegistry.isExpandClick(mouseButton)) {
 			CollapsedGroupRenderer collapsedHovered = renderer.getHoveredCollapsed(mouseX, mouseY);
 			if (collapsedHovered != null) {
 				BookmarkItem item = renderer.getBookmarkItemForRenderer(collapsedHovered);
@@ -121,7 +123,7 @@ public class BookmarkGrid extends IngredientGrid {
 				}
 			}
 		}
-		if (altDown) {
+		if (CollapsibleGroupRegistry.isCollapseClick(mouseButton)) {
 			IngredientRenderer<?> hovered = renderer.getHovered(mouseX, mouseY);
 			if (hovered != null) {
 				BookmarkItem item = renderer.getBookmarkItemForExpandedElement(hovered.getElement());

@@ -232,6 +232,11 @@ public class BookmarkItem<I> {
 		}
 	}
 
+	@Nullable
+	public static Object unwrap(@Nullable Object ingredient) {
+		return ingredient instanceof BookmarkItem ? ((BookmarkItem<?>) ingredient).getIngredient() : ingredient;
+	}
+
 	public I getIngredient() {
 		return ingredient;
 	}

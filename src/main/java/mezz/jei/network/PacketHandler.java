@@ -1,7 +1,6 @@
 package mezz.jei.network;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.EnumMap;
 
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -44,22 +43,31 @@ public class PacketHandler {
 			PacketIdServer packetId = PacketIdServer.VALUES[packetIdOrdinal];
 			IPacketJeiHandler packetHandler = serverHandlers.get(packetId);
 			checkThreadAndEnqueue(packetHandler, packetBuffer, player, player.getServer());
-		} catch (RuntimeException ex) {
+		} catch (Throwable ex) {
 			Log.get().error("Packet error", ex);
 		}
 	}
 
 	private static void checkThreadAndEnqueue(IPacketJeiHandler packetHandler, PacketBuffer packetBuffer, EntityPlayer player, @Nullable IThreadListener threadListener) {
 		if (threadListener != null && !threadListener.isCallingFromMinecraftThread()) {
+			packetBuffer.retain();
 			threadListener.addScheduledTask(() -> {
 				try {
-					packetHandler.readPacketData(packetBuffer, player);
-				} catch (IOException e) {
-					Log.get().error("Network Error", e);
+					handlePacket(packetHandler, packetBuffer, player);
 				} finally {
-                    packetBuffer.release();
-                }
+					packetBuffer.release();
+				}
 			});
+		} else {
+			handlePacket(packetHandler, packetBuffer, player);
+		}
+	}
+
+	private static void handlePacket(IPacketJeiHandler packetHandler, PacketBuffer packetBuffer, EntityPlayer player) {
+		try {
+			packetHandler.readPacketData(packetBuffer, player);
+		} catch (Throwable e) {
+			Log.get().error("Network Error", e);
 		}
 	}
 }

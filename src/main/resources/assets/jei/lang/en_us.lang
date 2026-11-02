@@ -6,6 +6,8 @@ jei.tooltip.delete.item=Click to Delete
 jei.tooltip.liquid.amount.with.capacity=%,d / %,d mB
 jei.tooltip.liquid.amount=%,d mB
 jei.tooltip.transfer=Move Items
+jei.tooltip.transfer.key=[%s to craft one]
+jei.tooltip.transfer.max.key=[%s to craft many]
 jei.tooltip.recipe.ore.dict=Accepts any: %s
 jei.tooltip.item.colors=Colors: %s
 jei.tooltip.shapeless.recipe=Shapeless Recipe
@@ -15,6 +17,8 @@ jei.tooltip.cheat.mode.how.to.disable.no.hotkey=%s-click here to toggle it.
 jei.tooltip.recipe.by=Recipe By: %s
 jei.tooltip.recipe.id=Recipe ID: %s
 jei.tooltip.not.enough.space=There is not enough space to display HEI here.
+jei.tooltip.ingredient.list.hidden.when.not.searching=Ingredients are hidden until you search.
+jei.tooltip.ingredient.list.show.always.hotkey=Press %s over this button to always show ingredients.
 jei.tooltip.ingredient.list.disabled=The HEI overlay is disabled.
 jei.tooltip.ingredient.list.disabled.how.to.fix=Press %s to enable it.
 jei.tooltip.bookmarks=HEI Bookmarks
@@ -23,9 +27,9 @@ jei.tooltip.bookmarks.usage.key=Hover over an ingredient and press "%s" to bookm
 jei.tooltip.bookmarks.not.enough.space=There is not enough space to display bookmarks here.
 
 # Collapsible Groups
-hei.tooltip.collapsed.expand=Alt+Click to Expand
+hei.tooltip.collapsed.expand=Alt+Middle Click to Expand
 hei.tooltip.collapsed.expand.firstItem=Alt+Click for First Item
-hei.tooltip.collapsed.collapse=Alt+Click to Collapse
+hei.tooltip.collapsed.collapse=Alt+Middle Click to Collapse
 hei.tooltip.config.expandCollapseAll=Alt+Click Toggle Groups
 
 # Error Tooltips
@@ -40,6 +44,7 @@ jei.tooltip.error.crash=Tooltip error, see log
 jei.chat.error.command.too.long=HEI must be on the server to handle this Chat Command, it is too long for Minecraft to send.
 jei.chat.error.no.cheat.permission.1=You do not have permission to use HEI's Cheat Mode.
 jei.chat.error.no.cheat.permission.2=Permission is given to players who can /give items or are in Creative Mode.
+hei.chat.warning.reload=HEI was reloaded. Third-party plugins may leak memory on reload, restart the game if memory use keeps growing.
 
 # Key Bindings
 key.jei.toggleOverlay=Show/Hide HEI
@@ -61,6 +66,19 @@ key.hei.toggleBookmarkOverlay=Show/Hide Bookmarked Ingredients
 key.hei.crafting=Autocraft Bookmarked Recipe
 key.hei.moveGroupUp=Move Bookmark Group Up
 key.hei.moveGroupDown=Move Bookmark Group Down
+key.jei.toggleCheatModeConfigButton=Toggle Cheat Mode (Config Button)
+key.jei.toggleHideIngredientsWhenNotSearching=Toggle Hide Ingredients When Not Searching (Config Button)
+key.jei.transferRecipeGui=Craft Hovered Recipe (One)
+key.jei.maxTransferRecipeGui=Craft Hovered Recipe (Many)
+key.jei.cheatOneItemToInventory=Cheat One Item to Inventory
+key.jei.cheatItemStackToInventory=Cheat One Stack to Inventory
+key.jei.closeRecipeGui=Close Recipes GUI
+key.jei.copy.recipe.id=Copy Recipe ID to Clipboard
+key.jei.pauseRecipeCycling=Pause Recipe Cycling
+
+# Messages
+jei.message.copy.recipe.id.success=The following recipe ID was copied to the clipboard: %s
+jei.message.copy.recipe.id.failure=Failed to copy the recipe ID to the clipboard because the ID is unknown
 
 # Config
 config.jei.default=Default
@@ -111,6 +129,8 @@ config.jei.advanced.debugModeEnabled=Debug Mode
 config.jei.advanced.debugModeEnabled.comment=Only useful for HEI developers, adds test ingredients and some debug recipes.
 config.jei.advanced.centerSearchBarEnabled=Center Search Bar
 config.jei.advanced.centerSearchBarEnabled.comment=Move the HEI search bar to the bottom center of the screen.
+config.jei.advanced.hideIngredientsWhenNotSearching=Hide Ingredients When Not Searching
+config.jei.advanced.hideIngredientsWhenNotSearching.comment=Hide the ingredient list until a search is entered. The search field remains available.
 config.jei.advanced.modNameFormat=Mod Name Format
 config.jei.advanced.modNameFormat.comment=How the mod name should be formatted in the tooltip for HEI GUIs. Leave blank to disable.
 config.jei.advanced.maxColumns=Max Overlay Width
@@ -161,6 +181,11 @@ config.jei.misc.comment=Miscellaneous config options
 config.jei.search.searchAdvancedTooltips=Search Advanced Tooltips
 config.jei.search.searchAdvancedTooltips.comment=Includes advanced tooltips in search trees [WILL RELOAD SEARCH TREES]
 
+config.jei.searchColors=Search Colors
+config.jei.searchColors.comment=Config options related to searching for colors of items in HEI.
+config.jei.searchColors.searchColors=Search Colors
+config.jei.searchColors.searchColors.comment=Color values to search for.
+
 config.jei.search.searchStrippedDiacritics=Search Stripped Diacritics
 config.jei.search.searchStrippedDiacritics.comment=Includes stripped diacritics version of strings in search trees [WILL RELOAD SEARCH TREES]
 
@@ -194,11 +219,20 @@ config.jei.rendering.bufferIngredientRenders.comment=Stops extremely frequent in
 config.jei.interface.defaultFluidContainerItem=Default Fluid Container Item
 config.jei.interface.defaultFluidContainerItem.comment=Default item to use to fill up fluids when clicking on a fluid ingredient in the menu, (format: item_name@meta)
 
-config.jei.misc.hideBottomRightCornerConfigButton=Hide Bottom-Right Corner Config Button
-config.jei.misc.hideBottomRightCornerConfigButton.comment=Whether to hide the bottom-right corner config button
+config.jei.misc.configButtonPosition=Config Button Position
+config.jei.misc.configButtonPosition.comment=Where to place the config button. Left, Right, or Hidden.
 
 config.jei.misc.hideBottomLeftCornerBookmarkButton=Hide Bottom-Left Corner Bookmark Button
 config.jei.misc.hideBottomLeftCornerBookmarkButton.comment=Whether to hide the bottom-left corner bookmark button
+
+config.jei.misc.historyPosition=History Position
+config.jei.misc.historyPosition.comment=Where to show the ingredients you last looked up. Left is under the bookmarks, Right is under the ingredient list, or Hidden.
+
+config.hei.misc.historyRows=History Rows
+config.hei.misc.historyRows.comment=How many rows the history takes from the bottom of its list.
+
+config.hei.misc.historyMatchNbt=History Matches NBT
+config.hei.misc.historyMatchNbt.comment=Keep ingredients that only differ by NBT as separate history entries.
 
 config.hei.collapsible=Collapsible Groups
 config.hei.collapsible.comment=Options for collapsing groups of ingredients into a single slot in the ingredient list.
@@ -207,7 +241,7 @@ config.hei.collapsible.collapsibleGroupsEnabled.comment=When enabled, groups of 
 config.hei.collapsible.collapseOnClose=Collapse on Close
 config.hei.collapsible.collapseOnClose.comment=Collapse currently opened groups when HEI is closed.
 config.hei.collapsible.collapsedClickAction=Default Collapsed Action
-config.hei.collapsible.collapsedClickAction.comment=Swaps the single click action, The other option becomes the Alt+Click action. Open Group opens the group. First Item applies the action to the first item in the group.
+config.hei.collapsible.collapsedClickAction.comment=Swaps the single click action. Open Group opens the group, and Alt+Click applies the action to the first item. First Item applies the action to the first item, and Alt+Middle Click opens the group.
 config.hei.collapsible.collapsedClickAction.OPEN_GROUP=Open Group
 config.hei.collapsible.collapsedClickAction.FIRST_ITEM=First Item
 
@@ -232,7 +266,8 @@ hei.tooltip.recipe.ingredient_pin=§7Hold §fSHIFT§7 to pin this tooltip
 hei.tooltip.press_alt=§7Press §fALT§7 to see Actions
 hei.tooltip.organizer.1=§6CTRL + LEFT CLICK§7: Move Bookmarks Between Groups
 hei.tooltip.organizer.2=§6%s§r or §6%s§7: Move Group Up or Down
-hei.tooltip.organizer.5=§6%s§7 on this tab: Delete Group
+hei.tooltip.organizer.5=§6%s§7 twice on this tab: Delete Group
+hei.tooltip.organizer.confirm_delete=§cPress §f%s§c again to delete this group
 hei.tooltip.organizer.3=§6CTRL + SCROLL§7: Change Final Output
 hei.tooltip.organizer.4=§6%s§7: Autocraft
 

@@ -14,6 +14,7 @@ public class ConfigValues {
 	// advanced
 	public boolean debugModeEnabled = false;
 	public boolean centerSearchBarEnabled = false;
+	public boolean hideIngredientsWhenNotSearching = false;
 	public boolean ultraLowMemoryUsage = false;
 	public boolean asyncSearchTreeBuilding = true;
 	public boolean addBookmarksToFront = false;
@@ -53,8 +54,11 @@ public class ConfigValues {
 	public boolean recipeIngredientPreviewEnabled = true;
 	public boolean showHiddenIngredientsInCreative = false;
 	public boolean skipShowingProgressBar = false;
-	public boolean hideBottomRightCornerConfigButton = false;
+	public Config.ButtonPosition configButtonPosition = Config.ButtonPosition.RIGHT;
     public boolean hideBottomLeftCornerBookmarkButton = false;
+	public Config.HistoryPosition historyPosition = Config.HistoryPosition.RIGHT;
+	public int historyRows = 2;
+	public boolean historyMatchNbt = true;
 
 	// category
 	public List<String> categoryUidOrder = new ArrayList<>();
