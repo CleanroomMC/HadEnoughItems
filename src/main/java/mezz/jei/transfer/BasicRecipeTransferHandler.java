@@ -15,6 +15,7 @@ import mezz.jei.util.Translator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -24,7 +25,8 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeC
 	private final StackHelper stackHelper;
 	private final IRecipeTransferHandlerHelper handlerHelper;
 	private final IRecipeTransferInfo<C> transferHelper;
-	private int outputSlotOverride = -1;
+	@Nullable
+	private Integer outputSlotOverride = null;
 
 	public BasicRecipeTransferHandler(StackHelper stackHelper, IRecipeTransferHandlerHelper handlerHelper, IRecipeTransferInfo<C> transferHelper) {
 		this.stackHelper = stackHelper;
@@ -138,7 +140,17 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeC
 		IntList inventorySlotIndexes = new IntArrayList(inventorySlots.keySet());
 		Collections.sort(inventorySlotIndexes);
 
-		int outputSlot = outputSlotOverride >= 0 ? outputSlotOverride : transferHelper.getOutputSlot();
+		int outputSlot;
+		if (this.outputSlotOverride != null) {
+			outputSlot = this.outputSlotOverride;
+		} else {
+			outputSlot = transferHelper.getOutputSlot();
+			if (outputSlot < 0) {
+				// In most workbench-like containers, output slot is an instance of SlotCrafting.
+				// So we can assume that, if there's only one SlotCrafting instance, the slot handles output.
+				outputSlot = findOneCraftingOutputSlot(container);
+			}
+		}
 
 		// check that the slots exist and can be altered
 		for (Int2IntMap.Entry entry : matchingItemsResult.matchingItemsCasted.int2IntEntrySet()) {
@@ -168,5 +180,22 @@ public class BasicRecipeTransferHandler<C extends Container> implements IRecipeC
 	@Override
 	public IRecipeTransferError craft(C container, IRecipeLayout recipeLayout, EntityPlayer player, int amount, boolean doTransfer) {
 		return this.transferRecipe(container, recipeLayout, player, amount, true, doTransfer);
+	}
+
+	/**
+	 * @return the index of the only {@link SlotCrafting} in the container, or -1 if there is none
+	 * or more than one (in which case guessing would be unsafe)
+	 */
+	private static int findOneCraftingOutputSlot(Container container) {
+		int outputSlot = -1;
+		for (Slot slot : container.inventorySlots) {
+			if (slot instanceof SlotCrafting) {
+				if (outputSlot >= 0) { // more than one match
+					return -1;
+				}
+				outputSlot = slot.slotNumber;
+			}
+		}
+		return outputSlot;
 	}
 }
