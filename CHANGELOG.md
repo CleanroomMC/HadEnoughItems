@@ -1,5 +1,21 @@
 # Changelog
 
+## 4.38.0 - 2026-11-13
+
+## Bug Fix
+
+- Guard against extremely invalid RecipesGui dimensions *[commit by [@Rongmario](https://github.com/Rongmario) in [38d06a1](https://github.com/CleanroomMC/HadEnoughItems/commit/38d06a1272343e56c5f5bc9eb5c77738f8350187)]*
+- Disable candidate tooltip and `+` marker when ingredient preview config is disabled *[PR by [@ZZZank](https://github.com/ZZZank) in [#272](https://github.com/CleanroomMC/HadEnoughItems/pull/272)]*
+- Complex item (stair, tank) rendering in tooltip preview *[PR by [@ZZZank](https://github.com/ZZZank) in [#276](https://github.com/CleanroomMC/HadEnoughItems/pull/276)]*
+
+## Refactor
+
+- **render**: Improvements on buffering ingredients *[commit by [@Rongmario](https://github.com/Rongmario) in [a17b607](https://github.com/CleanroomMC/HadEnoughItems/commit/a17b60725c06162b8ac4fb24b8eb6bf4b4051d18)]*
+- Draw `+` marker at top-right instead of bottom-right *[PR by [@ZZZank](https://github.com/ZZZank) in [#273](https://github.com/CleanroomMC/HadEnoughItems/pull/273)]*
+- Generalized autocrafting support for workbench-like containers *[PR by [@ZZZank](https://github.com/ZZZank) in [#274](https://github.com/CleanroomMC/HadEnoughItems/pull/274)]*
+
+**Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/4.37.3...4.38.0
+
 ## 4.37.3 - 2026-11-02
 
 ## Feature
@@ -3098,7 +3114,7 @@
 
 - Show red "Cheat Mode" text on Config-Wrench tooltip when enabled *[commit by [@mezz](https://github.com/mezz) in [1eec8e4](https://github.com/CleanroomMC/HadEnoughItems/commit/1eec8e45043732dfaf5cb6b0ef8129820600c460)]*
 - Fix #274 only reload when necessary (not when toggling cheat mode) *[commit by [@mezz](https://github.com/mezz) in [577087b](https://github.com/CleanroomMC/HadEnoughItems/commit/577087bc93cce7b93142b47ad31e19d408d22810)]*
-    *[Fixes issue #274]*
+    *[Fixes issue #274 by @ZZZank]*
 
 **Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/v3.4.1...v3.4.2
 
