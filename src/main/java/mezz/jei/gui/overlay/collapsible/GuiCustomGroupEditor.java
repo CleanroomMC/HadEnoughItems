@@ -8,6 +8,7 @@ import mezz.jei.config.CustomGroupsConfig;
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.IngredientFilter;
 import mezz.jei.ingredients.group.CollapsedGroupIngredient;
+import mezz.jei.ingredients.group.CollapsibleGroup;
 import mezz.jei.util.Translator;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -90,11 +91,14 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	// Maps each right-panel element to its stored UID (exact or wildcard ending in ":*")
 	private final Map<IIngredientListElement<?>, String> selectedStackToStoredUid = new HashMap<>();
 
-	// Index of OTHER custom groups — used to tint items that already belong to a different group.
+	// Index of OTHER groups (any source: DEFAULT, MOD, CUSTOM) — used to tint items that already belong to a different group.
 	// Built once in initGui(); key = exact UID, value = list of display names.
 	private Map<String, List<String>> otherGroupExactUids = new HashMap<>();
 	// [prefix, displayName] pairs for wildcard entries in other groups
 	private List<String[]> otherGroupWildcardPrefixes = new ArrayList<>();
+	// Pre-computed set of UIDs (from filteredItems) that belong to another group — used for O(1)
+	// per-slot lookup in drawLeftGrid() instead of calling getOtherGroupNames() every frame.
+	private Set<String> otherGroupUidCache = new HashSet<>();
 
 	// Drag-select state
 	private boolean isDragging = false;
@@ -219,17 +223,19 @@ public class GuiCustomGroupEditor extends GuiScreen {
 	}
 
 	/**
-	 * Builds a reverse index of all other custom groups for fast membership lookup
+	 * Builds a reverse index of all other groups (DEFAULT, MOD, and CUSTOM) for fast membership lookup.
 	 */
 	private void buildOtherGroupIndex() {
 		otherGroupExactUids.clear();
 		otherGroupWildcardPrefixes.clear();
-		CustomGroupsConfig cfg = Config.getCustomGroupsConfig();
-		if (cfg == null) return;
-		for (CustomGroupsConfig.CustomGroup g : cfg.getCustomGroups()) {
-			if (g.id.equals(group.id) || g.itemUids == null) continue;
-			String name = (g.displayName != null && !g.displayName.isEmpty()) ? g.displayName : g.id;
-			for (String uid : g.itemUids) {
+		otherGroupUidCache.clear();
+		Map<String, CollapsibleGroup> allGroups = Internal.getCollapsedGroupRegistry().getAllGroups();
+		for (Map.Entry<String, CollapsibleGroup> entry : allGroups.entrySet()) {
+			if (entry.getKey().equals(group.id)) continue;
+			CollapsedGroupIngredient ingredient = entry.getValue().getIngredient();
+			String name = ingredient.getDisplayName();
+			if (name == null || name.isEmpty()) name = entry.getKey();
+			for (String uid : ingredient.getUids()) {
 				if (uid.endsWith(":*")) {
 					otherGroupWildcardPrefixes.add(new String[]{uid.substring(0, uid.length() - 2), name});
 				} else {
@@ -237,13 +243,31 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				}
 			}
 		}
+		rebuildOtherGroupUidCache();
 	}
 
-	/** Returns the names of other custom groups that contain the given normal UID, or an empty list. */
+	private void rebuildOtherGroupUidCache() {
+		otherGroupUidCache.clear();
+		for (IIngredientListElement element : filteredItems) {
+			String uid = getIngredientUid(element.getIngredient());
+			if (!otherGroupExactUids.isEmpty() && otherGroupExactUids.containsKey(uid)) {
+				otherGroupUidCache.add(uid);
+			} else {
+				for (String[] entry : otherGroupWildcardPrefixes) {
+					if (uid.startsWith(entry[0]) &&
+							(uid.length() == entry[0].length() || uid.charAt(entry[0].length()) == ':')) {
+						otherGroupUidCache.add(uid);
+						break;
+					}
+				}
+			}
+		}
+	}
 	private List<String> getOtherGroupNames(String normalUid) {
 		List<String> names = new ArrayList<>(otherGroupExactUids.getOrDefault(normalUid, Collections.emptyList()));
 		for (String[] entry : otherGroupWildcardPrefixes) {
-			if (normalUid.equals(entry[0]) || normalUid.startsWith(entry[0] + ":")) {
+			if (normalUid.startsWith(entry[0]) &&
+					(normalUid.length() == entry[0].length() || normalUid.charAt(entry[0].length()) == ':')) {
 				names.add(entry[1]);
 			}
 		}
@@ -345,6 +369,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 		if (leftPage >= leftTotalPages) {
 			leftPage = leftTotalPages - 1;
 		}
+		rebuildOtherGroupUidCache();
 	}
 
 	private void updateSelectedStacks() {
@@ -443,7 +468,6 @@ public class GuiCustomGroupEditor extends GuiScreen {
 				filter.notifyListenersOfChange();
 			}
 		}
-		parentScreen.onEditorClosed();
 		this.mc.displayGuiScreen(parentScreen);
 	}
 
@@ -560,7 +584,7 @@ public class GuiCustomGroupEditor extends GuiScreen {
 
 			// Orange tint if this item belongs to another custom group
 			String uid = getIngredientUid(ingredient);
-			if (!getOtherGroupNames(uid).isEmpty()) {
+			if (otherGroupUidCache.contains(uid)) {
 				RenderHelper.disableStandardItemLighting();
 				GlStateManager.disableDepth();
 				GlStateManager.colorMask(true, true, true, false);
