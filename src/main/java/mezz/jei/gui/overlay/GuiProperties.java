@@ -39,6 +39,9 @@ public class GuiProperties implements IGuiProperties {
 
 	@Nullable
 	public static GuiProperties create(RecipesGui recipesGui) {
+		if (recipesGui.width == 0 || recipesGui.height == 0) {
+			return null;
+		}
 		int extraWidth = recipesGui.getRecipeCatalystExtraWidth();
 		return create(
 			recipesGui.getClass(),
