@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
 
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraft.client.Minecraft;
@@ -12,14 +13,22 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.enchantment.EnchantmentData;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fluids.FluidStack;
 
 import com.google.common.base.Joiner;
 import mezz.jei.Internal;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRenderer;
+import mezz.jei.bookmarks.BookmarkItem;
 import mezz.jei.color.ColorNamer;
 import mezz.jei.config.Config;
 import mezz.jei.config.Constants;
@@ -34,13 +43,70 @@ public class IngredientRenderer<T> {
 	private static final int BLACKLIST_COLOR = Color.red.getRGB();
 	private static final Rectangle DEFAULT_AREA = new Rectangle(0, 0, 16, 16);
 
+	static boolean isAnimated(Object ingredient) {
+		ingredient = BookmarkItem.unwrap(ingredient);
+
+		if (ingredient instanceof EnchantmentData) {
+			return true;
+		}
+
+		Minecraft minecraft = Minecraft.getMinecraft();
+		if (ingredient instanceof ItemStack) {
+			ItemStack itemStack = (ItemStack) ingredient;
+			if (itemStack.hasEffect()) {
+				return true;
+			}
+			IBakedModel model = minecraft.getRenderItem().getItemModelWithOverrides(itemStack, null, null);
+			if (hasAnimatedSprite(model.getQuads(null, null, 0L))) {
+				return true;
+			}
+			for (EnumFacing facing : EnumFacing.VALUES) {
+				if (hasAnimatedSprite(model.getQuads(null, facing, 0L))) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+        // Fluids tend to be animated
+		if (ingredient instanceof FluidStack) {
+			FluidStack fluidStack = (FluidStack) ingredient;
+			ResourceLocation still = fluidStack.getFluid().getStill(fluidStack);
+			return still != null && minecraft.getTextureMapBlocks().getAtlasSprite(still.toString()).getFrameCount() > 1;
+		}
+
+		return false;
+	}
+
+	private static boolean hasAnimatedSprite(@Nullable List<BakedQuad> quads) {
+		if (quads == null) {
+			return false;
+		}
+		for (BakedQuad quad : quads) {
+			TextureAtlasSprite sprite = quad.getSprite();
+			if (sprite != null && sprite.getFrameCount() > 1) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	protected final IIngredientListElement<T> element;
 	protected Rectangle area = DEFAULT_AREA;
 	protected int padding;
 	private float renderScale = 1.0F;
+	@Nullable
+	private Boolean animated;
 
 	public IngredientRenderer(IIngredientListElement<T> element) {
 		this.element = element;
+	}
+
+	public boolean isAnimated() {
+		if (animated == null) {
+			animated = isAnimated(element.getIngredient());
+		}
+		return animated;
 	}
 
 	public void setArea(Rectangle area) {

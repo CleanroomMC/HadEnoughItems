@@ -37,7 +37,6 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
 
 	private List<IIngredientListElement> cachedDisplayElements = Collections.emptyList();
 	private IntList cachedDisplayGroupIndices = new IntArrayList();
-	private boolean renderingAnimationFrame;
 	private int lastStartIndex;
 	private List<IIngredientListElement> lastCollapsedList = Collections.emptyList();
 	@Nullable
@@ -372,17 +371,13 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
 
 	@Override
 	public void render(Minecraft minecraft) {
-		if (renderingAnimationFrame) {
-			super.render(minecraft);
-			return;
-		}
 		updateAnimationScales();
-		renderingAnimationFrame = true;
-		try {
-			super.render(minecraft);
-		} finally {
-			renderingAnimationFrame = false;
-		}
+		super.render(minecraft);
+	}
+
+	@Override
+	protected boolean canBuffer() {
+		return bookmarkAddAnimations.isEmpty() && super.canBuffer();
 	}
 
 	private void animateBookmarkAddition(BookmarkItem<?> bookmarkItem) {
@@ -425,24 +420,16 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
 
 		long now = Minecraft.getSystemTime();
 		bookmarkAddAnimations.entrySet().removeIf(entry -> now - entry.getValue() >= BOOKMARK_ADD_ANIMATION_DURATION_MS);
-		boolean visibleAnimation = false;
-
-		if (!bookmarkAddAnimations.isEmpty()) {
-			for (Map.Entry<IngredientRenderer<?>, BookmarkItem<?>> entry : ingredientRendererToBookmark.entrySet()) {
-				Long startTime = bookmarkAddAnimations.get(entry.getValue());
-				float scale = startTime == null ? 1.0F : getPopScale(now - startTime);
-				entry.getKey().setRenderScale(scale);
-				visibleAnimation |= startTime != null;
-			}
-			for (Map.Entry<CollapsedGroupRenderer, BookmarkItem> entry : collapsedRendererToBookmark.entrySet()) {
-				Long startTime = bookmarkAddAnimations.get(entry.getValue());
-				float scale = startTime == null ? 1.0F : getPopScale(now - startTime);
-				entry.getKey().setRenderScale(scale);
-				visibleAnimation |= startTime != null;
-			}
+		for (Map.Entry<IngredientRenderer<?>, BookmarkItem<?>> entry : ingredientRendererToBookmark.entrySet()) {
+			Long startTime = bookmarkAddAnimations.get(entry.getValue());
+			entry.getKey().setRenderScale(startTime == null ? 1.0F : getPopScale(now - startTime));
+		}
+		for (Map.Entry<CollapsedGroupRenderer, BookmarkItem> entry : collapsedRendererToBookmark.entrySet()) {
+			Long startTime = bookmarkAddAnimations.get(entry.getValue());
+			entry.getKey().setRenderScale(startTime == null ? 1.0F : getPopScale(now - startTime));
 		}
 
-		if (visibleAnimation || !bookmarkAddAnimations.isEmpty()) {
+		if (bookmarkAddAnimations.isEmpty()) {
 			invalidateBuffer();
 		}
 	}

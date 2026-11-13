@@ -34,14 +34,35 @@ public class CollapsedGroupRenderer implements IIngredientRenderer<CollapsedGrou
 	/** Singleton registered with the ingredient type system - {@code collapsedStack} is null. */
 	public static final CollapsedGroupRenderer INSTANCE = new CollapsedGroupRenderer(null);
 
+	@Nullable
 	private final CollapsedGroupIngredient collapsedStack;
 
 	private Rectangle area = new Rectangle(0, 0, 16, 16);
 	private int padding;
 	private float renderScale = 1.0F;
+	@Nullable
+	private Boolean animated;
 
-	public CollapsedGroupRenderer(CollapsedGroupIngredient collapsedStack) {
+	public CollapsedGroupRenderer(@Nullable CollapsedGroupIngredient collapsedStack) {
 		this.collapsedStack = collapsedStack;
+	}
+
+	public boolean isAnimated() {
+		if (animated == null) {
+			if (collapsedStack == null) {
+				return false;
+			}
+			List<IIngredientListElement<?>> ingredients = collapsedStack.getDisplayIngredients();
+			for (int i = 0; i < Math.min(2, ingredients.size()); i++) {
+				if (IngredientRenderer.isAnimated((ingredients.get(i).getIngredient()))) {
+					animated = true;
+				}
+			}
+			if (animated == null) {
+				animated = false;
+			}
+		}
+		return animated;
 	}
 
 	public void setArea(Rectangle area) {
