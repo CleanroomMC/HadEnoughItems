@@ -548,12 +548,14 @@ public class IngredientListBatchRenderer {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 		// 3d Items
+		GlStateManager.enableDepth();
 		GlStateManager.enableLighting();
 		for (ItemStackFastRenderer slot : renderItems3d) {
 			slot.renderItemAndEffectIntoGUI();
 		}
 
 		// 2d Items
+		GlStateManager.disableDepth();
 		GlStateManager.disableLighting();
 		for (ItemStackFastRenderer slot : renderItems2d) {
 			slot.renderItemAndEffectIntoGUI();
