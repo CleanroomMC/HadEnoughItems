@@ -128,7 +128,11 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 		}
 
 		this.focusedMatch = getMatch(displayIngredients, focus);
-		this.displayIngredients.addAll(filterOutHidden(displayIngredients));
+		if (!Config.isRecipeIngredientPreviewEnabled() && focusedMatch != null) {
+			this.displayIngredients.add(focusedMatch);
+		} else {
+			this.displayIngredients.addAll(filterOutHidden(displayIngredients));
+		}
 
 		if (ingredients != null) {
 			this.allIngredients.addAll(ingredients);
@@ -149,8 +153,6 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	public IngredientListPreview getIngredientPreview() {
 		if (ingredientPreviewInvalidated) {
 			ingredientPreviewInvalidated = false;
-			// A focused slot collapses displayIngredients down to the single match, which leaves
-			// fewer than two entries and so yields no preview.
 			ingredientPreview = Config.isRecipeIngredientPreviewEnabled()
 				? IngredientListPreview.create(this)
 				: null;
@@ -215,7 +217,7 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 			throw e;
 		}
 
-		if (displayIngredients.size() > 1) {
+		if (displayIngredients.size() > 1 && Config.isRecipeIngredientPreviewEnabled()) {
 			GlStateManager.enableAlpha();
 			GlStateManager.disableDepth();
 			Internal.getHelpers().getGuiHelper().getRecipeTransfer()
