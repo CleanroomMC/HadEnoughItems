@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.38.1 - 2026-11-16
+
+## Bug Fix
+
+- Stop recipe transfer handlers from stacking tooltip callbacks *[commit by [@Rongmario](https://github.com/Rongmario) in [dde1bcc](https://github.com/CleanroomMC/HadEnoughItems/commit/dde1bccae465a02353ac6149ed603cde144131a2)]*
+
+**Full Changelog**: https://github.com/CleanroomMC/HadEnoughItems/compare/4.38.0...4.38.1
+
 ## 4.38.0 - 2026-11-13
 
 ## Bug Fix
