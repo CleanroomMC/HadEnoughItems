@@ -47,6 +47,7 @@ public final class RecipeTransferUtil {
 			return RecipeTransferErrorInternal.INSTANCE;
 		}
 
+		recipeLayout.beginTransferEvaluation();
 		try {
 			//noinspection unchecked
 			return transferHandler.transferRecipe(container, recipeLayout, player, maxTransfer, doTransfer);
@@ -56,6 +57,8 @@ public final class RecipeTransferUtil {
 				transferHandler.getClass(), container.getClass(), recipeLayout.getRecipeCategory().getUid(), e
 			);
 			return RecipeTransferErrorInternal.INSTANCE;
+		} finally {
+			recipeLayout.endTransferEvaluation();
 		}
 	}
 }

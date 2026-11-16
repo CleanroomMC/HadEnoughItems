@@ -77,6 +77,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	private String recipeCategoryModId;
 	@Nullable
 	private ResourceLocation recipeId;
+	private boolean evaluatingTransfer;
 
 	private int posX;
 	private int posY;
@@ -330,6 +331,20 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		return null;
 	}
 
+	public void beginTransferEvaluation() {
+		evaluatingTransfer = true;
+		for (GuiIngredientGroup<?> guiIngredientGroup : guiIngredientGroups.values()) {
+			guiIngredientGroup.beginTransferCallbacks();
+		}
+	}
+
+	public void endTransferEvaluation() {
+		evaluatingTransfer = false;
+		for (GuiIngredientGroup<?> guiIngredientGroup : guiIngredientGroups.values()) {
+			guiIngredientGroup.endTransferCallbacks();
+		}
+	}
+
 	public boolean handleClick(Minecraft minecraft, int mouseX, int mouseY, int mouseButton) {
 		return recipeWrapper.handleClick(minecraft, mouseX - posX, mouseY - posY, mouseButton);
 	}
@@ -390,6 +405,9 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 				}
 			}
 			guiIngredientGroup = new GuiIngredientGroup<>(ingredientType, focus, ingredientCycleOffset);
+			if (evaluatingTransfer) {
+				guiIngredientGroup.beginTransferCallbacks();
+			}
 			guiIngredientGroups.put(ingredientType, guiIngredientGroup);
 		}
 		return guiIngredientGroup;

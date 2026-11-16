@@ -41,6 +41,13 @@ public class GuiIngredientGroup<T> implements IGuiIngredientGroup<T> {
 
 	private final List<ITooltipCallback<T>> tooltipCallbacks = new ArrayList<>();
 
+	// Transfer handlers (e.g. AE2) add a callback on every evaluation, each evaluation replaces the previous one's.
+	private final List<ITooltipCallback<T>> transferTooltipCallbacks = new ArrayList<>();
+	private final List<ITooltipCallback<T>> afterTooltipCallbacks = new ArrayList<>();
+	private List<ITooltipCallback<T>> allTooltipCallbacks = Collections.emptyList();
+	private boolean collectingTransferCallbacks;
+	private boolean transferCallbacksStale;
+
 	public GuiIngredientGroup(IIngredientType<T> ingredientType, @Nullable IFocus<T> focus, int cycleOffset) {
 		ErrorUtil.checkNotNull(ingredientType, "ingredientType");
 		this.ingredientType = ingredientType;
@@ -132,7 +139,33 @@ public class GuiIngredientGroup<T> implements IGuiIngredientGroup<T> {
 	@Override
 	public void addTooltipCallback(ITooltipCallback<T> tooltipCallback) {
 		ErrorUtil.checkNotNull(tooltipCallback, "tooltipCallback");
-		this.tooltipCallbacks.add(tooltipCallback);
+		if (collectingTransferCallbacks) {
+			if (transferCallbacksStale) {
+				transferTooltipCallbacks.clear();
+				transferCallbacksStale = false;
+			}
+			transferTooltipCallbacks.add(tooltipCallback);
+		} else {
+			tooltipCallbacks.add(tooltipCallback);
+		}
+		updateAllTooltipCallbacks();
+	}
+
+	public void beginTransferCallbacks() {
+		collectingTransferCallbacks = true;
+		transferCallbacksStale = true;
+	}
+
+	public void endTransferCallbacks() {
+		collectingTransferCallbacks = false;
+	}
+
+	private void updateAllTooltipCallbacks() {
+		List<ITooltipCallback<T>> all = new ArrayList<>(tooltipCallbacks.size() + transferTooltipCallbacks.size() + afterTooltipCallbacks.size());
+		all.addAll(tooltipCallbacks);
+		all.addAll(transferTooltipCallbacks);
+		all.addAll(afterTooltipCallbacks);
+		allTooltipCallbacks = all;
 	}
 
 	@Override
@@ -154,7 +187,7 @@ public class GuiIngredientGroup<T> implements IGuiIngredientGroup<T> {
 		for (GuiIngredient<T> ingredient : guiIngredients.values()) {
 			ingredient.draw(minecraft, xOffset, yOffset);
 			if (ingredient.isMouseOver(xOffset, yOffset, mouseX, mouseY)) {
-				ingredient.setTooltipCallbacks(tooltipCallbacks);
+				ingredient.setTooltipCallbacks(allTooltipCallbacks);
 				ingredient.drawHighlight(minecraft, highlightColor, xOffset, yOffset);
 			}
 		}
@@ -177,6 +210,8 @@ public class GuiIngredientGroup<T> implements IGuiIngredientGroup<T> {
 	 * Adds the tooltip callback after any existing tooltip callback
 	 */
 	public void addTooltipCallbackAfter(ITooltipCallback<T> tooltipCallback) {
-		addTooltipCallback(tooltipCallback);
+		ErrorUtil.checkNotNull(tooltipCallback, "tooltipCallback");
+		afterTooltipCallbacks.add(tooltipCallback);
+		updateAllTooltipCallbacks();
 	}
 }

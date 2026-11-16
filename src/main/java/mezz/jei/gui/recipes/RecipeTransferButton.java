@@ -58,7 +58,8 @@ public class RecipeTransferButton extends GuiIconButtonSmall {
 	}
 
 	public void drawRecipeError(Minecraft minecraft, int mouseX, int mouseY) {
-		if (enabled && recipeTransferError != null) {
+		// AE2 enables the button for USER_FACING errors, whose showError expects to run only on button hover
+		if (recipeTransferError != null && recipeTransferError.getType() == IRecipeTransferError.Type.COSMETIC) {
 			GlStateManager.pushMatrix();
 			try {
 				recipeTransferError.showError(minecraft, mouseX, mouseY, recipeLayout, recipeLayout.getPosX(), recipeLayout.getPosY());
