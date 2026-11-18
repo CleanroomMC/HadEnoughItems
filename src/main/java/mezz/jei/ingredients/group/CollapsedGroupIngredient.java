@@ -43,6 +43,8 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 	private final GroupSource source;
 	private final List<IIngredientListElement<?>> filterElements;
 	private final Set<String> uids;
+	/** Pre-extracted from {@code uids}: the prefix before {@code :*} for each wildcard entry. */
+	private final List<String> wildcardPrefixes;
 	private final int backgroundColor;
 	private final int borderColor;
 
@@ -61,6 +63,17 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 		this.filterElements = new ArrayList<>(uids.size());
 		this.backgroundColor = backgroundColor;
 		this.borderColor = borderColor;
+		// Pre-extract wildcard prefixes so matches() doesn't scan all UIDs on every call
+		List<String> wc = null;
+		for (String uid : uids) {
+			if (uid.endsWith(":*")) {
+				if (wc == null) {
+					wc = new ArrayList<>();
+				}
+				wc.add(uid.substring(0, uid.length() - 2));
+			}
+		}
+		this.wildcardPrefixes = wc != null ? Collections.unmodifiableList(wc) : Collections.emptyList();
 	}
 
 	public String getId() {
@@ -97,15 +110,21 @@ public class CollapsedGroupIngredient implements IIngredientListElement<Collapse
 
 	public boolean matches(IIngredientListElement element) {
 		String uid = element.getIngredientHelper().getUniqueId(element.getIngredient());
+		return matchesUid(uid);
+	}
+
+	/**
+	 * Matches against a pre-computed UID string.
+	 * Prefer this overload when checking many elements to avoid recomputing the UID per group.
+	 */
+	public boolean matchesUid(String uid) {
 		if (this.uids.contains(uid)) {
 			return true;
 		}
-		for (String stored : this.uids) {
-			if (stored.endsWith(":*")) {
-				String prefix = stored.substring(0, stored.length() - 2);
-				if (uid.equals(prefix) || uid.startsWith(prefix + ":")) {
-					return true;
-				}
+		for (String prefix : this.wildcardPrefixes) {
+			if (uid.startsWith(prefix) &&
+				(uid.length() == prefix.length() || uid.charAt(prefix.length()) == ':')) {
+				return true;
 			}
 		}
 		return false;
