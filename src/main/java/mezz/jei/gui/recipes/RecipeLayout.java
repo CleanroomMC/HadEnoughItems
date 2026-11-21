@@ -1,6 +1,5 @@
 package mezz.jei.gui.recipes;
 
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +9,11 @@ import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import mezz.jei.Internal;
-import mezz.jei.api.ingredients.IIngredientHelper;
-import mezz.jei.config.Config;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiFluidStackGroup;
 import mezz.jei.api.gui.IGuiIngredientGroup;
 import mezz.jei.api.gui.IRecipeLayoutDrawable;
+import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.ingredients.VanillaTypes;
@@ -26,6 +24,8 @@ import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.autocrafting.RecipeBookmarkGroup;
 import mezz.jei.autocrafting.RecipeBookmarkItem;
 import mezz.jei.bookmarks.BookmarkList;
+import mezz.jei.color.ColorUtil;
+import mezz.jei.config.Config;
 import mezz.jei.gui.Focus;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.elements.DrawableNineSliceTexture;
@@ -69,7 +69,6 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 	private final IRecipeWrapper recipeWrapper;
 	@Nullable
 	private final IFocus<?> focus;
-	private final Color highlightColor = new Color(0x7FFFFFFF, true);
 	@Nullable
 	private ShapelessIcon shapelessIcon;
 	private final DrawableNineSliceTexture recipeBorder;
@@ -204,7 +203,7 @@ public class RecipeLayout implements IRecipeLayoutDrawable {
 		GlStateManager.popMatrix();
 
 		for (GuiIngredientGroup guiIngredientGroup : guiIngredientGroups.values()) {
-			guiIngredientGroup.draw(minecraft, posX, posY, highlightColor, mouseX, mouseY);
+			guiIngredientGroup.draw(minecraft, posX, posY, ColorUtil.HOVER_HIGHLIGHT, mouseX, mouseY);
 		}
 		if (recipeTransferButton != null) {
 			float partialTicks = minecraft.getRenderPartialTicks();

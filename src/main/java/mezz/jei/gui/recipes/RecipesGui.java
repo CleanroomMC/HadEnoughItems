@@ -7,6 +7,7 @@ import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IDrawableStatic;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
+import mezz.jei.color.ColorUtil;
 import mezz.jei.config.Config;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.Focus;
@@ -269,6 +270,7 @@ public class RecipesGui extends GuiScreen implements IRecipesGui, IShowsRecipeFo
 			}
 
 			if (hoveredRecipeCatalyst != null) {
+				hoveredRecipeCatalyst.drawHighlight(mc, ColorUtil.HOVER_HIGHLIGHT, 0, 0);
 				hoveredRecipeCatalyst.drawOverlays(mc, 0, 0, mouseX, mouseY);
 			}
 		}
