@@ -66,6 +66,7 @@ key.hei.toggleBookmarkOverlay=Show/Hide Bookmarked Ingredients
 key.hei.crafting=Autocraft Bookmarked Recipe
 key.hei.moveGroupUp=Move Bookmark Group Up
 key.hei.moveGroupDown=Move Bookmark Group Down
+key.hei.toggleGroupCollapse=Collapse/Expand Recipe Bookmark Group
 key.jei.toggleCheatModeConfigButton=Toggle Cheat Mode (Config Button)
 key.jei.toggleHideIngredientsWhenNotSearching=Toggle Hide Ingredients When Not Searching (Config Button)
 key.jei.transferRecipeGui=Craft Hovered Recipe (One)
@@ -145,6 +146,8 @@ config.jei.advanced.ultraLowMemoryUsage=Ultra Low Memory Usage Mode
 config.jei.advanced.ultraLowMemoryUsage.comment=Enable ultra low memory usage mode, can slow down searching by a lot however.
 config.jei.advanced.recipeBookmarkGroupColor=Color of Recipe Bookmark Group
 config.jei.advanced.recipeBookmarkGroupColor.comment=Color of the recipe bookmark group in RGBA format.
+config.jei.advanced.recipeBookmarkGroupCollapsedColor=Color of Collapsed Recipe Bookmark Group
+config.jei.advanced.recipeBookmarkGroupCollapsedColor.comment=Color of a collapsed recipe bookmark group (only its first recipe row is shown) in RGBA format.
 
 # Hide Ingredients Mode
 gui.jei.editMode.description=HEI Hide Ingredients Mode:
@@ -270,6 +273,8 @@ hei.tooltip.organizer.5=§6%s§7 twice on this tab: Delete Group
 hei.tooltip.organizer.confirm_delete=§cPress §f%s§c again to delete this group
 hei.tooltip.organizer.3=§6CTRL + SCROLL§7: Change Final Output
 hei.tooltip.organizer.4=§6%s§7: Autocraft
+hei.tooltip.organizer.6=§6%s§7: Collapse/Expand Chain
+hei.tooltip.recipe_group.collapsed=§eCollapsed§7: %d more recipe rows hidden
 
 hei.gui.collapsible.title=Manage Groups
 hei.gui.collapsible.back=Back

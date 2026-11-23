@@ -434,6 +434,10 @@ public final class Config {
 		return values.recipeBookmarkGroupColor;
 	}
 
+	public static int getRecipeBookmarkGroupCollapsedColor() {
+		return values.recipeBookmarkGroupCollapsedColor;
+	}
+
 	public static List<String> categoryUidOrder() {
 		return values.categoryUidOrder;
 	}
@@ -612,6 +616,8 @@ public final class Config {
 		values.maxRecipeGuiHeight = config.getInt("maxRecipeGuiHeight", CATEGORY_ADVANCED, defaultValues.maxRecipeGuiHeight, minRecipeGuiHeight, maxRecipeGuiHeight);
 
 		values.recipeBookmarkGroupColor = config.getInt("recipeBookmarkGroupColor", CATEGORY_ADVANCED, defaultValues.recipeBookmarkGroupColor, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
+		values.recipeBookmarkGroupCollapsedColor = config.getInt("recipeBookmarkGroupCollapsedColor", CATEGORY_ADVANCED, defaultValues.recipeBookmarkGroupCollapsedColor, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
 		updateModNameFormat(config);
 
