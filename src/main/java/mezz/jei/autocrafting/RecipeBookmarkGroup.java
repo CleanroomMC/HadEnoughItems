@@ -43,6 +43,14 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
 	@Nullable
 	private List<IIngredientListElement<?>> displayElements;
 	private boolean builtWithRecipeBookmarksEnabled;
+	/**
+	 * Whether only the first recipe row is drawn. Purely a view setting: the chain, its solution and
+	 * autocrafting still see every step. Held for the session only, not written to the bookmark file.
+	 */
+	private boolean collapsed;
+	/** The first recipe row of {@link #displayElements}, rebuilt alongside it. */
+	@Nullable
+	private List<IIngredientListElement<?>> collapsedElements;
 
 	public RecipeBookmarkGroup(int id) {
 		super(id);
@@ -61,6 +69,41 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
 	void onChainChanged() {
 		this.displayRows = null;
 		this.displayElements = null;
+		this.collapsedElements = null;
+	}
+
+	/** True when the group is collapsed and actually has rows hidden. */
+	public boolean isCollapsed() {
+		return collapsed && canCollapse();
+	}
+
+	/** Only a chain of more than one recipe row has anything to hide. */
+	public boolean canCollapse() {
+		return getRecipeRowCount() > 1;
+	}
+
+	/** How many recipe rows the full chain draws. */
+	public int getRecipeRowCount() {
+		int rows = 0;
+		for (IIngredientListElement<?> element : getAllIngredientListElements()) {
+			if (element.startsNewRow()) {
+				rows++;
+			}
+		}
+		return rows;
+	}
+
+	/**
+	 * Switches between drawing the whole chain and only its first recipe row.
+	 *
+	 * @return false if nothing changed, because there is only one row to show anyway
+	 */
+	public boolean toggleCollapsed() {
+		if (!collapsed && !canCollapse()) {
+			return false;
+		}
+		collapsed = !collapsed;
+		return true;
 	}
 
 	/**
@@ -142,7 +185,7 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
 
 	@Override
 	public int getColor() {
-		return Config.getRecipeBookmarkGroupColor();
+		return isCollapsed() ? Config.getRecipeBookmarkGroupCollapsedColor() : Config.getRecipeBookmarkGroupColor();
 	}
 
 	/**
@@ -186,10 +229,31 @@ public class RecipeBookmarkGroup extends BookmarkGroup {
 		return rows;
 	}
 
+	/** What the overlay draws: the whole chain, or only its first recipe row while collapsed. */
 	@Override
 	public List<IIngredientListElement<?>> getIngredientListElements() {
+		List<IIngredientListElement<?>> all = getAllIngredientListElements();
+		if (!collapsed) {
+			return all;
+		}
+		if (collapsedElements == null) {
+			int end = all.size();
+			for (int i = 1; i < all.size(); i++) {
+				if (all.get(i).startsNewRow()) {
+					end = i;
+					break;
+				}
+			}
+			collapsedElements = end == all.size() ? all : all.subList(0, end);
+		}
+		return collapsedElements;
+	}
+
+	/** Every row of the chain, regardless of whether the group is collapsed. */
+	private List<IIngredientListElement<?>> getAllIngredientListElements() {
 		List<BookmarkItem<?>> rows = displayRows(); // May clear displayElements.
 		if (displayElements == null) {
+			collapsedElements = null;
 			List<IIngredientListElement<?>> elements = new ObjectArrayList<>(rows.size());
 			for (BookmarkItem<?> row : rows) {
 				IIngredientListElement<?> element = getIngredientListElement(row);

@@ -41,6 +41,7 @@ public final class KeyBindings {
 	public static final KeyBinding crafting;
 	public static final KeyBinding moveGroupUp;
 	public static final KeyBinding moveGroupDown;
+	public static final KeyBinding toggleGroupCollapse;
 
 	/** Changed to {@link #bookmark} */
 	@Deprecated
@@ -78,7 +79,8 @@ public final class KeyBindings {
 			toggleBookmarkOverlay = new KeyBinding("key.hei.toggleBookmarkOverlay", KeyConflictContext.GUI, Keyboard.KEY_NONE, categoryName),
 			crafting = new KeyBinding("key.hei.crafting", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_C, categoryName),
 			moveGroupUp = new KeyBinding("key.hei.moveGroupUp", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_UP, categoryName),
-			moveGroupDown = new KeyBinding("key.hei.moveGroupDown", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_DOWN, categoryName)
+			moveGroupDown = new KeyBinding("key.hei.moveGroupDown", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_DOWN, categoryName),
+			toggleGroupCollapse = new KeyBinding("key.hei.toggleGroupCollapse", KeyConflictContext.GUI, KeyModifier.SHIFT, Keyboard.KEY_X, categoryName)
 		);
 
 		recipeBookmark = bookmark;

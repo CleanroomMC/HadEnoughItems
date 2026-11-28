@@ -23,6 +23,7 @@ public class ConfigValues {
 	public int maxColumns = 100;
 	public int maxRecipeGuiHeight = 350;
 	public int recipeBookmarkGroupColor = 0x9F00FF00;
+	public int recipeBookmarkGroupCollapsedColor = 0x9FFFAA00;
 
 	// search
 	public Config.SearchMode modNameSearchMode = Config.SearchMode.REQUIRE_PREFIX;

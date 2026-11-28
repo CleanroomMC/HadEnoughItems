@@ -181,7 +181,11 @@ public class BookmarkGroupOrganizer {
 			List<IngredientListBatchRenderer> slotRows = new ArrayList<>();
 
 			if (group.group instanceof RecipeBookmarkGroup) {
+				RecipeBookmarkGroup recipeGroup = (RecipeBookmarkGroup) group.group;
 				tooltips.add(Translator.translateToLocal("hei.tooltip.recipe_group"));
+				if (recipeGroup.isCollapsed()) {
+					tooltips.add(Translator.translateToLocalFormatted("hei.tooltip.recipe_group.collapsed", recipeGroup.getRecipeRowCount() - 1));
+				}
 			} else {
 				tooltips.add(Translator.translateToLocal("hei.tooltip.item_group"));
 			}
@@ -197,6 +201,9 @@ public class BookmarkGroupOrganizer {
 				tooltips.add(Translator.translateToLocalFormatted("hei.tooltip.organizer.5", KeyBindings.bookmark.getDisplayName()));
 				if (group.group instanceof RecipeBookmarkGroup) {
 					tooltips.add(Translator.translateToLocal("hei.tooltip.organizer.3"));
+					if (((RecipeBookmarkGroup) group.group).canCollapse()) {
+						tooltips.add(Translator.translateToLocalFormatted("hei.tooltip.organizer.6", KeyBindings.toggleGroupCollapse.getDisplayName()));
+					}
 					if (Config.isAutocraftingEnabled()) {
 						tooltips.add(Translator.translateToLocalFormatted("hei.tooltip.organizer.4", KeyBindings.crafting.getDisplayName()));
 					}
@@ -312,6 +319,17 @@ public class BookmarkGroupOrganizer {
 				if (bookmarkList.removeGroup(group.group)) {
 					return true;
 				}
+			}
+			if (KeyBindings.toggleGroupCollapse.isActiveAndMatches(eventKey) && !Keyboard.isRepeatEvent()
+				&& area.contains(mouseX, mouseY)
+				&& group.group instanceof RecipeBookmarkGroup
+				&& ((RecipeBookmarkGroup) group.group).toggleCollapsed()) {
+				invalidateMissingIngredients();
+				if (bookmarkRenderer != null) {
+					// Rebuilds this.groups, so stop iterating it straight away.
+					bookmarkRenderer.notifyLayoutChanged();
+				}
+				return true;
 			}
 			if (KeyBindings.crafting.isActiveAndMatches(eventKey) && Config.isAutocraftingEnabled()) {
 				if (group.group instanceof RecipeBookmarkGroup) {

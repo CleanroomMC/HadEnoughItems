@@ -77,6 +77,14 @@ public class BookmarkListBatchRenderer extends IngredientListBatchRenderer {
 		if (!bookmarkExpandedItems.remove(item)) {
 			bookmarkExpandedItems.add(item);
 		}
+		notifyLayoutChanged();
+	}
+
+	/**
+	 * Lays the grid out again on the current page, for changes in how bookmarks are shown rather than in
+	 * the bookmarks themselves (which would otherwise jump the view to the last page).
+	 */
+	public void notifyLayoutChanged() {
 		for (Runnable listener : bookmarkCollapseListeners) {
 			listener.run();
 		}
