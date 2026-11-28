@@ -108,7 +108,7 @@ public class InputHandler {
 	@SubscribeEvent
 	public void onGuiKeyboardEvent(GuiScreenEvent.KeyboardInputEvent.Pre event) {
 		GuiScreen guiScreen = event.getGui();
-		if (guiScreenHelper.getGuiProperties(guiScreen) != null && hasKeyboardFocus()) {
+		if (isActiveScreenWithHei(guiScreen) && hasKeyboardFocus()) {
 			handleKeyEvent();
 			event.setCanceled(true);
 		}
@@ -120,16 +120,25 @@ public class InputHandler {
 	@SubscribeEvent
 	public void onGuiKeyboardEvent(GuiScreenEvent.KeyboardInputEvent.Post event) {
 		GuiScreen guiScreen = event.getGui();
-		if (guiScreenHelper.getGuiProperties(guiScreen) != null && !hasKeyboardFocus() && handleKeyEvent()) {
+		if (isActiveScreenWithHei(guiScreen) && !hasKeyboardFocus() && handleKeyEvent()) {
 			event.setCanceled(true);
 		}
+	}
+
+	/**
+	 * A screen keeps draining its queued input events after one of them closes it, so input events can
+	 * still be posted for a screen that is no longer open. Some screens (e.g. ModularUI) are disposed on close
+	 * and throw if queried for {@link mezz.jei.api.gui.IGuiProperties}, so only consult the screen that is open.
+	 */
+	private boolean isActiveScreenWithHei(GuiScreen guiScreen) {
+		return guiScreen == Minecraft.getMinecraft().currentScreen && guiScreenHelper.getGuiProperties(guiScreen) != null;
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
 	public void onGuiMouseEvent(GuiScreenEvent.MouseInputEvent.Pre event) {
 		this.deferMouseEventCancellation = false;
 		GuiScreen guiScreen = event.getGui();
-		if (guiScreenHelper.getGuiProperties(guiScreen) == null) {
+		if (!isActiveScreenWithHei(guiScreen)) {
 			return;
 		}
 		Minecraft minecraft = guiScreen.mc;
